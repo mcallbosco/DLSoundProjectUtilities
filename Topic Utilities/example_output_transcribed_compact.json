@@ -1,0 +1,148 @@
+{
+  "Astro": {
+    "Operative": {
+      "Abilities": [
+        {
+          "filename": "astro_operative_ability_heal.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_operative_ability_heal",
+          "transcription": "I've got you covered. Healing deployed."
+        },
+        {
+          "filename": "astro_operative_ability_shield.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_operative_ability_shield",
+          "transcription": "Shield activated. Stay behind me."
+        }
+      ],
+      "Interactions": [
+        {
+          "filename": "astro_operative_interaction_greeting.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_operative_interaction_greeting",
+          "transcription": "Good to see you, Operative. Ready for the mission?"
+        },
+        {
+          "filename": "astro_operative_interaction_thanks.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_operative_interaction_thanks",
+          "transcription": "Thanks for the assist. I owe you one."
+        }
+      ],
+      "Pings": {
+        "Help": [
+          {
+            "filename": "astro_operative_ping_help.mp3",
+            "date": "2023-06-15",
+            "voiceline_id": "astro_operative_ping_help",
+            "transcription": "Operative, I need backup here!"
+          },
+          {
+            "filename": "astro_operative_ping_help_urgent.mp3",
+            "date": "2023-06-15",
+            "voiceline_id": "astro_operative_ping_help_urgent",
+            "transcription": "Operative! Critical situation! Need immediate assistance!"
+          }
+        ],
+        "Enemy": [
+          {
+            "filename": "astro_operative_ping_enemy.mp3",
+            "date": "2023-06-15",
+            "voiceline_id": "astro_operative_ping_enemy",
+            "transcription": "Operative, enemy spotted at your three o'clock."
+          }
+        ]
+      }
+    },
+    "Haze": {
+      "Abilities": [
+        {
+          "filename": "astro_haze_ability_stealth.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_haze_ability_stealth",
+          "transcription": "Haze, activating stealth protocol. Cover me."
+        }
+      ],
+      "Interactions": [
+        {
+          "filename": "astro_haze_interaction_greeting.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_haze_interaction_greeting",
+          "transcription": "Haze, good to see you're still in one piece."
+        },
+        {
+          "filename": "astro_haze_interaction_joke.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "astro_haze_interaction_joke",
+          "transcription": "You know, Haze, for someone who's supposed to be stealthy, you make a lot of noise."
+        }
+      ]
+    }
+  },
+  "Operative": {
+    "Astro": {
+      "Abilities": [
+        {
+          "filename": "operative_astro_ability_boost.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "operative_astro_ability_boost",
+          "transcription": "Astro, I'm boosting your shields. Hold position."
+        }
+      ],
+      "Interactions": [
+        {
+          "filename": "operative_astro_interaction_greeting.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "operative_astro_interaction_greeting",
+          "transcription": "Astro, ready for deployment. What's the plan?"
+        }
+      ],
+      "Pings": {
+        "Help": [
+          {
+            "filename": "operative_astro_ping_help.mp3",
+            "date": "2023-06-15",
+            "voiceline_id": "operative_astro_ping_help",
+            "transcription": "Astro! Need medical support, stat!"
+          }
+        ]
+      }
+    },
+    "Deadlock": {
+      "Combat": [
+        {
+          "filename": "operative_deadlock_combat_start.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "operative_deadlock_combat_start",
+          "transcription": "Deadlock engaged. Commencing tactical operations."
+        },
+        {
+          "filename": "operative_deadlock_combat_victory.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "operative_deadlock_combat_victory",
+          "transcription": "Deadlock neutralized. Mission accomplished."
+        }
+      ]
+    }
+  },
+  "Haze": {
+    "Astro": {
+      "Abilities": [
+        {
+          "filename": "haze_astro_ability_cloak.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "haze_astro_ability_cloak",
+          "transcription": "Astro, I'm cloaking you. They won't see you coming."
+        }
+      ],
+      "Interactions": [
+        {
+          "filename": "haze_astro_interaction_greeting.mp3",
+          "date": "2023-06-15",
+          "voiceline_id": "haze_astro_interaction_greeting",
+          "transcription": "Hey Astro, still playing the hero I see."
+        }
+      ]
+    }
+  }
+} 

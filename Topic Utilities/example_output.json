@@ -1,0 +1,86 @@
+{
+  "Astro": {
+    "Operative": {
+      "Killed In Lane": [
+        "astro\\astro_ally_operative_killed_in_lane_01.mp3"
+      ],
+      "Pass On Zipline": [
+        "astro\\astro_ally_operative_pass_on_zipline_01.mp3",
+        "astro\\astro_ally_operative_pass_on_zipline_01_alt_01.mp3"
+      ],
+      "Kill": [
+        "astro\\astro_kill_operative_01.mp3"
+      ],
+      "Pings": {
+        "Attack": [
+          "astro\\astro_ping_attack_operative_01.mp3"
+        ],
+        "See": [
+          "astro\\astro_ping_see_operative_01.mp3"
+        ],
+        "With": [
+          "astro\\astro_ping_with_operative_01.mp3"
+        ]
+      }
+    },
+    "Dynamo": {
+      "Big Ult": [
+        "astro\\astro_enemy_dynamo_big_ult_01.mp3"
+      ],
+      "Pings": {
+        "Careful": [
+          "astro\\astro_ping_careful_dynamo_01.mp3"
+        ]
+      }
+    },
+    "Self": {
+      "Pre Game": [
+        "astro\\astro_ping_pre_game_01.mp3"
+      ],
+      "Post Game": [
+        "astro\\astro_ping_post_game_01.mp3"
+      ]
+    }
+  },
+  "Dynamo": {
+    "Astro": {
+      "Far Shot": [
+        "dynamo\\dynamo_ally_astro_far_shot_01.mp3"
+      ],
+      "Kill": [
+        "dynamo\\dynamo_kill_astro_01.mp3"
+      ]
+    }
+  },
+  "Patron Male": {
+    "Operative": {
+      "Greeting (Ally)": [
+        "patron_male_ally_operative_greeting_01.mp3"
+      ],
+      "Ally Update": [
+        "patron_male_bespoke_ally_update_operative.mp3"
+      ],
+      "Bespoke": [
+        "patron_male_bespoke_for_operative.mp3"
+      ]
+    },
+    "Dynamo": {
+      "Attack (Enemy)": [
+        "patron_male_enemy_dynamo_attack_01.mp3"
+      ],
+      "Enemy Update": [
+        "patron_male_bespoke_enemy_update_dynamo.mp3"
+      ]
+    }
+  },
+  "Patron Female": {
+    "Astro": {
+      "Greeting (Ally)": [
+        "patron_female_ally_astro_greeting_01.mp3"
+      ],
+      "Ally Update": [
+        "patron_female_bespoke_ally_update_astro.mp3"
+      ]
+    }
+  }
+} 
