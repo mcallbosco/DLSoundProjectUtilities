@@ -1,0 +1,26 @@
+{
+  "file": "chrono_match_start_atlas_chrono_convo02_05.mp3",
+  "text": "We like secrets, and you seem to have a knack for finding them. But a word of advice. Some things aren't meant to be revealed. Stop asking questions about us.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.400000095367432,
+      "text": "We like secrets, and you seem to have a knack for finding them."
+    },
+    {
+      "start": 5.440000057220459,
+      "end": 6.71999979019165,
+      "text": "But a word of advice."
+    },
+    {
+      "start": 7.840000152587891,
+      "end": 9.84000015258789,
+      "text": "Some things aren't meant to be revealed."
+    },
+    {
+      "start": 11.199999809265137,
+      "end": 13.279999732971191,
+      "text": "Stop asking questions about us."
+    }
+  ]
+}
