@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_enemy_astro_bounce_escape_02",
+  "timestamp": "2025-03-12T12:29:04.602643",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " She got away!",
+      "part": 1
+    }
+  ]
+}

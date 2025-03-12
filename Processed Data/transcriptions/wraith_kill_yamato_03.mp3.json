@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_yamato_03",
+  "timestamp": "2025-03-12T03:52:25.891749",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Took out Yamato!",
+      "part": 1
+    }
+  ]
+}

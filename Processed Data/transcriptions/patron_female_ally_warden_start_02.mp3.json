@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_warden_start_02",
+  "timestamp": "2025-03-12T03:31:32.943304",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " Be fearless, Warden.",
+      "part": 1
+    }
+  ]
+}

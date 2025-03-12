@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_haze_dead",
+  "timestamp": "2025-03-12T12:27:58.336473",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Haze is dead.",
+      "part": 1
+    }
+  ]
+}

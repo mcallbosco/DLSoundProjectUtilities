@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_krill_killing_streak_high_01",
+  "timestamp": "2025-03-12T04:01:01.167283",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " The Tunnel Rats need to be stopped.",
+      "part": 1
+    }
+  ]
+}

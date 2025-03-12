@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_wraith_in_mid",
+  "timestamp": "2025-03-12T03:39:55.250542",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRAITHS IN MID!",
+      "part": 1
+    }
+  ]
+}

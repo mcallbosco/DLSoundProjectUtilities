@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_enemy_ghost_start_04",
+  "timestamp": "2025-03-12T12:32:57.913328",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.800000190734863,
+      "text": " Geist sustains herself on the lives of others.",
+      "part": 1
+    },
+    {
+      "start": 4.800000190734863,
+      "end": 6.800000190734863,
+      "text": " Tread carefully.",
+      "part": 2
+    }
+  ]
+}

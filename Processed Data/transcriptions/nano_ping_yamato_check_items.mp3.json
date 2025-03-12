@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_yamato_check_items",
+  "timestamp": "2025-03-12T04:02:40.112701",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Yamato bought.",
+      "part": 1
+    }
+  ]
+}

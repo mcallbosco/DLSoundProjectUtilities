@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_warden_check_items",
+  "timestamp": "2025-03-12T03:35:46.133210",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Warden bought!",
+      "part": 1
+    }
+  ]
+}

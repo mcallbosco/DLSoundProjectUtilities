@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_unselect_10",
+  "timestamp": "2025-03-12T04:01:02.890361",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " I've had my fill of the supernatural for now.",
+      "part": 1
+    }
+  ]
+}

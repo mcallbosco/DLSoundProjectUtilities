@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_wraith_on_roof",
+  "timestamp": "2025-03-12T03:31:27.924614",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Wraith's on the roof.",
+      "part": 1
+    }
+  ]
+}

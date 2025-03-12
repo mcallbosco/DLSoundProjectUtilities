@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_nano_01",
+  "timestamp": "2025-03-12T12:26:35.147511",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " Your machinations will end, Nano.",
+      "part": 1
+    }
+  ]
+}

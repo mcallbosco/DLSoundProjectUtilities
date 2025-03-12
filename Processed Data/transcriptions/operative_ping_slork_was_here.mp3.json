@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_slork_was_here",
+  "timestamp": "2025-03-12T03:49:20.722430",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " FADAM was here.",
+      "part": 1
+    }
+  ]
+}

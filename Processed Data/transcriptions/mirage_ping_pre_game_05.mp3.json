@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_pre_game_05",
+  "timestamp": "2025-03-12T04:06:32.607611",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " Summoning the patrons will be no small task.",
+      "part": 1
+    }
+  ]
+}

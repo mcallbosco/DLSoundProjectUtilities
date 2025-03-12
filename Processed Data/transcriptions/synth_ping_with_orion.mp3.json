@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_with_orion",
+  "timestamp": "2025-03-12T03:27:56.571911",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Talon.",
+      "part": 1
+    }
+  ]
+}

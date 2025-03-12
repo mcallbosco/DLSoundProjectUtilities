@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_lash_start_03",
+  "timestamp": "2025-03-12T04:03:47.467432",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.399999618530273,
+      "text": " The ritual awaits, Lash, and once you complete it, your greatness will no longer be in doubt.",
+      "part": 1
+    }
+  ]
+}

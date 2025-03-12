@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_inferno_check_items",
+  "timestamp": "2025-03-12T12:24:35.025408",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Infernus bought!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_warden_01",
+  "timestamp": "2025-03-12T03:32:16.854072",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.319999933242798,
+      "text": " I see you, Warden.",
+      "part": 1
+    }
+  ]
+}

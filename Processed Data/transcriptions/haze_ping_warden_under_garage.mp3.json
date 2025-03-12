@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_warden_under_garage",
+  "timestamp": "2025-03-12T03:43:19.911981",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wardens under the garage.",
+      "part": 1
+    }
+  ]
+}

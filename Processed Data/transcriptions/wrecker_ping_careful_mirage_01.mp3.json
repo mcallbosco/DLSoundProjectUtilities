@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_mirage_01",
+  "timestamp": "2025-03-12T12:49:11.507885",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Mirage.",
+      "part": 1
+    }
+  ]
+}

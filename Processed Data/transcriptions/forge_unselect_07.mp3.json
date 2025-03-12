@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_unselect_07",
+  "timestamp": "2025-03-12T12:30:55.363407",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Sorry, the boys in the shop need my help.",
+      "part": 1
+    }
+  ]
+}

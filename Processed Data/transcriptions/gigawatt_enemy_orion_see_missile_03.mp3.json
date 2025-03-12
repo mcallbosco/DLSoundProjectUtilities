@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_orion_see_missile_03",
+  "timestamp": "2025-03-12T12:48:22.896247",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't let Grey Talon catch you!",
+      "part": 1
+    }
+  ]
+}

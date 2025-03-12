@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_saw_chrono",
+  "timestamp": "2025-03-12T03:44:12.428846",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " I saw Paradox!",
+      "part": 1
+    }
+  ]
+}

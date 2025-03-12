@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_saw_lash",
+  "timestamp": "2025-03-12T03:32:23.350636",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.800000011920929,
+      "text": " I saw Lash.",
+      "part": 1
+    }
+  ]
+}

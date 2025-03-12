@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_nano_on_top_of_garage",
+  "timestamp": "2025-03-12T04:03:16.765325",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u30ad\u30e3\u30ea\u30a2\u306f\u30ac\u30ec\u30c3\u30b8\u306e\u4e0a\u306b\u3044\u307e\u3059\u3002",
+      "part": 1
+    }
+  ]
+}

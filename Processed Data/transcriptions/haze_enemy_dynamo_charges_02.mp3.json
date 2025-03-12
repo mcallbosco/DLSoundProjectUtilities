@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_dynamo_charges_02",
+  "timestamp": "2025-03-12T03:29:18.322309",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " He's going to drop a black hole!",
+      "part": 1
+    }
+  ]
+}

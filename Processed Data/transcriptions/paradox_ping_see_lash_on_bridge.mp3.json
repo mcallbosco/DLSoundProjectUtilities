@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_lash_on_bridge",
+  "timestamp": "2025-03-12T03:51:56.773393",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lashes on the bridge.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_for_forge",
+  "timestamp": "2025-03-12T03:41:28.793113",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.359999895095825,
+      "text": " Your machines are running rampant on the battlefield!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_wraith_on_roof",
+  "timestamp": "2025-03-12T03:42:17.835106",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith is on the roof!",
+      "part": 1
+    }
+  ]
+}

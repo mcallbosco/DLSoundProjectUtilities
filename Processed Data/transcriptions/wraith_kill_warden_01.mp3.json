@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_warden_01",
+  "timestamp": "2025-03-12T03:56:35.088337",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " Nothing scarier than a man with conviction.",
+      "part": 1
+    }
+  ]
+}

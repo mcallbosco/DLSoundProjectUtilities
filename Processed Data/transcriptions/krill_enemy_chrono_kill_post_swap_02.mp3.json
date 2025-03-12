@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_enemy_chrono_kill_post_swap_02",
+  "timestamp": "2025-03-12T04:02:59.188785",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You'll have to do better than that, Paradox!",
+      "part": 1
+    }
+  ]
+}

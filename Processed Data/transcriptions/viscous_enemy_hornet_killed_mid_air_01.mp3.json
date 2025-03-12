@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_enemy_hornet_killed_mid_air_01",
+  "timestamp": "2025-03-12T03:50:08.720673",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Sorry, Vindicta.",
+      "part": 1
+    }
+  ]
+}

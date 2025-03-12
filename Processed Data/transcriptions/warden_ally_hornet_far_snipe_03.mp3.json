@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_hornet_far_snipe_03",
+  "timestamp": "2025-03-12T04:07:33.303952",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They never even saw that coming.",
+      "part": 1
+    }
+  ]
+}

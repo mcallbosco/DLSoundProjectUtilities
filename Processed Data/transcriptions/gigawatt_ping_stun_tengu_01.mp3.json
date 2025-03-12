@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_stun_tengu_01",
+  "timestamp": "2025-03-12T12:32:33.089181",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Ivy.",
+      "part": 1
+    }
+  ]
+}

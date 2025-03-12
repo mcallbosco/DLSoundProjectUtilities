@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_kelvin_02",
+  "timestamp": "2025-03-12T03:27:54.323098",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Killed the Ice White.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_ignore_abrams",
+  "timestamp": "2025-03-12T12:44:25.145998",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " IGNORE ABRAMS!",
+      "part": 1
+    }
+  ]
+}

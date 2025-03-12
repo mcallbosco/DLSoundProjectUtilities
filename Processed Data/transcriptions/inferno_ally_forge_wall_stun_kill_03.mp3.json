@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ally_forge_wall_stun_kill_03",
+  "timestamp": "2025-03-12T03:27:45.563442",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good Wall.",
+      "part": 1
+    }
+  ]
+}

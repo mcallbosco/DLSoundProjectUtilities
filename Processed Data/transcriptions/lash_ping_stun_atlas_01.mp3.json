@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_stun_atlas_01",
+  "timestamp": "2025-03-12T03:54:42.566206",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Abrams!",
+      "part": 1
+    }
+  ]
+}

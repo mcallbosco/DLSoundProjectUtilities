@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_viscous_clutch_cube_01",
+  "timestamp": "2025-03-12T03:42:24.393357",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks, Viscous.",
+      "part": 1
+    }
+  ]
+}

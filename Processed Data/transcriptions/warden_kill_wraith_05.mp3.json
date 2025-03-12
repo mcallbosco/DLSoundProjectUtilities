@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_wraith_05",
+  "timestamp": "2025-03-12T03:38:24.926303",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5199999809265137,
+      "text": " Wraith, picking a fight with me was a mistake.",
+      "part": 1
+    }
+  ]
+}

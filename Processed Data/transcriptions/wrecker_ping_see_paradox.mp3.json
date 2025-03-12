@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_paradox",
+  "timestamp": "2025-03-12T12:48:29.833426",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.1600000858306885,
+      "text": " I see Paradox.",
+      "part": 1
+    }
+  ]
+}

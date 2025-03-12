@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ally_warden_big_ult_01",
+  "timestamp": "2025-03-12T03:44:25.278795",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.299999952316284,
+      "text": " Good job, Warden, that was madness!",
+      "part": 1
+    }
+  ]
+}

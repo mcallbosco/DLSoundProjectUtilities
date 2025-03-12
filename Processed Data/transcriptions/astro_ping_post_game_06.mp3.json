@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_post_game_06",
+  "timestamp": "2025-03-12T12:39:18.289549",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Ah, it's over.",
+      "part": 1
+    }
+  ]
+}

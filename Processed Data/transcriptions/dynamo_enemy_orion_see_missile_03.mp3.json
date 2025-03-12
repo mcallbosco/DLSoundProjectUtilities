@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_enemy_orion_see_missile_03",
+  "timestamp": "2025-03-12T12:24:29.599197",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Talon's looking for us.",
+      "part": 1
+    }
+  ]
+}

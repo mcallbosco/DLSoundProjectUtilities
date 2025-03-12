@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_with_chrono",
+  "timestamp": "2025-03-12T03:49:29.423340",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.600000023841858,
+      "text": " I'm with you, Paradox.",
+      "part": 1
+    }
+  ]
+}

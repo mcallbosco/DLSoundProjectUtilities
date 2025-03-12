@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_haze_killing_streak_low_01",
+  "timestamp": "2025-03-12T12:29:17.458531",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't let the Dreamstalker pull ahead!",
+      "part": 1
+    }
+  ]
+}

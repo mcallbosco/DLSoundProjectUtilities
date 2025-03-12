@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_saw_warden",
+  "timestamp": "2025-03-12T03:47:43.099684",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Warden!",
+      "part": 1
+    }
+  ]
+}

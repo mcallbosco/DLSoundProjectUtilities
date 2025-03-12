@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_unselect_01",
+  "timestamp": "2025-03-12T04:01:23.596033",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.680000066757202,
+      "text": " Ha ha ha, ah, good one. Wait, you're serious?",
+      "part": 1
+    }
+  ]
+}

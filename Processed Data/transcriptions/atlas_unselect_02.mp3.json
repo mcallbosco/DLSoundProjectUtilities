@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_unselect_02",
+  "timestamp": "2025-03-12T12:28:04.670135",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " You got my number, call me anytime.",
+      "part": 1
+    }
+  ]
+}

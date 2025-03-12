@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_shiv_almost_respawn",
+  "timestamp": "2025-03-12T03:37:48.781151",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv is almost back.",
+      "part": 1
+    }
+  ]
+}

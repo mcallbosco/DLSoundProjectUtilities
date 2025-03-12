@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_hornet_04",
+  "timestamp": "2025-03-12T03:31:23.506060",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.700000047683716,
+      "text": " I'm not some tourist you can pick off, Vindicta.",
+      "part": 1
+    }
+  ]
+}

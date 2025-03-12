@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_see_yamato_on_roof",
+  "timestamp": "2025-03-12T03:35:33.385295",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato's on the roof!",
+      "part": 1
+    }
+  ]
+}

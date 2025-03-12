@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_saw_chrono",
+  "timestamp": "2025-03-12T12:47:25.004449",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw a paradox.",
+      "part": 1
+    }
+  ]
+}

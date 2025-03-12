@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_chrono_kill_post_swap_03",
+  "timestamp": "2025-03-12T12:31:14.902177",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You really think your little party trick would make a difference?",
+      "part": 1
+    }
+  ]
+}

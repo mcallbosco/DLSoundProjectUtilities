@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_for_tengu",
+  "timestamp": "2025-03-12T03:29:41.482115",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.5,
+      "text": " Ivy, your teamwork made it possible to take on so many objectives.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_bebop_uppercut_towards_boss_03",
+  "timestamp": "2025-03-12T04:01:51.422332",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good call, Bebop.",
+      "part": 1
+    }
+  ]
+}

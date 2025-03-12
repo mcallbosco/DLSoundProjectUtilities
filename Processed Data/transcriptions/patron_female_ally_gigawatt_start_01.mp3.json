@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_gigawatt_start_01",
+  "timestamp": "2025-03-12T03:39:22.132061",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 10.0,
+      "text": " Your freedom, your life, all was taken from your Seven, but it can be restored.",
+      "part": 1
+    }
+  ]
+}

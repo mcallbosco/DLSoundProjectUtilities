@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_yamato_was_here",
+  "timestamp": "2025-03-12T04:06:54.782292",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato is here!",
+      "part": 1
+    }
+  ]
+}

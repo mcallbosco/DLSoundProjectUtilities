@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_stun_krill_01",
+  "timestamp": "2025-03-12T04:07:57.116627",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Krill!",
+      "part": 1
+    }
+  ]
+}

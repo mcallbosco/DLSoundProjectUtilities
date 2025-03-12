@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_unselect_09",
+  "timestamp": "2025-03-12T04:12:01.449409",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " Looks like I'll be hanging out with my good friend Bourbon today.",
+      "part": 1
+    }
+  ]
+}

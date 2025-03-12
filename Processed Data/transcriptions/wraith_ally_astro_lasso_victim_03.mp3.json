@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_astro_lasso_victim_03",
+  "timestamp": "2025-03-12T03:03:25.474886",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see you, Holiday!",
+      "part": 1
+    }
+  ]
+}

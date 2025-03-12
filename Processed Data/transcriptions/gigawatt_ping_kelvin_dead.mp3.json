@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_kelvin_dead",
+  "timestamp": "2025-03-12T12:46:01.144627",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KELVIN IS DEAD",
+      "part": 1
+    }
+  ]
+}

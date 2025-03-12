@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_orion_killing_streak_medium_01",
+  "timestamp": "2025-03-12T12:35:57.663124",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Stop Grey Talon and his accursed owl!",
+      "part": 1
+    }
+  ]
+}

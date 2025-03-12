@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_astro_dead",
+  "timestamp": "2025-03-12T12:35:35.245265",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "HOLLIDAY IS DEAD",
+      "part": 1
+    }
+  ]
+}

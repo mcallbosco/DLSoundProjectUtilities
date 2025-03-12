@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_see_orion_on_bridge",
+  "timestamp": "2025-03-12T03:04:18.953606",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Great talent on the bridge.",
+      "part": 1
+    }
+  ]
+}

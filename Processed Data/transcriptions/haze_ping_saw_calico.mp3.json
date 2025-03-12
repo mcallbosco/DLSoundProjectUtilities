@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_saw_calico",
+  "timestamp": "2025-03-12T12:44:17.750021",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Calico.",
+      "part": 1
+    }
+  ]
+}

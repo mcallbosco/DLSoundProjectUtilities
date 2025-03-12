@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_select_04",
+  "timestamp": "2025-03-12T03:50:10.911270",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5999999046325684,
+      "text": " I will play my part, and in doing so build a home for the Djinn.",
+      "part": 1
+    }
+  ]
+}

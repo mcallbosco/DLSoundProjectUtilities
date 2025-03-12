@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_select_06",
+  "timestamp": "2025-03-12T12:44:39.142489",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " There's no turning back now.",
+      "part": 1
+    }
+  ]
+}

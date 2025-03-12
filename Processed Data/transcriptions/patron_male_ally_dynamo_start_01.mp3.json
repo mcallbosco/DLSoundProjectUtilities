@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_dynamo_start_01",
+  "timestamp": "2025-03-12T03:34:24.478136",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " This is your chance, Professor. Summon me, and reclaim your humanity.",
+      "part": 1
+    }
+  ]
+}

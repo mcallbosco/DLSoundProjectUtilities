@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_kelvin_almost_respawn",
+  "timestamp": "2025-03-12T04:07:51.863828",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kelvin is almost back.",
+      "part": 1
+    }
+  ]
+}

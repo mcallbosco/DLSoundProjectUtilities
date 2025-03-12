@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_warden_start_04",
+  "timestamp": "2025-03-12T03:32:32.014109",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "text": " Your will is stronger than you could ever know, Warden.",
+      "part": 1
+    }
+  ]
+}

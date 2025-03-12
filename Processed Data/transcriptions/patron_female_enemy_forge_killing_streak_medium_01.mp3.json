@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_forge_killing_streak_medium_01",
+  "timestamp": "2025-03-12T12:41:19.670437",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't let McGinnis lure you into a trap.",
+      "part": 1
+    }
+  ]
+}

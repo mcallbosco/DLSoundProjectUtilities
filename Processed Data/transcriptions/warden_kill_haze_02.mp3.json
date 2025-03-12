@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_haze_02",
+  "timestamp": "2025-03-12T03:37:23.813332",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The OSIC is out of their depth.",
+      "part": 1
+    }
+  ]
+}

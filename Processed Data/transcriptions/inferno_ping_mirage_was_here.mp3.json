@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_mirage_was_here",
+  "timestamp": "2025-03-12T03:31:17.174394",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage was here.",
+      "part": 1
+    }
+  ]
+}

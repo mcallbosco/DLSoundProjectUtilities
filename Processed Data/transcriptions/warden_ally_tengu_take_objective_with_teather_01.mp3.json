@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_tengu_take_objective_with_teather_01",
+  "timestamp": "2025-03-12T12:35:11.111978",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks for the assist, Ivy.",
+      "part": 1
+    }
+  ]
+}

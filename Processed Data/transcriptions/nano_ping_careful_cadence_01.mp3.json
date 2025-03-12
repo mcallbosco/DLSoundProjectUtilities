@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_careful_cadence_01",
+  "timestamp": "2025-03-12T04:06:38.790079",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Care for Cadence.",
+      "part": 1
+    }
+  ]
+}

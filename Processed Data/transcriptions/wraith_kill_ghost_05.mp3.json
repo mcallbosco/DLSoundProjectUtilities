@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_ghost_05",
+  "timestamp": "2025-03-12T12:32:51.409749",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Just die with some dignity, Geist.",
+      "part": 1
+    }
+  ]
+}

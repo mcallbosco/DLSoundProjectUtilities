@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_unselect_01",
+  "timestamp": "2025-03-12T03:49:46.028768",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Oathkeeper doesn't need to be fed yet.",
+      "part": 1
+    }
+  ]
+}

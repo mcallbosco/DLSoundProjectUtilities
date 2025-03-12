@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_enemy_update_ghost",
+  "timestamp": "2025-03-12T12:41:59.463944",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " Beware Iram, Geist!",
+      "part": 1
+    }
+  ]
+}

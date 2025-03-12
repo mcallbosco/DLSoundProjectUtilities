@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_nano_under_garage",
+  "timestamp": "2025-03-12T12:44:31.940783",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico's under the garage!",
+      "part": 1
+    }
+  ]
+}

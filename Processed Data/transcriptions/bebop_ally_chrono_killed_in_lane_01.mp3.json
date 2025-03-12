@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ally_chrono_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:47:55.133180",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " PARADOX IS DEAD!",
+      "part": 1
+    }
+  ]
+}

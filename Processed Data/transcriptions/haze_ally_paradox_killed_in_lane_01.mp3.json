@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_paradox_killed_in_lane_01",
+  "timestamp": "2025-03-12T12:28:11.908683",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They took out Paradox.",
+      "part": 1
+    }
+  ]
+}

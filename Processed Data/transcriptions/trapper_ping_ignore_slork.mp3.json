@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_ignore_slork",
+  "timestamp": "2025-03-12T12:29:18.645170",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Fathom!",
+      "part": 1
+    }
+  ]
+}

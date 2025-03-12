@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_bebop_02",
+  "timestamp": "2025-03-12T12:23:51.167914",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I see the Golem.",
+      "part": 1
+    }
+  ]
+}

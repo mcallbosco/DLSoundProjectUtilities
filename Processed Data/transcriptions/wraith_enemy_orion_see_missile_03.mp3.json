@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_orion_see_missile_03",
+  "timestamp": "2025-03-12T04:03:04.164469",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Look out!",
+      "part": 1
+    }
+  ]
+}

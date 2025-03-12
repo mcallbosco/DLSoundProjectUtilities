@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_viscous_almost_respawn",
+  "timestamp": "2025-03-12T03:48:19.225925",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Viscous is always the back.",
+      "part": 1
+    }
+  ]
+}

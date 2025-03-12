@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_with_bebop",
+  "timestamp": "2025-03-12T04:10:20.508583",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Bebop.",
+      "part": 1
+    }
+  ]
+}

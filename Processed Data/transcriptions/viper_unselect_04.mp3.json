@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_unselect_04",
+  "timestamp": "2025-03-12T12:41:13.381928",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.8399999141693115,
+      "text": " Go talk to Ivy, say it's a favor for the Arroyos, she'll help you.",
+      "part": 1
+    }
+  ]
+}

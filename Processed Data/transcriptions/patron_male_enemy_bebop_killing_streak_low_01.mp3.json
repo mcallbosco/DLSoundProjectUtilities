@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_bebop_killing_streak_low_01",
+  "timestamp": "2025-03-12T03:35:58.441273",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stop Bebop's Momentum.",
+      "part": 1
+    }
+  ]
+}

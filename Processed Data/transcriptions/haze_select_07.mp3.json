@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_select_07",
+  "timestamp": "2025-03-12T03:52:33.512189",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You know it's bad when they send a Sandman.",
+      "part": 1
+    }
+  ]
+}

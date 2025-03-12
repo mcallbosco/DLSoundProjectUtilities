@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ally_wraith_kill_in_lift_02",
+  "timestamp": "2025-03-12T04:01:03.546596",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see him.",
+      "part": 1
+    }
+  ]
+}

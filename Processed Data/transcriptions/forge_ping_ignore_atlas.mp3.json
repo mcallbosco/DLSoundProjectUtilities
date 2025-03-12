@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_ignore_atlas",
+  "timestamp": "2025-03-12T04:00:58.992907",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Abrams.",
+      "part": 1
+    }
+  ]
+}

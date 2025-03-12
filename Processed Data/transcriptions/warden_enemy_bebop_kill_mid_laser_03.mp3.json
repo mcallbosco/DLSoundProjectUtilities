@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_bebop_kill_mid_laser_03",
+  "timestamp": "2025-03-12T12:27:57.786312",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You opened yourself up for that.",
+      "part": 1
+    }
+  ]
+}

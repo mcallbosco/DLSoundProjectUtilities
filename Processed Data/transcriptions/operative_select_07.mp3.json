@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_select_07",
+  "timestamp": "2025-03-12T03:38:24.854046",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.359999895095825,
+      "text": " One task remains before I can return home.",
+      "part": 1
+    }
+  ]
+}

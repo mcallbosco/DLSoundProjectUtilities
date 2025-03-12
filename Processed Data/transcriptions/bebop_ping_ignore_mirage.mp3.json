@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_ignore_mirage",
+  "timestamp": "2025-03-12T03:03:44.940454",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore me, Raj!",
+      "part": 1
+    }
+  ]
+}

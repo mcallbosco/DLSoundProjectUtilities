@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_lash_02",
+  "timestamp": "2025-03-12T12:27:54.761910",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": "\u30a2\u30e1\u30ea\u30ab\u306e\u50b2\u6162\u3055\u304c\u62db\u3044\u305f\u5831\u3044\u3060\u3002",
+      "part": 1
+    }
+  ]
+}

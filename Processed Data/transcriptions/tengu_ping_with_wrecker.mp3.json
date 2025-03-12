@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_with_wrecker",
+  "timestamp": "2025-03-12T12:27:52.098339",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Wrecker!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_kill_calico_05",
+  "timestamp": "2025-03-12T03:48:59.839517",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Get with the times, Calico!",
+      "part": 1
+    }
+  ]
+}

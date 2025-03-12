@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_enemy_chrono_kill_post_swap_03",
+  "timestamp": "2025-03-12T03:44:13.549662",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You'll have to be faster if you want to catch me, Paradox!",
+      "part": 1
+    }
+  ]
+}

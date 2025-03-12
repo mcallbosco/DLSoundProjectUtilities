@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_saw_warden",
+  "timestamp": "2025-03-12T03:34:07.288296",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " By Sore Warden.",
+      "part": 1
+    }
+  ]
+}

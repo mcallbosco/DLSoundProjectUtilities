@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_enemy_warden_see_ult_02",
+  "timestamp": "2025-03-12T12:33:58.480052",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't let Murphy get close!",
+      "part": 1
+    }
+  ]
+}

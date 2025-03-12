@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_saw_chrono",
+  "timestamp": "2025-03-12T12:30:16.783195",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u30a2\u30a4\u30bd\u30fc\u30d1\u30e9\u30c9\u30c3\u30af\u30b9",
+      "part": 1
+    }
+  ]
+}

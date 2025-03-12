@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_careful_cadence_01",
+  "timestamp": "2025-03-12T03:47:50.489016",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Cadence!",
+      "part": 1
+    }
+  ]
+}

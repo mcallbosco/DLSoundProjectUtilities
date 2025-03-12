@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_krill_almost_respawn",
+  "timestamp": "2025-03-12T04:00:09.163037",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Krillin's almost back!",
+      "part": 1
+    }
+  ]
+}

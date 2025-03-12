@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_stun_orion_01",
+  "timestamp": "2025-03-12T04:08:30.756270",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.5199999809265137,
+      "text": " Stun Grey Talon!",
+      "part": 1
+    }
+  ]
+}

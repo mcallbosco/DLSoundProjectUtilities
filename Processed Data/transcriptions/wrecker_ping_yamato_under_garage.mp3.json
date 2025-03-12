@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_yamato_under_garage",
+  "timestamp": "2025-03-12T03:56:27.650795",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " YAMATO UNDER THE GARAGE",
+      "part": 1
+    }
+  ]
+}

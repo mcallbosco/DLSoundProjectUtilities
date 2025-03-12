@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_krill_03",
+  "timestamp": "2025-03-12T03:33:05.672873",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Look, when this is all over, I'll buy you a drink and say I'm sorry.",
+      "part": 1
+    }
+  ]
+}

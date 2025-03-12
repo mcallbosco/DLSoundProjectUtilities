@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_saw_chrono",
+  "timestamp": "2025-03-12T04:04:07.678839",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw a paradox!",
+      "part": 1
+    }
+  ]
+}

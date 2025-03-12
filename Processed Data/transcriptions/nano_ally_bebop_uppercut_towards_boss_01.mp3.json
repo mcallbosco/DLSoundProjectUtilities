@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ally_bebop_uppercut_towards_boss_01",
+  "timestamp": "2025-03-12T03:27:54.583523",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " That was rude.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_hornet_check_items",
+  "timestamp": "2025-03-12T03:52:36.524505",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Vindicta bought!",
+      "part": 1
+    }
+  ]
+}

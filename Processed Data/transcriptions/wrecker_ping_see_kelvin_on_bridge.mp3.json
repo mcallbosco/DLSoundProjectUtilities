@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_kelvin_on_bridge",
+  "timestamp": "2025-03-12T03:58:36.120401",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KELVIN IS ON THE BRIDGE!",
+      "part": 1
+    }
+  ]
+}

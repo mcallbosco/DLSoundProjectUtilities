@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_stun_nano_01",
+  "timestamp": "2025-03-12T12:31:42.805193",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Stun Calico.",
+      "part": 1
+    }
+  ]
+}

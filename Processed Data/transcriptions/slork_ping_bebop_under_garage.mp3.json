@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_bebop_under_garage",
+  "timestamp": "2025-03-12T03:28:19.483560",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " BEBOP'S UNDER THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

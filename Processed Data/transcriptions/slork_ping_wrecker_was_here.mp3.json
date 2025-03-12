@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_wrecker_was_here",
+  "timestamp": "2025-03-12T04:01:42.810667",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRECKER WAS HERE!",
+      "part": 1
+    }
+  ]
+}

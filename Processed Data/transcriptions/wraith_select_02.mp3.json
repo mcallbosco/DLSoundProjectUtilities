@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_select_02",
+  "timestamp": "2025-03-12T03:34:26.763198",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.299999952316284,
+      "text": " No one builds an empire without sacrifice.",
+      "part": 1
+    }
+  ]
+}

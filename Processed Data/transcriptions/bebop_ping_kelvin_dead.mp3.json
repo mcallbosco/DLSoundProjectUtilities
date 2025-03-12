@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_kelvin_dead",
+  "timestamp": "2025-03-12T04:10:19.592949",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KELVIN IS DEAD",
+      "part": 1
+    }
+  ]
+}

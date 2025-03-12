@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_see_wrecker_02",
+  "timestamp": "2025-03-12T12:37:14.720631",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wrecker is around here.",
+      "part": 1
+    }
+  ]
+}

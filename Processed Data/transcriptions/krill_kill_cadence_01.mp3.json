@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_kill_cadence_01",
+  "timestamp": "2025-03-12T03:36:29.866668",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " So long, Cadence!",
+      "part": 1
+    }
+  ]
+}

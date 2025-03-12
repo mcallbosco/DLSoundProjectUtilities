@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_see_chrono",
+  "timestamp": "2025-03-12T04:05:35.314574",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see Paradox.",
+      "part": 1
+    }
+  ]
+}

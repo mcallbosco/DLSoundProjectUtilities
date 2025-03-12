@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_unselect_09",
+  "timestamp": "2025-03-12T03:28:31.888272",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " It's fine, we needed a day off.",
+      "part": 1
+    }
+  ]
+}

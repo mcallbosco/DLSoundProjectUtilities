@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_bebop_dead",
+  "timestamp": "2025-03-12T03:35:35.355393",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " BEBOP IS DEAD!",
+      "part": 1
+    }
+  ]
+}

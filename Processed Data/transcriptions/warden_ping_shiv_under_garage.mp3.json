@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_shiv_under_garage",
+  "timestamp": "2025-03-12T03:44:29.050794",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.3600000143051147,
+      "text": " Shivs under the garage.",
+      "part": 1
+    }
+  ]
+}

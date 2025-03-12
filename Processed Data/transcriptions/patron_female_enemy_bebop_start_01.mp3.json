@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_bebop_start_01",
+  "timestamp": "2025-03-12T12:31:53.600835",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.199999809265137,
+      "text": " Bebop will look to start the fight on his own terms.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_wraith_01",
+  "timestamp": "2025-03-12T03:33:12.695999",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Better luck next time, Wraith.",
+      "part": 1
+    }
+  ]
+}

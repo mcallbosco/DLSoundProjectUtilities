@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_ignore_wraith",
+  "timestamp": "2025-03-12T03:45:38.053888",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE RICE!",
+      "part": 1
+    }
+  ]
+}

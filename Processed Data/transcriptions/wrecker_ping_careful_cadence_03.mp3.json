@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_cadence_03",
+  "timestamp": "2025-03-12T12:24:02.364455",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " CAREFUL, CADENCE!",
+      "part": 1
+    }
+  ]
+}

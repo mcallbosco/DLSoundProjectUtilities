@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_haze_on_roof",
+  "timestamp": "2025-03-12T03:55:32.269335",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " HAZE IS ON THE ROOF!",
+      "part": 1
+    }
+  ]
+}

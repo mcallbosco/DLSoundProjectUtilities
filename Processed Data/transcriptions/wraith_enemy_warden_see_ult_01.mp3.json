@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_warden_see_ult_01",
+  "timestamp": "2025-03-12T03:59:05.168087",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden's comin' in!",
+      "part": 1
+    }
+  ]
+}

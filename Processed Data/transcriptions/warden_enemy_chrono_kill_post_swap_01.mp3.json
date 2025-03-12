@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_chrono_kill_post_swap_01",
+  "timestamp": "2025-03-12T03:36:15.404580",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5999999046325684,
+      "text": " Reposition me all you like, the result is the same.",
+      "part": 1
+    }
+  ]
+}

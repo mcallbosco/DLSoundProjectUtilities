@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_wrecker_under_garage",
+  "timestamp": "2025-03-12T03:27:34.729811",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRECKERS UNDER THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

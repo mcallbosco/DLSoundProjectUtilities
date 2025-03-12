@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_careful_inferno_03",
+  "timestamp": "2025-03-12T12:31:14.641713",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful Infernus!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_krill_was_here",
+  "timestamp": "2025-03-12T03:28:07.459043",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Krill was here!",
+      "part": 1
+    }
+  ]
+}

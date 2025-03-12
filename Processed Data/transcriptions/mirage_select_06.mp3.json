@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_select_06",
+  "timestamp": "2025-03-12T12:41:41.965844",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " New York seems like a lovely place.",
+      "part": 1
+    }
+  ]
+}

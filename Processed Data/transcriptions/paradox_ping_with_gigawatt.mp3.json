@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_with_gigawatt",
+  "timestamp": "2025-03-12T04:07:02.585363",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I'm with you, Gigawatt.",
+      "part": 1
+    }
+  ]
+}

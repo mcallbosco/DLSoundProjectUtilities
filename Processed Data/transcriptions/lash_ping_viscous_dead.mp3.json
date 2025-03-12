@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_viscous_dead",
+  "timestamp": "2025-03-12T03:57:14.502140",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Thank God Viscous is dead.",
+      "part": 1
+    }
+  ]
+}

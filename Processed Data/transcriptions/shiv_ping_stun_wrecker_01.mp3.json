@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_ping_stun_wrecker_01",
+  "timestamp": "2025-03-12T04:00:58.224812",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Wrecker!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_stun_yamato_01",
+  "timestamp": "2025-03-12T03:54:11.623409",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " Stun Yamato.",
+      "part": 1
+    }
+  ]
+}

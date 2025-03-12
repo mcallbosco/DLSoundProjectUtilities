@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_careful_nano_03",
+  "timestamp": "2025-03-12T04:09:52.664250",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Calico!",
+      "part": 1
+    }
+  ]
+}

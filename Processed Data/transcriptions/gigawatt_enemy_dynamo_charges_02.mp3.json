@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_dynamo_charges_02",
+  "timestamp": "2025-03-12T03:44:16.585641",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Look out for the black hole!",
+      "part": 1
+    }
+  ]
+}

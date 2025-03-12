@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_saw_abrams",
+  "timestamp": "2025-03-12T03:57:42.359285",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I saw Abrams.",
+      "part": 1
+    }
+  ]
+}

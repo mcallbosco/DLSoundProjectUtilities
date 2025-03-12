@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_with_bebop",
+  "timestamp": "2025-03-12T12:31:14.670452",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " I'm with you, Bebop!",
+      "part": 1
+    }
+  ]
+}

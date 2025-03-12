@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_careful_holliday_02",
+  "timestamp": "2025-03-12T03:56:05.846042",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Holliday.",
+      "part": 1
+    }
+  ]
+}

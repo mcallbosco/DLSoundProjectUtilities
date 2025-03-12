@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_wraith_was_here",
+  "timestamp": "2025-03-12T03:36:36.893183",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith was here!",
+      "part": 1
+    }
+  ]
+}

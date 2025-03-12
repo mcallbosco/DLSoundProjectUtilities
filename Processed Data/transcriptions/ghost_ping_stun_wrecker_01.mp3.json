@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_stun_wrecker_01",
+  "timestamp": "2025-03-12T03:39:41.824337",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.8399999737739563,
+      "text": " Stun Wrecker.",
+      "part": 1
+    }
+  ]
+}

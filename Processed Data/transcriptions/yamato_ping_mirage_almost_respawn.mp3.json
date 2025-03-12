@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_mirage_almost_respawn",
+  "timestamp": "2025-03-12T03:43:18.052792",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Minaj is almost back.",
+      "part": 1
+    }
+  ]
+}

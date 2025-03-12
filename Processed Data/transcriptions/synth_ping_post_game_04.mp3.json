@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_post_game_04",
+  "timestamp": "2025-03-12T03:48:58.703941",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " That was exciting.",
+      "part": 1
+    }
+  ]
+}

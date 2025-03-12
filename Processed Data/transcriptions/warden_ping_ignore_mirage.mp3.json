@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_ignore_mirage",
+  "timestamp": "2025-03-12T12:28:26.565008",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " Ignore Mirage.",
+      "part": 1
+    }
+  ]
+}

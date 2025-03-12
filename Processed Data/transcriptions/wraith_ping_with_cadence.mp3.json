@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_with_cadence",
+  "timestamp": "2025-03-12T12:25:32.487163",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Cadence!",
+      "part": 1
+    }
+  ]
+}

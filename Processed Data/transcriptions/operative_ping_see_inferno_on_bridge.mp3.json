@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_see_inferno_on_bridge",
+  "timestamp": "2025-03-12T04:00:24.277474",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus on the Bridge",
+      "part": 1
+    }
+  ]
+}

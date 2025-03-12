@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_wraith_01",
+  "timestamp": "2025-03-12T04:05:04.863423",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.8399999737739563,
+      "text": " I see Wraith.",
+      "part": 1
+    }
+  ]
+}

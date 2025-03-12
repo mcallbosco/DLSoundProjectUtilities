@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_haze_was_here",
+  "timestamp": "2025-03-12T03:34:22.725651",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Haze was here!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_tengu_dead",
+  "timestamp": "2025-03-12T03:30:34.373938",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IVY IS DEAD!",
+      "part": 1
+    }
+  ]
+}

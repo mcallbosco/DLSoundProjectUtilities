@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_lash_missing_01",
+  "timestamp": "2025-03-12T03:28:16.942293",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash is missing.",
+      "part": 1
+    }
+  ]
+}

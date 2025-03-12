@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_mirage_was_here",
+  "timestamp": "2025-03-12T03:57:22.894608",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Mirage was here.",
+      "part": 1
+    }
+  ]
+}

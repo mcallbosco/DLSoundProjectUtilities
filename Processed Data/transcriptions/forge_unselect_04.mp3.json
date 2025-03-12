@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_unselect_04",
+  "timestamp": "2025-03-12T03:30:25.203569",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Great. I thought of a new way to weaponize souls in the shower. I need to go to the lab.",
+      "part": 1
+    }
+  ]
+}

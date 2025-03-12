@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_enemy_yamato_starts_ult_02",
+  "timestamp": "2025-03-12T04:04:25.585768",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DON'T FIGHT THE SHADOW!",
+      "part": 1
+    }
+  ]
+}

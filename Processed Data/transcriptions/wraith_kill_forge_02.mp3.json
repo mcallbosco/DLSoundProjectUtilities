@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_forge_02",
+  "timestamp": "2025-03-12T03:54:57.805365",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Fairfax needs better help.",
+      "part": 1
+    }
+  ]
+}

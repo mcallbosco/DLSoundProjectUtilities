@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_atlas_missing_01",
+  "timestamp": "2025-03-12T12:32:50.690266",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams Missing",
+      "part": 1
+    }
+  ]
+}

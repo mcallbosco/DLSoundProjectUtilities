@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_pre_game_06_02",
+  "timestamp": "2025-03-12T03:43:15.670331",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " I promise I won't spend all my time in the suitcase.",
+      "part": 1
+    }
+  ]
+}

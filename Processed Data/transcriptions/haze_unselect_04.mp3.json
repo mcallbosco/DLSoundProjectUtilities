@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_unselect_04",
+  "timestamp": "2025-03-12T03:40:44.891098",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " See you soon.",
+      "part": 1
+    }
+  ]
+}

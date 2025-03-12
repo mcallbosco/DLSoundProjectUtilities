@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_orion_start_03",
+  "timestamp": "2025-03-12T12:47:08.725484",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.400000095367432,
+      "text": " Wesley Grey Talon, let the blood of the Sapphire Flame wash you clean.",
+      "part": 1
+    }
+  ]
+}

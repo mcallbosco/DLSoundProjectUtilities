@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_lash_almost_respawn",
+  "timestamp": "2025-03-12T12:41:48.449522",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash is almost back!",
+      "part": 1
+    }
+  ]
+}

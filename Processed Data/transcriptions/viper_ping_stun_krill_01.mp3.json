@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_stun_krill_01",
+  "timestamp": "2025-03-12T12:46:21.372007",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Stun Krill.",
+      "part": 1
+    }
+  ]
+}

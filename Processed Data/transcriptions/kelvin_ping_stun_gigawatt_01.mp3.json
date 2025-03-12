@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_stun_gigawatt_01",
+  "timestamp": "2025-03-12T03:33:06.705570",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STAN SEVEN!",
+      "part": 1
+    }
+  ]
+}

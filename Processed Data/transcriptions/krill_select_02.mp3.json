@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_select_02",
+  "timestamp": "2025-03-12T04:04:00.019299",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " He does the digging, I do the talking. We tried it the other way, but it didn't work.",
+      "part": 1
+    }
+  ]
+}

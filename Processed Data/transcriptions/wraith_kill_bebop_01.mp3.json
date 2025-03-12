@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_bebop_01",
+  "timestamp": "2025-03-12T12:32:29.410698",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " So long, Bebop!",
+      "part": 1
+    }
+  ]
+}

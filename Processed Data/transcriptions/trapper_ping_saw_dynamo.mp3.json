@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_saw_dynamo",
+  "timestamp": "2025-03-12T03:47:04.471104",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.440000057220459,
+      "text": " I SAW DYNAMO!",
+      "part": 1
+    }
+  ]
+}

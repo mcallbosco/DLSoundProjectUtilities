@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_enemy_shiv_unkillable_02",
+  "timestamp": "2025-03-12T03:45:04.527883",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " SHIV ISN'T GOING DOWN!",
+      "part": 1
+    }
+  ]
+}

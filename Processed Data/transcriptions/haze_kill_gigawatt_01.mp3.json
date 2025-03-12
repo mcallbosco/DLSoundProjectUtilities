@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_gigawatt_01",
+  "timestamp": "2025-03-12T12:29:48.526821",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven has been dealt with.",
+      "part": 1
+    }
+  ]
+}

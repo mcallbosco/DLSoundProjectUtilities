@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ally_wraith_pass_on_zipline_01",
+  "timestamp": "2025-03-12T12:35:29.226951",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'll come back when I can, Wraith!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_bebop_start_01",
+  "timestamp": "2025-03-12T03:51:09.478960",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " Ms. Shelly is counting on you, Bebop. Only you can save her.",
+      "part": 1
+    }
+  ]
+}

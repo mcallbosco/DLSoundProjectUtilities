@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_chrono_kill_post_swap_01",
+  "timestamp": "2025-03-12T04:02:51.578740",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Your little trick didn't work.",
+      "part": 1
+    }
+  ]
+}

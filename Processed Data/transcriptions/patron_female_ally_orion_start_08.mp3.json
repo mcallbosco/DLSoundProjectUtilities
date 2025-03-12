@@ -1,0 +1,24 @@
+{
+  "voiceline_id": "patron_female_ally_orion_start_08",
+  "timestamp": "2025-03-12T12:28:02.419004",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.519999980926514,
+      "text": " I hear your grandson cry from beyond.",
+      "part": 1
+    },
+    {
+      "start": 4.519999980926514,
+      "end": 7.159999847412109,
+      "text": " Don't fail him.",
+      "part": 2
+    },
+    {
+      "start": 7.159999847412109,
+      "end": 9.039999961853027,
+      "text": " Summon me.",
+      "part": 3
+    }
+  ]
+}

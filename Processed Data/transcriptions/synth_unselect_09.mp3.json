@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_unselect_09",
+  "timestamp": "2025-03-12T04:10:32.468790",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " There has to be a better way than violence.",
+      "part": 1
+    }
+  ]
+}

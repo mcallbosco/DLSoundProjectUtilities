@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_shiv_unkillable_01",
+  "timestamp": "2025-03-12T12:30:04.427123",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv isn't going down.",
+      "part": 1
+    }
+  ]
+}

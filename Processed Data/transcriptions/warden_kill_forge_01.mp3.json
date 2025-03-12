@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_forge_01",
+  "timestamp": "2025-03-12T03:41:30.871358",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.7200000286102295,
+      "text": " Man was never meant to play God, McGinnis.",
+      "part": 1
+    }
+  ]
+}

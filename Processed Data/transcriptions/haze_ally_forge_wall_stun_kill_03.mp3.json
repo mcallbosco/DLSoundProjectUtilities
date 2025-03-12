@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_forge_wall_stun_kill_03",
+  "timestamp": "2025-03-12T12:26:49.433372",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good work, McGinnis.",
+      "part": 1
+    }
+  ]
+}

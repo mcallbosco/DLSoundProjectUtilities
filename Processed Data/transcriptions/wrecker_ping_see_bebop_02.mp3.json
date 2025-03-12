@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_bebop_02",
+  "timestamp": "2025-03-12T03:04:05.320118",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " I see metal, man.",
+      "part": 1
+    }
+  ]
+}

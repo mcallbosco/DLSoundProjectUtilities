@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_careful_krill_02",
+  "timestamp": "2025-03-12T03:58:21.117572",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Krill.",
+      "part": 1
+    }
+  ]
+}

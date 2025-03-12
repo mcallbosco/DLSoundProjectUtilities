@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ally_wraith_kill_in_lift_01",
+  "timestamp": "2025-03-12T03:31:57.693859",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks for holding them, Wraith.",
+      "part": 1
+    }
+  ]
+}

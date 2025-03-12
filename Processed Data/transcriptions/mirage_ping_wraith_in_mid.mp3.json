@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_wraith_in_mid",
+  "timestamp": "2025-03-12T03:49:14.092256",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " RACE IN MID!",
+      "part": 1
+    }
+  ]
+}

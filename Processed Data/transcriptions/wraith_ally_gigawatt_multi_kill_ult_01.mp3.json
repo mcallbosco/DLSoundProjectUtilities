@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_gigawatt_multi_kill_ult_01",
+  "timestamp": "2025-03-12T03:45:08.372401",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven killed them all.",
+      "part": 1
+    }
+  ]
+}

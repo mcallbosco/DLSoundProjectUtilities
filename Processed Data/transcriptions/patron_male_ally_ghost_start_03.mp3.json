@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_ghost_start_03",
+  "timestamp": "2025-03-12T03:42:57.983799",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " Lady Jenn Geist, tap into Oathkeeper's power one last time and complete the ritual.",
+      "part": 1
+    },
+    {
+      "start": 7.0,
+      "end": 10.0,
+      "text": " Only then will you find the peace you seek.",
+      "part": 2
+    }
+  ]
+}

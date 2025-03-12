@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_mirage_05",
+  "timestamp": "2025-03-12T03:30:15.841599",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": "\u5f79\u7acb\u305f\u305a\u3060\u3063\u305f\u5144\u306e\u30dc\u30c7\u30a3\u30ac\u30fc\u30c9\u3092\u601d\u3044\u51fa\u3059\u306a\u3002",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_stun_astro_01",
+  "timestamp": "2025-03-12T04:02:25.981883",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Stun Holliday!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_nano_03",
+  "timestamp": "2025-03-12T04:09:29.690932",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " You chose poor allies, Nano.",
+      "part": 1
+    }
+  ]
+}

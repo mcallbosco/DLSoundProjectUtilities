@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_stun_krill_01",
+  "timestamp": "2025-03-12T12:37:57.626365",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stan Krill.",
+      "part": 1
+    }
+  ]
+}

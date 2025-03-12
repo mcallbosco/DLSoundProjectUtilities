@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_enemy_chrono_kill_post_swap_03",
+  "timestamp": "2025-03-12T04:01:41.837037",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " You didn't really think that would work, did you?",
+      "part": 1
+    }
+  ]
+}

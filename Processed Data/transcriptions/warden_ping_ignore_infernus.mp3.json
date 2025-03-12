@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_ignore_infernus",
+  "timestamp": "2025-03-12T04:05:33.734555",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " IGNORE INFERNUS!",
+      "part": 1
+    }
+  ]
+}

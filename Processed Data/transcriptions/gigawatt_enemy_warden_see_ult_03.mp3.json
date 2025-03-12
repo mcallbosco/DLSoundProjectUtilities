@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_warden_see_ult_03",
+  "timestamp": "2025-03-12T12:48:04.367146",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WARDEN'S COMING!",
+      "part": 1
+    }
+  ]
+}

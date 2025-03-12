@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_forge_almost_respawn",
+  "timestamp": "2025-03-12T12:43:29.847880",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is almost back!",
+      "part": 1
+    }
+  ]
+}

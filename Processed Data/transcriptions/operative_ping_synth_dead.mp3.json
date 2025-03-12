@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_synth_dead",
+  "timestamp": "2025-03-12T03:59:23.510875",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Pocket is dead.",
+      "part": 1
+    }
+  ]
+}

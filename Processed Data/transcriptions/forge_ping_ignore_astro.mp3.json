@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_ignore_astro",
+  "timestamp": "2025-03-12T04:10:10.303771",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE HOLIDAY!",
+      "part": 1
+    }
+  ]
+}

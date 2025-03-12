@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_abrams_on_roof",
+  "timestamp": "2025-03-12T04:06:42.864519",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5999999046325684,
+      "text": " ABRAMS IS ON THE ROOF",
+      "part": 1
+    }
+  ]
+}

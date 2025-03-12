@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_stun_forge_01",
+  "timestamp": "2025-03-12T12:26:07.074308",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Stun McGinnis.",
+      "part": 1
+    }
+  ]
+}

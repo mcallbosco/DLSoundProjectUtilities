@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_trapper_almost_respawn",
+  "timestamp": "2025-03-12T04:06:06.116629",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Trapper's almost back!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_dynamo_killing_streak_medium_01",
+  "timestamp": "2025-03-12T03:29:33.370352",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't let the Professor live.",
+      "part": 1
+    }
+  ]
+}

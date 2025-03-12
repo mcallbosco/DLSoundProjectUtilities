@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_wraith_on_top_of_mid",
+  "timestamp": "2025-03-12T04:01:21.119488",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraiths on top of Mid.",
+      "part": 1
+    }
+  ]
+}

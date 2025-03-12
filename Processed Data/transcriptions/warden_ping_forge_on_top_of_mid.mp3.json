@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_forge_on_top_of_mid",
+  "timestamp": "2025-03-12T04:10:52.204590",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is on top of mid!",
+      "part": 1
+    }
+  ]
+}

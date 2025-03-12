@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_cadence_on_top_of_garage",
+  "timestamp": "2025-03-12T03:27:47.171159",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " King's is on top of the garage!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_kelvin_was_here",
+  "timestamp": "2025-03-12T12:37:55.569696",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kelvin was here!",
+      "part": 1
+    }
+  ]
+}

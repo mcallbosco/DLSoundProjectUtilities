@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_unselect_01",
+  "timestamp": "2025-03-12T12:47:19.320616",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Guess you don't need us after all.",
+      "part": 1
+    }
+  ]
+}

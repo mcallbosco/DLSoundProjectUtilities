@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_careful_hornet_02",
+  "timestamp": "2025-03-12T03:03:23.288441",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful Vindicta!",
+      "part": 1
+    }
+  ]
+}

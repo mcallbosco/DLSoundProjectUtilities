@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_inferno_dead",
+  "timestamp": "2025-03-12T03:44:11.725271",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is dead.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_inferno_almost_respawn",
+  "timestamp": "2025-03-12T04:03:56.073452",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is almost back.",
+      "part": 1
+    }
+  ]
+}

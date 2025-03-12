@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_see_dynamo",
+  "timestamp": "2025-03-12T12:48:16.368394",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see Dynamo!",
+      "part": 1
+    }
+  ]
+}

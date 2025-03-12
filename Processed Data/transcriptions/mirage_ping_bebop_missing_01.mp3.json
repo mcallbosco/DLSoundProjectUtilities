@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_bebop_missing_01",
+  "timestamp": "2025-03-12T04:05:59.619291",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " BEBOP'S MISSING!",
+      "part": 1
+    }
+  ]
+}

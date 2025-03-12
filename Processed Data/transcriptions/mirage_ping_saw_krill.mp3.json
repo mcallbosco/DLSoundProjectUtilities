@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_saw_krill",
+  "timestamp": "2025-03-12T04:11:02.340727",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I shot Krill!",
+      "part": 1
+    }
+  ]
+}

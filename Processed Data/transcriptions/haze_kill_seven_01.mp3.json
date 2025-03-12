@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_seven_01",
+  "timestamp": "2025-03-12T04:03:54.184401",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven has been dealt with.",
+      "part": 1
+    }
+  ]
+}

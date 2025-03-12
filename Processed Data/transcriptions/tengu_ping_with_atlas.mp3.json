@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_with_atlas",
+  "timestamp": "2025-03-12T04:04:26.448796",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Abrams!",
+      "part": 1
+    }
+  ]
+}

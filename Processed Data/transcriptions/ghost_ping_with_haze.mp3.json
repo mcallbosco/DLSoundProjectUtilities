@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_with_haze",
+  "timestamp": "2025-03-12T12:47:36.789443",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Haze!",
+      "part": 1
+    }
+  ]
+}

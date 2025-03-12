@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_stun_gigawatt_01",
+  "timestamp": "2025-03-12T03:38:08.884848",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0399999618530273,
+      "text": " Stun Gigawatt.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_ivy_03",
+  "timestamp": "2025-03-12T04:06:04.570150",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Ivy!",
+      "part": 1
+    }
+  ]
+}

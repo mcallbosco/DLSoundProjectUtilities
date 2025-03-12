@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_enemy_bebop_hooked_03_alt_01",
+  "timestamp": "2025-03-12T03:55:30.946263",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.5,
+      "text": " Bebop.",
+      "part": 1
+    }
+  ]
+}

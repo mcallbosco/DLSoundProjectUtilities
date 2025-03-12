@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_can_heal_seven",
+  "timestamp": "2025-03-12T12:48:29.505155",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven, I can heal you.",
+      "part": 1
+    }
+  ]
+}

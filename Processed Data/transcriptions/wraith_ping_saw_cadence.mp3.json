@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_saw_cadence",
+  "timestamp": "2025-03-12T04:02:57.785920",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Cadence.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "voiceline_id": "patron_female_enemy_ghost_start_03",
+  "timestamp": "2025-03-12T03:59:53.575988",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " Keep your distance from Lady Geist.",
+      "part": 1
+    },
+    {
+      "start": 3.200000047683716,
+      "end": 5.699999809265137,
+      "text": " Even when you think you're winning,",
+      "part": 2
+    },
+    {
+      "start": 5.699999809265137,
+      "end": 9.399999618530273,
+      "text": " Old Keeper will allow her to turn the tides.",
+      "part": 3
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_orion_see_missile_03",
+  "timestamp": "2025-03-12T03:33:40.654263",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Look out for the owl!",
+      "part": 1
+    }
+  ]
+}

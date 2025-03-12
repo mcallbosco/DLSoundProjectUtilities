@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_select_07",
+  "timestamp": "2025-03-12T03:29:28.718012",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " My actions carry the weight of the Djinn.",
+      "part": 1
+    }
+  ]
+}

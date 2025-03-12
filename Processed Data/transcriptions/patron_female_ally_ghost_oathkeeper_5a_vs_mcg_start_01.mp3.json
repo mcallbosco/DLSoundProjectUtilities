@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_oathkeeper_5a_vs_mcg_start_01",
+  "timestamp": "2025-03-12T04:00:56.460524",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " McGinnis has outlived her usefulness. Let her soul be the first to feed Oathkeeper.",
+      "part": 1
+    }
+  ]
+}

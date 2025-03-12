@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_post_game_05",
+  "timestamp": "2025-03-12T03:27:52.248903",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The Djinn will not forget your aid.",
+      "part": 1
+    }
+  ]
+}

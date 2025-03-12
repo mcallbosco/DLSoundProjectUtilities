@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_enemy_chrono_kill_post_swap_02",
+  "timestamp": "2025-03-12T03:40:42.926785",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Your tricks weren't enough.",
+      "part": 1
+    }
+  ]
+}

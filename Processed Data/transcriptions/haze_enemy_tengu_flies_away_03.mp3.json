@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "haze_enemy_tengu_flies_away_03",
+  "timestamp": "2025-03-12T12:47:23.227825",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Well done, little gargoyle.",
+      "part": 1
+    },
+    {
+      "start": 2.0,
+      "end": 4.0,
+      "text": " You'll meet again.",
+      "part": 2
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_wraith_03",
+  "timestamp": "2025-03-12T03:28:26.138463",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Wraith!",
+      "part": 1
+    }
+  ]
+}

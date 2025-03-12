@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_dynamo_charges_02",
+  "timestamp": "2025-03-12T03:42:13.230831",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Here comes the professor!",
+      "part": 1
+    }
+  ]
+}

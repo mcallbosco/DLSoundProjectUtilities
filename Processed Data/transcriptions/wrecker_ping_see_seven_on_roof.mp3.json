@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_seven_on_roof",
+  "timestamp": "2025-03-12T03:38:14.599544",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " SEVEN'S ON THE ROOF!",
+      "part": 1
+    }
+  ]
+}

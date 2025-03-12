@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_stun_hornet_01",
+  "timestamp": "2025-03-12T03:28:35.184015",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stone Vindicta.",
+      "part": 1
+    }
+  ]
+}

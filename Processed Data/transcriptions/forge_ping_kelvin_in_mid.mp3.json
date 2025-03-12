@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_kelvin_in_mid",
+  "timestamp": "2025-03-12T12:27:07.903320",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KELVIN'S IN MID!",
+      "part": 1
+    }
+  ]
+}

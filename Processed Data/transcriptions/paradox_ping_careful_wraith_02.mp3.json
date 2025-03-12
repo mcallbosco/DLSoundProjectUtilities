@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_wraith_02",
+  "timestamp": "2025-03-12T03:59:42.995805",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful Wraith!",
+      "part": 1
+    }
+  ]
+}

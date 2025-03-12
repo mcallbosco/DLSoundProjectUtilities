@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_pre_game_01",
+  "timestamp": "2025-03-12T03:41:08.545605",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " So this is New York, eh?",
+      "part": 1
+    }
+  ]
+}

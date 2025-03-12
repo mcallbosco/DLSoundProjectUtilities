@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_see_wraith_on_roof",
+  "timestamp": "2025-03-12T04:03:07.063244",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRAITH'S ON THE ROOF!",
+      "part": 1
+    }
+  ]
+}

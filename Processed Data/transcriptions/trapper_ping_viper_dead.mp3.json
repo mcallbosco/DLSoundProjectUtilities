@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_viper_dead",
+  "timestamp": "2025-03-12T03:43:38.260092",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " VYPER IS DEAD!",
+      "part": 1
+    }
+  ]
+}

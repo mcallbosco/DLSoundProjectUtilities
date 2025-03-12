@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_viscous_start_03",
+  "timestamp": "2025-03-12T04:12:01.347425",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.699999809265137,
+      "text": " They call you a mistake, an abomination, but none of that is true. Complete the ritual and find peace.",
+      "part": 1
+    }
+  ]
+}

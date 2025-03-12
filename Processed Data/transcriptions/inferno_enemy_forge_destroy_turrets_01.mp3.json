@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_enemy_forge_destroy_turrets_01",
+  "timestamp": "2025-03-12T03:46:58.392753",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Those machines the best you got?",
+      "part": 1
+    }
+  ]
+}

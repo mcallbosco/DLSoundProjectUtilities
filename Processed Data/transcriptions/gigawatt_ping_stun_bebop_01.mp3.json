@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_stun_bebop_01",
+  "timestamp": "2025-03-12T03:43:26.924923",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STOMP BEBOP",
+      "part": 1
+    }
+  ]
+}

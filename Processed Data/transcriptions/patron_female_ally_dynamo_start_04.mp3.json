@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_dynamo_start_04",
+  "timestamp": "2025-03-12T03:47:41.097008",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.0,
+      "text": " Professor, if it's knowledge you seek, I can provide it.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_careful_astro_01",
+  "timestamp": "2025-03-12T03:03:18.315838",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Careful what you say.",
+      "part": 1
+    }
+  ]
+}

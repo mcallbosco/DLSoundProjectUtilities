@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_krill_04",
+  "timestamp": "2025-03-12T03:57:39.361900",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Took out Moe and Krill.",
+      "part": 1
+    }
+  ]
+}

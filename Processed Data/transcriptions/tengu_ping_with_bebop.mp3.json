@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_with_bebop",
+  "timestamp": "2025-03-12T12:31:01.521381",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Bebop!",
+      "part": 1
+    }
+  ]
+}

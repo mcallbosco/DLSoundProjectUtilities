@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_unselect_02",
+  "timestamp": "2025-03-12T03:52:58.488191",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Might as well catalogue the items for next week's auction.",
+      "part": 1
+    }
+  ]
+}

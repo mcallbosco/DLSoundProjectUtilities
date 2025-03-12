@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_tengu_flies_away_02",
+  "timestamp": "2025-03-12T03:35:51.051243",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You can't run forever, Ivy.",
+      "part": 1
+    }
+  ]
+}

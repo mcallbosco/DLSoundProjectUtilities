@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_hornet_start_01",
+  "timestamp": "2025-03-12T03:58:23.002729",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.5,
+      "text": " Your lust for vengeance is more than justified, Vindicta.",
+      "part": 1
+    },
+    {
+      "start": 4.5,
+      "end": 7.5,
+      "text": " And once I'm summoned, you shall have it.",
+      "part": 2
+    }
+  ]
+}

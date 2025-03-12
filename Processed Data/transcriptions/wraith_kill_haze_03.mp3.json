@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_haze_03",
+  "timestamp": "2025-03-12T03:37:42.850682",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " This is gonna make running my business a lot harder.",
+      "part": 1
+    }
+  ]
+}

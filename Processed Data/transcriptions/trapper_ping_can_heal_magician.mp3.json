@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_can_heal_magician",
+  "timestamp": "2025-03-12T12:43:13.307290",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Magician, I can heal you!",
+      "part": 1
+    }
+  ]
+}

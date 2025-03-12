@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_atlas_unkillable_03",
+  "timestamp": "2025-03-12T12:26:50.922460",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " What does it take to stop Abrams?",
+      "part": 1
+    }
+  ]
+}

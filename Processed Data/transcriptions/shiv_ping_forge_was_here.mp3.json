@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_ping_forge_was_here",
+  "timestamp": "2025-03-12T12:31:07.634281",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis was here!",
+      "part": 1
+    }
+  ]
+}

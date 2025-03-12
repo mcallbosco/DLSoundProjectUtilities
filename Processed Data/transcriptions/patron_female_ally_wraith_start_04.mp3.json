@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_ally_wraith_start_04",
+  "timestamp": "2025-03-12T12:35:44.143474",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " You've donned your father's chains, Wraith.",
+      "part": 1
+    },
+    {
+      "start": 4.0,
+      "end": 9.0,
+      "text": " I hope it works out better for you than it did for him.",
+      "part": 2
+    }
+  ]
+}

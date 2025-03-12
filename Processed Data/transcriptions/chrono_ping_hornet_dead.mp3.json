@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_hornet_dead",
+  "timestamp": "2025-03-12T12:30:05.767354",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " VINDICTA IS DEAD!",
+      "part": 1
+    }
+  ]
+}

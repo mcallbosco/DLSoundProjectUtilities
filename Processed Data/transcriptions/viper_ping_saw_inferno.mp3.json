@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_saw_inferno",
+  "timestamp": "2025-03-12T03:52:29.432763",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0399999618530273,
+      "text": " I saw Infernus!",
+      "part": 1
+    }
+  ]
+}

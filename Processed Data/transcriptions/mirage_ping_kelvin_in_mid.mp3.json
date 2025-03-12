@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_kelvin_in_mid",
+  "timestamp": "2025-03-12T04:09:56.414701",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Kelvins in Mid.",
+      "part": 1
+    }
+  ]
+}

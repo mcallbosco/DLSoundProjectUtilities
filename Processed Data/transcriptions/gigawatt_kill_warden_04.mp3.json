@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_warden_04",
+  "timestamp": "2025-03-12T03:54:02.293722",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.299999952316284,
+      "text": " You'll never stop the Ritual, Warden.",
+      "part": 1
+    }
+  ]
+}

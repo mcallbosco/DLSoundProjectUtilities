@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_stun_operative_01",
+  "timestamp": "2025-03-12T04:04:36.071496",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stunraven.",
+      "part": 1
+    }
+  ]
+}

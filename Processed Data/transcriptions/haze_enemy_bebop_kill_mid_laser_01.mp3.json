@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_bebop_kill_mid_laser_01",
+  "timestamp": "2025-03-12T04:10:08.689448",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You're a sitting duck, Bebop.",
+      "part": 1
+    }
+  ]
+}

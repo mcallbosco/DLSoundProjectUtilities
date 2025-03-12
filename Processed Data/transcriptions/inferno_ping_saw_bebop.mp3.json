@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_saw_bebop",
+  "timestamp": "2025-03-12T04:06:47.811264",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw a Bebop.",
+      "part": 1
+    }
+  ]
+}

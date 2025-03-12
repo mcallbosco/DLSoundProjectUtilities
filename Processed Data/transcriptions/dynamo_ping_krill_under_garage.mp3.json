@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_krill_under_garage",
+  "timestamp": "2025-03-12T12:26:54.062969",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KRILL'S UNDER THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

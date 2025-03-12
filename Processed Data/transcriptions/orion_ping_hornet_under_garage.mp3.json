@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_hornet_under_garage",
+  "timestamp": "2025-03-12T12:24:22.415642",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindictus under the garage!",
+      "part": 1
+    }
+  ]
+}

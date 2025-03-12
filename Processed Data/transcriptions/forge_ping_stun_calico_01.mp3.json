@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_stun_calico_01",
+  "timestamp": "2025-03-12T03:48:33.284434",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Calico!",
+      "part": 1
+    }
+  ]
+}

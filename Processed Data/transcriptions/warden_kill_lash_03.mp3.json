@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_lash_03",
+  "timestamp": "2025-03-12T03:27:29.988912",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stick to fighting town drunks, Lash.",
+      "part": 1
+    }
+  ]
+}

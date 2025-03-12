@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_enemy_hornet_killed_mid_air_03",
+  "timestamp": "2025-03-12T03:55:26.436392",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Now that was satisfying!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_stun_viscous_01",
+  "timestamp": "2025-03-12T04:00:01.339878",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stand, Viscous!",
+      "part": 1
+    }
+  ]
+}

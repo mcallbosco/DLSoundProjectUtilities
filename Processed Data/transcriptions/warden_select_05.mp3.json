@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_select_05",
+  "timestamp": "2025-03-12T03:27:40.554262",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5199999809265137,
+      "text": " Humanity needs to be protected from itself.",
+      "part": 1
+    }
+  ]
+}

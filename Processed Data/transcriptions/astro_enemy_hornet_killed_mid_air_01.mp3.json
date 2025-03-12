@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_enemy_hornet_killed_mid_air_01",
+  "timestamp": "2025-03-12T04:11:34.274314",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You thought you were safe up there?",
+      "part": 1
+    }
+  ]
+}

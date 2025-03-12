@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_atlas_start_05",
+  "timestamp": "2025-03-12T03:48:05.858549",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.400000095367432,
+      "text": " Stopping Detective Abrams will be no small task.",
+      "part": 1
+    }
+  ]
+}

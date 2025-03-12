@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_bebop_04",
+  "timestamp": "2025-03-12T03:50:38.039606",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Scrap golems down.",
+      "part": 1
+    }
+  ]
+}

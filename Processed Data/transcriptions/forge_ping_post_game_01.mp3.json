@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_post_game_01",
+  "timestamp": "2025-03-12T03:44:49.601079",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We all played our parts.",
+      "part": 1
+    }
+  ]
+}

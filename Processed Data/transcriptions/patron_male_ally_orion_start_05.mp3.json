@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_orion_start_05",
+  "timestamp": "2025-03-12T03:52:01.505552",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.0,
+      "text": " You're wise to harden your heart, Talon. Do what needs to be done to complete the ritual.",
+      "part": 1
+    }
+  ]
+}

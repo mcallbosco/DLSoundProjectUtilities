@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_paradox_02",
+  "timestamp": "2025-03-12T12:43:50.126440",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Paradox!",
+      "part": 1
+    }
+  ]
+}

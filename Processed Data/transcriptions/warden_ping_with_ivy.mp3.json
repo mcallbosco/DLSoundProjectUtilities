@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_with_ivy",
+  "timestamp": "2025-03-12T04:05:20.697336",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " I'm with you, Ivy!",
+      "part": 1
+    }
+  ]
+}

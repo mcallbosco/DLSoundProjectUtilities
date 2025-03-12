@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "astro_ping_post_game_03",
+  "timestamp": "2025-03-12T12:24:33.974368",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " That was fun!",
+      "part": 1
+    },
+    {
+      "start": 1.0,
+      "end": 3.0,
+      "text": " Scary, but fun!",
+      "part": 2
+    }
+  ]
+}

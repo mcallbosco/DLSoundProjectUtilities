@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_select_07",
+  "timestamp": "2025-03-12T04:01:35.414330",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.6799999475479126,
+      "text": " I'm duty-bound to fight.",
+      "part": 1
+    }
+  ]
+}

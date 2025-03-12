@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_unselect_01",
+  "timestamp": "2025-03-12T03:31:33.670501",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " Ah, whatever, I needed to make Pruno anyway.",
+      "part": 1
+    }
+  ]
+}

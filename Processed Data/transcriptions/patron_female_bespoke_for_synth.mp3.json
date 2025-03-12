@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_for_synth",
+  "timestamp": "2025-03-12T12:35:15.667651",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.5,
+      "text": " You can't hide in that case forever, Pocket. Eventually, you'll need to face your fears.",
+      "part": 1
+    }
+  ]
+}

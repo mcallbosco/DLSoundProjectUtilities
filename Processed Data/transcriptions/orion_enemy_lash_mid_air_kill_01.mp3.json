@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_enemy_lash_mid_air_kill_01",
+  "timestamp": "2025-03-12T12:42:42.286459",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " God, that felt good!",
+      "part": 1
+    }
+  ]
+}

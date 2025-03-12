@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_enemy_update_tengu",
+  "timestamp": "2025-03-12T03:28:28.807296",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " The Gargoyle is possibly the most wretched creature that I've seen on this plane.",
+      "part": 1
+    }
+  ]
+}

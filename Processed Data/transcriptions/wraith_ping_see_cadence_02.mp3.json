@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_see_cadence_02",
+  "timestamp": "2025-03-12T12:49:29.414889",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " There's my favorite jazz singer.",
+      "part": 1
+    }
+  ]
+}

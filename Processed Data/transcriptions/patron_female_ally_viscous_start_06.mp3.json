@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_viscous_start_06",
+  "timestamp": "2025-03-12T04:00:16.130785",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " The adversary comes for your people, Viscous, but together we can save the Deep.",
+      "part": 1
+    }
+  ]
+}

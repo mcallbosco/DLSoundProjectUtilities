@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_tengu_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:28:14.221998",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They killed the gargoyle!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "wraith_select_04",
+  "timestamp": "2025-03-12T12:26:31.940573",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.599999904632568,
+      "text": " The great part about being a degenerate gambler is that you get really good at setting up your own action.",
+      "part": 1
+    },
+    {
+      "start": 5.599999904632568,
+      "end": 8.399999618530273,
+      "text": " Broke? Yeah. Bored? Never.",
+      "part": 2
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_wrecker_dead",
+  "timestamp": "2025-03-12T12:46:34.160128",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wrecker is dead.",
+      "part": 1
+    }
+  ]
+}

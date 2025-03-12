@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_warden_dead",
+  "timestamp": "2025-03-12T03:46:47.147286",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden is dead.",
+      "part": 1
+    }
+  ]
+}

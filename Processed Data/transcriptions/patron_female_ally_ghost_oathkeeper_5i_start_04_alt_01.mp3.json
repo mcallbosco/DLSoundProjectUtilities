@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_oathkeeper_5i_start_04_alt_01",
+  "timestamp": "2025-03-12T04:10:36.190336",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.759999990463257,
+      "text": " Age was never a thing to be feared, Geist.",
+      "part": 1
+    },
+    {
+      "start": 3.759999990463257,
+      "end": 7.28000020980835,
+      "text": " Let this realization give you new strength.",
+      "part": 2
+    }
+  ]
+}

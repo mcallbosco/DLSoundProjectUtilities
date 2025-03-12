@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_unselect_09_alt_02",
+  "timestamp": "2025-03-12T03:30:52.935932",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " If you need me, I'll be at the Met.",
+      "part": 1
+    }
+  ]
+}

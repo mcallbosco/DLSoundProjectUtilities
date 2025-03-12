@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_gigawatt_start_03",
+  "timestamp": "2025-03-12T03:43:01.409650",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " You escaped loss, Whisper. You killed your tormentors, but it is not enough. Complete the ritual, Seven.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_forge_destroy_turrets_03",
+  "timestamp": "2025-03-12T04:06:13.731895",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Plant all the turrets you want, McGinnis. I'll destroy them all.",
+      "part": 1
+    }
+  ]
+}

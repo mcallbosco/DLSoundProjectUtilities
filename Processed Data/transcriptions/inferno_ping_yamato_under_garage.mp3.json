@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_yamato_under_garage",
+  "timestamp": "2025-03-12T04:11:43.378107",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato's under the garage.",
+      "part": 1
+    }
+  ]
+}

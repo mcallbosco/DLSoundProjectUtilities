@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_forge_wall_stun_kill_01",
+  "timestamp": "2025-03-12T03:36:43.760886",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks, McGinnis!",
+      "part": 1
+    }
+  ]
+}

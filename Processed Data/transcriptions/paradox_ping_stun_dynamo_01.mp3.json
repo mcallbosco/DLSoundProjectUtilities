@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_stun_dynamo_01",
+  "timestamp": "2025-03-12T03:59:12.895638",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " Stun Dynamo.",
+      "part": 1
+    }
+  ]
+}

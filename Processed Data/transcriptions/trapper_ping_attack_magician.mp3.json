@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_attack_magician",
+  "timestamp": "2025-03-12T03:32:03.716647",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Magician!",
+      "part": 1
+    }
+  ]
+}

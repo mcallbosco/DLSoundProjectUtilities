@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_stun_shiv_01",
+  "timestamp": "2025-03-12T03:29:01.649268",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Stone Shiv",
+      "part": 1
+    }
+  ]
+}

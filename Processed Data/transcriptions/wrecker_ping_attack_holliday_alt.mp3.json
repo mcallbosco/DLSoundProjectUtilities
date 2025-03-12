@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_attack_holliday_alt",
+  "timestamp": "2025-03-12T03:36:39.094950",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KILL COWBOY HAT!",
+      "part": 1
+    }
+  ]
+}

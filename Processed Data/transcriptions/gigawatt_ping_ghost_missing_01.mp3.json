@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_ghost_missing_01",
+  "timestamp": "2025-03-12T04:10:23.857389",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DICE MACHINE",
+      "part": 1
+    }
+  ]
+}

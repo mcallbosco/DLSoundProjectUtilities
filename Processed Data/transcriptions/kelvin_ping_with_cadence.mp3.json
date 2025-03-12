@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_with_cadence",
+  "timestamp": "2025-03-12T03:32:25.077120",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Cadence!",
+      "part": 1
+    }
+  ]
+}

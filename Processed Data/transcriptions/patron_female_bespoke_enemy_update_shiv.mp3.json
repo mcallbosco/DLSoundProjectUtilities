@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_enemy_update_shiv",
+  "timestamp": "2025-03-12T12:47:31.797545",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.5,
+      "text": " Curse Shiv, and watch him wither under your assault.",
+      "part": 1
+    }
+  ]
+}

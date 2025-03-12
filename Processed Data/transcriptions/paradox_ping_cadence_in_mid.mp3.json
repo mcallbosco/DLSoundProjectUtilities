@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_cadence_in_mid",
+  "timestamp": "2025-03-12T03:52:05.996661",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Cadence in Mid.",
+      "part": 1
+    }
+  ]
+}

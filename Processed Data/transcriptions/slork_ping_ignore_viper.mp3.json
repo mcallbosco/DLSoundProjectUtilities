@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_ignore_viper",
+  "timestamp": "2025-03-12T04:11:18.499457",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Vyper.",
+      "part": 1
+    }
+  ]
+}

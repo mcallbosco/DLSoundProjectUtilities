@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_synth_in_mid",
+  "timestamp": "2025-03-12T04:08:26.790357",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Pocket is in Mid.",
+      "part": 1
+    }
+  ]
+}

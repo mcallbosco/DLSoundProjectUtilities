@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_cadence_in_mid",
+  "timestamp": "2025-03-12T12:41:04.970854",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geht dann zu sieben mit!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_stun_kelvin_01",
+  "timestamp": "2025-03-12T03:38:05.766687",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Kelvin.",
+      "part": 1
+    }
+  ]
+}

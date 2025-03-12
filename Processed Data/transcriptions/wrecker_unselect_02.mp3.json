@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_unselect_02",
+  "timestamp": "2025-03-12T03:49:17.788309",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Goodbye.",
+      "part": 1
+    }
+  ]
+}

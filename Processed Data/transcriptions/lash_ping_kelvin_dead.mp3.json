@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_kelvin_dead",
+  "timestamp": "2025-03-12T04:04:29.352884",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kelvin is dead.",
+      "part": 1
+    }
+  ]
+}

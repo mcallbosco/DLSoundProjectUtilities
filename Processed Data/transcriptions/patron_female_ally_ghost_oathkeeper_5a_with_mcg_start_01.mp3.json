@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_oathkeeper_5a_with_mcg_start_01",
+  "timestamp": "2025-03-12T12:26:21.879915",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.079999923706055,
+      "text": " McGinnis' mind forged you a solution, now it's up to you to capitalize.",
+      "part": 1
+    }
+  ]
+}

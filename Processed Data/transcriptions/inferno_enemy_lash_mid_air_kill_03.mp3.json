@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_enemy_lash_mid_air_kill_03",
+  "timestamp": "2025-03-12T12:27:58.071460",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You call yourself a fighter?",
+      "part": 1
+    }
+  ]
+}

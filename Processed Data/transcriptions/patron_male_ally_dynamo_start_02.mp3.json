@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_dynamo_start_02",
+  "timestamp": "2025-03-12T12:46:49.243353",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.759999990463257,
+      "text": " You possess an open mind and a courageous heart, Professor.",
+      "part": 1
+    },
+    {
+      "start": 3.759999990463257,
+      "end": 6.239999771118164,
+      "text": " Both will be needed to complete the ritual.",
+      "part": 2
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ally_forge_wall_stun_kill_03",
+  "timestamp": "2025-03-12T03:49:42.436378",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis trapped them!",
+      "part": 1
+    }
+  ]
+}

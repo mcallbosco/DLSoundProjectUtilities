@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_with_trapper",
+  "timestamp": "2025-03-12T12:25:18.595169",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Trapper.",
+      "part": 1
+    }
+  ]
+}

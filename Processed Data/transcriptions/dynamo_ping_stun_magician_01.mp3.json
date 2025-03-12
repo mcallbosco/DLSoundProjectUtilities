@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_stun_magician_01",
+  "timestamp": "2025-03-12T03:59:26.890444",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STUN MAGICIAN!",
+      "part": 1
+    }
+  ]
+}

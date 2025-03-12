@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_careful_mirage_01",
+  "timestamp": "2025-03-12T03:28:08.880624",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GERFU MIRAGE",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_atlas_start_04",
+  "timestamp": "2025-03-12T03:28:01.885594",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " You cannot let Abrams complete the ritual.",
+      "part": 1
+    }
+  ]
+}

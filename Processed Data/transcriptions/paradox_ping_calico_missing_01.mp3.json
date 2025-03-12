@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_calico_missing_01",
+  "timestamp": "2025-03-12T04:11:57.850018",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico's missing.",
+      "part": 1
+    }
+  ]
+}

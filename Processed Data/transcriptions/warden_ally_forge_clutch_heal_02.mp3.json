@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_forge_clutch_heal_02",
+  "timestamp": "2025-03-12T03:58:38.812636",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks for the support!",
+      "part": 1
+    }
+  ]
+}

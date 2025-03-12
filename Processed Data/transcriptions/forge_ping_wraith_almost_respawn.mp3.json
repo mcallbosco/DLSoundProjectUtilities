@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_wraith_almost_respawn",
+  "timestamp": "2025-03-12T03:33:00.747723",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRAITH IS ALMOST BACK!",
+      "part": 1
+    }
+  ]
+}

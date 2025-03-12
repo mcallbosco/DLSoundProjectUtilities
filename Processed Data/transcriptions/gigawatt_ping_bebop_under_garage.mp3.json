@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_bebop_under_garage",
+  "timestamp": "2025-03-12T12:48:28.816998",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Bebop's onto the garage!",
+      "part": 1
+    }
+  ]
+}

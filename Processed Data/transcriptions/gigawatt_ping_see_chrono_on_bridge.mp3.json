@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_see_chrono_on_bridge",
+  "timestamp": "2025-03-12T03:45:50.061684",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " PARADOX IS ON THE BRIDGE!",
+      "part": 1
+    }
+  ]
+}

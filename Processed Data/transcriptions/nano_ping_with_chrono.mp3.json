@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_with_chrono",
+  "timestamp": "2025-03-12T03:43:57.725516",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Paradox.",
+      "part": 1
+    }
+  ]
+}

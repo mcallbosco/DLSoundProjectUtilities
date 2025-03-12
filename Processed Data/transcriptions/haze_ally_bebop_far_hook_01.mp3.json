@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_bebop_far_hook_01",
+  "timestamp": "2025-03-12T03:30:32.215990",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good luck, Bebop!",
+      "part": 1
+    }
+  ]
+}

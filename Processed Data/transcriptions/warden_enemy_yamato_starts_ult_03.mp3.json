@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_yamato_starts_ult_03",
+  "timestamp": "2025-03-12T03:49:51.351348",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " YAMATO'S CHANNELING!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_see_cadence_on_bridge",
+  "timestamp": "2025-03-12T03:35:54.007457",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence is on the bridge.",
+      "part": 1
+    }
+  ]
+}

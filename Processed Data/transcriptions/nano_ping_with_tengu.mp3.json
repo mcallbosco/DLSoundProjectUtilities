@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_with_tengu",
+  "timestamp": "2025-03-12T03:58:41.928538",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I'm with you, Ivy.",
+      "part": 1
+    }
+  ]
+}

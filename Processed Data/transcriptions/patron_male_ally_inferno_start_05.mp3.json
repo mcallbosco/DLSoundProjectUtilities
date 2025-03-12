@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_inferno_start_05",
+  "timestamp": "2025-03-12T03:55:23.365412",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " Embrace who you're meant to be, Infernus. Complete the ritual.",
+      "part": 1
+    }
+  ]
+}

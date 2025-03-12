@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_inferno_burns_down_objective_01",
+  "timestamp": "2025-03-12T03:48:37.510417",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5999999046325684,
+      "text": " You made short work of the objective, Infernus.",
+      "part": 1
+    }
+  ]
+}

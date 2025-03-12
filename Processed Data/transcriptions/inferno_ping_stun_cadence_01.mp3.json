@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_stun_cadence_01",
+  "timestamp": "2025-03-12T03:35:10.423955",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stunt Cadence.",
+      "part": 1
+    }
+  ]
+}

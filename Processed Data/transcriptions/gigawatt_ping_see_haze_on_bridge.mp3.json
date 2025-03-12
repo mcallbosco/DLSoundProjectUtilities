@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_see_haze_on_bridge",
+  "timestamp": "2025-03-12T03:55:22.515179",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " HAZE IS ON THE BREACH!",
+      "part": 1
+    }
+  ]
+}

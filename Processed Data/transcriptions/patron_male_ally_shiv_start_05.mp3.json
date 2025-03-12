@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_shiv_start_05",
+  "timestamp": "2025-03-12T04:07:50.237946",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " There's a hole in you, Shiv, that yearns to be filled. Complete the ritual, and be made complete.",
+      "part": 1
+    }
+  ]
+}

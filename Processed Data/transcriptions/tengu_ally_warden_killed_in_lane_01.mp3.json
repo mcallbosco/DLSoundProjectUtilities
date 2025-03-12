@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_warden_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:35:01.608717",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " THEY TOOK OUT WARDEN!",
+      "part": 1
+    }
+  ]
+}

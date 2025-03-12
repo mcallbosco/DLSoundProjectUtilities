@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_can_heal_operative",
+  "timestamp": "2025-03-12T03:37:36.636052",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " RAVEN, I CAN HEAL YOU!",
+      "part": 1
+    }
+  ]
+}

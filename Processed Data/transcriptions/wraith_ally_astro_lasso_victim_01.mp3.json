@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_astro_lasso_victim_01",
+  "timestamp": "2025-03-12T03:48:40.140393",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Holliday has them.",
+      "part": 1
+    }
+  ]
+}

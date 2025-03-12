@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_see_lash_on_bridge",
+  "timestamp": "2025-03-12T03:50:57.607172",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " LASH IS ON THE BRIDGE!",
+      "part": 1
+    }
+  ]
+}

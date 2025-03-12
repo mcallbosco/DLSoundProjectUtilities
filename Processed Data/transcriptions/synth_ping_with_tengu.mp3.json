@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_with_tengu",
+  "timestamp": "2025-03-12T03:34:33.733321",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Ivy.",
+      "part": 1
+    }
+  ]
+}

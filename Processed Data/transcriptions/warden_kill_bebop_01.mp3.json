@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_bebop_01",
+  "timestamp": "2025-03-12T04:04:03.769941",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.7200000286102295,
+      "text": " The will of man is stronger than any machine.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_inferno_burns_down_objective_02",
+  "timestamp": "2025-03-12T12:24:16.142122",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "text": " Infernus, your misspent youth is being put to good use!",
+      "part": 1
+    }
+  ]
+}

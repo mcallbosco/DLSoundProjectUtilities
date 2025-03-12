@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_haze_interrupt_with_finesse_03",
+  "timestamp": "2025-03-12T12:33:35.091184",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Haze saved my ass there.",
+      "part": 1
+    }
+  ]
+}

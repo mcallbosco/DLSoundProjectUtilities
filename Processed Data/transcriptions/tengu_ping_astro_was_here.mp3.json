@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_astro_was_here",
+  "timestamp": "2025-03-12T03:53:19.968520",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Holliday was here!",
+      "part": 1
+    }
+  ]
+}

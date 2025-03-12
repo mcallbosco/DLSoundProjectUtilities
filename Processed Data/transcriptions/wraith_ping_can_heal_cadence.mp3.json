@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_can_heal_cadence",
+  "timestamp": "2025-03-12T04:01:53.507211",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence, I can heal you.",
+      "part": 1
+    }
+  ]
+}

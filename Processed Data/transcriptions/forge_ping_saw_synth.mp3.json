@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_saw_synth",
+  "timestamp": "2025-03-12T12:29:36.513812",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I SAW A POCKET!",
+      "part": 1
+    }
+  ]
+}

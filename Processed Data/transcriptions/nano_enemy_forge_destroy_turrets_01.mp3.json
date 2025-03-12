@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_enemy_forge_destroy_turrets_01",
+  "timestamp": "2025-03-12T03:52:29.920835",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'll break all of your machines, McGinnis.",
+      "part": 1
+    }
+  ]
+}

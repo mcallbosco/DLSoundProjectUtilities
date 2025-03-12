@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_stun_forge_01",
+  "timestamp": "2025-03-12T12:47:32.629061",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u30b9\u30bf\u30f3\u30fb\u30de\u30af\u30ae\u30cb\u30b9",
+      "part": 1
+    }
+  ]
+}

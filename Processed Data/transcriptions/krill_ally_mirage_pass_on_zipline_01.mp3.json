@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_mirage_pass_on_zipline_01",
+  "timestamp": "2025-03-12T12:31:59.908346",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I won't leave you alone for long, Mirage.",
+      "part": 1
+    }
+  ]
+}

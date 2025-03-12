@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_for_atlas",
+  "timestamp": "2025-03-12T03:53:30.014073",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.760000228881836,
+      "text": " The Tome has been doing you many favors. Are you sure you want to be rid of it?",
+      "part": 1
+    }
+  ]
+}

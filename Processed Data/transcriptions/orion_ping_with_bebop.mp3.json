@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_with_bebop",
+  "timestamp": "2025-03-12T03:41:58.800481",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I'm with you, Bebop!",
+      "part": 1
+    }
+  ]
+}

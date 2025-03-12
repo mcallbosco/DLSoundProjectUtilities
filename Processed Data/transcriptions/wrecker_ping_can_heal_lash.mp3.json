@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_can_heal_lash",
+  "timestamp": "2025-03-12T04:04:36.654153",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash, I can hear you.",
+      "part": 1
+    }
+  ]
+}

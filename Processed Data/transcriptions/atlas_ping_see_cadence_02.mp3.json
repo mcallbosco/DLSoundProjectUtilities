@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_see_cadence_02",
+  "timestamp": "2025-03-12T03:33:26.166131",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " I see Candace, uh, Cadence, whatever.",
+      "part": 1
+    }
+  ]
+}

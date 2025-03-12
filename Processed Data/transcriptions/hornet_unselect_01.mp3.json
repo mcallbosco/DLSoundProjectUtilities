@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_unselect_01",
+  "timestamp": "2025-03-12T12:40:13.855122",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I can do this on my own.",
+      "part": 1
+    }
+  ]
+}

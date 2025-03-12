@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_see_forge_02",
+  "timestamp": "2025-03-12T12:26:24.785674",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " There's Forge.",
+      "part": 1
+    }
+  ]
+}

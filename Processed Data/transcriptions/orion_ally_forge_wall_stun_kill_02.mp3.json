@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ally_forge_wall_stun_kill_02",
+  "timestamp": "2025-03-12T03:59:36.463881",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I like the way you think, McGinnis.",
+      "part": 1
+    }
+  ]
+}

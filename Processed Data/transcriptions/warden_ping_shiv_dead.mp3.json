@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_shiv_dead",
+  "timestamp": "2025-03-12T03:43:30.199964",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Shiv is dead.",
+      "part": 1
+    }
+  ]
+}

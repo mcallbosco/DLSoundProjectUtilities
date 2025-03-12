@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_shiv_check_items",
+  "timestamp": "2025-03-12T03:42:49.876150",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.440000057220459,
+      "text": " Check out what Shiv bought!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_ghost_missing_01",
+  "timestamp": "2025-03-12T03:45:52.208258",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.9599999785423279,
+      "text": " Geist Missing",
+      "part": 1
+    }
+  ]
+}

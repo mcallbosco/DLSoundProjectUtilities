@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_shiv_check_items",
+  "timestamp": "2025-03-12T12:26:50.165416",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.600000023841858,
+      "text": " Check out what Shiv bought!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_wrecker_was_here",
+  "timestamp": "2025-03-12T03:46:26.248917",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wrecker was here.",
+      "part": 1
+    }
+  ]
+}

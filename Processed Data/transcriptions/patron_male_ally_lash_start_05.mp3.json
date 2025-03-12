@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_lash_start_05",
+  "timestamp": "2025-03-12T04:04:15.814017",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.5,
+      "text": " You've proven yourself time and again, Lash, but the world still doubts you.",
+      "part": 1
+    },
+    {
+      "start": 5.5,
+      "end": 10.5,
+      "text": " But once you release me, your greatness will be undeniable!",
+      "part": 2
+    }
+  ]
+}

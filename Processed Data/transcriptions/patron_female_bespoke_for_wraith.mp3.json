@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_for_wraith",
+  "timestamp": "2025-03-12T03:55:49.498430",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " They cannot touch you, Wraith.",
+      "part": 1
+    }
+  ]
+}

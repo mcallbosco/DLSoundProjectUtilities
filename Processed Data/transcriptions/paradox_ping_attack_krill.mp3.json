@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_attack_krill",
+  "timestamp": "2025-03-12T03:30:51.193983",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Let's take out Krill!",
+      "part": 1
+    }
+  ]
+}

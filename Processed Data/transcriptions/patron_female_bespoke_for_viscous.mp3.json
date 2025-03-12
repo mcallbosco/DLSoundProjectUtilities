@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_for_viscous",
+  "timestamp": "2025-03-12T12:25:49.486591",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " You have shown your allies the glory of the cube!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_gigawatt_dead",
+  "timestamp": "2025-03-12T04:00:43.964969",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven is dead.",
+      "part": 1
+    }
+  ]
+}

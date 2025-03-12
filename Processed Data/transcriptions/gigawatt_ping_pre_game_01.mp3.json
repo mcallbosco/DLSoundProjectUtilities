@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_pre_game_01",
+  "timestamp": "2025-03-12T03:42:05.888175",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Today, we summon a god.",
+      "part": 1
+    }
+  ]
+}

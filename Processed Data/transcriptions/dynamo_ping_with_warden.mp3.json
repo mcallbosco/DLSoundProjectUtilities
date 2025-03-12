@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_with_warden",
+  "timestamp": "2025-03-12T04:01:17.521969",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I'm with you, Warden.",
+      "part": 1
+    }
+  ]
+}

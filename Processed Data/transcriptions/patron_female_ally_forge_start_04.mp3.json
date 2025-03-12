@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_forge_start_04",
+  "timestamp": "2025-03-12T12:41:31.968097",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " Your allies are counting on you, McGinnis, and I know you are ready to rise to the occasion.",
+      "part": 1
+    }
+  ]
+}

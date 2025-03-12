@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_ghost_01",
+  "timestamp": "2025-03-12T12:49:23.097458",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geist is down.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_tengu_start_02_alt_01",
+  "timestamp": "2025-03-12T03:34:54.779756",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " Once you were the savior of Spanish Harlem, and now you will be a savior to your allies.",
+      "part": 1
+    }
+  ]
+}

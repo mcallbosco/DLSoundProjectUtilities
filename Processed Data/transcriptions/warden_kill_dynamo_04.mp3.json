@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_dynamo_04",
+  "timestamp": "2025-03-12T04:03:58.248280",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't lecture me, Dynamo.",
+      "part": 1
+    }
+  ]
+}

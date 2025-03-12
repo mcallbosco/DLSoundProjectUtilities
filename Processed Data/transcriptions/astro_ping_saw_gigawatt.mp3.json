@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_saw_gigawatt",
+  "timestamp": "2025-03-12T12:45:39.334631",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I SAW SEVEN!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_shiv_unkillable_03",
+  "timestamp": "2025-03-12T03:27:53.444125",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't stop fighting, Shiv!",
+      "part": 1
+    }
+  ]
+}

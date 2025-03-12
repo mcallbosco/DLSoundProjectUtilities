@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_oathkeeper_5g_start_01",
+  "timestamp": "2025-03-12T04:09:59.319343",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.0,
+      "text": " Sacrifices must be made, Lady Geist. Are you prepared to do what needs to be done?",
+      "part": 1
+    }
+  ]
+}

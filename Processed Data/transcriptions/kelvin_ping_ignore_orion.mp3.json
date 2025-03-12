@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_ignore_orion",
+  "timestamp": "2025-03-12T03:55:40.689945",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE GREY TALON!",
+      "part": 1
+    }
+  ]
+}

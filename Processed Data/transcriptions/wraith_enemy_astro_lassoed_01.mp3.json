@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_astro_lassoed_01",
+  "timestamp": "2025-03-12T03:34:44.776987",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Put me down!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_atlas_killing_streak_01",
+  "timestamp": "2025-03-12T03:30:44.959456",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " The Detective fights for us all.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_inferno_05",
+  "timestamp": "2025-03-12T12:41:13.561524",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is down.",
+      "part": 1
+    }
+  ]
+}

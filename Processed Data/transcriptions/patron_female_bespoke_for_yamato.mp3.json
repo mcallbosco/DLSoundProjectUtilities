@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_for_yamato",
+  "timestamp": "2025-03-12T12:44:07.912429",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.0,
+      "text": " Oh, they can run from you, Yamato, but you will always track them down.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_gigawatt_was_here",
+  "timestamp": "2025-03-12T03:39:14.831732",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven was here!",
+      "part": 1
+    }
+  ]
+}

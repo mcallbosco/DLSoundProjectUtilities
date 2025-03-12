@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_wrecker_in_mid",
+  "timestamp": "2025-03-12T04:04:33.466751",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wreckers in Mid!",
+      "part": 1
+    }
+  ]
+}

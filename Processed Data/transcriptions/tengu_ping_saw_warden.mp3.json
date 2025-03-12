@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_saw_warden",
+  "timestamp": "2025-03-12T03:58:17.710142",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Warden!",
+      "part": 1
+    }
+  ]
+}

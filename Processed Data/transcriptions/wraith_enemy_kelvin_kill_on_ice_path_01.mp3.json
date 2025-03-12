@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_kelvin_kill_on_ice_path_01",
+  "timestamp": "2025-03-12T04:10:58.347641",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " This ain't Rockefeller Center, buddy.",
+      "part": 1
+    }
+  ]
+}

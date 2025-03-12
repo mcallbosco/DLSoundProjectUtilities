@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_nano_killed_in_lane_01",
+  "timestamp": "2025-03-12T04:06:19.656170",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They killed Calico!",
+      "part": 1
+    }
+  ]
+}

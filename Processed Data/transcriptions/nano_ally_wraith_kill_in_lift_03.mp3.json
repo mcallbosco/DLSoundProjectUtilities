@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ally_wraith_kill_in_lift_03",
+  "timestamp": "2025-03-12T03:40:20.511344",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They didn't stand a chance.",
+      "part": 1
+    }
+  ]
+}

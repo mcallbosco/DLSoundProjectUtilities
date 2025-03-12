@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_see_warden_01",
+  "timestamp": "2025-03-12T03:59:02.568257",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " I see Warden!",
+      "part": 1
+    }
+  ]
+}

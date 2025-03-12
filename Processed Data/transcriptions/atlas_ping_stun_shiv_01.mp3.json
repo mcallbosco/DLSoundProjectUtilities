@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_stun_shiv_01",
+  "timestamp": "2025-03-12T04:04:28.028562",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Stun Shiv",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_atlas_01",
+  "timestamp": "2025-03-12T03:29:43.779426",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " BEGONE DEMON!",
+      "part": 1
+    }
+  ]
+}

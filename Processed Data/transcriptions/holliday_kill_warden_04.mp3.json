@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "holliday_kill_warden_04",
+  "timestamp": "2025-03-12T04:04:26.048552",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stop Warden!",
+      "part": 1
+    }
+  ]
+}

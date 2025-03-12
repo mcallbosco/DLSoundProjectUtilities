@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_select_06",
+  "timestamp": "2025-03-12T12:24:04.233990",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " This should get Ma off my back.",
+      "part": 1
+    }
+  ]
+}

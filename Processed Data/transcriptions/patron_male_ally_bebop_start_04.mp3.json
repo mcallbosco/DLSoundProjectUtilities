@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_bebop_start_04",
+  "timestamp": "2025-03-12T12:29:56.443761",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " You're a good son, Bebop. I know you won't fail your creator.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_start_02",
+  "timestamp": "2025-03-12T03:34:48.067340",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.139999866485596,
+      "text": " Lady Geist, your condition demands a permanent solution.",
+      "part": 1
+    },
+    {
+      "start": 7.139999866485596,
+      "end": 10.640000343322754,
+      "text": " Summon me, and let me help you.",
+      "part": 2
+    }
+  ]
+}

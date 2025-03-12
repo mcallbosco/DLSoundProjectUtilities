@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_careful_forge_03",
+  "timestamp": "2025-03-12T04:06:57.712890",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, McGinnis!",
+      "part": 1
+    }
+  ]
+}

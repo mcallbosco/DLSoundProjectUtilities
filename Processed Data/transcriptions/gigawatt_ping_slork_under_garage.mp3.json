@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_slork_under_garage",
+  "timestamp": "2025-03-12T03:53:24.502463",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Slork's been to the garage!",
+      "part": 1
+    }
+  ]
+}

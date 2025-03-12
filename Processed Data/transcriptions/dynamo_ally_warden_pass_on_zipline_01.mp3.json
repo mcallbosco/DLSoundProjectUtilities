@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ally_warden_pass_on_zipline_01",
+  "timestamp": "2025-03-12T04:00:32.251047",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'll be back when I can, Warden.",
+      "part": 1
+    }
+  ]
+}

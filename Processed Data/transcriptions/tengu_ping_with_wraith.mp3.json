@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_with_wraith",
+  "timestamp": "2025-03-12T03:32:18.123074",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Wraith!",
+      "part": 1
+    }
+  ]
+}

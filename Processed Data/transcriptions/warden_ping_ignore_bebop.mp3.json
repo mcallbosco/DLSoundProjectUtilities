@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_ignore_bebop",
+  "timestamp": "2025-03-12T03:28:09.532919",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE BEBOP!",
+      "part": 1
+    }
+  ]
+}

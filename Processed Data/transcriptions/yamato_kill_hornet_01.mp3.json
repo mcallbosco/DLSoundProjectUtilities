@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_hornet_01",
+  "timestamp": "2025-03-12T03:47:46.443632",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u6210\u4ecf\u3059\u308b\u304c\u3044\u3044\u3002",
+      "part": 1
+    }
+  ]
+}

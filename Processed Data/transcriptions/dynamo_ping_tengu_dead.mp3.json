@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_tengu_dead",
+  "timestamp": "2025-03-12T03:46:45.193490",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ivy is dead.",
+      "part": 1
+    }
+  ]
+}

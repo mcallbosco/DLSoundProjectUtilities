@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_inferno_was_here",
+  "timestamp": "2025-03-12T03:49:37.547183",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus was here!",
+      "part": 1
+    }
+  ]
+}

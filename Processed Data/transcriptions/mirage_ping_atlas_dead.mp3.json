@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_atlas_dead",
+  "timestamp": "2025-03-12T12:26:02.357536",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " ABRAMS IS DEAD",
+      "part": 1
+    }
+  ]
+}

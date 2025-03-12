@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_with_calico",
+  "timestamp": "2025-03-12T12:28:39.438073",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Calico.",
+      "part": 1
+    }
+  ]
+}

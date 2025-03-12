@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_atlas_unkillable_01",
+  "timestamp": "2025-03-12T03:30:38.355370",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Damn it, Abrams, just die!",
+      "part": 1
+    }
+  ]
+}

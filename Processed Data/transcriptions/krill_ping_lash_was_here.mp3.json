@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_lash_was_here",
+  "timestamp": "2025-03-12T12:26:44.563514",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash was here.",
+      "part": 1
+    }
+  ]
+}

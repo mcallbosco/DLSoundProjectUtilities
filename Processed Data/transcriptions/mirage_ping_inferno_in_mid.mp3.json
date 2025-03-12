@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_inferno_in_mid",
+  "timestamp": "2025-03-12T12:48:38.210160",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus in mid!",
+      "part": 1
+    }
+  ]
+}

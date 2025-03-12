@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_enemy_update_astro",
+  "timestamp": "2025-03-12T03:35:49.577853",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The Sheriff has it out for you.",
+      "part": 1
+    }
+  ]
+}

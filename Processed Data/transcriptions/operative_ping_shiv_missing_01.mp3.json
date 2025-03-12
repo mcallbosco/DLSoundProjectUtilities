@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_shiv_missing_01",
+  "timestamp": "2025-03-12T03:47:02.709281",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " She's missing.",
+      "part": 1
+    }
+  ]
+}

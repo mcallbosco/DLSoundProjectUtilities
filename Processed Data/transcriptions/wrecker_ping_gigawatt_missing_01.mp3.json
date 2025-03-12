@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_gigawatt_missing_01",
+  "timestamp": "2025-03-12T03:54:03.583710",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Gigawatt is missing.",
+      "part": 1
+    }
+  ]
+}

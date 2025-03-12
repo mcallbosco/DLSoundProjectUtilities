@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_attack_fathom",
+  "timestamp": "2025-03-12T04:11:50.919283",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Fathom!",
+      "part": 1
+    }
+  ]
+}

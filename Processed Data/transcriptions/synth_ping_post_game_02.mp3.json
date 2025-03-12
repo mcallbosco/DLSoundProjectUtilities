@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_post_game_02",
+  "timestamp": "2025-03-12T12:38:32.095007",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We all did our best.",
+      "part": 1
+    }
+  ]
+}

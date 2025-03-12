@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_select_10",
+  "timestamp": "2025-03-12T12:44:50.845795",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " This isn't about good or evil. It's about survival.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_warden_big_ult_02",
+  "timestamp": "2025-03-12T03:47:30.488754",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " And this is why we stay away from Murphy.",
+      "part": 1
+    }
+  ]
+}

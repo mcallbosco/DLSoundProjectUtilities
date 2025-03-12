@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_mirage_almost_respawn",
+  "timestamp": "2025-03-12T12:26:37.837397",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage is almost back!",
+      "part": 1
+    }
+  ]
+}

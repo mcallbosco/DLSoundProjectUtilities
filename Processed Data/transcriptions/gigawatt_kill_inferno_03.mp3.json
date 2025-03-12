@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_inferno_03",
+  "timestamp": "2025-03-12T03:28:59.076650",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " A pity we couldn't work together, Infernus.",
+      "part": 1
+    }
+  ]
+}

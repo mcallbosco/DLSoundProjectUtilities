@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_ignore_gigawatt",
+  "timestamp": "2025-03-12T03:35:15.894761",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Seven.",
+      "part": 1
+    }
+  ]
+}

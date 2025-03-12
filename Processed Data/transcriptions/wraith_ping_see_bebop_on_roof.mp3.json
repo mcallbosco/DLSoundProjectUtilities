@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_see_bebop_on_roof",
+  "timestamp": "2025-03-12T03:53:34.733181",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Bebop's on the Roof.",
+      "part": 1
+    }
+  ]
+}

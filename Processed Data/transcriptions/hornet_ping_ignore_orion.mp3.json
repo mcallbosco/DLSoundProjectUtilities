@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_ignore_orion",
+  "timestamp": "2025-03-12T03:35:23.391105",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Grey Talon.",
+      "part": 1
+    }
+  ]
+}

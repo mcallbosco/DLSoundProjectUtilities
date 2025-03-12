@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_select_06",
+  "timestamp": "2025-03-12T04:02:56.174802",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Well then, looks like we have work to do.",
+      "part": 1
+    }
+  ]
+}

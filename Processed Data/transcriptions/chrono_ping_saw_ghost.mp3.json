@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_saw_ghost",
+  "timestamp": "2025-03-12T03:42:22.038911",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Geist!",
+      "part": 1
+    }
+  ]
+}

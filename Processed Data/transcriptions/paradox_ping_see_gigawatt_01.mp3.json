@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_gigawatt_01",
+  "timestamp": "2025-03-12T12:32:19.081150",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I see Gigawatt.",
+      "part": 1
+    }
+  ]
+}

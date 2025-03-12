@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_bebop_02",
+  "timestamp": "2025-03-12T04:06:51.044824",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The robot's finished.",
+      "part": 1
+    }
+  ]
+}

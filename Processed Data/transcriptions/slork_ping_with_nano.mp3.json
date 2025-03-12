@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_with_nano",
+  "timestamp": "2025-03-12T12:29:20.051991",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Kabuko.",
+      "part": 1
+    }
+  ]
+}

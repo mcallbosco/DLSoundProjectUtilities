@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_krill_start_01",
+  "timestamp": "2025-03-12T03:36:15.444859",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.760000228881836,
+      "text": " Maurice, Krill, you've been forced to live on the margins for too long. Summon me.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_bebop_01",
+  "timestamp": "2025-03-12T04:05:57.553292",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Scrapped Bebop.",
+      "part": 1
+    }
+  ]
+}

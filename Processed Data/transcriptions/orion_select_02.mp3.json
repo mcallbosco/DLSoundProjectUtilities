@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_select_02",
+  "timestamp": "2025-03-12T03:29:51.237993",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm coming for you, Hathorne.",
+      "part": 1
+    }
+  ]
+}

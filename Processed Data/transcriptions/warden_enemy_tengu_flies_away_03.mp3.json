@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_tengu_flies_away_03",
+  "timestamp": "2025-03-12T12:23:26.512864",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Of course she flew away.",
+      "part": 1
+    }
+  ]
+}

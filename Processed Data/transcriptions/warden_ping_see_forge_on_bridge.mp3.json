@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_forge_on_bridge",
+  "timestamp": "2025-03-12T12:45:31.539993",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is on the bridge!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_stun_ghost_01",
+  "timestamp": "2025-03-12T12:32:44.422698",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stangeist",
+      "part": 1
+    }
+  ]
+}

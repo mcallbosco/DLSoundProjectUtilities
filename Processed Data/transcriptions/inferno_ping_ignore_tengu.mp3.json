@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_ignore_tengu",
+  "timestamp": "2025-03-12T12:25:41.676062",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Ignore Ivy.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_bebop_kill_mid_laser_01",
+  "timestamp": "2025-03-12T03:41:13.966687",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You're too slow, Bebop!",
+      "part": 1
+    }
+  ]
+}

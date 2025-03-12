@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_infernus_01",
+  "timestamp": "2025-03-12T12:42:49.495886",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Be careful, Infernus.",
+      "part": 1
+    }
+  ]
+}

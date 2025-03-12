@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_krill_grab_mid_enemy_ult_01",
+  "timestamp": "2025-03-12T04:08:54.108643",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Great job, boys!",
+      "part": 1
+    }
+  ]
+}

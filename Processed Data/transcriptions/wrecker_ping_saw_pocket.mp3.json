@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_saw_pocket",
+  "timestamp": "2025-03-12T03:41:42.436039",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I stole a pocket.",
+      "part": 1
+    }
+  ]
+}

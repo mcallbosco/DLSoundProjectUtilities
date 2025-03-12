@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_gigawatt_missing_01",
+  "timestamp": "2025-03-12T03:28:22.991721",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GIGAWATTS MISSING!",
+      "part": 1
+    }
+  ]
+}

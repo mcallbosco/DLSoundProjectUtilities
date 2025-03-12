@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_ignore_tengu",
+  "timestamp": "2025-03-12T03:27:36.468587",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Ivy!",
+      "part": 1
+    }
+  ]
+}

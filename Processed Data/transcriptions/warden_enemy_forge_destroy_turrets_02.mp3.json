@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_forge_destroy_turrets_02",
+  "timestamp": "2025-03-12T04:11:21.802474",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " These machines the best you can muster?",
+      "part": 1
+    }
+  ]
+}

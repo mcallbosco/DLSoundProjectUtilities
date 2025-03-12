@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_with_abrams",
+  "timestamp": "2025-03-12T03:30:04.644999",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.240000009536743,
+      "text": " I'm with you, Abrams.",
+      "part": 1
+    }
+  ]
+}

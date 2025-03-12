@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_hornet_under_garage",
+  "timestamp": "2025-03-12T04:01:44.665203",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta is under the garage.",
+      "part": 1
+    }
+  ]
+}

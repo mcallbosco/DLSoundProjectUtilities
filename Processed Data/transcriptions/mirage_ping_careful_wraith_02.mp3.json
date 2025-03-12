@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_careful_wraith_02",
+  "timestamp": "2025-03-12T03:29:56.244025",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " CAREFUL WRAITH",
+      "part": 1
+    }
+  ]
+}

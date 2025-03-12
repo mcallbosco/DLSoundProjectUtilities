@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_mirage_01",
+  "timestamp": "2025-03-12T12:33:34.550441",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " The Djinn will always fail, because they ask when they should take.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_post_game_03",
+  "timestamp": "2025-03-12T04:09:31.305185",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wasn't the outcome I was expecting.",
+      "part": 1
+    }
+  ]
+}

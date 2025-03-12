@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_seven_01",
+  "timestamp": "2025-03-12T03:36:23.053048",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see Seven.",
+      "part": 1
+    }
+  ]
+}

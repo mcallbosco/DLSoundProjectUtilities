@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_forge_almost_respawn",
+  "timestamp": "2025-03-12T03:44:56.555553",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is almost back!",
+      "part": 1
+    }
+  ]
+}

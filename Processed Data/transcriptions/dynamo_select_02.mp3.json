@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_select_02",
+  "timestamp": "2025-03-12T03:39:35.362097",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Looks like I'll have to cancel class this afternoon.",
+      "part": 1
+    }
+  ]
+}

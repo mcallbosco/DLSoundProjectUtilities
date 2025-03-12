@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_wrecker_03",
+  "timestamp": "2025-03-12T12:43:00.721980",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Took out the monster.",
+      "part": 1
+    }
+  ]
+}

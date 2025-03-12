@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_chrono_almost_respawn",
+  "timestamp": "2025-03-12T04:02:48.291200",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Paradox is almost back!",
+      "part": 1
+    }
+  ]
+}

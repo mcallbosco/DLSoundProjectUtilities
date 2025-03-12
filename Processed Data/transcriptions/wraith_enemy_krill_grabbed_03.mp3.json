@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_krill_grabbed_03",
+  "timestamp": "2025-03-12T03:52:40.702957",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " SHOOT THE DAMN MOLE!",
+      "part": 1
+    }
+  ]
+}

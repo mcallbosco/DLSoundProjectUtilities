@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_can_heal_infernus",
+  "timestamp": "2025-03-12T03:42:42.892956",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus, I can heal you!",
+      "part": 1
+    }
+  ]
+}

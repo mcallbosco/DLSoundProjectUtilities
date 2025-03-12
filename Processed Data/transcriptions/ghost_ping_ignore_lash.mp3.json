@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_ignore_lash",
+  "timestamp": "2025-03-12T03:30:44.452259",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Lash!",
+      "part": 1
+    }
+  ]
+}

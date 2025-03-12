@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_unselect_01",
+  "timestamp": "2025-03-12T12:46:29.137321",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.400000095367432,
+      "text": " Don't have time for the patrons today, I have some bodies to hide.",
+      "part": 1
+    }
+  ]
+}

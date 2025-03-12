@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_can_heal_pocket",
+  "timestamp": "2025-03-12T12:45:43.541969",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Pocket, I can heal you.",
+      "part": 1
+    }
+  ]
+}

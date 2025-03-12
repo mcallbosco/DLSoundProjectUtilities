@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_select_09",
+  "timestamp": "2025-03-12T03:39:01.234335",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.880000114440918,
+      "text": " It was smart to turn to Paradox for help.",
+      "part": 1
+    }
+  ]
+}

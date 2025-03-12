@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_see_calico",
+  "timestamp": "2025-03-12T03:48:10.561364",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.9599999785423279,
+      "text": " I see Calico!",
+      "part": 1
+    }
+  ]
+}

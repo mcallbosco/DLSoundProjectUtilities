@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_for_hornet",
+  "timestamp": "2025-03-12T03:48:46.449735",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "text": " You and Grey Talon fight with singular purpose.",
+      "part": 1
+    }
+  ]
+}

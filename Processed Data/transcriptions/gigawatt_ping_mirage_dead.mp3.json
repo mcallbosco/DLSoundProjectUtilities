@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_mirage_dead",
+  "timestamp": "2025-03-12T03:40:39.110386",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage is dead.",
+      "part": 1
+    }
+  ]
+}

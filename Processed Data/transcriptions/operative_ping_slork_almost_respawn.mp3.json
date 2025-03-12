@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_slork_almost_respawn",
+  "timestamp": "2025-03-12T03:50:59.370414",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " FATHOM IS ALMOST BACK!",
+      "part": 1
+    }
+  ]
+}

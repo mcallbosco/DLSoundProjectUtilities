@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_haze_02",
+  "timestamp": "2025-03-12T04:08:34.187283",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Haze!",
+      "part": 1
+    }
+  ]
+}

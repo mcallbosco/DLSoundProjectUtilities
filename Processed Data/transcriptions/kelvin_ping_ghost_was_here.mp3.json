@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_ghost_was_here",
+  "timestamp": "2025-03-12T03:32:41.169680",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geistlos hier!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_astro_start_02",
+  "timestamp": "2025-03-12T03:32:24.229662",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.760000228881836,
+      "text": " The Troubadour eludes you, Holliday, but with my help he will get what he deserves.",
+      "part": 1
+    }
+  ]
+}

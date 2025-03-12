@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ally_orion_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:28:14.452570",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " THEY TOOK OUT GREY TALON!",
+      "part": 1
+    }
+  ]
+}

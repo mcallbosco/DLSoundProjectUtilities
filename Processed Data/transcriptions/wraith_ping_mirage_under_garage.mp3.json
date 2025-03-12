@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_mirage_under_garage",
+  "timestamp": "2025-03-12T12:47:18.903738",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage is under the garage.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_tengu_dead",
+  "timestamp": "2025-03-12T04:07:20.670997",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IVY'S DEAD!",
+      "part": 1
+    }
+  ]
+}

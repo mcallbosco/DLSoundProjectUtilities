@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_cadence_02",
+  "timestamp": "2025-03-12T03:55:10.788245",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out Cadence.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_tengu_04",
+  "timestamp": "2025-03-12T04:11:54.158074",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Took out the gargoyle.",
+      "part": 1
+    }
+  ]
+}

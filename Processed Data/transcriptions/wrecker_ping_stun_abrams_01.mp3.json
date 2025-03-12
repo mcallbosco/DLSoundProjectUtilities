@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_stun_abrams_01",
+  "timestamp": "2025-03-12T04:10:55.818111",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stan Abrams",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_can_heal_orion",
+  "timestamp": "2025-03-12T12:33:52.141121",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Grey Talon, I can heal you.",
+      "part": 1
+    }
+  ]
+}

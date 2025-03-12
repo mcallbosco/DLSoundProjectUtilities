@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_unselect_07",
+  "timestamp": "2025-03-12T12:31:03.326659",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " Break lines won't cut themselves.",
+      "part": 1
+    }
+  ]
+}

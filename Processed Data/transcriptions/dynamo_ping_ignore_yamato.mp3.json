@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_ignore_yamato",
+  "timestamp": "2025-03-12T04:03:29.694050",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE YAMATO!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_dynamo_under_garage",
+  "timestamp": "2025-03-12T03:34:04.811875",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DYNAMOS UNDER THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

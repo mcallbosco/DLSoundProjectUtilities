@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_haze_04",
+  "timestamp": "2025-03-12T03:40:23.078928",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The Dreamwalker's down.",
+      "part": 1
+    }
+  ]
+}

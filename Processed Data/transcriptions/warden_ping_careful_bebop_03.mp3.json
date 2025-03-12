@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_careful_bebop_03",
+  "timestamp": "2025-03-12T12:33:10.523832",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Bebop!",
+      "part": 1
+    }
+  ]
+}

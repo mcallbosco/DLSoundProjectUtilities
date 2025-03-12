@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_pre_game_02",
+  "timestamp": "2025-03-12T03:35:51.771937",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u3053\u3044\u3064\u3089\u306f\u5f79\u7acb\u305f\u305a\u3058\u3083\u306a\u3044\u3068\u3044\u3044\u304c\u3002",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_shiv_start_03",
+  "timestamp": "2025-03-12T03:46:34.083384",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.799999952316284,
+      "text": " Many men would kill for the gift you are looking to purge.",
+      "part": 1
+    },
+    {
+      "start": 3.799999952316284,
+      "end": 8.800000190734863,
+      "text": " Nonetheless, complete the ritual, and I will give you what you seek.",
+      "part": 2
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_can_heal_kelvin",
+  "timestamp": "2025-03-12T04:06:28.270182",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kelvin, I can heal you!",
+      "part": 1
+    }
+  ]
+}

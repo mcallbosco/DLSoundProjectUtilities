@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_shiv_unkillable_03",
+  "timestamp": "2025-03-12T03:42:01.303448",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We need to work together to stop Shiv!",
+      "part": 1
+    }
+  ]
+}

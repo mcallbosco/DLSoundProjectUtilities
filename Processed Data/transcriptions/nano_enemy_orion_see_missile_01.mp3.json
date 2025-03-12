@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_enemy_orion_see_missile_01",
+  "timestamp": "2025-03-12T03:35:55.739902",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " Look out for the Owl.",
+      "part": 1
+    }
+  ]
+}

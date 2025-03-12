@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_post_game_02",
+  "timestamp": "2025-03-12T03:49:40.226383",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good teamwork!",
+      "part": 1
+    }
+  ]
+}

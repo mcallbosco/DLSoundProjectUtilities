@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_hornet_killing_streak_medium_01",
+  "timestamp": "2025-03-12T12:32:07.543991",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta needs to be stopped.",
+      "part": 1
+    }
+  ]
+}

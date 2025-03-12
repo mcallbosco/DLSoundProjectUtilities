@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ally_forge_wall_stun_kill_01",
+  "timestamp": "2025-03-12T03:38:57.555215",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good eye, McGinnis!",
+      "part": 1
+    }
+  ]
+}

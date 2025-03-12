@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_warden_under_garage",
+  "timestamp": "2025-03-12T03:56:47.403028",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden is under the garage.",
+      "part": 1
+    }
+  ]
+}

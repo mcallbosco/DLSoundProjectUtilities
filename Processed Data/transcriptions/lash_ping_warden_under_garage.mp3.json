@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_warden_under_garage",
+  "timestamp": "2025-03-12T12:43:11.236065",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WARDENS UNDER THE GARAGE",
+      "part": 1
+    }
+  ]
+}

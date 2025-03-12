@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_kelvin_on_top_of_garage",
+  "timestamp": "2025-03-12T04:00:10.922434",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kelvins on top of Garrosh.",
+      "part": 1
+    }
+  ]
+}

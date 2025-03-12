@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_tengu_02",
+  "timestamp": "2025-03-12T03:58:13.142473",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The Gargoyle is dead.",
+      "part": 1
+    }
+  ]
+}

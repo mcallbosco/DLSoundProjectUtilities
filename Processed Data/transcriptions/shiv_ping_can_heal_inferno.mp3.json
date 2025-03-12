@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_ping_can_heal_inferno",
+  "timestamp": "2025-03-12T03:39:00.677776",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus, I can hear you!",
+      "part": 1
+    }
+  ]
+}

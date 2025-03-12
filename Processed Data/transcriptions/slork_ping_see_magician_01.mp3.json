@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_see_magician_01",
+  "timestamp": "2025-03-12T12:47:55.927575",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see Magician.",
+      "part": 1
+    }
+  ]
+}

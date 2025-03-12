@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ally_shiv_multikill_01",
+  "timestamp": "2025-03-12T03:56:48.974427",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good God, that was impressive.",
+      "part": 1
+    }
+  ]
+}

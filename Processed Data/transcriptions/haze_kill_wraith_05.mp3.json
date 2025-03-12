@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_wraith_05",
+  "timestamp": "2025-03-12T03:44:17.633640",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You should have run, Wraith.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_forge_04",
+  "timestamp": "2025-03-12T03:37:04.489249",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " McGinnis won't be bothering us for a while.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_magician_missing_01",
+  "timestamp": "2025-03-12T12:31:16.700679",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " MAGICIAN'S MISSING!",
+      "part": 1
+    }
+  ]
+}

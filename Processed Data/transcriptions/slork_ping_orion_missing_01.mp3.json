@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_orion_missing_01",
+  "timestamp": "2025-03-12T03:50:43.435622",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Grey Talon's missing.",
+      "part": 1
+    }
+  ]
+}

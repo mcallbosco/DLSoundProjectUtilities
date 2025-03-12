@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_chrono_kill_in_bubble_02",
+  "timestamp": "2025-03-12T03:49:10.540627",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Your power is impressive, Crono, but it's not enough.",
+      "part": 1
+    }
+  ]
+}

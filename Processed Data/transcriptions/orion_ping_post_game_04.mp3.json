@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_post_game_04",
+  "timestamp": "2025-03-12T03:49:10.956680",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I owe you all much.",
+      "part": 1
+    }
+  ]
+}

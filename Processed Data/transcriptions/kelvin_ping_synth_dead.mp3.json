@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_synth_dead",
+  "timestamp": "2025-03-12T04:03:06.534217",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " POCKET IS DEAD.",
+      "part": 1
+    }
+  ]
+}

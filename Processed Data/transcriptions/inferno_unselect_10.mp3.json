@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_unselect_10",
+  "timestamp": "2025-03-12T03:44:47.939716",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I wish I could help, but my friends need me.",
+      "part": 1
+    }
+  ]
+}

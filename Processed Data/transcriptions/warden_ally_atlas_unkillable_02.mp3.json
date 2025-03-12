@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_atlas_unkillable_02",
+  "timestamp": "2025-03-12T04:00:29.232170",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They'll never stop Abrams!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_careful_warden_03",
+  "timestamp": "2025-03-12T04:06:02.591111",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Warden.",
+      "part": 1
+    }
+  ]
+}

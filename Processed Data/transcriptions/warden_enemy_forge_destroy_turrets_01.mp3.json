@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_forge_destroy_turrets_01",
+  "timestamp": "2025-03-12T03:35:06.046087",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " You don't have enough turrets to stop me!",
+      "part": 1
+    }
+  ]
+}

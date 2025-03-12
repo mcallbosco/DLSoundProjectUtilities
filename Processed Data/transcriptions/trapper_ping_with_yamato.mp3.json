@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_with_yamato",
+  "timestamp": "2025-03-12T03:35:50.299047",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.600000023841858,
+      "text": " I'm with you, Yamato!",
+      "part": 1
+    }
+  ]
+}

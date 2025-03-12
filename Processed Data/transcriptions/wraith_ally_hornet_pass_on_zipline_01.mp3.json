@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_hornet_pass_on_zipline_01",
+  "timestamp": "2025-03-12T12:25:22.844339",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good luck, Vindicta!",
+      "part": 1
+    }
+  ]
+}

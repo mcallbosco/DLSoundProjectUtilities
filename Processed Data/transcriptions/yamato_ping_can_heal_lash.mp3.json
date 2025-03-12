@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_can_heal_lash",
+  "timestamp": "2025-03-12T03:39:02.871527",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Lash, I can hear you.",
+      "part": 1
+    }
+  ]
+}

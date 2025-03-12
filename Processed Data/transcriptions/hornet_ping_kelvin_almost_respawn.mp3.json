@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_kelvin_almost_respawn",
+  "timestamp": "2025-03-12T12:29:04.077009",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kelvin's almost back!",
+      "part": 1
+    }
+  ]
+}

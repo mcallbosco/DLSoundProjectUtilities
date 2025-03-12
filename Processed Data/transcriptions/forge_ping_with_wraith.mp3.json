@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_with_wraith",
+  "timestamp": "2025-03-12T04:05:16.513269",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I'm with you, Wraith!",
+      "part": 1
+    }
+  ]
+}

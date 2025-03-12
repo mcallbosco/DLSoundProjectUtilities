@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_unselect_01",
+  "timestamp": "2025-03-12T12:43:32.891701",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Well, good luck to you in your future endeavours!",
+      "part": 1
+    }
+  ]
+}

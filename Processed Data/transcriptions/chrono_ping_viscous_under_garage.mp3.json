@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_viscous_under_garage",
+  "timestamp": "2025-03-12T03:43:17.566737",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Viscous, under the garage!",
+      "part": 1
+    }
+  ]
+}

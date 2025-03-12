@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_select_03",
+  "timestamp": "2025-03-12T12:35:40.534859",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Today isn't the day for mercy.",
+      "part": 1
+    }
+  ]
+}

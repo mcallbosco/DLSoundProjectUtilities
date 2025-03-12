@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_wraith_03",
+  "timestamp": "2025-03-12T12:41:14.697428",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Money won't keep you warm in the coffin, Wraith.",
+      "part": 1
+    }
+  ]
+}

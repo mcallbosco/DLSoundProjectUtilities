@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_holliday_on_bridge",
+  "timestamp": "2025-03-12T03:37:01.097681",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Holliday's on the bridge!",
+      "part": 1
+    }
+  ]
+}

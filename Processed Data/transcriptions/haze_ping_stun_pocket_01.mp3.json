@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_stun_pocket_01",
+  "timestamp": "2025-03-12T03:41:20.322217",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Pocket.",
+      "part": 1
+    }
+  ]
+}

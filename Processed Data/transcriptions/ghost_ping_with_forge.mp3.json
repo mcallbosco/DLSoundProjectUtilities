@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_with_forge",
+  "timestamp": "2025-03-12T03:40:03.369890",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I'm with you, McGinnis.",
+      "part": 1
+    }
+  ]
+}

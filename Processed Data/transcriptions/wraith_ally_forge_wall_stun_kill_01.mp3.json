@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_forge_wall_stun_kill_01",
+  "timestamp": "2025-03-12T12:35:58.289181",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good job, McGinnis!",
+      "part": 1
+    }
+  ]
+}

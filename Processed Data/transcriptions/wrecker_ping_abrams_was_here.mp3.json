@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_abrams_was_here",
+  "timestamp": "2025-03-12T04:02:57.637994",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.1600000858306885,
+      "text": " Abrams was here.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_mirage_on_top_of_mid",
+  "timestamp": "2025-03-12T04:03:56.394836",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage is on top of Mid.",
+      "part": 1
+    }
+  ]
+}

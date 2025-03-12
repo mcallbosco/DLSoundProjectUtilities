@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_calico_under_garage",
+  "timestamp": "2025-03-12T03:49:06.216085",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calicos under the garage.",
+      "part": 1
+    }
+  ]
+}

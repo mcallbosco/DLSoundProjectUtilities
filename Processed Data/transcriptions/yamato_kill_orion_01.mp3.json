@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_orion_01",
+  "timestamp": "2025-03-12T12:45:18.526265",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.359999895095825,
+      "text": "\u8001\u4eba\u3092\u5012\u3059\u3053\u3068\u306b\u559c\u3073\u306f\u611f\u3058\u306a\u3044\u306a\u3002",
+      "part": 1
+    }
+  ]
+}

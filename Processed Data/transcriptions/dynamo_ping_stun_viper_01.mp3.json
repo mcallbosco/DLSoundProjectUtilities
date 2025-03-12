@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_stun_viper_01",
+  "timestamp": "2025-03-12T03:30:48.616162",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Stunned Vyper.",
+      "part": 1
+    }
+  ]
+}

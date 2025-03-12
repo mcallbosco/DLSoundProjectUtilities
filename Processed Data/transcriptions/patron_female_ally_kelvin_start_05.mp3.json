@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_kelvin_start_05",
+  "timestamp": "2025-03-12T03:28:14.971928",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.0,
+      "text": " Glory has followed you throughout your life, Kelvin, and it will continue today.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ally_shiv_unkillable_02",
+  "timestamp": "2025-03-12T03:54:05.661676",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Keep going, Shiv!",
+      "part": 1
+    }
+  ]
+}

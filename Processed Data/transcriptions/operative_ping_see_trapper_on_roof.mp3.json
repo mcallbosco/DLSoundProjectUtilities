@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_see_trapper_on_roof",
+  "timestamp": "2025-03-12T12:32:01.646667",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Trappers on the roof.",
+      "part": 1
+    }
+  ]
+}

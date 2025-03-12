@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_nano_almost_respawn",
+  "timestamp": "2025-03-12T12:45:41.356273",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Category is almost a bug.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_stun_orion_01",
+  "timestamp": "2025-03-12T03:44:35.609794",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Grey Talon!",
+      "part": 1
+    }
+  ]
+}
