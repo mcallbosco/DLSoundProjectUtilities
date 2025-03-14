@@ -1,6 +1,6 @@
 {
   "file": "gigawatt_match_start_gigawatt_mirage_convo02_01.mp3",
-  "text": "So... Why are you here?",
+  "text": "So... Wyoming?",
   "segments": [
     {
       "start": 0.0,
@@ -10,7 +10,7 @@
     {
       "start": 2.0,
       "end": 4.0,
-      "text": "Why are you here?"
+      "text": "Wyoming?"
     }
   ]
 }
