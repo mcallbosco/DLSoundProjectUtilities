@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_with_orion",
+  "timestamp": "2025-03-12T03:56:28.209015",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Orion.",
+      "part": 1
+    }
+  ]
+}

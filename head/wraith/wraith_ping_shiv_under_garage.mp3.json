@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_shiv_under_garage",
+  "timestamp": "2025-03-12T03:32:02.450172",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv is under the garage.",
+      "part": 1
+    }
+  ]
+}

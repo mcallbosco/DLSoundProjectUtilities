@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_see_wrecker_02",
+  "timestamp": "2025-03-12T12:36:23.671472",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Have eyes on Wrecker.",
+      "part": 1
+    }
+  ]
+}

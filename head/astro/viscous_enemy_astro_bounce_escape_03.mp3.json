@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_enemy_astro_bounce_escape_03",
+  "timestamp": "2025-03-12T03:37:22.516428",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5999999046325684,
+      "text": " Oh well, I'll shoot her later.",
+      "part": 1
+    }
+  ]
+}

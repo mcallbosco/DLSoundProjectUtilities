@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_oathkeeper_5b_start_02",
+  "timestamp": "2025-03-12T03:56:24.207769",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.800000190734863,
+      "text": " The tome Abrams carries may hold the key to your salvation.",
+      "part": 1
+    }
+  ]
+}

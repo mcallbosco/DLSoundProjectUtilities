@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_stun_wraith_01",
+  "timestamp": "2025-03-12T12:42:51.951648",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STUN RAID!",
+      "part": 1
+    }
+  ]
+}

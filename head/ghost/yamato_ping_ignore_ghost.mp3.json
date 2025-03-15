@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_ignore_ghost",
+  "timestamp": "2025-03-12T03:35:45.115829",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.8399999737739563,
+      "text": " Ignore Geist.",
+      "part": 1
+    }
+  ]
+}

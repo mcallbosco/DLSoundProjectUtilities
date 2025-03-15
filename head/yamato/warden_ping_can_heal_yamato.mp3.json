@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_can_heal_yamato",
+  "timestamp": "2025-03-12T12:23:58.008475",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato, I can heal you.",
+      "part": 1
+    }
+  ]
+}

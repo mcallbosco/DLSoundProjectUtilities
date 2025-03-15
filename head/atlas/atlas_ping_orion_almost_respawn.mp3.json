@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_orion_almost_respawn",
+  "timestamp": "2025-03-12T03:31:10.652705",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Grey Talon is almost back!",
+      "part": 1
+    }
+  ]
+}

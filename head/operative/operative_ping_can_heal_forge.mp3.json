@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_can_heal_forge",
+  "timestamp": "2025-03-12T03:37:27.473290",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis, I can heal you.",
+      "part": 1
+    }
+  ]
+}

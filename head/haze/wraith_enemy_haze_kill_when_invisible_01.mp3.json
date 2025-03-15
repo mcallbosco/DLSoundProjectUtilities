@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_haze_kill_when_invisible_01",
+  "timestamp": "2025-03-12T04:00:50.521398",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You can't hide from me, Haze.",
+      "part": 1
+    }
+  ]
+}

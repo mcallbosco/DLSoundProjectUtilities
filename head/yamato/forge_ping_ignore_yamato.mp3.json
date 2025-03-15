@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_ignore_yamato",
+  "timestamp": "2025-03-12T03:40:14.516731",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE YAMATO",
+      "part": 1
+    }
+  ]
+}

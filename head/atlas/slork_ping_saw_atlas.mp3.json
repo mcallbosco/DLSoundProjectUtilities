@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_saw_atlas",
+  "timestamp": "2025-03-12T12:48:50.281029",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I SAW ABRAMS!",
+      "part": 1
+    }
+  ]
+}

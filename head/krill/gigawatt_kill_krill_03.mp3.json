@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_krill_03",
+  "timestamp": "2025-03-12T12:42:23.213380",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stomped Krill.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_yamato_starts_ult_02",
+  "timestamp": "2025-03-12T03:34:31.173544",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Get away from Yamato!",
+      "part": 1
+    }
+  ]
+}

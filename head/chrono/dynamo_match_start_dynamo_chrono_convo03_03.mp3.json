@@ -1,0 +1,16 @@
+{
+  "file": "dynamo_match_start_dynamo_chrono_convo03_03.mp3",
+  "text": "Why do you keep stealing things? Don't you have enough?",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "Why do you keep stealing things?"
+    },
+    {
+      "start": 2.0,
+      "end": 4.0,
+      "text": "Don't you have enough?"
+    }
+  ]
+}

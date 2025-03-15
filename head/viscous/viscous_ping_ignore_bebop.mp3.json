@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_ignore_bebop",
+  "timestamp": "2025-03-12T03:53:10.950010",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Bebop.",
+      "part": 1
+    }
+  ]
+}

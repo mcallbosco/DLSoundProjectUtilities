@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_haze_01",
+  "timestamp": "2025-03-12T12:30:10.949086",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " I wasn't looking to start anything with the OSIC.",
+      "part": 1
+    }
+  ]
+}

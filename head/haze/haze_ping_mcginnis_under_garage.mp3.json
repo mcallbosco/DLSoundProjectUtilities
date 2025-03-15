@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_mcginnis_under_garage",
+  "timestamp": "2025-03-12T04:11:06.918422",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is under the garage.",
+      "part": 1
+    }
+  ]
+}

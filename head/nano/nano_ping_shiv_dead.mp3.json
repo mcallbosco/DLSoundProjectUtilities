@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_shiv_dead",
+  "timestamp": "2025-03-12T03:40:14.493305",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv is dead.",
+      "part": 1
+    }
+  ]
+}

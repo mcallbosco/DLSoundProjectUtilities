@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_chrono_kill_post_swap_02",
+  "timestamp": "2025-03-12T12:29:18.285699",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " You little time tricks were never gonna be enough.",
+      "part": 1
+    }
+  ]
+}

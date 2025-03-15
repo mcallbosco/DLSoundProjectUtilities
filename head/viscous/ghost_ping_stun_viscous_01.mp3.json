@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_stun_viscous_01",
+  "timestamp": "2025-03-12T04:09:08.718638",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stan Viscous.",
+      "part": 1
+    }
+  ]
+}

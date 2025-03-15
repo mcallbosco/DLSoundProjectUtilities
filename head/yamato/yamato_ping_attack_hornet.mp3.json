@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_attack_hornet",
+  "timestamp": "2025-03-12T03:33:21.703735",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.600000023841858,
+      "text": " Let's take out Vindicta.",
+      "part": 1
+    }
+  ]
+}

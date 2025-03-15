@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_ignore_calico",
+  "timestamp": "2025-03-12T12:27:41.453238",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " Ignore Calico.",
+      "part": 1
+    }
+  ]
+}

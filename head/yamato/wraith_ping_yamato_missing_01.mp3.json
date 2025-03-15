@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_yamato_missing_01",
+  "timestamp": "2025-03-12T03:42:10.694889",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato's missing.",
+      "part": 1
+    }
+  ]
+}

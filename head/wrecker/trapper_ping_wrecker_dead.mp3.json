@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_wrecker_dead",
+  "timestamp": "2025-03-12T03:42:54.367364",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRECKER IS DEAD!",
+      "part": 1
+    }
+  ]
+}

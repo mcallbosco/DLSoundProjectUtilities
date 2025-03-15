@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_hornet_damaged_by_snipe_02",
+  "timestamp": "2025-03-12T12:25:55.819992",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " TAKE COVER!",
+      "part": 1
+    }
+  ]
+}

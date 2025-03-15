@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_lash_was_here",
+  "timestamp": "2025-03-12T03:40:51.436417",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash was here.",
+      "part": 1
+    }
+  ]
+}

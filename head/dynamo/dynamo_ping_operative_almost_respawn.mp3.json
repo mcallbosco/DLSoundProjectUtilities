@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_operative_almost_respawn",
+  "timestamp": "2025-03-12T03:03:59.256048",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Raven is almost back.",
+      "part": 1
+    }
+  ]
+}

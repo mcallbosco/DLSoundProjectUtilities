@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_orion_see_missile_02",
+  "timestamp": "2025-03-12T03:46:36.286043",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Gotta get away from that missile.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_ghost_kill_fat_ghost_01",
+  "timestamp": "2025-03-12T03:55:31.325539",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " Your ego was your undoing, Geist.",
+      "part": 1
+    }
+  ]
+}

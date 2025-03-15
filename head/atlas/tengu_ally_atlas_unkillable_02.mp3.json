@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_atlas_unkillable_02",
+  "timestamp": "2025-03-12T03:34:15.282290",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Keep fighting, Abrams!",
+      "part": 1
+    }
+  ]
+}

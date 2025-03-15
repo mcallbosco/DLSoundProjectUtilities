@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_saw_kelvin",
+  "timestamp": "2025-03-12T12:45:36.270511",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I suck, Kelvin.",
+      "part": 1
+    }
+  ]
+}

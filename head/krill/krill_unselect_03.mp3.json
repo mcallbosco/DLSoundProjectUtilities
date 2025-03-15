@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_unselect_03",
+  "timestamp": "2025-03-12T03:38:26.706509",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You're going to wish you had the Tunnel Rats on your side.",
+      "part": 1
+    }
+  ]
+}

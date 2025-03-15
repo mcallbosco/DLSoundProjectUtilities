@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_wraith_start_05",
+  "timestamp": "2025-03-12T12:25:06.274834",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.760000228881836,
+      "text": " No more playing at magic, Wraith. The ritual must be completed.",
+      "part": 1
+    }
+  ]
+}

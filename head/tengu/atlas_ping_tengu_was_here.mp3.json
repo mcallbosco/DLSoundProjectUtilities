@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_tengu_was_here",
+  "timestamp": "2025-03-12T12:36:16.675852",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Ivy was here.",
+      "part": 1
+    }
+  ]
+}

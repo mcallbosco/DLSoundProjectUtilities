@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_ghost_start_01",
+  "timestamp": "2025-03-12T03:55:30.785421",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.840000152587891,
+      "text": " Lady Geist, Oath Keeper's demands will only grow greater if you don't stop him now.",
+      "part": 1
+    },
+    {
+      "start": 5.840000152587891,
+      "end": 7.079999923706055,
+      "text": " Summon me.",
+      "part": 2
+    }
+  ]
+}

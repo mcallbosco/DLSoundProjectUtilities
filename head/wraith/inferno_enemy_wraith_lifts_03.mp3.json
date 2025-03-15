@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_enemy_wraith_lifts_03",
+  "timestamp": "2025-03-12T12:26:44.139907",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " I ain't liking this!",
+      "part": 1
+    }
+  ]
+}

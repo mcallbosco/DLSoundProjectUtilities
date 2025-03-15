@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_ghost_under_garage",
+  "timestamp": "2025-03-12T04:02:22.548079",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geists unter der G\u00e4rde.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_ghost_start_04",
+  "timestamp": "2025-03-12T03:33:37.640898",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.0,
+      "text": " If you complete the ritual, today will be the last day you are beholden to Oathkeeper.",
+      "part": 1
+    }
+  ]
+}

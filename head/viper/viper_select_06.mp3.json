@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "viper_select_06",
+  "timestamp": "2025-03-12T12:46:14.334119",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.799999952316284,
+      "text": " You ever get the feeling that something bad is going to happen?",
+      "part": 1
+    },
+    {
+      "start": 3.799999952316284,
+      "end": 6.5,
+      "text": " Yeah, so I don't, that's why I end up in jail so much.",
+      "part": 2
+    }
+  ]
+}

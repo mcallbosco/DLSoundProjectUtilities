@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_mcginnis_01",
+  "timestamp": "2025-03-12T03:53:58.369126",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, McGinnis!",
+      "part": 1
+    }
+  ]
+}

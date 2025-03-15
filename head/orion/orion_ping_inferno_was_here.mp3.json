@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_inferno_was_here",
+  "timestamp": "2025-03-12T12:27:39.962040",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus was here!",
+      "part": 1
+    }
+  ]
+}

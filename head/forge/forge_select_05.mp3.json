@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_select_05",
+  "timestamp": "2025-03-12T04:06:28.111666",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " What's the point of building toys if you never get to use them?",
+      "part": 1
+    }
+  ]
+}

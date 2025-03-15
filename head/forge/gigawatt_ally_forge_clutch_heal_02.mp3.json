@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ally_forge_clutch_heal_02",
+  "timestamp": "2025-03-12T03:34:06.247611",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I appreciate you, McGinnis.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_bebop_was_here",
+  "timestamp": "2025-03-12T04:11:52.042790",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Bebop was here!",
+      "part": 1
+    }
+  ]
+}

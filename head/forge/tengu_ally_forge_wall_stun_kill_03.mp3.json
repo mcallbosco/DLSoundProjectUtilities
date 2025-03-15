@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_forge_wall_stun_kill_03",
+  "timestamp": "2025-03-12T12:47:37.237177",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " That was pretty slick!",
+      "part": 1
+    }
+  ]
+}

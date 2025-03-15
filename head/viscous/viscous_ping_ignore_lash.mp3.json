@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_ignore_lash",
+  "timestamp": "2025-03-12T03:36:55.783342",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Lash!",
+      "part": 1
+    }
+  ]
+}

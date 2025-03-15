@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_yamato_kills_with_hook_03",
+  "timestamp": "2025-03-12T04:04:01.639580",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Glad you're on our side, Yamato!",
+      "part": 1
+    }
+  ]
+}

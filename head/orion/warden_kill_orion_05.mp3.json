@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_orion_05",
+  "timestamp": "2025-03-12T03:35:41.386090",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I killed their archer.",
+      "part": 1
+    }
+  ]
+}

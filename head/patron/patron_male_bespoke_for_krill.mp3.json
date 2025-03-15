@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_for_krill",
+  "timestamp": "2025-03-12T03:53:12.453601",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " You use the streets of New York to your advantage, Krill.",
+      "part": 1
+    }
+  ]
+}

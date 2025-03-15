@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "forge_unselect_05",
+  "timestamp": "2025-03-12T03:51:39.265191",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You want to try to win without me?",
+      "part": 1
+    },
+    {
+      "start": 2.0,
+      "end": 3.0,
+      "text": " Be my guest.",
+      "part": 2
+    }
+  ]
+}

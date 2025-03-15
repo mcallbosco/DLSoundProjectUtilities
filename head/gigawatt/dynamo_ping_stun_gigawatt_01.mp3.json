@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_stun_gigawatt_01",
+  "timestamp": "2025-03-12T03:48:16.561609",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun seven.",
+      "part": 1
+    }
+  ]
+}

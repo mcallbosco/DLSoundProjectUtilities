@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_stun_wrecker_01",
+  "timestamp": "2025-03-12T03:56:29.590307",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STUN WRECKER!",
+      "part": 1
+    }
+  ]
+}

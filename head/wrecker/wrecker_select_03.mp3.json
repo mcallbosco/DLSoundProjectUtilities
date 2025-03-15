@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_select_03",
+  "timestamp": "2025-03-12T12:47:44.340615",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.200000047683716,
+      "text": " I fight for you.",
+      "part": 1
+    }
+  ]
+}

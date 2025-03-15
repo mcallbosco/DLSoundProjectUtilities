@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ally_shiv_unkillable_02",
+  "timestamp": "2025-03-12T04:09:30.307353",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv can't do this on his own.",
+      "part": 1
+    }
+  ]
+}

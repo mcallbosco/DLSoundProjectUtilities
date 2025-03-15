@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_viscous_03",
+  "timestamp": "2025-03-12T04:05:07.072517",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You're no one's king, Viscous.",
+      "part": 1
+    }
+  ]
+}

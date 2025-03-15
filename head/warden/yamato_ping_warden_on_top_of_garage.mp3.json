@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_warden_on_top_of_garage",
+  "timestamp": "2025-03-12T12:48:31.108718",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "Wardens on top of the garage.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_infernus_in_mid",
+  "timestamp": "2025-03-12T12:31:16.920198",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is in Mid.",
+      "part": 1
+    }
+  ]
+}

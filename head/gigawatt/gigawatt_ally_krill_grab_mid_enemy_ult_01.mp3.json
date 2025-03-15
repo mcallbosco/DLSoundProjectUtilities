@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ally_krill_grab_mid_enemy_ult_01",
+  "timestamp": "2025-03-12T12:44:11.180622",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I got them!",
+      "part": 1
+    }
+  ]
+}

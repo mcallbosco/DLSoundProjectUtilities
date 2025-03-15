@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "haze_kill_wrecker_01",
+  "timestamp": "2025-03-12T03:01:09.087627",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Be honored, Wrecker.",
+      "part": 1
+    },
+    {
+      "start": 2.0,
+      "end": 5.0,
+      "text": " Grunts like you are normally beneath me.",
+      "part": 2
+    }
+  ]
+}

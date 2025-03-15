@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_warden_check_items",
+  "timestamp": "2025-03-12T03:27:40.908239",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shook out that Warden bot.",
+      "part": 1
+    }
+  ]
+}

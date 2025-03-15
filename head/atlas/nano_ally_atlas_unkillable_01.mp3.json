@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ally_atlas_unkillable_01",
+  "timestamp": "2025-03-12T12:27:19.792289",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They can't stop Abrams.",
+      "part": 1
+    }
+  ]
+}

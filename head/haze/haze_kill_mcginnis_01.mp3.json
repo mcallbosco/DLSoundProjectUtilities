@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "haze_kill_mcginnis_01",
+  "timestamp": "2025-03-12T04:05:55.573139",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Your future isn't with Fairfax Industries, McGinnis.",
+      "part": 1
+    },
+    {
+      "start": 4.0,
+      "end": 6.0,
+      "text": " It's with us.",
+      "part": 2
+    }
+  ]
+}

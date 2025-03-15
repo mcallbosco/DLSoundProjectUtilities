@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_with_dynamo",
+  "timestamp": "2025-03-12T12:30:44.091804",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Dynamo.",
+      "part": 1
+    }
+  ]
+}

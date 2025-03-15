@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_careful_nano_01",
+  "timestamp": "2025-03-12T12:24:06.097379",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Calico.",
+      "part": 1
+    }
+  ]
+}

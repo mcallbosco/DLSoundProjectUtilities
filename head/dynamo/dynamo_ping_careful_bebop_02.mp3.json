@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_careful_bebop_02",
+  "timestamp": "2025-03-12T04:12:10.897289",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Be careful, Bebop!",
+      "part": 1
+    }
+  ]
+}

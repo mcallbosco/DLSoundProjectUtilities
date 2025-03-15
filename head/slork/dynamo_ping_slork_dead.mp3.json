@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_slork_dead",
+  "timestamp": "2025-03-12T03:39:32.284461",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Fathom is dead.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_enemy_orion_see_missile_03",
+  "timestamp": "2025-03-12T12:35:02.697592",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stay away from the owl!",
+      "part": 1
+    }
+  ]
+}

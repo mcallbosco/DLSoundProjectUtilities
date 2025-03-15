@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_with_kelvin",
+  "timestamp": "2025-03-12T12:32:23.466997",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " I'm with you, Kelvin!",
+      "part": 1
+    }
+  ]
+}

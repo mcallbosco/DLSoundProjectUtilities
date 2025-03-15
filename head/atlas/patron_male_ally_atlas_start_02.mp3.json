@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_atlas_start_02",
+  "timestamp": "2025-03-12T03:48:08.168388",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.599999904632568,
+      "text": " You protected the Tome as no one else could, but the time has come for you to free yourself from its burden.",
+      "part": 1
+    }
+  ]
+}

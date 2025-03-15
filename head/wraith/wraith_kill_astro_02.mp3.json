@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_astro_02",
+  "timestamp": "2025-03-12T03:33:36.948164",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Go back to the cornfield, Holliday.",
+      "part": 1
+    }
+  ]
+}

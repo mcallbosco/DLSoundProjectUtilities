@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_ignore_viper",
+  "timestamp": "2025-03-12T12:28:01.727107",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Vyper!",
+      "part": 1
+    }
+  ]
+}

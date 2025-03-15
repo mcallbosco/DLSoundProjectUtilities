@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_select_08",
+  "timestamp": "2025-03-12T03:45:02.663151",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I will die before I fail you.",
+      "part": 1
+    }
+  ]
+}

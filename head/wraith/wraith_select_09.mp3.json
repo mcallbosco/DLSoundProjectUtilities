@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_select_09",
+  "timestamp": "2025-03-12T03:45:41.633062",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You can bet on me!",
+      "part": 1
+    }
+  ]
+}

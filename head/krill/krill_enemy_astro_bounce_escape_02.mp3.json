@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_enemy_astro_bounce_escape_02",
+  "timestamp": "2025-03-12T03:19:07.851365",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " Of course she bounces away!",
+      "part": 1
+    }
+  ]
+}

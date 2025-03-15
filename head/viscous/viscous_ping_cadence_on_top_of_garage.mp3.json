@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_cadence_on_top_of_garage",
+  "timestamp": "2025-03-12T03:39:57.309847",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.299999952316284,
+      "text": " Cadence is on top of the garage!",
+      "part": 1
+    }
+  ]
+}

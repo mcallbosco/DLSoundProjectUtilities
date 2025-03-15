@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_inferno_burns_down_objective_01",
+  "timestamp": "2025-03-12T03:40:27.833421",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wow, that didn't take long.",
+      "part": 1
+    }
+  ]
+}

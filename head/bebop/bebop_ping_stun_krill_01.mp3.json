@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_stun_krill_01",
+  "timestamp": "2025-03-12T12:39:47.896430",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Scott and Krill.",
+      "part": 1
+    }
+  ]
+}

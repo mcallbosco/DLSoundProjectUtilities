@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_saw_wrecker",
+  "timestamp": "2025-03-12T04:02:48.275612",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I saw Wrecker.",
+      "part": 1
+    }
+  ]
+}

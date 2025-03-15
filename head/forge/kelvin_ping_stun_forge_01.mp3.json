@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_stun_forge_01",
+  "timestamp": "2025-03-12T04:04:03.292027",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stan McGinnis!",
+      "part": 1
+    }
+  ]
+}

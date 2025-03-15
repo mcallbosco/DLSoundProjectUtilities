@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_ignore_tengu",
+  "timestamp": "2025-03-12T12:48:26.493323",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE IVY!",
+      "part": 1
+    }
+  ]
+}

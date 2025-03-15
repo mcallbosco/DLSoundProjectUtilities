@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_ghost_04",
+  "timestamp": "2025-03-12T03:28:15.689309",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Killed the Life Drinker.",
+      "part": 1
+    }
+  ]
+}

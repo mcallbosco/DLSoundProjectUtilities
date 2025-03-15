@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_mirage_missing_01",
+  "timestamp": "2025-03-12T03:40:46.919698",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Garage is missing.",
+      "part": 1
+    }
+  ]
+}

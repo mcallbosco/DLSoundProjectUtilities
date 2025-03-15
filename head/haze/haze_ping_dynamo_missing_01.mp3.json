@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_dynamo_missing_01",
+  "timestamp": "2025-03-12T04:04:14.550325",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DYNAMO'S MISSING!",
+      "part": 1
+    }
+  ]
+}

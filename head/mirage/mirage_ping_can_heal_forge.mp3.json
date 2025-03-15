@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_can_heal_forge",
+  "timestamp": "2025-03-12T12:43:29.855975",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis, I can hear you!",
+      "part": 1
+    }
+  ]
+}

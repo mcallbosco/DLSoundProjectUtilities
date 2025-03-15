@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_nano_was_here",
+  "timestamp": "2025-03-12T03:38:02.312374",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Galico's here.",
+      "part": 1
+    }
+  ]
+}

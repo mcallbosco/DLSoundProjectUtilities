@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_select_10",
+  "timestamp": "2025-03-12T04:10:41.204656",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " So, you need a couple tunnel rides, huh?",
+      "part": 1
+    }
+  ]
+}

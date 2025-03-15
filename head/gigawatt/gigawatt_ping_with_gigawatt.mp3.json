@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_with_gigawatt",
+  "timestamp": "2025-03-12T04:07:30.507053",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Gigawatt.",
+      "part": 1
+    }
+  ]
+}

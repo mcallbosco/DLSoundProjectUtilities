@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_unselect_05",
+  "timestamp": "2025-03-12T03:52:04.965135",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Come on, put us in the fight!",
+      "part": 1
+    }
+  ]
+}

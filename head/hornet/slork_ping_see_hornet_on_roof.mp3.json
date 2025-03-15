@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_see_hornet_on_roof",
+  "timestamp": "2025-03-12T03:32:14.176238",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Injectors on the roof.",
+      "part": 1
+    }
+  ]
+}

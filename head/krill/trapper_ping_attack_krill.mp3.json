@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_attack_krill",
+  "timestamp": "2025-03-12T04:11:42.793184",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.3600000143051147,
+      "text": " Let's take out Krill!",
+      "part": 1
+    }
+  ]
+}

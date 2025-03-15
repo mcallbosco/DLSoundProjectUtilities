@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_wraith_in_mid",
+  "timestamp": "2025-03-12T03:35:49.694674",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraiths in Mid.",
+      "part": 1
+    }
+  ]
+}

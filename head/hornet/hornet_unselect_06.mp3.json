@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_unselect_06",
+  "timestamp": "2025-03-12T03:53:58.807743",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.800000190734863,
+      "text": " I understand. Not everyone has the stomach to do what needs to be done.",
+      "part": 1
+    }
+  ]
+}

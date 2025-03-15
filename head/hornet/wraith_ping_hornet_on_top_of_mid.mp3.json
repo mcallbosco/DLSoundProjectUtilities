@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_hornet_on_top_of_mid",
+  "timestamp": "2025-03-12T12:41:46.557815",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta is on top of mid.",
+      "part": 1
+    }
+  ]
+}

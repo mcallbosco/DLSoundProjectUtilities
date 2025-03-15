@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_warden_was_here",
+  "timestamp": "2025-03-12T12:48:28.801503",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden was here!",
+      "part": 1
+    }
+  ]
+}

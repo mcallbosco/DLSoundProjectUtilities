@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_mcginnis_was_here",
+  "timestamp": "2025-03-12T12:43:48.098472",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis was here!",
+      "part": 1
+    }
+  ]
+}

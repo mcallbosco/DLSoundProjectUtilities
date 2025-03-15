@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_hornet_killed_mid_air_01",
+  "timestamp": "2025-03-12T03:50:01.792534",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You think you had range on me?",
+      "part": 1
+    }
+  ]
+}

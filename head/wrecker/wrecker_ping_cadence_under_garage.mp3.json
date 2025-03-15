@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_cadence_under_garage",
+  "timestamp": "2025-03-12T04:06:21.487852",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.299999952316284,
+      "text": " Cadence under the garage.",
+      "part": 1
+    }
+  ]
+}

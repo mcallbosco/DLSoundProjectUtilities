@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_astro_bounce_escape_03",
+  "timestamp": "2025-03-12T04:02:03.597867",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " She can't run forever!",
+      "part": 1
+    }
+  ]
+}

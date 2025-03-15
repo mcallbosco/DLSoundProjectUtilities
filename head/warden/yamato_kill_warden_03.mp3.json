@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_warden_03",
+  "timestamp": "2025-03-12T03:52:51.896729",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u4f55\u3067\u3082\u601d\u3046\u901a\u308a\u306b\u884c\u304f\u3068\u601d\u3046\u306a!",
+      "part": 1
+    }
+  ]
+}

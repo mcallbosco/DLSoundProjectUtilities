@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_cadence_in_mid",
+  "timestamp": "2025-03-12T04:06:38.222909",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence is in mid!",
+      "part": 1
+    }
+  ]
+}

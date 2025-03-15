@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_select_05",
+  "timestamp": "2025-03-12T03:30:11.290549",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I fight on behalf of the Djinn.",
+      "part": 1
+    }
+  ]
+}

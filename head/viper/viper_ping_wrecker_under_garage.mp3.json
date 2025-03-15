@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_wrecker_under_garage",
+  "timestamp": "2025-03-12T03:51:33.741726",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRECKERS UNDER THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

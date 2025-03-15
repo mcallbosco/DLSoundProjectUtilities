@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_yamato_on_top_of_garage",
+  "timestamp": "2025-03-12T03:30:23.899894",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The Avatar's on top of the carriage!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_enemy_hornet_killed_mid_air_01",
+  "timestamp": "2025-03-12T03:55:43.532462",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "text": " You are not a predator, just a target.",
+      "part": 1
+    }
+  ]
+}

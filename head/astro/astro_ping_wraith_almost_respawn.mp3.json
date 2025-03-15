@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_wraith_almost_respawn",
+  "timestamp": "2025-03-12T03:50:47.830664",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith is almost back!",
+      "part": 1
+    }
+  ]
+}

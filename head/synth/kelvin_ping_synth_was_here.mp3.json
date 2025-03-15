@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_synth_was_here",
+  "timestamp": "2025-03-12T12:40:41.463682",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Pocket was here!",
+      "part": 1
+    }
+  ]
+}

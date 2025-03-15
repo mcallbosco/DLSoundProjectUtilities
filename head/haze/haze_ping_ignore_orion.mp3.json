@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_ignore_orion",
+  "timestamp": "2025-03-12T04:10:49.273212",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.440000057220459,
+      "text": " Ignore Grey Talon.",
+      "part": 1
+    }
+  ]
+}

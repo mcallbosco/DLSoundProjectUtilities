@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_unselect_03",
+  "timestamp": "2025-03-12T03:33:26.005369",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " It's probably for the best.",
+      "part": 1
+    }
+  ]
+}

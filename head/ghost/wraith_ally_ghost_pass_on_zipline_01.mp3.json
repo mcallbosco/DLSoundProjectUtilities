@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_ghost_pass_on_zipline_01",
+  "timestamp": "2025-03-12T03:39:31.589608",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You and your creepy arm have fun.",
+      "part": 1
+    }
+  ]
+}

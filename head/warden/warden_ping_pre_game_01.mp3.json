@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_pre_game_01",
+  "timestamp": "2025-03-12T12:41:23.297981",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " It's time to kill a god.",
+      "part": 1
+    }
+  ]
+}

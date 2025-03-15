@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_with_ghost",
+  "timestamp": "2025-03-12T12:28:05.790201",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2400000095367432,
+      "text": " I'm with you, Geist.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_atlas_almost_respawn",
+  "timestamp": "2025-03-12T03:45:04.136078",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams is almost back!",
+      "part": 1
+    }
+  ]
+}

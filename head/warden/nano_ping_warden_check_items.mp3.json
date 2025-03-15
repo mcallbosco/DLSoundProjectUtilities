@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_warden_check_items",
+  "timestamp": "2025-03-12T12:41:21.188664",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Warden bought.",
+      "part": 1
+    }
+  ]
+}

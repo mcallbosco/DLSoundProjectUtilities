@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_see_chrono_on_bridge",
+  "timestamp": "2025-03-12T03:39:43.076483",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Paradox is on the bridge.",
+      "part": 1
+    }
+  ]
+}

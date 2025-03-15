@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_enemy_dynamo_charges_03",
+  "timestamp": "2025-03-12T04:00:28.655989",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DON'T BUNCH TOGETHER!",
+      "part": 1
+    }
+  ]
+}

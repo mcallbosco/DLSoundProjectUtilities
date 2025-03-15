@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_warden_03",
+  "timestamp": "2025-03-12T03:35:42.016337",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You made a lot of promises you couldn't keep, Warden.",
+      "part": 1
+    }
+  ]
+}

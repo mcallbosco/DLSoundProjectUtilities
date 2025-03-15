@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_wraith_lifts_03",
+  "timestamp": "2025-03-12T12:34:38.370504",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Someone stop Wraith!",
+      "part": 1
+    }
+  ]
+}

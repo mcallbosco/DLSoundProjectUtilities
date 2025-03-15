@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_ignore_wrecker",
+  "timestamp": "2025-03-12T03:44:10.549116",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Wrecker!",
+      "part": 1
+    }
+  ]
+}

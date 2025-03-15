@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_forge_almost_respawn",
+  "timestamp": "2025-03-12T03:35:33.003425",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is almost back!",
+      "part": 1
+    }
+  ]
+}

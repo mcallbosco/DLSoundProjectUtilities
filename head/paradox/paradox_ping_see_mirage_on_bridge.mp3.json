@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_mirage_on_bridge",
+  "timestamp": "2025-03-12T04:02:21.323417",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage is on the bridge.",
+      "part": 1
+    }
+  ]
+}

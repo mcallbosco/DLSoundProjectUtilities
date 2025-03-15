@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_yamato_starts_ult_03",
+  "timestamp": "2025-03-12T04:06:05.016364",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Backup! Backup!",
+      "part": 1
+    }
+  ]
+}

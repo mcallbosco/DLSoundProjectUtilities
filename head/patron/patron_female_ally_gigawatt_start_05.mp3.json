@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_gigawatt_start_05",
+  "timestamp": "2025-03-12T04:05:08.651990",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Your destiny awaits, Seven. Complete the ritual.",
+      "part": 1
+    }
+  ]
+}

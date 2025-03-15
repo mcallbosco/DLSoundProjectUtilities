@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_gigawatt_on_bridge",
+  "timestamp": "2025-03-12T12:48:12.154886",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GIGAWATTS ON THE BRIDGE!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_seven_on_roof",
+  "timestamp": "2025-03-12T03:57:55.772902",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " Seven's on the roof.",
+      "part": 1
+    }
+  ]
+}

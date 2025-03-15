@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_seven_02",
+  "timestamp": "2025-03-12T12:40:46.420777",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Seven!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_orion_dead",
+  "timestamp": "2025-03-12T03:32:40.633373",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Grey Talon is dead.",
+      "part": 1
+    }
+  ]
+}

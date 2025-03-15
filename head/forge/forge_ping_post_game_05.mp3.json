@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ping_post_game_05",
+  "timestamp": "2025-03-12T04:12:05.690792",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " EARNED OUR PAYCHECKS TODAY!",
+      "part": 1
+    }
+  ]
+}

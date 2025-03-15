@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_careful_shiv_03",
+  "timestamp": "2025-03-12T04:00:45.906971",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Shiv!",
+      "part": 1
+    }
+  ]
+}

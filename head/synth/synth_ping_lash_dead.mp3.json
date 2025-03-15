@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_lash_dead",
+  "timestamp": "2025-03-12T04:11:59.452343",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Lash is dead.",
+      "part": 1
+    }
+  ]
+}

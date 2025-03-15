@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_wraith_kill_in_lift_03",
+  "timestamp": "2025-03-12T12:29:42.669679",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We make a good team, Wraith.",
+      "part": 1
+    }
+  ]
+}

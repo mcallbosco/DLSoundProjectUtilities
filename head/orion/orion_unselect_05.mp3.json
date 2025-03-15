@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_unselect_05",
+  "timestamp": "2025-03-12T03:50:21.595377",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I have to go on a stakeout.",
+      "part": 1
+    }
+  ]
+}

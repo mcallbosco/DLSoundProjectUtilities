@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_wraith_03",
+  "timestamp": "2025-03-12T03:51:03.958030",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": "\u6240\u8a6e\u3001\u79c1\u306e\u76f8\u624b\u3067\u306f\u306a\u304b\u3063\u305f\u306a\u3002",
+      "part": 1
+    }
+  ]
+}

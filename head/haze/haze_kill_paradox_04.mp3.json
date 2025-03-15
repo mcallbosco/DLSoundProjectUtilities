@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_paradox_04",
+  "timestamp": "2025-03-12T04:04:25.063237",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " The Time Thief is dead.",
+      "part": 1
+    }
+  ]
+}

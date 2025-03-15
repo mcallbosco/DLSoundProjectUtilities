@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_unselect_01",
+  "timestamp": "2025-03-12T03:29:50.617758",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5199999809265137,
+      "text": " I don't have time to mess around with the ritual, lives are at stake.",
+      "part": 1
+    }
+  ]
+}

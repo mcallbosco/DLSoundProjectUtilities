@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_kelvin_01",
+  "timestamp": "2025-03-12T03:53:41.936050",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": "\u304a\u524d\u306f\u6b7b\u4f53\u306e\u307e\u307e\u3067\u3044\u308b\u306e\u304c\u304a\u4f3c\u5408\u3044\u3060\u3001\u30b1\u30eb\u30d3\u30f3\u3002",
+      "part": 1
+    }
+  ]
+}

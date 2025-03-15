@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_gigawatt_03",
+  "timestamp": "2025-03-12T04:00:50.246893",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " CAREFUL GIGAWATT!",
+      "part": 1
+    }
+  ]
+}

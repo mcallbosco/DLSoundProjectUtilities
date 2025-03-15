@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_kill_cadence_03",
+  "timestamp": "2025-03-12T03:49:27.411000",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " See ya at the club later.",
+      "part": 1
+    }
+  ]
+}

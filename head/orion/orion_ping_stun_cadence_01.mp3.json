@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_stun_cadence_01",
+  "timestamp": "2025-03-12T12:40:44.492482",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Cadence!",
+      "part": 1
+    }
+  ]
+}

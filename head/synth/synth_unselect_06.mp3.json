@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_unselect_06",
+  "timestamp": "2025-03-12T12:31:02.776796",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I just need a moment to compose myself.",
+      "part": 1
+    }
+  ]
+}

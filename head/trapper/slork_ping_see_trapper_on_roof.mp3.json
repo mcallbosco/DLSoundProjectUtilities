@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_see_trapper_on_roof",
+  "timestamp": "2025-03-12T12:38:55.367781",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Trapper's on the roof!",
+      "part": 1
+    }
+  ]
+}

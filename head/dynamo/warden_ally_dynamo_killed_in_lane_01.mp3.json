@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_dynamo_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:40:48.259210",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They killed the professor!",
+      "part": 1
+    }
+  ]
+}

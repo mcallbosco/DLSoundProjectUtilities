@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_ally_bebop_start_07",
+  "timestamp": "2025-03-12T03:58:37.981701",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.680000066757202,
+      "text": " Your creator is counting on you, Bebop.",
+      "part": 1
+    },
+    {
+      "start": 3.680000066757202,
+      "end": 5.679999828338623,
+      "text": " Don't fail her.",
+      "part": 2
+    }
+  ]
+}

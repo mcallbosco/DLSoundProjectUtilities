@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_enemy_bebop_hooked_01_02",
+  "timestamp": "2025-03-12T04:03:05.273005",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yeah!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_attack_abrams",
+  "timestamp": "2025-03-12T03:52:19.493519",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Abrams.",
+      "part": 1
+    }
+  ]
+}

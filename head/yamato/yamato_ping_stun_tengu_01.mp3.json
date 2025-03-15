@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_stun_tengu_01",
+  "timestamp": "2025-03-12T12:42:26.236267",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u30b9\u30bf\u30f3\u30fb\u30a2\u30a4\u30d3\u30fc",
+      "part": 1
+    }
+  ]
+}

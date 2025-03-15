@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ally_kelvin_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:46:45.260790",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Oh, it's a Valkyrie!",
+      "part": 1
+    }
+  ]
+}

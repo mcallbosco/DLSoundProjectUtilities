@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ally_inferno_burns_down_objective_01",
+  "timestamp": "2025-03-12T12:44:32.964513",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " It's an honor to work with you, Infernus.",
+      "part": 1
+    }
+  ]
+}

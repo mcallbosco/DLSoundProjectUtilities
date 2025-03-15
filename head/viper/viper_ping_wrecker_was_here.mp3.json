@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_wrecker_was_here",
+  "timestamp": "2025-03-12T03:58:30.287787",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Wrecker was here.",
+      "part": 1
+    }
+  ]
+}

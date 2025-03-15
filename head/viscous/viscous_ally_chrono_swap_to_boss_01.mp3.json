@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ally_chrono_swap_to_boss_01",
+  "timestamp": "2025-03-12T04:11:40.246529",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Paradox set a trap!",
+      "part": 1
+    }
+  ]
+}

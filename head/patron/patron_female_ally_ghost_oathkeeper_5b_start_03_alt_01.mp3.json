@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_oathkeeper_5b_start_03_alt_01",
+  "timestamp": "2025-03-12T04:04:45.622756",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.119999885559082,
+      "text": " The plotting, the planning, all has led you here.",
+      "part": 1
+    },
+    {
+      "start": 5.119999885559082,
+      "end": 8.800000190734863,
+      "text": " Time has come to bind Oathkeeper.",
+      "part": 2
+    }
+  ]
+}

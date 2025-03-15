@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_can_heal_cadence",
+  "timestamp": "2025-03-12T03:46:49.019805",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence, I can hear you!",
+      "part": 1
+    }
+  ]
+}

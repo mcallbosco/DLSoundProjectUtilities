@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_select_01",
+  "timestamp": "2025-03-12T04:06:29.677258",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u5bb9\u8d66\u306f\u3057\u306a\u3044\u3002",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_saw_atlas",
+  "timestamp": "2025-03-12T04:03:53.983648",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Abrams.",
+      "part": 1
+    }
+  ]
+}

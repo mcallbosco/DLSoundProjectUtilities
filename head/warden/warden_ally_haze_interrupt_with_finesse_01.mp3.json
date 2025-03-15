@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_haze_interrupt_with_finesse_01",
+  "timestamp": "2025-03-12T03:28:44.354154",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.240000009536743,
+      "text": " Now that was some finesse, Haze.",
+      "part": 1
+    }
+  ]
+}

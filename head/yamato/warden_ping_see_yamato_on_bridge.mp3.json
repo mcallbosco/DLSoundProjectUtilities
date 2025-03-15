@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_yamato_on_bridge",
+  "timestamp": "2025-03-12T03:30:50.948038",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato's on the bridge!",
+      "part": 1
+    }
+  ]
+}

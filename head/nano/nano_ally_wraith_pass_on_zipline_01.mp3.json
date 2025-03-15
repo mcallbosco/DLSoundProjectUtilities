@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ally_wraith_pass_on_zipline_01",
+  "timestamp": "2025-03-12T03:51:35.223895",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Stay safe, Wraith.",
+      "part": 1
+    }
+  ]
+}

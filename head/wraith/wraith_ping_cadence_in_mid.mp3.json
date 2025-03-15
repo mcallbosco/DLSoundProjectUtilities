@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_cadence_in_mid",
+  "timestamp": "2025-03-12T03:43:46.202915",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence is in Mid.",
+      "part": 1
+    }
+  ]
+}

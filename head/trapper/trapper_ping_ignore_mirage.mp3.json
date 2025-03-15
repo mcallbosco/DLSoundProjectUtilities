@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_ignore_mirage",
+  "timestamp": "2025-03-12T03:49:52.268989",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Mirage!",
+      "part": 1
+    }
+  ]
+}

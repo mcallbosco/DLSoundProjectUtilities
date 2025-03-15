@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_ghost_on_top_of_garage",
+  "timestamp": "2025-03-12T03:38:41.655884",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GEIST IS ON TOP OF THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

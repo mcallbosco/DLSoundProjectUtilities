@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_unselect_06",
+  "timestamp": "2025-03-12T03:41:16.090519",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I won't help the patrons.",
+      "part": 1
+    }
+  ]
+}

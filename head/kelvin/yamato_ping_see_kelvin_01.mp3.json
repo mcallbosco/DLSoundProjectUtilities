@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_see_kelvin_01",
+  "timestamp": "2025-03-12T03:33:00.673208",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.800000011920929,
+      "text": " I see Kelvin.",
+      "part": 1
+    }
+  ]
+}

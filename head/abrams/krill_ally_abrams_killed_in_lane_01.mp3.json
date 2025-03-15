@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_abrams_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:33:02.143924",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " THEY KILLED THE BLUE GUY!",
+      "part": 1
+    }
+  ]
+}

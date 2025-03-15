@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_synth_check_items",
+  "timestamp": "2025-03-12T12:32:52.504969",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Pocket bought!",
+      "part": 1
+    }
+  ]
+}

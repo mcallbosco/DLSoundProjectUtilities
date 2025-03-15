@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_with_atlas",
+  "timestamp": "2025-03-12T03:47:45.823412",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " I'm Rizu Abrams.",
+      "part": 1
+    }
+  ]
+}

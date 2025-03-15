@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_careful_cadence_01",
+  "timestamp": "2025-03-12T03:46:41.220343",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Careful, Cadence!",
+      "part": 1
+    }
+  ]
+}

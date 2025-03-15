@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_trapper_missing_01",
+  "timestamp": "2025-03-12T03:40:11.693293",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Trapper is missing.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_can_heal_bebop",
+  "timestamp": "2025-03-12T12:29:43.628793",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " Bebop. I can hear you.",
+      "part": 1
+    }
+  ]
+}

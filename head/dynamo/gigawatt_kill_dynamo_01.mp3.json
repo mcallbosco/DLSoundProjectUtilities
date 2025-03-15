@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_dynamo_01",
+  "timestamp": "2025-03-12T03:57:48.812104",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Professor Dynamo, it was a great honor.",
+      "part": 1
+    }
+  ]
+}

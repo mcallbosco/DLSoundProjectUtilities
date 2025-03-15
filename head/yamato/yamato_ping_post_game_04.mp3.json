@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_post_game_04",
+  "timestamp": "2025-03-12T03:44:45.604598",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u5f53\u7136\u306e\u7d50\u679c\u3060\u3002",
+      "part": 1
+    }
+  ]
+}

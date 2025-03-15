@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_forge_02",
+  "timestamp": "2025-03-12T12:23:53.279742",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " Fairfax Industries needs to fall.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_with_synth",
+  "timestamp": "2025-03-12T12:24:18.627648",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Pocket.",
+      "part": 1
+    }
+  ]
+}

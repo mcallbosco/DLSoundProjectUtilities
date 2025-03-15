@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_viscous_02",
+  "timestamp": "2025-03-12T12:38:59.840683",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " That cube was never going to save you.",
+      "part": 1
+    }
+  ]
+}

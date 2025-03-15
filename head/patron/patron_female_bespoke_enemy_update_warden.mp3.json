@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_bespoke_enemy_update_warden",
+  "timestamp": "2025-03-12T12:43:10.017015",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.599999904632568,
+      "text": " Warden's reach is vast, but in the end, he is still only a man.",
+      "part": 1
+    }
+  ]
+}

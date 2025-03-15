@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_warden_in_mid",
+  "timestamp": "2025-03-12T03:40:56.036934",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden is in Mid.",
+      "part": 1
+    }
+  ]
+}

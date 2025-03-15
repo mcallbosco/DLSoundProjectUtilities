@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_shiv_on_roof",
+  "timestamp": "2025-03-12T12:32:43.837615",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Shiv's on the roof!",
+      "part": 1
+    }
+  ]
+}

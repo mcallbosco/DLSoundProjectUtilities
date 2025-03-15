@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_saw_paradox",
+  "timestamp": "2025-03-12T03:48:02.864313",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Paradox.",
+      "part": 1
+    }
+  ]
+}

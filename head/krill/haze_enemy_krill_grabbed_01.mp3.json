@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_krill_grabbed_01",
+  "timestamp": "2025-03-12T04:06:08.311679",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " LET GO OF ME, KRILL!",
+      "part": 1
+    }
+  ]
+}

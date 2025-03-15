@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_with_infernus",
+  "timestamp": "2025-03-12T04:08:37.087338",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Infernus!",
+      "part": 1
+    }
+  ]
+}

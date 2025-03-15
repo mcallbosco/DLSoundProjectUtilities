@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_with_yamato",
+  "timestamp": "2025-03-12T03:35:52.365119",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Yamato.",
+      "part": 1
+    }
+  ]
+}

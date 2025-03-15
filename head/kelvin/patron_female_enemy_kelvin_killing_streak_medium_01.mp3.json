@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_kelvin_killing_streak_medium_01",
+  "timestamp": "2025-03-12T03:56:30.155043",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.199999809265137,
+      "text": " Kelvin will try to outlast you, but you must endure.",
+      "part": 1
+    }
+  ]
+}

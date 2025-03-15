@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_seven_04",
+  "timestamp": "2025-03-12T04:00:54.426641",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " You hid yourself from me for the last time.",
+      "part": 1
+    }
+  ]
+}

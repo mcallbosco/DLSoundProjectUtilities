@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_with_bebop",
+  "timestamp": "2025-03-12T04:01:04.697511",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Bebop.",
+      "part": 1
+    }
+  ]
+}

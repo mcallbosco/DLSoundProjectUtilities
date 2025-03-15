@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_see_nano_on_roof",
+  "timestamp": "2025-03-12T12:31:54.448230",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calicos on the roof!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_attack_ivy",
+  "timestamp": "2025-03-12T04:01:45.120663",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Ivy!",
+      "part": 1
+    }
+  ]
+}

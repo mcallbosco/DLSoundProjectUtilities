@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ally_krill_grab_mid_enemy_ult_03",
+  "timestamp": "2025-03-12T12:48:25.799929",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Maurice has them!",
+      "part": 1
+    }
+  ]
+}

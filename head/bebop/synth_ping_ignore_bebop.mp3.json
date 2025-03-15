@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_ignore_bebop",
+  "timestamp": "2025-03-12T03:38:19.075538",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Ignore Bebop.",
+      "part": 1
+    }
+  ]
+}

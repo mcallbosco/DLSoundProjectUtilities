@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_careful_tengu_01",
+  "timestamp": "2025-03-12T04:11:46.780879",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.8799999952316284,
+      "text": " Careful, Ivy!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_ignore_krill",
+  "timestamp": "2025-03-12T03:32:43.941258",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE KRILL!",
+      "part": 1
+    }
+  ]
+}

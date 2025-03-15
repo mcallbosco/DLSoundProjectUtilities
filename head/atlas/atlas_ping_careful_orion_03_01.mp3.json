@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_careful_orion_03_01",
+  "timestamp": "2025-03-12T12:36:26.263191",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, old man!",
+      "part": 1
+    }
+  ]
+}

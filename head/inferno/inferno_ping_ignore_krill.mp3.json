@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_ignore_krill",
+  "timestamp": "2025-03-12T03:27:12.303525",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Krill!",
+      "part": 1
+    }
+  ]
+}

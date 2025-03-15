@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_atlas_05",
+  "timestamp": "2025-03-12T12:33:00.517050",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Took out the detective.",
+      "part": 1
+    }
+  ]
+}

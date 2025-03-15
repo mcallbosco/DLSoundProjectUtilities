@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_lash_dead",
+  "timestamp": "2025-03-12T03:32:46.338616",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash is dead.",
+      "part": 1
+    }
+  ]
+}

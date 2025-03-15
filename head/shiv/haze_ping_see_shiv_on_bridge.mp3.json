@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_see_shiv_on_bridge",
+  "timestamp": "2025-03-12T12:25:23.952286",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv's on the bridge.",
+      "part": 1
+    }
+  ]
+}

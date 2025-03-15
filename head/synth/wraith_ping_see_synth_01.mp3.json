@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_see_synth_01",
+  "timestamp": "2025-03-12T03:38:21.015516",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Icy Pocket.",
+      "part": 1
+    }
+  ]
+}

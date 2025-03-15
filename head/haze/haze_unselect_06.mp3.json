@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_unselect_06",
+  "timestamp": "2025-03-12T12:48:55.575816",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Your enemies are grateful for your choice.",
+      "part": 1
+    }
+  ]
+}

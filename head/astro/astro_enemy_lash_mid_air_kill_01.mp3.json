@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_enemy_lash_mid_air_kill_01",
+  "timestamp": "2025-03-12T04:08:26.218378",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.640000104904175,
+      "text": " Humbling guys like you never gets old.",
+      "part": 1
+    }
+  ]
+}

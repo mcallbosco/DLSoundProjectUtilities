@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_shiv_01",
+  "timestamp": "2025-03-12T04:00:57.563390",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Is this what the Baxter Society has turned into?",
+      "part": 1
+    }
+  ]
+}

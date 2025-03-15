@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_ignore_krill",
+  "timestamp": "2025-03-12T04:08:24.537342",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Krill.",
+      "part": 1
+    }
+  ]
+}

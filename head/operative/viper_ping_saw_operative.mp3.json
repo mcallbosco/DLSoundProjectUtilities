@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_saw_operative",
+  "timestamp": "2025-03-12T03:41:00.355645",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I SAW A RAVEN!",
+      "part": 1
+    }
+  ]
+}

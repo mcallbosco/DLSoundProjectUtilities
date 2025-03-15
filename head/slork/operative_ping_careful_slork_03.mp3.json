@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_careful_slork_03",
+  "timestamp": "2025-03-12T03:29:20.934042",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Be careful for them.",
+      "part": 1
+    }
+  ]
+}

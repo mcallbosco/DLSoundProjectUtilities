@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_saw_forge",
+  "timestamp": "2025-03-12T03:37:47.637967",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " I saw McGinnis!",
+      "part": 1
+    }
+  ]
+}

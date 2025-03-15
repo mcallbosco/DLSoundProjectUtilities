@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_bebop_05",
+  "timestamp": "2025-03-12T03:29:06.518094",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Try to hook me again and see what happens.",
+      "part": 1
+    }
+  ]
+}

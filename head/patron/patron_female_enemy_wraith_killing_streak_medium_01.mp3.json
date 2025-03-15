@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_wraith_killing_streak_medium_01",
+  "timestamp": "2025-03-12T03:40:06.140092",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " Wraith is preying on you.",
+      "part": 1
+    }
+  ]
+}

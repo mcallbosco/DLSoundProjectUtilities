@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_orion_on_top_of_garage",
+  "timestamp": "2025-03-12T12:32:37.251942",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Orion's on top of the garage!",
+      "part": 1
+    }
+  ]
+}

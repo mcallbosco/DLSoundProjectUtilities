@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_ignore_inferno",
+  "timestamp": "2025-03-12T12:23:38.301160",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE INFERNUS!",
+      "part": 1
+    }
+  ]
+}

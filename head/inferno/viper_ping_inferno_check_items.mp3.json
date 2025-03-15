@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_inferno_check_items",
+  "timestamp": "2025-03-12T03:46:13.706596",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.600000023841858,
+      "text": " Check out what Infernus bought.",
+      "part": 1
+    }
+  ]
+}

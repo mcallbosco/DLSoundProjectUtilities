@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_holliday",
+  "timestamp": "2025-03-12T04:05:40.044612",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0800000429153442,
+      "text": " I see Holliday.",
+      "part": 1
+    }
+  ]
+}

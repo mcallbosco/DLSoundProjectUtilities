@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_abrams_was_here",
+  "timestamp": "2025-03-12T03:30:49.541253",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams was here.",
+      "part": 1
+    }
+  ]
+}

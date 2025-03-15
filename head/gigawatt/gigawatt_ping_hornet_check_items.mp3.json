@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_hornet_check_items",
+  "timestamp": "2025-03-12T03:30:06.889203",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Vindicta's bought!",
+      "part": 1
+    }
+  ]
+}

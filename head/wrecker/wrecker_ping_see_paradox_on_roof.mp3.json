@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_paradox_on_roof",
+  "timestamp": "2025-03-12T03:49:11.770366",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Paradox is on the roof.",
+      "part": 1
+    }
+  ]
+}

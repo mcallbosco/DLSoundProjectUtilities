@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_nano_dead",
+  "timestamp": "2025-03-12T04:10:25.034560",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Calico is dead.",
+      "part": 1
+    }
+  ]
+}

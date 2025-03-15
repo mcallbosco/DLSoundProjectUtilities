@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_post_game_05",
+  "timestamp": "2025-03-12T04:02:51.074269",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " That could have gone bad, but we kept it together.",
+      "part": 1
+    }
+  ]
+}

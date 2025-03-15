@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_wrecker_in_mid",
+  "timestamp": "2025-03-12T12:28:02.348042",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wreckers in Mid.",
+      "part": 1
+    }
+  ]
+}

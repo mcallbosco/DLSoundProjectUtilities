@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_yamato_04",
+  "timestamp": "2025-03-12T04:08:37.418823",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You couldn't hide from me forever, Yamato.",
+      "part": 1
+    }
+  ]
+}

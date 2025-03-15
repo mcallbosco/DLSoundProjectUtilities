@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_chrono_03",
+  "timestamp": "2025-03-12T03:48:17.493183",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": "\u5b50\u4f9b\u304c\u8abf\u5b50\u306b\u4e57\u308b\u304b\u3089\u3053\u3046\u306a\u308b\u306e\u3060\u3002",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_krill_01",
+  "timestamp": "2025-03-12T12:25:28.873780",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Be careful, Krill.",
+      "part": 1
+    }
+  ]
+}

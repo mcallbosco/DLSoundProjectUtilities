@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_attack_kelvin",
+  "timestamp": "2025-03-12T03:59:18.099464",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KILL KELVIN!",
+      "part": 1
+    }
+  ]
+}

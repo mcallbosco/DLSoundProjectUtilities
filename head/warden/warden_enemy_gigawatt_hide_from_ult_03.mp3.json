@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_gigawatt_hide_from_ult_03",
+  "timestamp": "2025-03-12T12:23:32.320289",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I need to get out of here!",
+      "part": 1
+    }
+  ]
+}

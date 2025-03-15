@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_unselect_03",
+  "timestamp": "2025-03-12T12:24:40.495729",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.240000009536743,
+      "text": " Spurning Paradox is a mistake.",
+      "part": 1
+    }
+  ]
+}

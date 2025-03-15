@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_wrecker_pass_on_zipline_01",
+  "timestamp": "2025-03-12T03:40:00.225393",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Glad that thing's on our side.",
+      "part": 1
+    }
+  ]
+}

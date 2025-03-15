@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_post_game_06",
+  "timestamp": "2025-03-12T03:46:49.583190",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Great work, everyone.",
+      "part": 1
+    }
+  ]
+}

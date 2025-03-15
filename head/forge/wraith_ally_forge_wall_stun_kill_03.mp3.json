@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_forge_wall_stun_kill_03",
+  "timestamp": "2025-03-12T12:39:19.411028",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Hate to be on the receiving end of that!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_ignore_haze",
+  "timestamp": "2025-03-12T12:29:50.603454",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Haze.",
+      "part": 1
+    }
+  ]
+}

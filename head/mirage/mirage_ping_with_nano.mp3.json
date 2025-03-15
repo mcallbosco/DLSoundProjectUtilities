@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_with_nano",
+  "timestamp": "2025-03-12T12:24:10.679757",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " I'm with you, Calico.",
+      "part": 1
+    }
+  ]
+}

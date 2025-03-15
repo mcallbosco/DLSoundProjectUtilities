@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_calico_in_mid",
+  "timestamp": "2025-03-12T04:04:26.507188",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calicos in Mid.",
+      "part": 1
+    }
+  ]
+}

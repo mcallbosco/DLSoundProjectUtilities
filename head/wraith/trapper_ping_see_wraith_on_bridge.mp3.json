@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_see_wraith_on_bridge",
+  "timestamp": "2025-03-12T04:11:26.818917",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith's on the bridge!",
+      "part": 1
+    }
+  ]
+}

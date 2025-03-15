@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_chrono_start_01",
+  "timestamp": "2025-03-12T04:04:40.990339",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.599999904632568,
+      "text": " You will show the other members of Paradox why you are fit to lead.",
+      "part": 1
+    },
+    {
+      "start": 4.599999904632568,
+      "end": 5.800000190734863,
+      "text": " Summon me.",
+      "part": 2
+    }
+  ]
+}

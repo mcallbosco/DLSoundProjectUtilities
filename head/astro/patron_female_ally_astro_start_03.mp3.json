@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_astro_start_03",
+  "timestamp": "2025-03-12T03:38:48.318321",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " You didn't come this far to fail now, Holliday. It's time to enact the ritual.",
+      "part": 1
+    }
+  ]
+}

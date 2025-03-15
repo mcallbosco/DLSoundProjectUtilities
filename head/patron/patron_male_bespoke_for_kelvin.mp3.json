@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_for_kelvin",
+  "timestamp": "2025-03-12T03:28:54.800863",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Kelvin, without you, your allies would be dead.",
+      "part": 1
+    }
+  ]
+}

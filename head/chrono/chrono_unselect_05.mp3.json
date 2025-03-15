@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_unselect_05",
+  "timestamp": "2025-03-12T03:41:05.656055",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " You realize I create walls of time, right?",
+      "part": 1
+    }
+  ]
+}

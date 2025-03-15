@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ally_inferno_burns_down_objective_01",
+  "timestamp": "2025-03-12T04:00:45.101389",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " That didn't last long.",
+      "part": 1
+    }
+  ]
+}

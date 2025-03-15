@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ally_atlas_unkillable_01",
+  "timestamp": "2025-03-12T12:40:07.974769",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They can't stop Abrams!",
+      "part": 1
+    }
+  ]
+}

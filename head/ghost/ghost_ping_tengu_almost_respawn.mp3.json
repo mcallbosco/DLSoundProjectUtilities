@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_tengu_almost_respawn",
+  "timestamp": "2025-03-12T03:55:06.037500",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ivy is almost back.",
+      "part": 1
+    }
+  ]
+}

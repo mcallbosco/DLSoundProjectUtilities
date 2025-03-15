@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_with_cadence",
+  "timestamp": "2025-03-12T03:55:13.966480",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Cadence.",
+      "part": 1
+    }
+  ]
+}

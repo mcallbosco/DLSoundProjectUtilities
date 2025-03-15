@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_see_seven_02",
+  "timestamp": "2025-03-12T04:05:46.456125",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Seven stalks us.",
+      "part": 1
+    }
+  ]
+}

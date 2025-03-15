@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_atlas_start_05",
+  "timestamp": "2025-03-12T03:38:49.769079",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " Detective, your allies will need your strength to complete the ritual.",
+      "part": 1
+    }
+  ]
+}

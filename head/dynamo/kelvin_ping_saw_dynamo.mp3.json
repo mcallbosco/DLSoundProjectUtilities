@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_saw_dynamo",
+  "timestamp": "2025-03-12T04:04:33.761117",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " I sold Dynamo!",
+      "part": 1
+    }
+  ]
+}

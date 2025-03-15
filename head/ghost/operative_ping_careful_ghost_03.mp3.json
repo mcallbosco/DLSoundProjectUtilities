@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_careful_ghost_03",
+  "timestamp": "2025-03-12T12:48:33.529107",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Geist.",
+      "part": 1
+    }
+  ]
+}

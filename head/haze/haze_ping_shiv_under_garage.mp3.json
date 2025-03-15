@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_shiv_under_garage",
+  "timestamp": "2025-03-12T12:32:04.084385",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shiv's under the garage.",
+      "part": 1
+    }
+  ]
+}

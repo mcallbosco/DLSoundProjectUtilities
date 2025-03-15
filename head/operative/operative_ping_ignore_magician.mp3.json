@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_ignore_magician",
+  "timestamp": "2025-03-12T03:38:06.630558",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Magician.",
+      "part": 1
+    }
+  ]
+}

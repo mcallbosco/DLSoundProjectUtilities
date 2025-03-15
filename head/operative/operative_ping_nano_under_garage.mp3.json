@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_nano_under_garage",
+  "timestamp": "2025-03-12T12:48:26.119443",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico's Under the Garage.",
+      "part": 1
+    }
+  ]
+}

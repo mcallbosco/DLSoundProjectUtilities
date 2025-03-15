@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_ghost_almost_respawn",
+  "timestamp": "2025-03-12T03:58:44.203321",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Geist is almost back!",
+      "part": 1
+    }
+  ]
+}

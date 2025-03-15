@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_cadence_on_roof",
+  "timestamp": "2025-03-12T12:37:50.836566",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence is on the roof!",
+      "part": 1
+    }
+  ]
+}

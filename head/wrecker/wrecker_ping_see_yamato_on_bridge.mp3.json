@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_yamato_on_bridge",
+  "timestamp": "2025-03-12T03:34:25.190157",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " YAMATO'S ON THE BRIDGE!",
+      "part": 1
+    }
+  ]
+}

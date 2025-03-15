@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_forge_blocked_by_wall_01",
+  "timestamp": "2025-03-12T12:34:44.467659",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Diamond Forge!",
+      "part": 1
+    }
+  ]
+}

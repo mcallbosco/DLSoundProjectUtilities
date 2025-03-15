@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_haze_under_garage",
+  "timestamp": "2025-03-12T12:26:19.347262",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Haze under the Garrosh.",
+      "part": 1
+    }
+  ]
+}

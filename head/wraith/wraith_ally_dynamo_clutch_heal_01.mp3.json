@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_dynamo_clutch_heal_01",
+  "timestamp": "2025-03-12T12:27:09.867174",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks for the help, Professor.",
+      "part": 1
+    }
+  ]
+}

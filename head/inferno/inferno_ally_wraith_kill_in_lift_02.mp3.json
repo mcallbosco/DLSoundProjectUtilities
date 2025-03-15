@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ally_wraith_kill_in_lift_02",
+  "timestamp": "2025-03-12T04:10:53.535120",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good work, Wraith!",
+      "part": 1
+    }
+  ]
+}

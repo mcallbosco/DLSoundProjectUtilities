@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_ignore_gigawatt",
+  "timestamp": "2025-03-12T03:46:32.017207",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Seven.",
+      "part": 1
+    }
+  ]
+}

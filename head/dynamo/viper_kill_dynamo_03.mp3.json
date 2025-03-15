@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_kill_dynamo_03",
+  "timestamp": "2025-03-12T03:33:22.742426",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DYNAMO'S DOWN!",
+      "part": 1
+    }
+  ]
+}

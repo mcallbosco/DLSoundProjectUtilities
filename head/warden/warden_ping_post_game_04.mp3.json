@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_post_game_04",
+  "timestamp": "2025-03-12T04:07:44.880080",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They put up quite the fight.",
+      "part": 1
+    }
+  ]
+}

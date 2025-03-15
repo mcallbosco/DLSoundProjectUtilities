@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_ignore_wraith",
+  "timestamp": "2025-03-12T12:43:14.480021",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Wraith.",
+      "part": 1
+    }
+  ]
+}

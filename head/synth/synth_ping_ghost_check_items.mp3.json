@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_ghost_check_items",
+  "timestamp": "2025-03-12T12:36:01.411856",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Geist bought!",
+      "part": 1
+    }
+  ]
+}

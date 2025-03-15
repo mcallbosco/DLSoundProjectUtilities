@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ally_yamato_kills_with_hook_03",
+  "timestamp": "2025-03-12T12:27:05.873728",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You're relentless, Yamato!",
+      "part": 1
+    }
+  ]
+}

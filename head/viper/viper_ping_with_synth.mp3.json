@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_with_synth",
+  "timestamp": "2025-03-12T03:56:06.968215",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " I'm with you, Pocket!",
+      "part": 1
+    }
+  ]
+}

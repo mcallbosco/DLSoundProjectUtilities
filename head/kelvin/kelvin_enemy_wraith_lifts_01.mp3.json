@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_enemy_wraith_lifts_01",
+  "timestamp": "2025-03-12T03:46:35.793239",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " RAID!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_ghost_oathkeeper_5a_start_01",
+  "timestamp": "2025-03-12T03:54:48.374703",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.5,
+      "text": " Lady Geist, this is your chance to reap enough souls to feed Oath Keeper for lifetimes.",
+      "part": 1
+    },
+    {
+      "start": 6.5,
+      "end": 8.5,
+      "text": " Don't squander it!",
+      "part": 2
+    }
+  ]
+}

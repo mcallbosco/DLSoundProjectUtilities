@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_forge_check_items",
+  "timestamp": "2025-03-12T04:04:21.706027",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what McGinnis bought!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_see_shiv",
+  "timestamp": "2025-03-12T04:04:28.774634",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see Shiv.",
+      "part": 1
+    }
+  ]
+}

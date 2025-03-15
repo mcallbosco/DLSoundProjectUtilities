@@ -1,0 +1,24 @@
+{
+  "voiceline_id": "viscous_unselect_04",
+  "timestamp": "2025-03-12T03:58:42.318650",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.880000114440918,
+      "text": " When you need to be trapped in a protoplasmic cube, you're going to be thinking,",
+      "part": 1
+    },
+    {
+      "start": 4.880000114440918,
+      "end": 8.079999923706055,
+      "text": " Man, I wish I had Viscous's help.",
+      "part": 2
+    },
+    {
+      "start": 8.079999923706055,
+      "end": 11.960000038146973,
+      "text": " He seemed like a nice person who would trap me in a protoplasmic cube.",
+      "part": 3
+    }
+  ]
+}

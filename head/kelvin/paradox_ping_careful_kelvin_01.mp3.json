@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_careful_kelvin_01",
+  "timestamp": "2025-03-12T04:07:42.316220",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Kelvin!",
+      "part": 1
+    }
+  ]
+}

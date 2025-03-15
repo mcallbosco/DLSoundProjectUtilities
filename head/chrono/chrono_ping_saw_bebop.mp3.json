@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_saw_bebop",
+  "timestamp": "2025-03-12T04:10:18.283524",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I SAW BEBOP!",
+      "part": 1
+    }
+  ]
+}

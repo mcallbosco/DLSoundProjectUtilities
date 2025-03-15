@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_nano_was_here",
+  "timestamp": "2025-03-12T03:50:48.091864",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico is here!",
+      "part": 1
+    }
+  ]
+}

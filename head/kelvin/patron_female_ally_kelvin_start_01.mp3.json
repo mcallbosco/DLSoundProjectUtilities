@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_kelvin_start_01",
+  "timestamp": "2025-03-12T04:07:25.964318",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " The grave could not hold you, Kelvin, and that resolve is needed once more.",
+      "part": 1
+    }
+  ]
+}

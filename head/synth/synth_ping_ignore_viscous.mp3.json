@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_ignore_viscous",
+  "timestamp": "2025-03-12T04:00:13.975047",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Viscous.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_unselect_08",
+  "timestamp": "2025-03-12T12:25:02.868136",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " You didn't want my help anyway, I'm a degenerate.",
+      "part": 1
+    }
+  ]
+}

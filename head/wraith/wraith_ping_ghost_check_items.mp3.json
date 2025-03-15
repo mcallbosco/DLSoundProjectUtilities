@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_ghost_check_items",
+  "timestamp": "2025-03-12T12:31:31.720796",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4800000190734863,
+      "text": " Check out what Geist bought!",
+      "part": 1
+    }
+  ]
+}

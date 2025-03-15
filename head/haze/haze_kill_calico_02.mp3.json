@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_calico_02",
+  "timestamp": "2025-03-12T04:06:53.047979",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " We have nothing to fear from Calico.",
+      "part": 1
+    }
+  ]
+}

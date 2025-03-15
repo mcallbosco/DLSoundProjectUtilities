@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_slork_almost_respawn",
+  "timestamp": "2025-03-12T03:43:05.017258",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Fathom's almost back.",
+      "part": 1
+    }
+  ]
+}

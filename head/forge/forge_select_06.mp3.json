@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_select_06",
+  "timestamp": "2025-03-12T12:28:16.518500",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ready to do some field testing!",
+      "part": 1
+    }
+  ]
+}

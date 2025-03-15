@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_haze_03",
+  "timestamp": "2025-03-12T03:49:09.200011",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.359999895095825,
+      "text": "\u30bb\u30d6\u30f3\u30b9\u30e0\u30fc\u30f3\u306b\u9006\u3089\u3046\u8005\u306f\u3053\u3046\u306a\u308b\u306e\u3055\u3002",
+      "part": 1
+    }
+  ]
+}

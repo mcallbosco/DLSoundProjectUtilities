@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_see_bebop_on_bridge",
+  "timestamp": "2025-03-12T12:40:43.059135",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Bebop's on the bridge.",
+      "part": 1
+    }
+  ]
+}

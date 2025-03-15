@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_enemy_hornet_killed_mid_air_01",
+  "timestamp": "2025-03-12T04:05:18.483032",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Down Vindicta!",
+      "part": 1
+    }
+  ]
+}

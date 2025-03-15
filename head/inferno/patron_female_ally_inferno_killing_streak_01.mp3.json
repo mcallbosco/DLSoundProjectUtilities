@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_inferno_killing_streak_01",
+  "timestamp": "2025-03-12T03:30:01.975747",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Keep fighting, Infernus!",
+      "part": 1
+    }
+  ]
+}

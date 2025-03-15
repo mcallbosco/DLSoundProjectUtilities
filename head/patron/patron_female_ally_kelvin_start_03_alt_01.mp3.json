@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_kelvin_start_03_alt_01",
+  "timestamp": "2025-03-12T04:06:24.770242",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.0,
+      "text": " It's time, Kelvin. Finish what you started all those years ago. Complete the ritual.",
+      "part": 1
+    }
+  ]
+}

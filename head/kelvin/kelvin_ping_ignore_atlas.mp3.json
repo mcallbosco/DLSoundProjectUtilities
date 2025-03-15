@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_ignore_atlas",
+  "timestamp": "2025-03-12T04:09:34.100548",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Ignore Abrams.",
+      "part": 1
+    }
+  ]
+}

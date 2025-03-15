@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_careful_mirage_03",
+  "timestamp": "2025-03-12T04:01:46.616621",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Mirage!",
+      "part": 1
+    }
+  ]
+}

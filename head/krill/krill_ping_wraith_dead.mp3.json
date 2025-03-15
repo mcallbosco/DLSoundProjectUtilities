@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_wraith_dead",
+  "timestamp": "2025-03-12T12:33:32.319937",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith is dead.",
+      "part": 1
+    }
+  ]
+}

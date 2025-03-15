@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_with_orion",
+  "timestamp": "2025-03-12T03:39:53.703498",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Grey Talon.",
+      "part": 1
+    }
+  ]
+}

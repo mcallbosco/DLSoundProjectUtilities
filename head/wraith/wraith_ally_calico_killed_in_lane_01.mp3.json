@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_calico_killed_in_lane_01",
+  "timestamp": "2025-03-12T04:04:04.317810",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They took out Calico!",
+      "part": 1
+    }
+  ]
+}

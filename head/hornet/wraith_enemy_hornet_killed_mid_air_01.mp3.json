@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_hornet_killed_mid_air_01",
+  "timestamp": "2025-03-12T12:45:54.318938",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shroud her down.",
+      "part": 1
+    }
+  ]
+}

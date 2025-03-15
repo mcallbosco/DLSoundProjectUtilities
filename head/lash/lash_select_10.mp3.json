@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "lash_select_10",
+  "timestamp": "2025-03-12T03:35:28.611483",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.679999828338623,
+      "text": " I'm not dumb, I know a lot of people hate me, it's a curse really, you know, to just",
+      "part": 1
+    },
+    {
+      "start": 6.679999828338623,
+      "end": 11.479999542236328,
+      "text": " rule so hard that every mediocre soul in the city has to resent you.",
+      "part": 2
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_viscous_was_here",
+  "timestamp": "2025-03-12T12:48:22.086941",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Viscous was here!",
+      "part": 1
+    }
+  ]
+}

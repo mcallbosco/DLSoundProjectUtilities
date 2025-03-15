@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_calico_missing_01",
+  "timestamp": "2025-03-12T03:50:07.714339",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico's missing.",
+      "part": 1
+    }
+  ]
+}

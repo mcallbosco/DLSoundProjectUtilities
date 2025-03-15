@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_can_heal_synth",
+  "timestamp": "2025-03-12T04:11:53.093935",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Pocket, I can heal you.",
+      "part": 1
+    }
+  ]
+}

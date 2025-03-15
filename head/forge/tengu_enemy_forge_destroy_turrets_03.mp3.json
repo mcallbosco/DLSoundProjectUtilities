@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_enemy_forge_destroy_turrets_03",
+  "timestamp": "2025-03-12T03:46:11.985871",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.799999952316284,
+      "text": " I'll tear through as many of these as I have to!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_orion_see_missile_01",
+  "timestamp": "2025-03-12T12:27:47.211263",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " There's a ZOWL!",
+      "part": 1
+    }
+  ]
+}

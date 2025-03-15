@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_viscous_pass_on_zipline_01",
+  "timestamp": "2025-03-12T03:29:29.366304",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'll be right back, Viscous!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_gigawatt_in_mid",
+  "timestamp": "2025-03-12T03:34:06.219437",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GIGAWATTS ENDED",
+      "part": 1
+    }
+  ]
+}

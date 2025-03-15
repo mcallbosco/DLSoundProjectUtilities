@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_atlas_big_stun_01",
+  "timestamp": "2025-03-12T03:29:57.397285",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams made his move.",
+      "part": 1
+    }
+  ]
+}

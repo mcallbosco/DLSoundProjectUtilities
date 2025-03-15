@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_operative_dead",
+  "timestamp": "2025-03-12T03:47:11.788214",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Raven is dead.",
+      "part": 1
+    }
+  ]
+}

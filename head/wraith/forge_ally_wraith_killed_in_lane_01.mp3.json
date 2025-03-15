@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "forge_ally_wraith_killed_in_lane_01",
+  "timestamp": "2025-03-12T04:04:40.418187",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " It took out Wraith.",
+      "part": 1
+    }
+  ]
+}

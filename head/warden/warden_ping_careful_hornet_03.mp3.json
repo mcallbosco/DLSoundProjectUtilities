@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_careful_hornet_03",
+  "timestamp": "2025-03-12T03:57:16.314236",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Be careful, Vindicta!",
+      "part": 1
+    }
+  ]
+}

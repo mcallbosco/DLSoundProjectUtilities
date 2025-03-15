@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_wraith_in_mid",
+  "timestamp": "2025-03-12T03:28:01.727970",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " Races in Mid.",
+      "part": 1
+    }
+  ]
+}

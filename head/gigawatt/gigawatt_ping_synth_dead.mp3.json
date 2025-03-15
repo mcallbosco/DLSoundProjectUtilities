@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_synth_dead",
+  "timestamp": "2025-03-12T03:37:08.080532",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " POCKET IS DEAD",
+      "part": 1
+    }
+  ]
+}

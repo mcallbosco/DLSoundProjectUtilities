@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_tengu_start_01_alt_01",
+  "timestamp": "2025-03-12T12:43:45.145193",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 13.0,
+      "text": " You are lost, Ivy, directionless, but I see beyond what your heart wants, I see what you need. Summon me.",
+      "part": 1
+    }
+  ]
+}

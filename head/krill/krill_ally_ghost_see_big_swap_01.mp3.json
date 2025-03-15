@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_ghost_see_big_swap_01",
+  "timestamp": "2025-03-12T03:38:06.731940",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geist is still in the fight!",
+      "part": 1
+    }
+  ]
+}

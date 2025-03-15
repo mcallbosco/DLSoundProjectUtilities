@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_see_lash",
+  "timestamp": "2025-03-12T04:10:27.782565",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I see Lash!",
+      "part": 1
+    }
+  ]
+}

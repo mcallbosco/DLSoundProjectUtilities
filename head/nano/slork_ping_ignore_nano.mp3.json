@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_ignore_nano",
+  "timestamp": "2025-03-12T03:19:03.315241",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE CAVICO!",
+      "part": 1
+    }
+  ]
+}

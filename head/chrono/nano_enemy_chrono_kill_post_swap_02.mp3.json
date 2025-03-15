@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_enemy_chrono_kill_post_swap_02",
+  "timestamp": "2025-03-12T04:01:11.945714",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You need to do better, Paradox.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_see_wrecker_02",
+  "timestamp": "2025-03-12T04:12:22.890369",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wrecker's right there!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_saw_warden",
+  "timestamp": "2025-03-12T04:07:56.064484",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw one of them!",
+      "part": 1
+    }
+  ]
+}

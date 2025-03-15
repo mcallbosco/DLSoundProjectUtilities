@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_chrono_dead",
+  "timestamp": "2025-03-12T03:59:41.417054",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " PARADOX IS DEAD!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_ivy_on_top_of_garage",
+  "timestamp": "2025-03-12T04:07:42.648504",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ivy's on top of the garage!",
+      "part": 1
+    }
+  ]
+}

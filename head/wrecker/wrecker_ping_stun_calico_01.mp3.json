@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_stun_calico_01",
+  "timestamp": "2025-03-12T03:43:55.524897",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STAN GALICO",
+      "part": 1
+    }
+  ]
+}

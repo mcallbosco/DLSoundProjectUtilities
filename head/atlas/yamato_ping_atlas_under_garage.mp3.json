@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_atlas_under_garage",
+  "timestamp": "2025-03-12T03:44:17.648388",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams, Under the Garage.",
+      "part": 1
+    }
+  ]
+}

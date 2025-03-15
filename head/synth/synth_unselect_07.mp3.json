@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_unselect_07",
+  "timestamp": "2025-03-12T12:27:36.290623",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I need more time to plan.",
+      "part": 1
+    }
+  ]
+}

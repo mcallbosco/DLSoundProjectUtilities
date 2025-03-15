@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_attack_yamato",
+  "timestamp": "2025-03-12T12:44:44.862534",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Yamato!",
+      "part": 1
+    }
+  ]
+}

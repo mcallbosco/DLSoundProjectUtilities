@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_inferno_start_04",
+  "timestamp": "2025-03-12T03:51:56.606913",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " Infernus, now protected from the machinations of our enemies.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_haze_was_here",
+  "timestamp": "2025-03-12T03:27:39.672807",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Haze was here.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_ghost_05",
+  "timestamp": "2025-03-12T12:34:41.060851",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " The likes of us don't get the benefit of mercy, Geist.",
+      "part": 1
+    }
+  ]
+}

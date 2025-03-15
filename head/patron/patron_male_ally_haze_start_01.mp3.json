@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_haze_start_01",
+  "timestamp": "2025-03-12T03:56:48.654044",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " Haze, soon you will have to decide if you're summoning me for the OSIC or for yourself.",
+      "part": 1
+    }
+  ]
+}

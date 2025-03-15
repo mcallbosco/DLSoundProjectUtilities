@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_ghost_01",
+  "timestamp": "2025-03-12T12:27:11.050917",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Your unnatural life has come to an end.",
+      "part": 1
+    }
+  ]
+}

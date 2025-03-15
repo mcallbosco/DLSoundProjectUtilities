@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_atlas_was_here",
+  "timestamp": "2025-03-12T03:37:54.368198",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Abrams was here.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_male_ally_yamato_start_03",
+  "timestamp": "2025-03-12T04:07:10.528193",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You have enemies back home who still hunt you.",
+      "part": 1
+    },
+    {
+      "start": 3.0,
+      "end": 8.0,
+      "text": " But once you complete the ritual, only a fool would oppose the seventh moon.",
+      "part": 2
+    }
+  ]
+}

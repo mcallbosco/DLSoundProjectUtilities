@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_bebop_check_items",
+  "timestamp": "2025-03-12T03:59:48.001181",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.440000057220459,
+      "text": " Check out what Bebop bought!",
+      "part": 1
+    }
+  ]
+}

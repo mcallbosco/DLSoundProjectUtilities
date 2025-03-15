@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_see_dynamo_01",
+  "timestamp": "2025-03-12T03:39:12.115034",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.359999895095825,
+      "text": " I see Dynamo.",
+      "part": 1
+    }
+  ]
+}

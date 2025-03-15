@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_ghost_dead",
+  "timestamp": "2025-03-12T03:44:02.113672",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geist is dead.",
+      "part": 1
+    }
+  ]
+}

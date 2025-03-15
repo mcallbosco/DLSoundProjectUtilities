@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_can_heal_atlas",
+  "timestamp": "2025-03-12T12:47:52.387305",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams, I can heal you!",
+      "part": 1
+    }
+  ]
+}

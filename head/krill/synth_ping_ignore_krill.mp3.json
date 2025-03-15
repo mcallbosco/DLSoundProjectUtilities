@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_ignore_krill",
+  "timestamp": "2025-03-12T03:36:33.796484",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Krill.",
+      "part": 1
+    }
+  ]
+}

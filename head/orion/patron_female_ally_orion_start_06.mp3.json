@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_orion_start_06",
+  "timestamp": "2025-03-12T12:43:49.520916",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.0,
+      "text": " Talon, summon me, and you will have your revenge.",
+      "part": 1
+    }
+  ]
+}

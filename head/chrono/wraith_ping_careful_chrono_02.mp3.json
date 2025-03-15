@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_careful_chrono_02",
+  "timestamp": "2025-03-12T04:02:58.542350",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Paradox!",
+      "part": 1
+    }
+  ]
+}

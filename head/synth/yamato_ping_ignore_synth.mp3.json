@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_ignore_synth",
+  "timestamp": "2025-03-12T03:27:42.587548",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.8799999952316284,
+      "text": " Ignore Pocket.",
+      "part": 1
+    }
+  ]
+}

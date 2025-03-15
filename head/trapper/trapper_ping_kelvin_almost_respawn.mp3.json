@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_kelvin_almost_respawn",
+  "timestamp": "2025-03-12T12:45:21.859098",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KELVIN IS ALMOST BACK!",
+      "part": 1
+    }
+  ]
+}

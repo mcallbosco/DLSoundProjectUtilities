@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_enemy_wraith_lifts_02",
+  "timestamp": "2025-03-12T03:32:10.092092",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Release us, Wraith!",
+      "part": 1
+    }
+  ]
+}

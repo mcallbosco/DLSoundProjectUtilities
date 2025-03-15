@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_with_gigawatt",
+  "timestamp": "2025-03-12T12:45:08.231884",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Gigawatt.",
+      "part": 1
+    }
+  ]
+}

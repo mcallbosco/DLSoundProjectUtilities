@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_inferno_burns_down_objective_02",
+  "timestamp": "2025-03-12T03:30:02.773366",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good job, Infernus.",
+      "part": 1
+    }
+  ]
+}

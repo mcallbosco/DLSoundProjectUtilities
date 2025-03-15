@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_forge_04",
+  "timestamp": "2025-03-12T04:06:00.725471",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't need to worry about McGinnis for a while.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_shiv_start_04",
+  "timestamp": "2025-03-12T03:56:09.786406",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 10.640000343322754,
+      "text": " Shiv, the monster inside you is not the beast. It is ambition. Complete the ritual, and you will finally be sated.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ally_atlas_unkillable_03",
+  "timestamp": "2025-03-12T12:34:50.875588",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams is leading the charge!",
+      "part": 1
+    }
+  ]
+}

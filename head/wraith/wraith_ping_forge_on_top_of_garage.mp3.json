@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_forge_on_top_of_garage",
+  "timestamp": "2025-03-12T03:47:04.833325",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " McGinnis is on top of the garage.",
+      "part": 1
+    }
+  ]
+}

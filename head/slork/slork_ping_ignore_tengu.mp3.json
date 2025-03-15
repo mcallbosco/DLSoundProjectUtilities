@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_ignore_tengu",
+  "timestamp": "2025-03-12T04:09:37.234797",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Ivy.",
+      "part": 1
+    }
+  ]
+}

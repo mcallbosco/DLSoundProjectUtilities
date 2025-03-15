@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_warden_on_top_of_garage",
+  "timestamp": "2025-03-12T12:41:28.189109",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden's on top of the garage.",
+      "part": 1
+    }
+  ]
+}

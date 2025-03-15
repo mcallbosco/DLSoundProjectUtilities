@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_ignore_hornet",
+  "timestamp": "2025-03-12T04:09:42.620593",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Vindicta!",
+      "part": 1
+    }
+  ]
+}

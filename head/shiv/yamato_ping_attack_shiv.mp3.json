@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_attack_shiv",
+  "timestamp": "2025-03-12T03:32:37.424782",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Shiv.",
+      "part": 1
+    }
+  ]
+}

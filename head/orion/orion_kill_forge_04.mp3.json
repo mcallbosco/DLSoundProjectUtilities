@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_kill_forge_04",
+  "timestamp": "2025-03-12T03:53:20.541180",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " THEIR ENGINEER IS DEAD!",
+      "part": 1
+    }
+  ]
+}

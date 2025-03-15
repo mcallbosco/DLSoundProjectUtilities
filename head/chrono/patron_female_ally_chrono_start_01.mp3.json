@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_chrono_start_01",
+  "timestamp": "2025-03-12T03:40:30.288331",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.440000057220459,
+      "text": " Paradox, your legend will only grow once you summon me.",
+      "part": 1
+    }
+  ]
+}

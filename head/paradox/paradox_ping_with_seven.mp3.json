@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_with_seven",
+  "timestamp": "2025-03-12T04:03:37.622410",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Seven.",
+      "part": 1
+    }
+  ]
+}

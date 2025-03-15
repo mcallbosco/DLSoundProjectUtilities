@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_atlas_dead",
+  "timestamp": "2025-03-12T12:44:16.159651",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.8799999952316284,
+      "text": " Abrams is dead.",
+      "part": 1
+    }
+  ]
+}

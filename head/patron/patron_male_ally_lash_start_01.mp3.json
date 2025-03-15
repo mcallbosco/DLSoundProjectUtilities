@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_lash_start_01",
+  "timestamp": "2025-03-12T04:03:57.686323",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 6.0,
+      "text": " You cultivate an image, Lash, but I alone know who you truly are.",
+      "part": 1
+    }
+  ]
+}

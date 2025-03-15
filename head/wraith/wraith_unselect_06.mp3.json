@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_unselect_06",
+  "timestamp": "2025-03-12T03:41:30.588009",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Good timing, I was planning on getting rid of some loose ends today anyway.",
+      "part": 1
+    }
+  ]
+}

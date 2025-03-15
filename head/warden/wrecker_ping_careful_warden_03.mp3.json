@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_warden_03",
+  "timestamp": "2025-03-12T03:56:22.750919",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " CAREFUL, WARDEN!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_mirage_check_items",
+  "timestamp": "2025-03-12T12:32:41.435987",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out Will Mirage Bot.",
+      "part": 1
+    }
+  ]
+}

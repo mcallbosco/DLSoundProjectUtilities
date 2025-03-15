@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_unselect_04",
+  "timestamp": "2025-03-12T03:33:04.793680",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Now is not the time to fight.",
+      "part": 1
+    }
+  ]
+}

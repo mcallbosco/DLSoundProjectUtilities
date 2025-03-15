@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_mirage_check_items",
+  "timestamp": "2025-03-12T03:40:26.022550",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Check out what Mirage bought.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_astro_was_here",
+  "timestamp": "2025-03-12T12:43:47.804414",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Holliday was here!",
+      "part": 1
+    }
+  ]
+}

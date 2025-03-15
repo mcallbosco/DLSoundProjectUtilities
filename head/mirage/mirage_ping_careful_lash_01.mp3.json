@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_careful_lash_01",
+  "timestamp": "2025-03-12T03:27:20.427001",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Care for a Lash?",
+      "part": 1
+    }
+  ]
+}

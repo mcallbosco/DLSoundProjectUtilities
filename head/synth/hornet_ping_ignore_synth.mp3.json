@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_ignore_synth",
+  "timestamp": "2025-03-12T03:33:12.985005",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Pocket!",
+      "part": 1
+    }
+  ]
+}

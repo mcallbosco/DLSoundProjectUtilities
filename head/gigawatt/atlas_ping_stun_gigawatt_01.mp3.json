@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_stun_gigawatt_01",
+  "timestamp": "2025-03-12T04:05:11.442990",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " Stun 7.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_bebop_01",
+  "timestamp": "2025-03-12T12:25:35.431957",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u79c1\u306f\u30b9\u30af\u30e9\u30c3\u30d7\u30e1\u30bf\u30eb\u3092\u8ca0\u3051\u306a\u3044!",
+      "part": 1
+    }
+  ]
+}

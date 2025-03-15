@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_ping_saw_wraith",
+  "timestamp": "2025-03-12T03:40:24.284850",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw a Wraith!",
+      "part": 1
+    }
+  ]
+}

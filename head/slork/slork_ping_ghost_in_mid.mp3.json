@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_ghost_in_mid",
+  "timestamp": "2025-03-12T03:59:07.110861",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Geist in Mid.",
+      "part": 1
+    }
+  ]
+}

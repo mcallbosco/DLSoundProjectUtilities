@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_hornet_03",
+  "timestamp": "2025-03-12T04:01:56.368529",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Not your day, Vindicta.",
+      "part": 1
+    }
+  ]
+}

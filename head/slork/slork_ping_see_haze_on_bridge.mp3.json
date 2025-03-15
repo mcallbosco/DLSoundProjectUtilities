@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_see_haze_on_bridge",
+  "timestamp": "2025-03-12T04:11:03.484533",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Haze is on the bridge!",
+      "part": 1
+    }
+  ]
+}

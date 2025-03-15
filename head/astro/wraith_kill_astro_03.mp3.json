@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_astro_03",
+  "timestamp": "2025-03-12T04:02:26.645217",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " New York's not for everybody, Holliday.",
+      "part": 1
+    }
+  ]
+}

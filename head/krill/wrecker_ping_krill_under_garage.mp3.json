@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_krill_under_garage",
+  "timestamp": "2025-03-12T04:09:58.739963",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Krails Under the Garage.",
+      "part": 1
+    }
+  ]
+}

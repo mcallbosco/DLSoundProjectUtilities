@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_nano_almost_respawn",
+  "timestamp": "2025-03-12T03:32:50.378517",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico is almost back!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_wrecker_check_items",
+  "timestamp": "2025-03-12T03:28:10.018581",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.600000023841858,
+      "text": " Check out what Wrecker bought!",
+      "part": 1
+    }
+  ]
+}

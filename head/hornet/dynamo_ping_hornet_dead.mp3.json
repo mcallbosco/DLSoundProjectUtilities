@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_hornet_dead",
+  "timestamp": "2025-03-12T12:33:18.327369",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta is dead.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_with_wrecker",
+  "timestamp": "2025-03-12T03:56:58.310147",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " With you, Wrecker.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_slork_in_mid",
+  "timestamp": "2025-03-12T12:31:39.013069",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Slorks and Mid.",
+      "part": 1
+    }
+  ]
+}

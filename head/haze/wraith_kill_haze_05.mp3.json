@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_haze_05",
+  "timestamp": "2025-03-12T12:29:21.236606",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stay out of my head, Haze.",
+      "part": 1
+    }
+  ]
+}

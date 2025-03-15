@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_ignore_dynamo",
+  "timestamp": "2025-03-12T03:31:29.960384",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " IGNORE DYNAMO!",
+      "part": 1
+    }
+  ]
+}

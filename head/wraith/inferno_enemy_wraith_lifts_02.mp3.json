@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_enemy_wraith_lifts_02",
+  "timestamp": "2025-03-12T03:44:09.082503",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith's got me!",
+      "part": 1
+    }
+  ]
+}

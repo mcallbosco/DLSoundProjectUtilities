@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_astro_04",
+  "timestamp": "2025-03-12T12:27:17.903656",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " You're not welcome in New York.",
+      "part": 1
+    }
+  ]
+}

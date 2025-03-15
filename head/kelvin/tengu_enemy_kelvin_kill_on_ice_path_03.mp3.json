@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_enemy_kelvin_kill_on_ice_path_03",
+  "timestamp": "2025-03-12T03:35:48.086121",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": " You gotta be a lot faster than that, Kelvin!",
+      "part": 1
+    }
+  ]
+}

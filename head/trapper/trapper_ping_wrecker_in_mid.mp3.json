@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_wrecker_in_mid",
+  "timestamp": "2025-03-12T12:36:51.092993",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WRECKERS IN MID!",
+      "part": 1
+    }
+  ]
+}

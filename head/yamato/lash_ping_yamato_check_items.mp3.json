@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_yamato_check_items",
+  "timestamp": "2025-03-12T03:59:50.862287",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " Oh, check out what Yamato bought.",
+      "part": 1
+    }
+  ]
+}

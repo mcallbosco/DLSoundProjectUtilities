@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_bebop_almost_respawn",
+  "timestamp": "2025-03-12T03:39:07.912798",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Bebop is almost back!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_stun_haze_01",
+  "timestamp": "2025-03-12T03:48:13.338653",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Haze.",
+      "part": 1
+    }
+  ]
+}

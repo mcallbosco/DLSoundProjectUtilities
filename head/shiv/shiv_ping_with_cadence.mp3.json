@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "shiv_ping_with_cadence",
+  "timestamp": "2025-03-12T03:55:22.990088",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " I'm with you, Cadence.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_haze_killing_streak_high_01",
+  "timestamp": "2025-03-12T03:45:07.708196",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5999999046325684,
+      "text": " Find a way to disarm Haze.",
+      "part": 1
+    }
+  ]
+}

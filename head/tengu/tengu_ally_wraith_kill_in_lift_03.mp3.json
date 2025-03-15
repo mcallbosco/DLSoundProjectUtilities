@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_wraith_kill_in_lift_03",
+  "timestamp": "2025-03-12T03:35:46.073812",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Thanks, Wraith!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_infernus_on_roof",
+  "timestamp": "2025-03-12T04:10:41.261781",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is on the Roof!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_lash_was_here",
+  "timestamp": "2025-03-12T04:08:37.944373",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash was here!",
+      "part": 1
+    }
+  ]
+}

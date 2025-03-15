@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_wraith_04",
+  "timestamp": "2025-03-12T03:47:22.504017",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " You have plenty of style, Wraith. Just no substance.",
+      "part": 1
+    }
+  ]
+}

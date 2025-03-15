@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_chrono_kill_post_swap_01",
+  "timestamp": "2025-03-12T03:50:06.398829",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "text": " I won't be killed by the likes of you, paradox.",
+      "part": 1
+    }
+  ]
+}

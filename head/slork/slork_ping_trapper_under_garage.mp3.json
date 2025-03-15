@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_trapper_under_garage",
+  "timestamp": "2025-03-12T03:39:02.533845",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Trapper's under the garage!",
+      "part": 1
+    }
+  ]
+}

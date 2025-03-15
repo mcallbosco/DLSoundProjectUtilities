@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_select_07",
+  "timestamp": "2025-03-12T04:11:20.546294",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Prepare yourself for what's to come.",
+      "part": 1
+    }
+  ]
+}

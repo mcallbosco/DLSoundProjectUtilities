@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_hornet_dead",
+  "timestamp": "2025-03-12T12:30:42.158426",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta's dead.",
+      "part": 1
+    }
+  ]
+}

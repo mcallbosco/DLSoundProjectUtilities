@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_enemy_dynamo_charges_01",
+  "timestamp": "2025-03-12T03:48:16.441842",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DYNAMO'S COMING IN!",
+      "part": 1
+    }
+  ]
+}

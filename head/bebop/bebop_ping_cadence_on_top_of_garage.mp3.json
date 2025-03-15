@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_cadence_on_top_of_garage",
+  "timestamp": "2025-03-12T03:53:11.072961",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence is on top of the garage!",
+      "part": 1
+    }
+  ]
+}

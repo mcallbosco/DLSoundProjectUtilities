@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_with_viscous",
+  "timestamp": "2025-03-12T03:27:23.465488",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I am with you, Viscous.",
+      "part": 1
+    }
+  ]
+}

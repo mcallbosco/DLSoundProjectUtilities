@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_holliday_under_garage",
+  "timestamp": "2025-03-12T03:46:24.543408",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Holliday's under the garage.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_enemy_bebop_hooked_02",
+  "timestamp": "2025-03-12T12:24:02.469988",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Oh, no, no, no, no, no!",
+      "part": 1
+    }
+  ]
+}

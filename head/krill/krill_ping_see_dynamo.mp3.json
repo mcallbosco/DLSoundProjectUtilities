@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_see_dynamo",
+  "timestamp": "2025-03-12T12:25:55.741308",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I see Dynamo!",
+      "part": 1
+    }
+  ]
+}

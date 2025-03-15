@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_unselect_05",
+  "timestamp": "2025-03-12T12:47:53.926161",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5999999046325684,
+      "text": " I should go check in on Sophie and see how she's doing.",
+      "part": 1
+    }
+  ]
+}

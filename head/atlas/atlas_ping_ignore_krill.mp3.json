@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_ignore_krill",
+  "timestamp": "2025-03-12T03:46:39.110024",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Krill.",
+      "part": 1
+    }
+  ]
+}

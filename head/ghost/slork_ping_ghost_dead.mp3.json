@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_ghost_dead",
+  "timestamp": "2025-03-12T03:36:35.204650",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " Geist is dead.",
+      "part": 1
+    }
+  ]
+}

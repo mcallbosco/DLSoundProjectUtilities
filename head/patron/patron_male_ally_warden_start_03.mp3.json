@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_warden_start_03",
+  "timestamp": "2025-03-12T03:27:36.024110",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Warden, how long do you think you can hide your heart from me?",
+      "part": 1
+    }
+  ]
+}

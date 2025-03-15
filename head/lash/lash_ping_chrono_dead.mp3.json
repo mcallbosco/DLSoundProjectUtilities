@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_chrono_dead",
+  "timestamp": "2025-03-12T03:50:24.373984",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Oof, Paradox is dead.",
+      "part": 1
+    }
+  ]
+}

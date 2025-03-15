@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_saw_viper",
+  "timestamp": "2025-03-12T04:10:49.237211",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I saw Vyper!",
+      "part": 1
+    }
+  ]
+}

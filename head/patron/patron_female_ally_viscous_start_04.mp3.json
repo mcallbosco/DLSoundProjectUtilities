@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_viscous_start_04",
+  "timestamp": "2025-03-12T03:32:51.901642",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 9.600000381469727,
+      "text": " Viscous, the needs of the Deep Way are new, but soon you will complete the ritual, and that burden will be relieved.",
+      "part": 1
+    }
+  ]
+}

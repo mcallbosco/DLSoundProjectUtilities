@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_ping_mirage_check_items",
+  "timestamp": "2025-03-12T03:42:11.638952",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Mirage bought!",
+      "part": 1
+    }
+  ]
+}

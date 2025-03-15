@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_post_game_04",
+  "timestamp": "2025-03-12T04:04:35.307619",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We completed the ritual.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_post_game_06",
+  "timestamp": "2025-03-12T03:35:29.391188",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm glad I trusted you guys.",
+      "part": 1
+    }
+  ]
+}

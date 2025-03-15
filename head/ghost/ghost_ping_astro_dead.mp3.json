@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_astro_dead",
+  "timestamp": "2025-03-12T04:00:12.735839",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Holliday is dead.",
+      "part": 1
+    }
+  ]
+}

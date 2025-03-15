@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_shiv_02",
+  "timestamp": "2025-03-12T12:48:30.651784",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": "\u3044\u3064\u307e\u3067\u30d2\u30fc\u30ed\u30fc\u6c17\u53d6\u308a\u3092\u7d9a\u3051\u308b\u3064\u3082\u308a\u3060?",
+      "part": 1
+    }
+  ]
+}

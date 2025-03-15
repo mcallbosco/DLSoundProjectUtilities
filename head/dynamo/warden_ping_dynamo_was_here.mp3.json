@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_dynamo_was_here",
+  "timestamp": "2025-03-12T03:40:50.806290",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DYNAMO IS HERE!",
+      "part": 1
+    }
+  ]
+}

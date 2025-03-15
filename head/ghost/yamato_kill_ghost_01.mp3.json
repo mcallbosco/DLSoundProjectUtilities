@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_ghost_01",
+  "timestamp": "2025-03-12T03:40:57.643531",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u3042\u306e\u8155\u306f\u79c1\u304c\u3044\u305f\u3060\u3053\u3046\u3002",
+      "part": 1
+    }
+  ]
+}

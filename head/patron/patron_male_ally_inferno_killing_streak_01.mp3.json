@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_ally_inferno_killing_streak_01",
+  "timestamp": "2025-03-12T03:40:28.502026",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " Infernus, your fire will only burn brighter.",
+      "part": 1
+    }
+  ]
+}

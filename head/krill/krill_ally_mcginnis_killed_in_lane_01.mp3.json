@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_mcginnis_killed_in_lane_01",
+  "timestamp": "2025-03-12T12:23:29.966031",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " THEY STOPPED ME, GINNIS!",
+      "part": 1
+    }
+  ]
+}

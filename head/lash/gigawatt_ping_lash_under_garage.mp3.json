@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_lash_under_garage",
+  "timestamp": "2025-03-12T12:49:26.933459",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " LASH IS UNDER THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

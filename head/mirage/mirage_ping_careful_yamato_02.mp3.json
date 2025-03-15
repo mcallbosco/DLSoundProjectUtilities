@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_careful_yamato_02",
+  "timestamp": "2025-03-12T03:49:20.620824",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Care for Yamato.",
+      "part": 1
+    }
+  ]
+}

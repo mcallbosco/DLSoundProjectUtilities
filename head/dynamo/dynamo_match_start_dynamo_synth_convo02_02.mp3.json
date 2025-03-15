@@ -1,0 +1,16 @@
+{
+  "file": "dynamo_match_start_dynamo_synth_convo02_02.mp3",
+  "text": "These days, friends might be pushing it, but I'd say he has warm nostalgia for me.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.559999942779541,
+      "text": "These days, friends might be pushing it,"
+    },
+    {
+      "start": 3.559999942779541,
+      "end": 7.380000114440918,
+      "text": "but I'd say he has warm nostalgia for me."
+    }
+  ]
+}

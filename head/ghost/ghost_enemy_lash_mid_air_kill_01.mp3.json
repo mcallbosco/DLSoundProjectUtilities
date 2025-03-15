@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_enemy_lash_mid_air_kill_01",
+  "timestamp": "2025-03-12T03:50:25.081187",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Poor, predictable Lash.",
+      "part": 1
+    }
+  ]
+}

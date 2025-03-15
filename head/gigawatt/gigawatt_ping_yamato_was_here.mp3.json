@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_yamato_was_here",
+  "timestamp": "2025-03-12T12:23:50.543760",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato was here.",
+      "part": 1
+    }
+  ]
+}

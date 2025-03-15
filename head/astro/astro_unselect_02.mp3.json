@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_unselect_02",
+  "timestamp": "2025-03-12T03:30:35.838620",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " I should, uh, check in with people back home.",
+      "part": 1
+    }
+  ]
+}

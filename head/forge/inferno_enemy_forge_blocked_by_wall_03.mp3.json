@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_enemy_forge_blocked_by_wall_03",
+  "timestamp": "2025-03-12T12:34:02.129010",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Blocked!",
+      "part": 1
+    }
+  ]
+}

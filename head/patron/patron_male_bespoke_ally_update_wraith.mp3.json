@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_ally_update_wraith",
+  "timestamp": "2025-03-12T12:33:39.334436",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " What objective can withstand Wraith's assault?",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_see_wraith_01",
+  "timestamp": "2025-03-12T03:42:09.253205",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I see Wraith!",
+      "part": 1
+    }
+  ]
+}

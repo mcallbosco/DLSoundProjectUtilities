@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_see_wraith_01",
+  "timestamp": "2025-03-12T03:29:25.894187",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I see Wraith.",
+      "part": 1
+    }
+  ]
+}

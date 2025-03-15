@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_atlas_on_roof",
+  "timestamp": "2025-03-12T03:31:20.109965",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Abrams is on the Roof!",
+      "part": 1
+    }
+  ]
+}

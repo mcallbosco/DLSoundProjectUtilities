@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_ignore_gigawatt",
+  "timestamp": "2025-03-12T03:19:07.851285",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore 7!",
+      "part": 1
+    }
+  ]
+}

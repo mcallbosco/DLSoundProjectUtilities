@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_stun_hornet_01",
+  "timestamp": "2025-03-12T12:39:34.940712",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Vindicta!",
+      "part": 1
+    }
+  ]
+}

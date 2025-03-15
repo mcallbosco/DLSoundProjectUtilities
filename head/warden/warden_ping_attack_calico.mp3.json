@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_attack_calico",
+  "timestamp": "2025-03-12T12:35:26.405335",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Calico!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_see_lash_on_roof",
+  "timestamp": "2025-03-12T03:48:14.479199",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " LASH IS ON THE ROOF!",
+      "part": 1
+    }
+  ]
+}

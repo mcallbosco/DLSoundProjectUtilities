@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "chrono_ping_ignore_mirage",
+  "timestamp": "2025-03-12T03:37:51.341543",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Mirage.",
+      "part": 1
+    }
+  ]
+}

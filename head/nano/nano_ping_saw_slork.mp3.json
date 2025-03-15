@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_saw_slork",
+  "timestamp": "2025-03-12T04:01:46.100807",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2000000476837158,
+      "text": " I saw Fathom.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_enemy_chrono_kill_post_swap_02",
+  "timestamp": "2025-03-12T04:03:01.573531",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Well, Paradox, you tried.",
+      "part": 1
+    }
+  ]
+}

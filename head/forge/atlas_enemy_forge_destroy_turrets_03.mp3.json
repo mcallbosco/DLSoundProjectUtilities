@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_forge_destroy_turrets_03",
+  "timestamp": "2025-03-12T03:48:47.343583",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " How many of these things does McGinnis have?",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_shiv_was_here",
+  "timestamp": "2025-03-12T03:30:17.357864",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Shibu's here!",
+      "part": 1
+    }
+  ]
+}

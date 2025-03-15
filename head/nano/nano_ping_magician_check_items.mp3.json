@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "nano_ping_magician_check_items",
+  "timestamp": "2025-03-12T03:43:41.704795",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what's in Claiborne.",
+      "part": 1
+    }
+  ]
+}

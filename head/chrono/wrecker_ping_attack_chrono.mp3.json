@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_attack_chrono",
+  "timestamp": "2025-03-12T04:07:46.974377",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Dear Crono...",
+      "part": 1
+    }
+  ]
+}

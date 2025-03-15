@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_yamato_05",
+  "timestamp": "2025-03-12T04:00:02.355299",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " The seventh moon should never have gotten in my way.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_ping_gigawatt_under_garage",
+  "timestamp": "2025-03-12T03:32:49.697202",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GIGA WAS ON THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

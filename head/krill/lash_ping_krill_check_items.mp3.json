@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_krill_check_items",
+  "timestamp": "2025-03-12T03:49:15.348566",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Check out what Krill bought!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_holliday_01",
+  "timestamp": "2025-03-12T12:27:42.481412",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " New York isn't the place for you, Holliday.",
+      "part": 1
+    }
+  ]
+}

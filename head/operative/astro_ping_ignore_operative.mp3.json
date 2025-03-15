@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_ignore_operative",
+  "timestamp": "2025-03-12T12:36:01.011978",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Raven!",
+      "part": 1
+    }
+  ]
+}

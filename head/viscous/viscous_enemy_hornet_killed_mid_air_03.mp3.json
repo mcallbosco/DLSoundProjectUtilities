@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_enemy_hornet_killed_mid_air_03",
+  "timestamp": "2025-03-12T03:49:49.008227",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm shocked that worked!",
+      "part": 1
+    }
+  ]
+}

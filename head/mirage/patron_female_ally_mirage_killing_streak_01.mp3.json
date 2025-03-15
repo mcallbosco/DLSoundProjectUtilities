@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_mirage_killing_streak_01",
+  "timestamp": "2025-03-12T12:46:02.164909",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Your service is appreciated, Mirage.",
+      "part": 1
+    }
+  ]
+}

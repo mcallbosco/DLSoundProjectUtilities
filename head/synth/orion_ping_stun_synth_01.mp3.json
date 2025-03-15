@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_stun_synth_01",
+  "timestamp": "2025-03-12T03:36:22.555032",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stone Pocket.",
+      "part": 1
+    }
+  ]
+}

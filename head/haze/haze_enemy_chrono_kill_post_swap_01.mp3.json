@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_chrono_kill_post_swap_01",
+  "timestamp": "2025-03-12T12:24:33.733983",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Did you think you had an edge?",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_orion_02",
+  "timestamp": "2025-03-12T03:50:03.318877",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.440000057220459,
+      "text": " I looked up to you once.",
+      "part": 1
+    }
+  ]
+}

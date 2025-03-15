@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ally_wraith_pass_on_zipline_01",
+  "timestamp": "2025-03-12T03:48:40.591417",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Good luck, Wraith!",
+      "part": 1
+    }
+  ]
+}

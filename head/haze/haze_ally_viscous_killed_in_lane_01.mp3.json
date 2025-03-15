@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_viscous_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:32:54.577626",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They took out Viscous.",
+      "part": 1
+    }
+  ]
+}

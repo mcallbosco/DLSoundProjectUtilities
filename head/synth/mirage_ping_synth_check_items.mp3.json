@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_synth_check_items",
+  "timestamp": "2025-03-12T03:33:27.393095",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out with PocketBot!",
+      "part": 1
+    }
+  ]
+}

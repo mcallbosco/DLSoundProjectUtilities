@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_cadence_in_mid",
+  "timestamp": "2025-03-12T12:24:08.385828",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence in mid!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_bebop_hooked_02",
+  "timestamp": "2025-03-12T04:05:53.085601",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Goddamn you, Bebop!",
+      "part": 1
+    }
+  ]
+}

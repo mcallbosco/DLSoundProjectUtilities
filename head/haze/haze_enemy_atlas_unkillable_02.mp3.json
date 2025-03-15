@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_atlas_unkillable_02",
+  "timestamp": "2025-03-12T03:35:57.924523",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " This man's a juggernaut.",
+      "part": 1
+    }
+  ]
+}

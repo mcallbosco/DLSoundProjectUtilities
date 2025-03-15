@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_pocket_03",
+  "timestamp": "2025-03-12T03:38:45.879567",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Pocket has been dealt with.",
+      "part": 1
+    }
+  ]
+}

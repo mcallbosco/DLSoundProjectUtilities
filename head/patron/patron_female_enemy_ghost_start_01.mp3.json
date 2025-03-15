@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_ghost_start_01",
+  "timestamp": "2025-03-12T03:34:38.431876",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": " Lady Geist rears Oathkeeper. Be mindful around that leech.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_krill_grabbed_02",
+  "timestamp": "2025-03-12T03:03:49.960506",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Give me a hand here.",
+      "part": 1
+    }
+  ]
+}

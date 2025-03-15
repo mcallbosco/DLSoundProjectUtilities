@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_saw_mirage",
+  "timestamp": "2025-03-12T12:28:52.899866",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw a Mirage.",
+      "part": 1
+    }
+  ]
+}

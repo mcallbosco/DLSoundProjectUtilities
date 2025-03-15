@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_orion_on_bridge",
+  "timestamp": "2025-03-12T12:31:01.327775",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Orion's on the Bridge.",
+      "part": 1
+    }
+  ]
+}

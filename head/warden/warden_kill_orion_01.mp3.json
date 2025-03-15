@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_orion_01",
+  "timestamp": "2025-03-12T03:46:52.979522",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Don't make me do this, Talon.",
+      "part": 1
+    }
+  ]
+}

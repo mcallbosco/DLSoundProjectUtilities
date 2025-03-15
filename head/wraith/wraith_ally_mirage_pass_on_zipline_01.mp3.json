@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ally_mirage_pass_on_zipline_01",
+  "timestamp": "2025-03-12T12:46:14.693799",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " See ya, Mirage.",
+      "part": 1
+    }
+  ]
+}

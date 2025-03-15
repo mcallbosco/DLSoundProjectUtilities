@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_chrono_03",
+  "timestamp": "2025-03-12T04:06:41.797464",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Nice try, lady.",
+      "part": 1
+    }
+  ]
+}

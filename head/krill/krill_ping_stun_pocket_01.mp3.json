@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ping_stun_pocket_01",
+  "timestamp": "2025-03-12T04:08:07.313565",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STUN POCKET!",
+      "part": 1
+    }
+  ]
+}

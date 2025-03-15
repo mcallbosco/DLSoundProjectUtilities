@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_magician_in_mid",
+  "timestamp": "2025-03-12T04:03:28.337376",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " MAGICIANS IN MID!",
+      "part": 1
+    }
+  ]
+}

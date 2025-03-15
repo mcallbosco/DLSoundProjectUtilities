@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_stun_hornet_01",
+  "timestamp": "2025-03-12T04:10:45.082659",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u30b9\u30bf\u30f3\u30d3\u30f3\u30fb\u30c7\u30a3\u30af\u30bf",
+      "part": 1
+    }
+  ]
+}

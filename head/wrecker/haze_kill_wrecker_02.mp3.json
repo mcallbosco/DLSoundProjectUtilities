@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_wrecker_02",
+  "timestamp": "2025-03-12T04:07:25.119212",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You should have minded your own business.",
+      "part": 1
+    }
+  ]
+}

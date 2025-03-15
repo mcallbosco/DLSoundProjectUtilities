@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_stun_atlas_01",
+  "timestamp": "2025-03-12T03:37:26.161075",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STUN ABRAMS!",
+      "part": 1
+    }
+  ]
+}

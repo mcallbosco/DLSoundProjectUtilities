@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "kelvin_enemy_forge_destroy_turrets_01",
+  "timestamp": "2025-03-12T12:43:09.513514",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " Your machines aren't getting it done, McGinnis.",
+      "part": 1
+    }
+  ]
+}

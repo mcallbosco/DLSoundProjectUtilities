@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "gigawatt_kill_kali_03",
+  "timestamp": "2025-03-12T04:01:48.193339",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " I said you were a legend.",
+      "part": 1
+    },
+    {
+      "start": 2.4000000953674316,
+      "end": 4.400000095367432,
+      "text": " A disappointer.",
+      "part": 2
+    }
+  ]
+}

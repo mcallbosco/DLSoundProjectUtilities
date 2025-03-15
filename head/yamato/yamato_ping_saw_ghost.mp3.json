@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_saw_ghost",
+  "timestamp": "2025-03-12T12:23:42.674405",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I saw Geist.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_ping_with_slork",
+  "timestamp": "2025-03-12T04:08:33.614323",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'm with you, Slork.",
+      "part": 1
+    }
+  ]
+}

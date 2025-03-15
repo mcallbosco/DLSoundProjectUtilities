@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_stun_tengu_01",
+  "timestamp": "2025-03-12T03:56:23.235636",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " STAR NIVI!",
+      "part": 1
+    }
+  ]
+}

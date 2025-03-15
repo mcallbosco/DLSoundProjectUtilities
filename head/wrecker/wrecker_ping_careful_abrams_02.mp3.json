@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_careful_abrams_02",
+  "timestamp": "2025-03-12T03:34:00.777824",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Abrams!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_see_viscous_on_bridge",
+  "timestamp": "2025-03-12T03:47:18.255363",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Viscous is on the bridge.",
+      "part": 1
+    }
+  ]
+}

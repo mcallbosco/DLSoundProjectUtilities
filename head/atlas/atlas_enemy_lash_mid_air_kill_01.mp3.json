@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_enemy_lash_mid_air_kill_01",
+  "timestamp": "2025-03-12T03:51:43.832127",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Nice try, Lash.",
+      "part": 1
+    }
+  ]
+}

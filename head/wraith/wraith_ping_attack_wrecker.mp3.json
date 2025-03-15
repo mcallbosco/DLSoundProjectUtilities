@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_attack_wrecker",
+  "timestamp": "2025-03-12T03:38:37.875401",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Let's take out Wrecker.",
+      "part": 1
+    }
+  ]
+}

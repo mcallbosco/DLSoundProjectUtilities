@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_inferno_almost_respawn",
+  "timestamp": "2025-03-12T04:00:33.245562",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is almost back!",
+      "part": 1
+    }
+  ]
+}

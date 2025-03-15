@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_enemy_ghost_start_05",
+  "timestamp": "2025-03-12T03:38:32.406037",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.240000009536743,
+      "text": " Geist plays a dangerous game.",
+      "part": 1
+    },
+    {
+      "start": 3.240000009536743,
+      "end": 6.639999866485596,
+      "text": " Strike her as she flies close to the sun.",
+      "part": 2
+    }
+  ]
+}

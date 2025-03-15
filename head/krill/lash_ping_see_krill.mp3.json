@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_see_krill",
+  "timestamp": "2025-03-12T12:41:37.042777",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " A Sea Krill.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_ignore_chrono",
+  "timestamp": "2025-03-12T04:11:55.748532",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Paradox.",
+      "part": 1
+    }
+  ]
+}

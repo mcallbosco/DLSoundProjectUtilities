@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_dynamo_almost_respawn",
+  "timestamp": "2025-03-12T12:43:01.427245",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " DYNAMO IS ALMOST BACK!",
+      "part": 1
+    }
+  ]
+}

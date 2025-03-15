@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_forge_02",
+  "timestamp": "2025-03-12T04:00:52.978641",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " Only a coward hides behind machines.",
+      "part": 1
+    }
+  ]
+}

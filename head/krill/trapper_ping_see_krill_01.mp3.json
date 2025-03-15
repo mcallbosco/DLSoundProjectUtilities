@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_see_krill_01",
+  "timestamp": "2025-03-12T03:03:59.447405",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " I see krill!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_wraith_killing_streak_low_01",
+  "timestamp": "2025-03-12T03:28:46.902032",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kill the gambler.",
+      "part": 1
+    }
+  ]
+}

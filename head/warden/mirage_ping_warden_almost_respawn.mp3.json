@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_warden_almost_respawn",
+  "timestamp": "2025-03-12T04:04:26.863574",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden is almost back!",
+      "part": 1
+    }
+  ]
+}

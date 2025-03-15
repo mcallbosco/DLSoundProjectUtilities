@@ -1,0 +1,24 @@
+{
+  "voiceline_id": "inferno_ping_post_game_03",
+  "timestamp": "2025-03-12T03:34:28.413342",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Next round's on me.",
+      "part": 1
+    },
+    {
+      "start": 1.2999999523162842,
+      "end": 3.799999952316284,
+      "text": " Well, it's on Hank, technically.",
+      "part": 2
+    },
+    {
+      "start": 4.400000095367432,
+      "end": 5.599999904632568,
+      "text": " But you get the idea.",
+      "part": 3
+    }
+  ]
+}

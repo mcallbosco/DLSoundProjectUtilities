@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_kill_pocket_04",
+  "timestamp": "2025-03-12T12:30:29.366671",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You have powerful enemies, Pockets.",
+      "part": 1
+    }
+  ]
+}

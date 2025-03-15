@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_krill_dead",
+  "timestamp": "2025-03-12T03:35:47.354464",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Krill is dead.",
+      "part": 1
+    }
+  ]
+}

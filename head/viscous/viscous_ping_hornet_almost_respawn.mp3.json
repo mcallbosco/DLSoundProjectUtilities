@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_hornet_almost_respawn",
+  "timestamp": "2025-03-12T12:31:22.611924",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta is almost back!",
+      "part": 1
+    }
+  ]
+}

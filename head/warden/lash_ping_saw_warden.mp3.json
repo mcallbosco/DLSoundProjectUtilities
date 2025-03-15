@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_saw_warden",
+  "timestamp": "2025-03-12T03:38:23.347393",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw a Warden.",
+      "part": 1
+    }
+  ]
+}

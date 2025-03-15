@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_enemy_astro_bounce_escape_03",
+  "timestamp": "2025-03-12T03:37:46.923314",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " And there she goes, bouncing away!",
+      "part": 1
+    }
+  ]
+}

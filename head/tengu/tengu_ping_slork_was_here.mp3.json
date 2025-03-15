@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_slork_was_here",
+  "timestamp": "2025-03-12T12:41:42.816360",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Slork was here!",
+      "part": 1
+    }
+  ]
+}

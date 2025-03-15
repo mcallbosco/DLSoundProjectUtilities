@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "inferno_ping_yamato_almost_respawn",
+  "timestamp": "2025-03-12T03:42:33.695587",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Yamato is almost back.",
+      "part": 1
+    }
+  ]
+}

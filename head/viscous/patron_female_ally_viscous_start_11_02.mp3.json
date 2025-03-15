@@ -1,0 +1,24 @@
+{
+  "voiceline_id": "patron_female_ally_viscous_start_11_02",
+  "timestamp": "2025-03-12T03:50:45.068938",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Today you face a choice, Viscous.",
+      "part": 1
+    },
+    {
+      "start": 3.0,
+      "end": 7.0,
+      "text": " Do you want your life to be etched into history?",
+      "part": 2
+    },
+    {
+      "start": 7.0,
+      "end": 12.0,
+      "text": " Or remembered with the fondness of a bus driver you couldn't bother to learn the name of?",
+      "part": 3
+    }
+  ]
+}

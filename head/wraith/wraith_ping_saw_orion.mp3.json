@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_saw_orion",
+  "timestamp": "2025-03-12T04:08:44.227886",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " I saw Grey Talon.",
+      "part": 1
+    }
+  ]
+}

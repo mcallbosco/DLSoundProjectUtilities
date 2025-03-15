@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_ping_saw_chrono",
+  "timestamp": "2025-03-12T03:43:10.489846",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I SAW A PARADOX!",
+      "part": 1
+    }
+  ]
+}

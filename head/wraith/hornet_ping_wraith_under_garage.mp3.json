@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_wraith_under_garage",
+  "timestamp": "2025-03-12T03:41:58.048548",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " RACE UNDER THE GARAGE",
+      "part": 1
+    }
+  ]
+}

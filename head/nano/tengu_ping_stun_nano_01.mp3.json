@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_stun_nano_01",
+  "timestamp": "2025-03-12T04:03:13.729977",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Calico!",
+      "part": 1
+    }
+  ]
+}

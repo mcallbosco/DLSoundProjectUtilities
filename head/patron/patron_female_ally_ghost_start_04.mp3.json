@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "patron_female_ally_ghost_start_04",
+  "timestamp": "2025-03-12T04:11:43.383486",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.2799999713897705,
+      "text": " Your beauty need not fade, Geist.",
+      "part": 1
+    },
+    {
+      "start": 3.2799999713897705,
+      "end": 6.28000020980835,
+      "text": " It's time to complete the ritual.",
+      "part": 2
+    }
+  ]
+}

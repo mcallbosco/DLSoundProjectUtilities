@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_kill_krill_05",
+  "timestamp": "2025-03-12T03:33:41.364296",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Thought you boys were smart enough not to take me on.",
+      "part": 1
+    }
+  ]
+}

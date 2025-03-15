@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_bespoke_ally_update_forge",
+  "timestamp": "2025-03-12T03:39:47.890287",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.5,
+      "text": " McGinnis is tearing through their objectives.",
+      "part": 1
+    }
+  ]
+}

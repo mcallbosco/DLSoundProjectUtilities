@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_unselect_09",
+  "timestamp": "2025-03-12T12:36:05.223487",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I'll be waiting.",
+      "part": 1
+    }
+  ]
+}

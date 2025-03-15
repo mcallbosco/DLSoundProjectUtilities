@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ping_careful_pocket_03",
+  "timestamp": "2025-03-12T12:48:29.062711",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Careful, Pocket.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "bebop_ping_warden_under_garage",
+  "timestamp": "2025-03-12T04:03:44.509429",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " WARDEN'S OUT OF THE GARAGE!",
+      "part": 1
+    }
+  ]
+}

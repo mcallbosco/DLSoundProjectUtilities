@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_ping_ignore_viscous",
+  "timestamp": "2025-03-12T03:42:29.789079",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Ignore Viscous!",
+      "part": 1
+    }
+  ]
+}

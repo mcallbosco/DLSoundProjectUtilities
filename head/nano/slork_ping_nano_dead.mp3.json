@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_nano_dead",
+  "timestamp": "2025-03-12T12:32:49.416141",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Calico is dead.",
+      "part": 1
+    }
+  ]
+}

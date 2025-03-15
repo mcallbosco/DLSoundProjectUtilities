@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_careful_synth_01",
+  "timestamp": "2025-03-12T04:11:09.965881",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Beware of Pocket!",
+      "part": 1
+    }
+  ]
+}

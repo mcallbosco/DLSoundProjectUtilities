@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_see_shiv_on_bridge",
+  "timestamp": "2025-03-12T04:05:11.874018",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " Shiv is on the bridge.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_can_heal_wraith",
+  "timestamp": "2025-03-12T03:42:31.919837",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith, I could heal you!",
+      "part": 1
+    }
+  ]
+}

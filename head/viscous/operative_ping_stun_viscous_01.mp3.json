@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_stun_viscous_01",
+  "timestamp": "2025-03-12T03:40:17.590267",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stone Viscous.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "paradox_ping_see_wraith_on_bridge",
+  "timestamp": "2025-03-12T03:27:53.910725",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wraith's on the bridge!",
+      "part": 1
+    }
+  ]
+}

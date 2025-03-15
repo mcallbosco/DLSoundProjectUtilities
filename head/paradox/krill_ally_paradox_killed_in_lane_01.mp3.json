@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "krill_ally_paradox_killed_in_lane_01",
+  "timestamp": "2025-03-12T12:24:04.063605",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " THEY STOPPED PARADOX!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_yamato_03",
+  "timestamp": "2025-03-12T04:00:34.209879",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": " You fought with grace, Yamato, but that will only get you so far.",
+      "part": 1
+    }
+  ]
+}

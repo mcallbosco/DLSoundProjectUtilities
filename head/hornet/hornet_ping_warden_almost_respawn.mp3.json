@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_warden_almost_respawn",
+  "timestamp": "2025-03-12T12:31:53.135940",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Warden is almost back!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "mirage_ping_stun_chrono_01",
+  "timestamp": "2025-03-12T04:02:01.664717",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Spawn Paradox!",
+      "part": 1
+    }
+  ]
+}

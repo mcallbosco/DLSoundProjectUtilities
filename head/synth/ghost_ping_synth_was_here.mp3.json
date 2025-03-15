@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "ghost_ping_synth_was_here",
+  "timestamp": "2025-03-12T12:48:18.923123",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Pocket was here.",
+      "part": 1
+    }
+  ]
+}

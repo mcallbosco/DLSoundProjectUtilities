@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_wrecker_03",
+  "timestamp": "2025-03-12T03:52:35.944535",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Die, monster!",
+      "part": 1
+    }
+  ]
+}

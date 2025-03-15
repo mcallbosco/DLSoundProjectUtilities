@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_kill_trapper_01",
+  "timestamp": "2025-03-12T12:43:41.199264",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " BUG BOY'S DEAD!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "synth_select_04",
+  "timestamp": "2025-03-12T03:44:54.228893",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.4000000953674316,
+      "text": " My father's gift for my 18th birthday was a bullet to the chest.",
+      "part": 1
+    },
+    {
+      "start": 4.400000095367432,
+      "end": 6.0,
+      "text": " Today is my chance to say thank you.",
+      "part": 2
+    }
+  ]
+}

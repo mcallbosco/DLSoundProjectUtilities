@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_warden_under_garage",
+  "timestamp": "2025-03-12T04:03:50.787773",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Wardens under the garage.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_dynamo_on_top_of_garage",
+  "timestamp": "2025-03-12T12:25:14.728769",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Dynamo's on top of the garage!",
+      "part": 1
+    }
+  ]
+}

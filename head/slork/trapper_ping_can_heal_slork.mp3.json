@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_can_heal_slork",
+  "timestamp": "2025-03-12T03:29:52.131353",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Fathom, I can heal you!",
+      "part": 1
+    }
+  ]
+}

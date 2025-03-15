@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "astro_ping_saw_magician",
+  "timestamp": "2025-03-12T04:06:46.435536",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Sinclair!",
+      "part": 1
+    }
+  ]
+}

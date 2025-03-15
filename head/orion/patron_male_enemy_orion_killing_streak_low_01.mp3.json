@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_male_enemy_orion_killing_streak_low_01",
+  "timestamp": "2025-03-12T12:23:40.915329",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Kill the old man!",
+      "part": 1
+    }
+  ]
+}

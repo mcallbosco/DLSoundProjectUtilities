@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_can_heal_forge",
+  "timestamp": "2025-03-12T03:40:20.285766",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.559999942779541,
+      "text": " McGinnis, I can heal you!",
+      "part": 1
+    }
+  ]
+}

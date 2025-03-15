@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_lash_missing_01",
+  "timestamp": "2025-03-12T03:35:19.061144",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Lash is missing.",
+      "part": 1
+    }
+  ]
+}

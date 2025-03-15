@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "orion_ping_mirage_dead",
+  "timestamp": "2025-03-12T12:38:36.352945",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Mirage is dead.",
+      "part": 1
+    }
+  ]
+}

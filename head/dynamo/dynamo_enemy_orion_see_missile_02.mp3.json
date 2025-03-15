@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "dynamo_enemy_orion_see_missile_02",
+  "timestamp": "2025-03-12T03:50:27.423960",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " INCOMING OWL!",
+      "part": 1
+    }
+  ]
+}

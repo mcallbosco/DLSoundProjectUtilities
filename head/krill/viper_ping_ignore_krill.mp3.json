@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_ignore_krill",
+  "timestamp": "2025-03-12T04:00:00.874411",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " Ignore Krill.",
+      "part": 1
+    }
+  ]
+}

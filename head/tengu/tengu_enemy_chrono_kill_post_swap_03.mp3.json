@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_enemy_chrono_kill_post_swap_03",
+  "timestamp": "2025-03-12T12:42:53.423113",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4000000953674316,
+      "text": " This isn't over yet, Paradox!",
+      "part": 1
+    }
+  ]
+}

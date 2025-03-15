@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_with_abrams",
+  "timestamp": "2025-03-12T03:58:31.662202",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.1200000047683716,
+      "text": " I'm with you, Abrams.",
+      "part": 1
+    }
+  ]
+}

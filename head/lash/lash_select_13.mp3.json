@@ -1,0 +1,24 @@
+{
+  "voiceline_id": "lash_select_13",
+  "timestamp": "2025-03-12T03:31:50.152905",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.200000047683716,
+      "text": " You know, it's important to give back.",
+      "part": 1
+    },
+    {
+      "start": 2.200000047683716,
+      "end": 7.400000095367432,
+      "text": " That's why I'm taking 3% of my earnings a day and donating them to Lash Back.",
+      "part": 2
+    },
+    {
+      "start": 7.400000095367432,
+      "end": 10.399999618530273,
+      "text": " It's my charity dedicated to children who kind of suck.",
+      "part": 3
+    }
+  ]
+}

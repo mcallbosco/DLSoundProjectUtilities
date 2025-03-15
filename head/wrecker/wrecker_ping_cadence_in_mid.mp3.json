@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_cadence_in_mid",
+  "timestamp": "2025-03-12T04:02:36.840081",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Cadence in mid.",
+      "part": 1
+    }
+  ]
+}

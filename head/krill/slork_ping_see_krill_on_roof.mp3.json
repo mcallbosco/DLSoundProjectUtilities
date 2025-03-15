@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "slork_ping_see_krill_on_roof",
+  "timestamp": "2025-03-12T04:02:22.629474",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " KRILL'S ON THE ROOF!",
+      "part": 1
+    }
+  ]
+}

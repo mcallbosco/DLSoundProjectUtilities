@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_enemy_atlas_unkillable_03",
+  "timestamp": "2025-03-12T03:58:41.499123",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Why won't you just die?",
+      "part": 1
+    }
+  ]
+}

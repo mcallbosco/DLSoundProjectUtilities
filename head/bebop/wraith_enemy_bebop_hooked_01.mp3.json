@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_enemy_bebop_hooked_01",
+  "timestamp": "2025-03-12T12:36:03.899811",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Oh, no.",
+      "part": 1
+    }
+  ]
+}

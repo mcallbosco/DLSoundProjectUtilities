@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_kill_mirage_04",
+  "timestamp": "2025-03-12T04:00:24.212169",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Farewell Mirage.",
+      "part": 1
+    }
+  ]
+}

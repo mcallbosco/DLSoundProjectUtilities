@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_gigawatt_was_here",
+  "timestamp": "2025-03-12T03:34:00.790325",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " GIGAWATT WAS HERE!",
+      "part": 1
+    }
+  ]
+}

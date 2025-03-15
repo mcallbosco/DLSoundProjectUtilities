@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_ping_ignore_krill",
+  "timestamp": "2025-03-12T12:24:25.575803",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": "\u30a4\u30b0\u30ce\u30a2\u30fb\u30af\u30ea\u30eb",
+      "part": 1
+    }
+  ]
+}

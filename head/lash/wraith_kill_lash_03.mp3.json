@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "wraith_kill_lash_03",
+  "timestamp": "2025-03-12T03:48:03.316082",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.5,
+      "text": " What's the matter, Lash?",
+      "part": 1
+    },
+    {
+      "start": 1.5,
+      "end": 3.5,
+      "text": " Thought you were a tough guy.",
+      "part": 2
+    }
+  ]
+}

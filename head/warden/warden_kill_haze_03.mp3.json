@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_kill_haze_03",
+  "timestamp": "2025-03-12T03:36:05.086891",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Even you have your limits, Haze.",
+      "part": 1
+    }
+  ]
+}

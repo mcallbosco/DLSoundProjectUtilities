@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "atlas_ping_post_game_05",
+  "timestamp": "2025-03-12T04:04:55.638791",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " That wasn't easy.",
+      "part": 1
+    }
+  ]
+}

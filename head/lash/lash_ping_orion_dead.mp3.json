@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "lash_ping_orion_dead",
+  "timestamp": "2025-03-12T04:07:13.383838",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.6799999475479126,
+      "text": " Grey Talon is dead.",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viper_ping_stun_slork_01",
+  "timestamp": "2025-03-12T03:27:38.877804",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Stun Fathom.",
+      "part": 1
+    }
+  ]
+}

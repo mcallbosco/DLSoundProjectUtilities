@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "viscous_ping_stun_bebop_01",
+  "timestamp": "2025-03-12T03:59:55.684803",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Stun Bebop.",
+      "part": 1
+    }
+  ]
+}

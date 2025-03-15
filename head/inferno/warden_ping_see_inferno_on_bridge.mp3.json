@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_see_inferno_on_bridge",
+  "timestamp": "2025-03-12T04:09:52.593691",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Infernus is on the bridge!",
+      "part": 1
+    }
+  ]
+}

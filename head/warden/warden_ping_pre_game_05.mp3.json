@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "warden_ping_pre_game_05",
+  "timestamp": "2025-03-12T03:34:29.626975",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We must not falter.",
+      "part": 1
+    }
+  ]
+}

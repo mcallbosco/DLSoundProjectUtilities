@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_select_01",
+  "timestamp": "2025-03-12T04:00:33.622318",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " Hathorne's disciples will answer for their crimes.",
+      "part": 1
+    }
+  ]
+}

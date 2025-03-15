@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_enemy_dynamo_start_04",
+  "timestamp": "2025-03-12T03:34:09.030975",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.0,
+      "text": " If Professor Dynamo seeks to stop you, he can't succeed.",
+      "part": 1
+    }
+  ]
+}

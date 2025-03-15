@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "tengu_enemy_gigawatt_hide_from_ult_01",
+  "timestamp": "2025-03-12T12:48:42.794352",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " TAKE COVER!",
+      "part": 1
+    }
+  ]
+}

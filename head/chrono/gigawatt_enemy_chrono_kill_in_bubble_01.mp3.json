@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "gigawatt_enemy_chrono_kill_in_bubble_01",
+  "timestamp": "2025-03-12T03:43:06.462889",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.0,
+      "text": " You'll have to do better than that, Crono.",
+      "part": 1
+    }
+  ]
+}

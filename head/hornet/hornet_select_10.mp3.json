@@ -1,0 +1,18 @@
+{
+  "voiceline_id": "hornet_select_10",
+  "timestamp": "2025-03-12T12:41:23.234595",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I don't have the luxury of morality.",
+      "part": 1
+    },
+    {
+      "start": 2.0,
+      "end": 4.0,
+      "text": " There are lives at stake.",
+      "part": 2
+    }
+  ]
+}

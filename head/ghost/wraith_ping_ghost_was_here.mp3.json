@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_ghost_was_here",
+  "timestamp": "2025-03-12T04:05:55.712646",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "text": " Geist was here.",
+      "part": 1
+    }
+  ]
+}

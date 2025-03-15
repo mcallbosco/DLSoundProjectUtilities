@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "hornet_ping_saw_krill",
+  "timestamp": "2025-03-12T03:51:51.928307",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " I saw Krill!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "patron_female_ally_nano_start_03",
+  "timestamp": "2025-03-12T12:29:04.271447",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 9.0,
+      "text": " You don't just have ambition. You have the means to execute on it. Summon me and reap your reward.",
+      "part": 1
+    }
+  ]
+}

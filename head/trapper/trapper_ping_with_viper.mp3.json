@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_with_viper",
+  "timestamp": "2025-03-12T04:00:10.346667",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.2799999713897705,
+      "text": " I'm with you, Vyper!",
+      "part": 1
+    }
+  ]
+}

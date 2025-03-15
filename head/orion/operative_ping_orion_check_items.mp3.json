@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "operative_ping_orion_check_items",
+  "timestamp": "2025-03-12T03:03:49.603813",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Check out what Gredalon bought.",
+      "part": 1
+    }
+  ]
+}

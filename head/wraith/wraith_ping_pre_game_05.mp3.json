@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wraith_ping_pre_game_05",
+  "timestamp": "2025-03-12T03:51:03.099895",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": " We're gonna pick them off one by one.",
+      "part": 1
+    }
+  ]
+}

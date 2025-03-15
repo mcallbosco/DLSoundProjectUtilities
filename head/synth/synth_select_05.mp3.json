@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "synth_select_05",
+  "timestamp": "2025-03-12T03:47:40.052708",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " We can build a better world.",
+      "part": 1
+    }
+  ]
+}

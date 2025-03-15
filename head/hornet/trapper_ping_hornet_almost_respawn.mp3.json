@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "trapper_ping_hornet_almost_respawn",
+  "timestamp": "2025-03-12T04:06:30.166458",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " Vindicta's almost back!",
+      "part": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "haze_ally_shiv_killed_in_lane_01",
+  "timestamp": "2025-03-12T03:39:16.812077",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.0,
+      "text": " They took out Shiv.",
+      "part": 1
+    }
+  ]
+}

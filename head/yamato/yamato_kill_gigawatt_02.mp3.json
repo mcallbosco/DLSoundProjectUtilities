@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "yamato_kill_gigawatt_02",
+  "timestamp": "2025-03-12T04:01:10.300868",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.200000047683716,
+      "text": "\u304a\u524d\u306e\u3088\u3046\u306a\u3082\u306e\u304c\u6050\u308c\u3089\u308c\u3066\u3044\u308b\u306e\u304b?",
+      "part": 1
+    }
+  ]
+}

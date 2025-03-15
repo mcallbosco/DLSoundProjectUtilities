@@ -1,0 +1,12 @@
+{
+  "voiceline_id": "wrecker_ping_yamato_was_here",
+  "timestamp": "2025-03-12T12:30:34.863526",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.4800000190734863,
+      "text": " YAMATO WAS HERE!",
+      "part": 1
+    }
+  ]
+}
