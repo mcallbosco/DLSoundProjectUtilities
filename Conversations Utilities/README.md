@@ -12,14 +12,16 @@ When using the "Export All to JSON" feature, the application generates a structu
   "total_conversations": 25,
   "conversations": [
     {
-      "conversation_id": "character1_character2_convo1_topic",
-      "character1": "character1",
-      "character2": "character2",
-      "conversation_number": "1",
+      "conversation_id": "Ana_Soldier76_convo1_topic",
+      "speakers": [
+        "Ana",
+        "Soldier_76"
+      ],
+      "convo_id": 1,
       "topic": "topic",
       "is_complete": true,
       "missing_parts": [],
-      "starter": "character1",
+      "starter": "Ana",
       "summary": "Brief summary of conversation content",
       "lines": [
         {
@@ -58,9 +60,9 @@ When using the "Export All to JSON" feature, the application generates a structu
 
 Each conversation object contains:
 
-- **conversation_id**: A unique identifier for the conversation (format: `character1_character2_convoNumber_topic`)
-- **character1** & **character2**: The names of the characters participating in the conversation
-- **conversation_number**: The numerical identifier for this conversation
+- **conversation_id**: A unique identifier for the conversation (format: `speaker1_speaker2_convoNumber_topic`)
+- **speakers**: An array of the two character names participating in the conversation (e.g., `["Ana", "Soldier_76"]`)
+- **convo_id**: The numerical identifier for this conversation
 - **topic**: The topic of the conversation (if available, otherwise `null`)
 - **is_complete**: Boolean indicating whether the conversation has all required parts
 - **missing_parts**: Array of part numbers that are missing (if conversation is incomplete)
@@ -110,9 +112,9 @@ print(f"Export date: {data['export_date']}")
 conversations_df = pd.DataFrame([
     {
         'id': c['conversation_id'],
-        'character1': c['character1'],
-        'character2': c['character2'],
-        'number': c['conversation_number'],
+        'speaker1': c['speakers'][0],
+        'speaker2': c['speakers'][1],
+        'convo_id': c['convo_id'],
         'topic': c['topic'],
         'complete': c['is_complete'],
         'summary': c['summary']
@@ -151,4 +153,4 @@ print(f"\nFound {len(matching_convos)} conversations containing '{keyword}'")
 
 - The availability of transcriptions depends on whether you chose to transcribe conversations during export
 - Summaries are only generated if you selected this option during export and require an OpenAI API key
-- The file creation date may not be available for all audio files depending on your system 
+- The file creation date may not be available for all audio files depending on your system

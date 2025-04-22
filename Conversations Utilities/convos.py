@@ -187,37 +187,38 @@ class ConversationPlayer:
         self.root.title("Character Conversation Player")
         self.root.geometry("800x600")
         self.audio_dir = os.getcwd()  # Default to current directory
-        
+        self.transcriptions_dir = TRANSCRIPTIONS_DIR  # Default transcriptions directory
+
         # Initialize pygame mixer for audio playback
         pygame.mixer.init()
-        
+
         # Track playback state
         self.playing = False
         self.current_playlist = []
         self.current_track_index = 0
-        
+
         # Transcription cache
         self.transcription_cache = {}
-        
+
         # Character name mappings - load first before creating widgets
         self.character_mappings = {}
         self.load_character_mappings()
-        
+
         # Create GUI elements
         self.create_widgets()
-        
+
         # Load initial data
         self.conversations = {}
         self.characters = []
         self.character_pairs = {}  # Track which characters have conversations together
         self.convo_keys = []  # Track conversation keys for listbox selection
-        
+
         # Ensure transcriptions directory exists
-        os.makedirs(TRANSCRIPTIONS_DIR, exist_ok=True)
-        
+        os.makedirs(self.transcriptions_dir, exist_ok=True)
+
         # Bind window close event
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
-        
+
         # Check for API key on startup
         self.check_api_key()
     
@@ -417,28 +418,39 @@ class ConversationPlayer:
         # Main frame
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
-        
+
         # Directory selection
         dir_frame = ttk.LabelFrame(main_frame, text="Audio Files Directory", padding="10")
         dir_frame.pack(fill=tk.X, pady=5)
-        
+
         self.dir_var = tk.StringVar(value=self.audio_dir)
         dir_entry = ttk.Entry(dir_frame, textvariable=self.dir_var, width=50)
         dir_entry.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W+tk.E)
-        
+
         browse_button = ttk.Button(dir_frame, text="Browse...", command=self.browse_directory)
         browse_button.grid(row=0, column=1, padx=5, pady=5)
-        
+
         load_button = ttk.Button(dir_frame, text="Load Files", command=self.load_directory)
         load_button.grid(row=0, column=2, padx=5, pady=5)
-        
+
         # Add Export All button
         export_button = ttk.Button(dir_frame, text="Export All to JSON", command=self.export_all_conversations)
         export_button.grid(row=0, column=3, padx=5, pady=5)
-        
+
         # Add Character Mappings button
         mappings_button = ttk.Button(dir_frame, text="Character Mappings", command=self.edit_character_mappings)
         mappings_button.grid(row=0, column=4, padx=5, pady=5)
+
+        # Transcriptions directory selection
+        trans_dir_frame = ttk.LabelFrame(main_frame, text="Transcriptions Directory", padding="10")
+        trans_dir_frame.pack(fill=tk.X, pady=5)
+
+        self.trans_dir_var = tk.StringVar(value=self.transcriptions_dir)
+        trans_dir_entry = ttk.Entry(trans_dir_frame, textvariable=self.trans_dir_var, width=50)
+        trans_dir_entry.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W+tk.E)
+
+        trans_browse_button = ttk.Button(trans_dir_frame, text="Browse...", command=self.browse_transcriptions_directory)
+        trans_browse_button.grid(row=0, column=1, padx=5, pady=5)
         
         # Character selection
         char_frame = ttk.LabelFrame(main_frame, text="Character Selection", padding="10")
@@ -526,6 +538,14 @@ class ConversationPlayer:
         directory = filedialog.askdirectory(initialdir=self.audio_dir, title="Select Audio Files Directory")
         if directory:
             self.dir_var.set(directory)
+
+    def browse_transcriptions_directory(self):
+        """Open directory browser dialog for transcriptions"""
+        directory = filedialog.askdirectory(initialdir=self.transcriptions_dir, title="Select Transcriptions Directory")
+        if directory:
+            self.trans_dir_var.set(directory)
+            self.transcriptions_dir = directory
+            os.makedirs(self.transcriptions_dir, exist_ok=True)
     
     def load_directory(self):
         """Load audio files from the selected directory"""
@@ -1178,7 +1198,7 @@ class ConversationPlayer:
         """Transcribe a single audio file using OpenAI's Whisper API"""
         try:
             # Check for cached transcription
-            cache_file = os.path.join(TRANSCRIPTIONS_DIR, f"{os.path.basename(file_path)}.json")
+            cache_file = os.path.join(self.transcriptions_dir, f"{os.path.basename(file_path)}.json")
             if os.path.exists(cache_file):
                 try:
                     with open(cache_file, 'r', encoding='utf-8') as f:
@@ -1219,7 +1239,7 @@ class ConversationPlayer:
                 
                 # Cache the result
                 try:
-                    os.makedirs(TRANSCRIPTIONS_DIR, exist_ok=True)
+                    os.makedirs(self.transcriptions_dir, exist_ok=True)
                     with open(cache_file, 'w', encoding='utf-8') as f:
                         json.dump(result, f, indent=2)
                 except:
@@ -1244,29 +1264,29 @@ class ConversationPlayer:
     def _save_transcription(self, transcription, convo_key):
         """Save transcription to a file"""
         try:
-            os.makedirs(TRANSCRIPTIONS_DIR, exist_ok=True)
-            
+            os.makedirs(self.transcriptions_dir, exist_ok=True)
+
             char1, char2 = transcription['characters']
             convo_num = transcription['convo_num']
-            
+
             # Get topic if available (it's the third element in the convo_key tuple if it exists)
             topic = convo_key[2] if len(convo_key) > 2 else None
-            
+
             # Add topic to the transcription data
             transcription['topic'] = topic
-            
+
             # Add file creation date
             transcription['creation_date'] = datetime.now().isoformat()
-            
+
             # Create filename (include topic if available)
             if topic:
-                filename = os.path.join(TRANSCRIPTIONS_DIR, f"{char1}_{char2}_convo{convo_num}_{topic}.json")
+                filename = os.path.join(self.transcriptions_dir, f"{char1}_{char2}_convo{convo_num}_{topic}.json")
             else:
-                filename = os.path.join(TRANSCRIPTIONS_DIR, f"{char1}_{char2}_convo{convo_num}.json")
-            
+                filename = os.path.join(self.transcriptions_dir, f"{char1}_{char2}_convo{convo_num}.json")
+
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(transcription, f, indent=2)
-                
+
             return filename
         except Exception as e:
             print(f"Error saving transcription: {str(e)}")
@@ -1312,7 +1332,7 @@ class ConversationPlayer:
             conversation_text = "\n".join(lines_text)
             
             # Create a prompt for the API with 7-word limit
-            prompt = f"""Below is a conversation between {conversation_data['character1']} and {conversation_data['character2']}.
+            prompt = f"""Below is a conversation between {conversation_data['speakers'][0]} and {conversation_data['speakers'][1]}.
 Please provide a summary of what this conversation is about in NO MORE THAN 7 WORDS:
 
 {conversation_text}
@@ -1448,36 +1468,35 @@ Summary (maximum 7 words):"""
             # Create conversation entry
             conversation = {
                 "conversation_id": f"{char1}_{char2}_convo{convo_num}" + (f"_{topic}" if topic else ""),
-                "character1": char1,
-                "character2": char2,
-                "conversation_number": convo_num,
+                "speakers": [char1, char2],
+                "convo_id": convo_num,
                 "topic": topic,
                 "is_complete": is_complete,
                 "missing_parts": missing_parts,
-                "starter": files[0]['starter'] if 'starter' in files[0] else "unknown",
+                "starter": None,  # Will set after lines are built
                 "lines": []
             }
             
             # Process each part and its variations
             for part in sorted(part_groups.keys()):
                 variations = part_groups[part]
-                
+
                 for i, variation in enumerate(variations):
                     # Determine the speaker
                     filename = variation['filename']
                     speaker = self._get_speaker_from_filename(filename)
-                    
+
                     # Update status if transcribing
                     if transcribe_all:
                         status_text = f"Processing: {filename}"
                         status_label.config(text=status_text)
                         progress_window.update()
-                    
+
                     # Get transcription if available or generate if requested
                     transcription = None
-                    cache_file = os.path.join(TRANSCRIPTIONS_DIR, f"{filename}.json")
+                    cache_file = os.path.join(self.transcriptions_dir, f"{filename}.json")
                     has_transcription = False
-                    
+
                     if os.path.exists(cache_file):
                         # Use existing transcription
                         try:
@@ -1494,7 +1513,7 @@ Summary (maximum 7 words):"""
                             try:
                                 status_label.config(text=f"Transcribing: {filename}")
                                 progress_window.update()
-                                
+
                                 # Transcribe the file
                                 transcription_data = self._transcribe_file(file_path)
                                 if transcription_data:
@@ -1508,7 +1527,7 @@ Summary (maximum 7 words):"""
                             transcription = "[Transcription not available]"
                     else:
                         transcription = "[Transcription not available]"
-                    
+
                     # Create line entry
                     line = {
                         "part": part,
@@ -1518,7 +1537,7 @@ Summary (maximum 7 words):"""
                         "transcription": transcription,
                         "has_transcription": has_transcription
                     }
-                    
+
                     # Add file creation date
                     try:
                         file_path = os.path.join(self.audio_dir, filename)
@@ -1526,10 +1545,13 @@ Summary (maximum 7 words):"""
                         line["file_creation_date"] = datetime.fromtimestamp(file_creation_time).isoformat()
                     except:
                         line["file_creation_date"] = None
-                    
+
                     # Add to conversation lines
                     conversation["lines"].append(line)
-            
+
+            # Set starter as the speaker of the first line, or "unknown"
+            conversation["starter"] = conversation["lines"][0]["speaker"] if conversation["lines"] else "unknown"
+
             # Generate summary if requested
             if generate_summaries:
                 status_label.config(text=f"Generating summary for conversation {current_convo}...")
@@ -1537,7 +1559,7 @@ Summary (maximum 7 words):"""
                 conversation["summary"] = self._generate_conversation_summary(conversation)
             else:
                 conversation["summary"] = "[Summary not generated]"
-            
+
             # Add conversation to export data
             export_data["conversations"].append(conversation)
         
