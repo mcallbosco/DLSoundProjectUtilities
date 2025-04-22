@@ -1342,7 +1342,7 @@ Summary (maximum 7 words):"""
             # Call the OpenAI API
             client = openai.OpenAI(api_key=OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4.1-mini",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that summarizes conversations in exactly 7 words or fewer."},
                     {"role": "user", "content": prompt}
