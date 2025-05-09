@@ -1144,12 +1144,12 @@ class ConversationPlayer:
                 file_path = os.path.join(self.audio_dir, file_data['filename'])
                 part_num = file_data['part']
                 
-                # Get file creation date
+                # Get file last modified date
                 try:
-                    file_creation_time = os.path.getctime(file_path)
-                    file_creation_date = datetime.fromtimestamp(file_creation_time).isoformat()
+                    file_modified_time = os.path.getmtime(file_path)
+                    file_modified_date = datetime.fromtimestamp(file_modified_time).isoformat()
                 except:
-                    file_creation_date = None
+                    file_modified_date = None
                 
                 # Determine the speaker for this part
                 filename = file_data['filename']
@@ -1168,7 +1168,7 @@ class ConversationPlayer:
                         segment['end'] += current_time
                         segment['speaker'] = part_speaker
                         segment['part'] = part_num
-                        segment['file_creation_date'] = file_creation_date
+                        segment['file_creation_date'] = file_modified_date
                         transcription['segments'].append(segment)
                     
                     # Update the current time for the next file
@@ -1538,11 +1538,11 @@ Summary (maximum 7 words):"""
                         "has_transcription": has_transcription
                     }
 
-                    # Add file creation date
+                    # Add file last modified date
                     try:
                         file_path = os.path.join(self.audio_dir, filename)
-                        file_creation_time = os.path.getctime(file_path)
-                        line["file_creation_date"] = datetime.fromtimestamp(file_creation_time).isoformat()
+                        file_modified_time = os.path.getmtime(file_path)
+                        line["file_creation_date"] = datetime.fromtimestamp(file_modified_time).isoformat()
                     except:
                         line["file_creation_date"] = None
 
