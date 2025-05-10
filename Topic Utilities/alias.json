@@ -11,7 +11,7 @@
   "Fathom": ["fathom", "slork"],
   "Cadence": ["cadence"],
   "Paradox": ["chrono", "paradox"],
-  "Dynamo": ["dynamo", "sumo"],
+  "Dynamo": ["dynamo", "sumo", "prof"],
   "McGinnis": ["forge", "mcginnis"],
   "Lady Geist": ["ghost", "lady geist"],
   "Seven": ["gigawatt", "seven"],
@@ -30,5 +30,12 @@
   "Warden": ["warden"],
   "Wraith": ["wraith"],
   "Wrecker": ["wrecker"],
-  "Yamato": ["yamato"]
+  "Yamato": ["yamato"],
+  "patron_female": ["patron_female","patron_female_bespoke"],
+  "patron_male": ["patron_male","patron_male_bespoke"],
+  "Priest": ["priest"],
+  "VamprieBat": ["vampirebat"],
+  "Jake": ["jake"],
+  "frank": ["frank"],
+  "Bookworm": ["bookworm"]
 } 

@@ -26,6 +26,12 @@ class VoiceLineOrganizer:
         self.topic_alias_json_path = tk.StringVar()
         self.source_folder_path = tk.StringVar()
         self.output_json_path = tk.StringVar()
+
+        # Set default values for debugging
+        self.alias_json_path.set("C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/alias.json")
+        self.topic_alias_json_path.set("C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/topic_alias.json")
+        self.source_folder_path.set("C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/May Sounds/sounds/vo")
+        self.output_json_path.set("C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/temp.json")
         
         # Options variables
         self.exclude_regular_pings = tk.BooleanVar(value=False)
@@ -205,7 +211,8 @@ class VoiceLineOrganizer:
                     continue
                 
                 # Unpack the result
-                speaker, subject, topic, relationship, rel_path = result
+                # Now returns (speaker, subject, topic, relationship, rel_path, is_ping)
+                speaker, subject, topic, relationship, rel_path, is_ping = result
                 
                 # Initialize speaker if not exists
                 if speaker not in result_data:
@@ -216,32 +223,34 @@ class VoiceLineOrganizer:
                     result_data[speaker][subject] = {}
                 
                 # Handle special case for pings
-                if topic.startswith("ping_"):
-                    # Extract ping type
-                    ping_type = topic.replace("ping_", "")
-                    
-                    # Skip regular pings if exclude_regular_pings is True
-                    if self.exclude_regular_pings.get() and ping_type not in ["pre_game", "post_game"]:
-                        continue
-                    
-                    # Initialize Pings category if not exists
+                if is_ping:
+                    # Store under "Pings" key
                     if "Pings" not in result_data[speaker][subject]:
                         result_data[speaker][subject]["Pings"] = {}
-                    
-                    # Initialize ping type if not exists
-                    if ping_type not in result_data[speaker][subject]["Pings"]:
-                        result_data[speaker][subject]["Pings"][ping_type] = []
-                    
-                    # Add the file path
-                    result_data[speaker][subject]["Pings"][ping_type].append(rel_path)
+                    if topic not in result_data[speaker][subject]["Pings"]:
+                        result_data[speaker][subject]["Pings"][topic] = []
+                    result_data[speaker][subject]["Pings"][topic].append(rel_path)
                 else:
                     # Initialize topic if not exists
                     if topic not in result_data[speaker][subject]:
                         result_data[speaker][subject][topic] = []
-                    
-                    # Add the file path
                     result_data[speaker][subject][topic].append(rel_path)
             
+            # Custom sort for self voicelines: select, unselect, pre_game, post_game first
+            def custom_self_sort(topics):
+                priority = ["Select", "Unselect", "Pre game", "Post game"]
+                def sort_key(k):
+                    try:
+                        return (priority.index(k), k)
+                    except ValueError:
+                        return (len(priority), k)
+                return dict(sorted(topics.items(), key=lambda x: sort_key(x[0])))
+
+            # Apply custom sort to self topics
+            for speaker in result_data:
+                if "self" in result_data[speaker]:
+                    result_data[speaker]["self"] = custom_self_sort(result_data[speaker]["self"])
+
             # Save the result to the output JSON file
             with open(self.output_json_path.get(), 'w') as f:
                 json.dump(result_data, f, indent=2)
@@ -289,12 +298,25 @@ class VoiceLineOrganizer:
         try:
             filename = os.path.basename(file_path)
             filename_without_ext = os.path.splitext(filename)[0]
+
+            # List of keywords for "self" voicelines
+            self_keywords = [
+                "angry", "close_call", "concerned", "happy", "interrupt", "last_one_standing",
+                "leave_base", "leaving_area", "parry", "near_miss", "melee_kill", "sad",
+                "see_money", "select", "unselect"
+            ]
             
             # Parse the filename based on the specified structure
             # Pattern: speaker_ally/enemy_subject_topic_variation
             # Example: astro_ally_operative_kill_01.mp3
-            
-            # First, determine if it's an ally or enemy pattern
+
+            # Always extract speaker as the first part before "_"
+            parts_initial = filename_without_ext.split("_")
+            speaker = parts_initial[0] if len(parts_initial) > 1 else filename_without_ext
+
+            # First, determine if it's an ally or enemy pattern, bespoke, or ping, or self
+            is_ping = False
+            is_self = False
             if "_ally_" in filename_without_ext:
                 relationship = "ally"
                 parts = filename_without_ext.split("_ally_", 1)
@@ -305,37 +327,138 @@ class VoiceLineOrganizer:
                 parts = filename_without_ext.split("_enemy_", 1)
                 speaker = parts[0]
                 rest = parts[1]
+            elif "_bespoke_ally_" in filename_without_ext:
+                relationship = "ally"
+                parts = filename_without_ext.split("_bespoke_ally_", 1)
+                speaker = parts[0] + "_bespoke"
+                rest = parts[1]
+            elif "_bespoke_enemy_" in filename_without_ext:
+                relationship = "enemy"
+                parts = filename_without_ext.split("_bespoke_enemy_", 1)
+                speaker = parts[0] + "_bespoke"
+                rest = parts[1]
+            elif "_ping_" in filename_without_ext:
+                # Handle ping pattern: [speaker]_ping_[topic][_subject][_variation]
+                relationship = None
+                parts = filename_without_ext.split("_ping_", 1)
+                speaker = parts[0]
+                rest = parts[1]
+                # Check for pre_game or post_game special case
+                ping_parts = rest.split('_')
+                if (len(ping_parts) == 3 and ping_parts[0] in ["pre", "post"] and ping_parts[1] == "game" and ping_parts[2].isdigit()) or \
+                   (len(ping_parts) == 2 and ping_parts[0] in ["pre_game", "post_game"] and ping_parts[1].isdigit()):
+                    # Treat as self voiceline
+                    is_ping = False
+                    is_self = True
+                    rest = rest  # already correct for self parsing
+                else:
+                    is_ping = True
+            elif len(parts_initial) > 1 and parts_initial[1] in self_keywords:
+                # Handle self voiceline: [speaker]_[keyword][_variation]
+                relationship = None
+                rest = "_".join(parts_initial[1:])
+                is_self = True
             else:
                 # Skip files that don't match the pattern
                 return None
-            
+
             # Check if speaker is valid
             if speaker.lower() not in valid_speakers:
                 self.disregarded_heroes.add(speaker.capitalize())
                 return "disregarded"
-            
+
             # Now parse the rest of the filename
-            # Find the last underscore followed by numbers (variation)
-            match = re.search(r'_(\d+)$', rest)
-            if not match:
-                self.log(f"Could not find variation number in: {filename}")
-                return None
+            # Remove _alt_<number> at the end if present
+            alt_match = re.search(r'_alt_(\d+)$', rest)
+            if alt_match:
+                variation = alt_match.group(1)
+                rest_without_variation = rest[:alt_match.start()]
+            else:
+                # Check for double trailing numbers (e.g., _03_02)
+                double_num_match = re.search(r'_(\d+)_(\d+)$', rest)
+                if double_num_match:
+                    variation = double_num_match.group(2)
+                    # Remove both trailing numbers from the topic
+                    rest_without_variation = rest[:double_num_match.start()]
+                else:
+                    # Find the last underscore followed by numbers (variation)
+                    match = re.search(r'_(\d+)$', rest)
+                    if not match:
+                        # If no variation number, treat as single variation "01"
+                        variation = "01"
+                        rest_without_variation = rest
+                    else:
+                        variation = match.group(1)
+                        rest_without_variation = rest[:match.start()]
+
+            # For bespoke lines, the pattern is topic_subject
+            if "_bespoke" in speaker:
+                bespoke_parts = rest_without_variation.split('_')
+                if len(bespoke_parts) >= 2:
+                    topic_raw = "_".join(bespoke_parts[:-1])
+                    subject = bespoke_parts[-1]
+                else:
+                    self.log(f"Could not parse bespoke subject/topic in: {filename}")
+                    return None
+            elif is_ping:
+                # Ping: [topic][_subject]
+                ping_parts = rest_without_variation.split('_')
+                if len(ping_parts) == 1:
+                    topic_raw = ping_parts[0]
+                    subject = ""
+                elif len(ping_parts) >= 2:
+                    # If last part is numeric, treat as variation, else as subject
+                    if ping_parts[-1].isdigit():
+                        if len(ping_parts) == 2:
+                            topic_raw = ping_parts[0]
+                            subject = ""
+                        else:
+                            topic_raw = "_".join(ping_parts[:-2])
+                            subject = ping_parts[-2]
+                    else:
+                        topic_raw = "_".join(ping_parts[:-1])
+                        subject = ping_parts[-1]
+                else:
+                    topic_raw = rest_without_variation
+                    subject = ""
+            elif is_self:
+                # Self voiceline: [speaker]_[keyword][_variation] or pre/post game ping
+                # Remove all trailing _alt_<number> and _<number> patterns to get the base topic
+                topic_candidate = rest
+                while True:
+                    # Remove _alt_<number> at the end
+                    alt_match = re.search(r'_alt_\d+$', topic_candidate)
+                    if alt_match:
+                        topic_candidate = topic_candidate[:alt_match.start()]
+                        continue
+                    # Remove _<number> at the end
+                    num_match = re.search(r'_(\d+)$', topic_candidate)
+                    if num_match:
+                        topic_candidate = topic_candidate[:num_match.start()]
+                        continue
+                    break
+                topic_raw = topic_candidate
+                subject = "self"
+            elif is_self:
+                # Self voiceline: [speaker]_[keyword][_variation]
+                # Remove trailing variation if present
+                match = re.search(r'_(\d+)$', rest)
+                if match:
+                    topic_raw = rest[:match.start()]
+                else:
+                    topic_raw = rest
+                subject = "self"
+            else:
+                # The first part before underscore is the subject
+                subject_parts = rest_without_variation.split('_', 1)
+                if len(subject_parts) < 2:
+                    self.log(f"Could not parse subject in: {filename}")
+                    return None
+                subject = subject_parts[0]
+                topic_raw = subject_parts[1]
             
-            variation = match.group(1)
-            # Remove the variation part from the rest
-            rest_without_variation = rest[:match.start()]
-            
-            # The first part before underscore is the subject
-            subject_parts = rest_without_variation.split('_', 1)
-            if len(subject_parts) < 2:
-                self.log(f"Could not parse subject in: {filename}")
-                return None
-            
-            subject = subject_parts[0]
-            topic_raw = subject_parts[1]
-            
-            # Check if subject is a valid hero name
-            if subject.lower() not in valid_speakers:
+            # Check if subject is a valid hero name, except for "self"
+            if subject != "self" and subject.lower() not in valid_speakers:
                 self.disregarded_heroes.add(subject.capitalize())
                 return "disregarded"
             
@@ -343,14 +466,18 @@ class VoiceLineOrganizer:
             speaker_proper = self._get_proper_name(speaker, alias_data)
             subject_proper = self._get_proper_name(subject, alias_data)
             
-            # Process topic
+            # Process topic and append relationship
             topic_proper = self._format_topic(topic_raw, topic_alias_data)
+            # Replace underscores with spaces and capitalize first character
+            topic_proper = topic_proper.replace("_", " ").capitalize()
+            if relationship in ("ally", "enemy"):
+                topic_proper = f"{topic_proper} ({relationship})"
             
             # Get relative path from source folder
             rel_path = os.path.relpath(file_path, self.source_folder_path.get())
             
             self.log(f"Processed: {filename} -> {speaker_proper}/{subject_proper} ({relationship})/{topic_proper}")
-            return (speaker_proper, subject_proper, topic_proper, relationship, rel_path)
+            return (speaker_proper, subject_proper, topic_proper, relationship, rel_path, is_ping)
             
         except Exception as e:
             self.log(f"Error processing {file_path}: {str(e)}")
@@ -382,4 +509,4 @@ def main():
     root.mainloop()
 
 if __name__ == "__main__":
-    main() 
+    main()
