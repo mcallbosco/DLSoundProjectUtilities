@@ -499,18 +499,22 @@ class VoiceLineUtilitiesGUI:
                     # Update progress bar
                     progress_pct = (current / total) * 100
                     self.root.after(0, lambda: self.transcribe_progress.config(value=progress_pct))
-                    
+
                     # Update current file label
                     self.root.after(0, lambda: self.current_file_label.config(text=f"Processing: {file} ({current+1}/{total})"))
-                
+
                 if status:
                     # Log status message
                     self.root.after(0, lambda: self.transcribe_log(status))
-                
+
                 if error:
                     # Log error message
                     self.root.after(0, lambda: self.transcribe_log(f"ERROR: {error}"))
-                
+
+                    # Handle specific error for missing variation number
+                    if "Could not find variation number in:" in error:
+                        self.root.after(0, lambda: messagebox.showwarning("Missing Variation Number", f"{error}\n\nPlease check the file naming convention."))
+
                 if complete:
                     # Show completion message
                     self.root.after(0, lambda: messagebox.showinfo("Transcription Complete", 
@@ -540,3 +544,7 @@ def main():
 
 if __name__ == "__main__":
     main() 
+
+
+#C:\Users\mcall\OneDrive\OLD\2023\Documents\DLSoundProject\DLSoundProject\DLSoundProjectUtilities\Topic Utilities\alias.json
+#C:\Users\mcall\OneDrive\OLD\2023\Documents\DLSoundProject\DLSoundProject\DLSoundProjectUtilities\Topic Utilities\topic_alias.json

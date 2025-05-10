@@ -126,24 +126,45 @@ The application supports various filename patterns, including:
 5. **Generic Voice Lines**:
    - `character_action_variation.mp3`
 
-## Improvements
+6. **Self Voicelines with Alt Versions**:
+   - Filenames like `atlas_angry_01_alt_01.mp3` or `atlas_angry_01.mp3` are now correctly grouped under the base topic (e.g., "angry"), regardless of trailing `_alt_XX` or numeric suffixes. The application strips all trailing `_alt_<number>` and `_<number>` patterns from self voiceline topics to ensure proper categorization.
 
-The latest version includes several improvements:
-- Better handling of character names with multiple aliases
-- Improved topic formatting with proper capitalization
-- Inclusion of relationship information (ally/enemy/allies) in the subject key
-- Case-insensitive matching for aliases
-- Better handling of multi-part topics
-- Special handling for team-based voice lines (allies patterns)
-- Support for alternative variations of voice lines (with _alt_ in the filename)
-- Support for more generic voice line patterns
+## Debugging Defaults
 
-## Example Files
+For debugging, the application sets default values for the required file paths in `voice_line_organizer.py`:
 
-The repository includes example JSON files to help you get started:
-- `example_logic.json`
-- `example_logic_complex.json` - For more complex filename patterns
-- `example_alias.json`
-- `example_topic_alias.json`
+- **Alias JSON**:  
+  `C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/alias.json`
+- **Topic Alias JSON**:  
+  `C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/topic_alias.json`
+- **Source Folder**:  
+  `C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/May Sounds/sounds/vo`
+- **Output JSON**:  
+  `C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/temp.json`
 
-You can use these as templates for creating your own configuration files. 
+These defaults are set automatically when the GUI starts, but can be changed using the file selection interface.
+
+## Code Structure
+
+### `VoiceLineOrganizer` class
+
+Main GUI class for organizing voice lines.
+
+- **__init__(parent)**: Initializes the GUI, sets up file path variables (with debugging defaults), and creates all sections.
+- **create_file_selection_section(parent)**: Builds the file/folder selection UI.
+- **create_options_section(parent)**: Adds options such as excluding regular pings.
+- **create_processing_section(parent)**: Adds the process button and progress bar.
+- **create_log_section(parent)**: Adds a log output area.
+- **browse_alias_json() / browse_topic_alias_json() / browse_source_folder() / browse_output_json()**: Handlers for file/folder selection dialogs.
+- **log(message)**: Appends messages to the log area in the GUI.  
+  Note: Diagnostic messages such as "Could not find variation number..." are only shown in the application's log window and are not written to a file or standard output.
+- **process_voice_lines()**: Main processing logic; validates inputs, loads data, processes files, and writes output.
+- **_validate_inputs()**: Ensures all required paths are set.
+- **_process_file(file_path, alias_data, topic_alias_data, valid_speakers)**: Parses and categorizes a single file.  
+  - For self voicelines, this method strips all trailing `_alt_<number>` and `_<number>` patterns from the topic portion of the filename, so that files like `atlas_angry_01_alt_01.mp3` are grouped under the "angry" topic.
+- **_get_proper_name(alias, alias_data)**: Resolves an alias to its canonical name.
+- **_format_topic(topic_raw, topic_alias_data)**: Resolves a topic alias to its canonical name.
+
+### `main()`
+
+Entry point for running the GUI.
