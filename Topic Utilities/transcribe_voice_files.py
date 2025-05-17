@@ -177,7 +177,8 @@ def process_file(args):
                 "model": "whisper-1",
                 "file": audio_file,
                 "response_format": "verbose_json",
-                "timestamp_granularities": ["segment"]
+                "timestamp_granularities": ["segment"],
+                "language": "en"
             }
             
             # Add prompt if we have custom vocabulary
@@ -294,61 +295,36 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             print(error_msg)
         return {"error": error_msg}
     
-    # Collect all unique MP3 files with their metadata
-    mp3_files_with_metadata = []
-    
-    # Process each speaker
-    for speaker, subjects in data.items():
-        # Process each subject
-        for subject, topics in subjects.items():
-            # Process each topic
-            for topic, files in topics.items():
-                # Handle special case for "Pings" category
-                if topic == "Pings":
-                    for ping_type, ping_files in files.items():
-                        for file_entry in ping_files:
-                            # Check if the file entry is a dictionary (new format) or a string (old format)
-                            if isinstance(file_entry, dict) and 'filename' in file_entry:
-                                filename = file_entry['filename']
-                                # Store original path if available
-                                original_path = file_entry.get('file_path', '')
-                            else:
-                                filename = file_entry
-                                original_path = ''
-                            
-                            # Store file with its metadata
-                            mp3_files_with_metadata.append({
-                                "filename": filename,
-                                "metadata": {
-                                    "speaker": speaker,
-                                    "subject": subject,
-                                    "topic": "Pings",
-                                    "ping_type": ping_type,
-                                    "original_path": original_path
-                                }
-                            })
+    # Collect all unique MP3 files with their metadata using recursive traversal
+
+    def collect_mp3_files(node, path_keys, metadata_base):
+        mp3s = []
+        if isinstance(node, list):
+            for file_entry in node:
+                if isinstance(file_entry, dict) and 'filename' in file_entry:
+                    filename = file_entry['filename']
+                    original_path = file_entry.get('file_path', '')
                 else:
-                    for file_entry in files:
-                        # Check if the file entry is a dictionary (new format) or a string (old format)
-                        if isinstance(file_entry, dict) and 'filename' in file_entry:
-                            filename = file_entry['filename']
-                            # Store original path if available
-                            original_path = file_entry.get('file_path', '')
-                        else:
-                            filename = file_entry
-                            original_path = ''
-                        
-                        # Store file with its metadata
-                        mp3_files_with_metadata.append({
-                            "filename": filename,
-                            "metadata": {
-                                "speaker": speaker,
-                                "subject": subject,
-                                "topic": topic,
-                                "ping_type": None,
-                                "original_path": original_path
-                            }
-                        })
+                    filename = file_entry
+                    original_path = ''
+                metadata = metadata_base.copy()
+                metadata["original_path"] = original_path
+                mp3s.append({
+                    "filename": filename,
+                    "metadata": metadata,
+                    "full_path_keys": list(path_keys)
+                })
+        elif isinstance(node, dict):
+            for k, v in node.items():
+                mp3s.extend(collect_mp3_files(v, path_keys + [k], metadata_base))
+        return mp3s
+
+    mp3_files_with_metadata = []
+    for speaker, subjects in data.items():
+        for subject, topics in subjects.items():
+            mp3_files_with_metadata.extend(
+                collect_mp3_files(topics, [speaker, subject], {})
+            )
     
     total_files = len(mp3_files_with_metadata)
     status_msg = f"Found {total_files} unique MP3 files to transcribe"
@@ -389,64 +365,63 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         results = list(executor.map(process_file, file_args))
     
-    # Process results and build structured consolidated data
-    consolidated_data = {}
-    
+    # Helper to convert all-caps to sentence case
+    def to_sentence_case_if_all_caps(text):
+        if not isinstance(text, str):
+            return text
+        stripped = text.lstrip()
+        leading = text[:len(text) - len(stripped)]
+        if stripped.isupper():
+            # Convert to sentence case, preserve leading whitespace
+            stripped = stripped.capitalize()
+            if len(stripped) > 1:
+                stripped = stripped[0] + stripped[1:].lower()
+            return leading + stripped
+        return text
+
+    # Build a mapping from filename to transcription result
+    filename_to_transcription = {}
     for result in results:
         if result["status"] == "success":
             successful += 1
         elif result["status"] == "skipped":
             skipped += 1
-        else:  # failed
+        else:
             failed += 1
-            continue  # Skip failed files in consolidated output
-        
-        # Only include successful and skipped files in consolidated output
+            continue
+
         if consolidated_json_path and "transcription_data" in result:
-            # Extract metadata
-            metadata = result["metadata"]
-            speaker = metadata["speaker"]
-            subject = metadata["subject"]
-            topic = metadata["topic"]
-            ping_type = metadata["ping_type"]
-            
-            # Initialize speaker if not exists
-            if speaker not in consolidated_data:
-                consolidated_data[speaker] = {}
-            
-            # Initialize subject if not exists
-            if subject not in consolidated_data[speaker]:
-                consolidated_data[speaker][subject] = {}
-            
-            # Handle special case for Pings
-            if topic == "Pings":
-                # Initialize Pings category if not exists
-                if "Pings" not in consolidated_data[speaker][subject]:
-                    consolidated_data[speaker][subject]["Pings"] = {}
-                
-                # Initialize ping type if not exists
-                if ping_type not in consolidated_data[speaker][subject]["Pings"]:
-                    consolidated_data[speaker][subject]["Pings"][ping_type] = []
-                
-                # Add the file with transcription
-                consolidated_data[speaker][subject]["Pings"][ping_type].append({
-                    "filename": result["filename"],
-                    "date": result["transcription_data"]["date"],
-                    "voiceline_id": result["transcription_data"]["voiceline_id"],
-                    "transcription": result["transcription_data"]["transcription"]
-                })
-            else:
-                # Initialize topic if not exists
-                if topic not in consolidated_data[speaker][subject]:
-                    consolidated_data[speaker][subject][topic] = []
-                
-                # Add the file with transcription
-                consolidated_data[speaker][subject][topic].append({
-                    "filename": result["filename"],
-                    "date": result["transcription_data"]["date"],
-                    "voiceline_id": result["transcription_data"]["voiceline_id"],
-                    "transcription": result["transcription_data"]["transcription"]
-                })
+            transcription_text = result["transcription_data"]["transcription"]
+            transcription_text = to_sentence_case_if_all_caps(transcription_text)
+            entry = {
+                "filename": result["filename"],
+                "date": result["transcription_data"]["date"],
+                "voiceline_id": result["transcription_data"]["voiceline_id"],
+                "transcription": transcription_text
+            }
+            filename_to_transcription[result["filename"]] = entry
+
+    # Recursively walk the input JSON and replace file dicts with transcription dicts
+    def merge_structure_with_transcriptions(node):
+        if isinstance(node, dict):
+            return {k: merge_structure_with_transcriptions(v) for k, v in node.items()}
+        elif isinstance(node, list):
+            new_list = []
+            for file_entry in node:
+                if isinstance(file_entry, dict) and "filename" in file_entry:
+                    fname = file_entry["filename"]
+                else:
+                    fname = file_entry
+                if fname in filename_to_transcription:
+                    new_list.append(filename_to_transcription[fname])
+                else:
+                    # If not found, keep the original entry
+                    new_list.append(file_entry)
+            return new_list
+        else:
+            return node
+
+    consolidated_data = merge_structure_with_transcriptions(data)
     
     # Save consolidated JSON if requested
     if consolidated_json_path and consolidated_data:
@@ -463,9 +438,9 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             for speaker, subjects in consolidated_data.items():
                 for subject, topics in subjects.items():
                     for topic, files in topics.items():
-                        if topic == "Pings":
-                            for ping_type, ping_files in files.items():
-                                total_entries += len(ping_files)
+                        if isinstance(files, dict):
+                            for sub_key, sub_files in files.items():
+                                total_entries += len(sub_files)
                         else:
                             total_entries += len(files)
             
@@ -526,4 +501,4 @@ def main():
     )
 
 if __name__ == "__main__":
-    main() 
+    main()

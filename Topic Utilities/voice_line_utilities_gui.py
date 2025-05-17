@@ -209,10 +209,16 @@ class VoiceLineUtilitiesGUI:
             text="Force reprocessing of files that already have transcriptions", 
             variable=self.transcribe_force
         ).grid(row=5, column=0, columnspan=3, sticky=tk.W, pady=5)
-        
+
+        # Status TXT file selection and process button
+        ttk.Label(frame, text="Status TXT File (optional):").grid(row=6, column=0, sticky=tk.W, pady=5)
+        self.transcribe_status_txt = tk.StringVar()
+        ttk.Entry(frame, textvariable=self.transcribe_status_txt, width=80).grid(row=6, column=1, padx=5, pady=5)
+        ttk.Button(frame, text="Browse", command=self.browse_transcribe_status_txt).grid(row=6, column=2, padx=5, pady=5)
+
         # API key status and management
         api_key_frame = ttk.Frame(frame)
-        api_key_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        api_key_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         
         self.api_key_status = tk.StringVar(value="API Key Status: Unknown")
         ttk.Label(api_key_frame, textvariable=self.api_key_status).pack(side=tk.LEFT)
@@ -223,20 +229,20 @@ class VoiceLineUtilitiesGUI:
                   command=self.edit_api_key).pack(side=tk.RIGHT, padx=5)
         
         # Process button
-        ttk.Button(frame, text="Transcribe Files", command=self.transcribe_files).grid(row=7, column=0, columnspan=3, pady=20)
+        ttk.Button(frame, text="Transcribe Files", command=self.transcribe_files).grid(row=9, column=0, columnspan=3, pady=20)
         
         # Progress bar
         self.transcribe_progress = ttk.Progressbar(frame, orient=tk.HORIZONTAL, length=700, mode='determinate')
-        self.transcribe_progress.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
+        self.transcribe_progress.grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
         
         # Current file label
         self.current_file_label = ttk.Label(frame, text="")
-        self.current_file_label.grid(row=9, column=0, columnspan=3, sticky=tk.W, pady=5)
+        self.current_file_label.grid(row=11, column=0, columnspan=3, sticky=tk.W, pady=5)
         
         # Log section
         log_frame = ttk.LabelFrame(frame, text="Log", padding="10")
-        log_frame.grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=10)
-        frame.rowconfigure(10, weight=1)
+        log_frame.grid(row=12, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=10)
+        frame.rowconfigure(12, weight=1)
         frame.columnconfigure(0, weight=1)
         frame.columnconfigure(1, weight=1)
         frame.columnconfigure(2, weight=1)
@@ -523,19 +529,173 @@ class VoiceLineUtilitiesGUI:
                                                                  f"Skipped: {stats['skipped']}"))
             
             # Call the transcribe function with all parameters
+            consolidated_json_path = self.transcribe_consolidated_json.get() if self.transcribe_consolidated_json.get() else None
             transcribe_voice_files.transcribe_voice_files(
                 self.transcribe_input_json.get(),
                 self.transcribe_source_folder.get(),
                 self.transcribe_force.get(),
                 progress_callback,
                 output_folder=self.transcribe_output_folder.get() if self.transcribe_output_folder.get() else None,
-                consolidated_json_path=self.transcribe_consolidated_json.get() if self.transcribe_consolidated_json.get() else None,
+                consolidated_json_path=consolidated_json_path,
                 custom_vocab_file=self.transcribe_custom_vocab.get() if self.transcribe_custom_vocab.get() else None
             )
+
+            # If status TXT is provided and consolidated JSON was written, apply status mapping
+            status_txt_path = self.transcribe_status_txt.get()
+            if consolidated_json_path and status_txt_path:
+                try:
+                    # Parse the status TXT file
+                    status_map = {}
+                    with open(status_txt_path, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            parts = line.split()
+                            if len(parts) < 2:
+                                continue
+                            path_part = parts[0]
+                            status_part = parts[-1]
+                            filename = os.path.splitext(os.path.basename(path_part))[0].lower()
+                            status_map[filename] = status_part
+                    self.transcribe_log(f"Parsed {len(status_map)} entries from status TXT file for status update.")
+
+                    # Load the consolidated JSON
+                    with open(consolidated_json_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                    unmatched = set(status_map.keys())
+                    matched = 0
+
+                    # Helper to update status recursively at any depth
+                    def update_status_recursive(node):
+                        updated = 0
+                        if isinstance(node, dict):
+                            for v in node.values():
+                                updated += update_status_recursive(v)
+                        elif isinstance(node, list):
+                            for entry in node:
+                                if isinstance(entry, dict) and "filename" in entry:
+                                    fname = os.path.splitext(entry["filename"])[0].lower()
+                                    if fname in status_map:
+                                        entry["status"] = status_map[fname]
+                                        updated += 1
+                                        unmatched.discard(fname)
+                        return updated
+
+                    # Traverse and update the JSON structure recursively
+                    total_updated = update_status_recursive(data)
+                    matched = len(status_map) - len(unmatched)
+
+                    # Save the updated consolidated JSON
+                    with open(consolidated_json_path, "w", encoding="utf-8") as f:
+                        json.dump(data, f, indent=2)
+                    self.transcribe_log(f"Status applied to {total_updated} files in consolidated JSON. Matched: {matched}, Unmatched: {len(unmatched)}")
+                    if unmatched:
+                        self.transcribe_log(f"Unmatched filenames: {', '.join(list(unmatched)[:10])}{'...' if len(unmatched) > 10 else ''}")
+                except Exception as e:
+                    self.transcribe_log(f"ERROR: Failed to apply status to consolidated JSON: {str(e)}")
             
         except Exception as e:
             self.root.after(0, lambda: self.transcribe_log(f"ERROR: {str(e)}"))
             self.root.after(0, lambda: messagebox.showerror("Error", f"An error occurred: {str(e)}"))
+
+    def browse_transcribe_status_txt(self):
+        filename = filedialog.askopenfilename(
+            title="Select Status TXT File",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+        )
+        if filename:
+            self.transcribe_status_txt.set(filename)
+            self.transcribe_log(f"Status TXT file selected: {filename}")
+
+    def apply_status_to_json(self):
+        status_txt_path = self.transcribe_status_txt.get()
+        input_json_path = self.transcribe_input_json.get()
+        if not status_txt_path or not input_json_path:
+            messagebox.showwarning("Missing Input", "Please select both a status TXT file and an input JSON file.")
+            return
+
+        # Parse the status TXT file
+        status_map = {}
+        try:
+            with open(status_txt_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # Example: sounds/vo/mirage/ping/mirage_ping_ignore_viscous.vsnd_c CRC:001380b678 size:20293 UPDATED
+                    parts = line.split()
+                    if len(parts) < 2:
+                        continue
+                    path_part = parts[0]
+                    status_part = parts[-1]
+                    filename = os.path.basename(path_part)
+                    status_map[filename] = status_part
+            self.transcribe_log(f"Parsed {len(status_map)} entries from status TXT file.")
+        except Exception as e:
+            self.transcribe_log(f"ERROR: Failed to parse status TXT file: {str(e)}")
+            messagebox.showerror("Error", f"Failed to parse status TXT file: {str(e)}")
+            return
+
+        # Load the input JSON
+        try:
+            with open(input_json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception as e:
+            self.transcribe_log(f"ERROR: Failed to load input JSON: {str(e)}")
+            messagebox.showerror("Error", f"Failed to load input JSON: {str(e)}")
+            return
+
+        # Helper to update status recursively
+        def update_status_in_list(file_list):
+            updated = 0
+            for entry in file_list:
+                if isinstance(entry, dict) and "filename" in entry:
+                    fname = entry["filename"]
+                    if fname in status_map:
+                        entry["status"] = status_map[fname]
+                        updated += 1
+                elif isinstance(entry, str):
+                    fname = entry
+                    if fname in status_map:
+                        # Convert to dict if needed
+                        idx = file_list.index(entry)
+                        file_list[idx] = {"filename": fname, "status": status_map[fname]}
+                        updated += 1
+            return updated
+
+        # Traverse and update the JSON structure
+        total_updated = 0
+        for speaker, subjects in data.items():
+            for subject, topics in subjects.items():
+                for topic, files in topics.items():
+                    if topic == "Pings":
+                        for ping_type, ping_files in files.items():
+                            total_updated += update_status_in_list(ping_files)
+                    else:
+                        total_updated += update_status_in_list(files)
+
+        self.transcribe_log(f"Updated status for {total_updated} files in JSON.")
+
+        # Ask user where to save the updated JSON
+        output_path = filedialog.asksaveasfilename(
+            title="Save Updated JSON As",
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+        if not output_path:
+            self.transcribe_log("Save cancelled by user.")
+            return
+
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            self.transcribe_log(f"Updated JSON saved to: {output_path}")
+            messagebox.showinfo("Success", f"Updated JSON saved to:\n{output_path}")
+        except Exception as e:
+            self.transcribe_log(f"ERROR: Failed to save updated JSON: {str(e)}")
+            messagebox.showerror("Error", f"Failed to save updated JSON: {str(e)}")
 
 def main():
     root = tk.Tk()
