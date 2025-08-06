@@ -7,9 +7,9 @@ import threading
 from pathlib import Path
 
 # Import our utilities
-from voice_line_organizer import VoiceLineOrganizer
-import copy_voice_files
-import transcribe_voice_files
+from modules.voice_line_organizer import VoiceLineOrganizer
+from modules import copy_voice_files
+from modules import transcribe_voice_files
 
 class APIKeyDialog(tk.Toplevel):
     def __init__(self, parent, current_key=""):

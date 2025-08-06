@@ -207,8 +207,10 @@ class VoiceLineOrganizer:
         self.output_json_path = tk.StringVar()
 
         # Set default values for debugging
-        self.alias_json_path.set("C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/alias.json")
-        self.topic_alias_json_path.set("C:/Users/mcall/OneDrive/OLD/2023/Documents/DLSoundProject/DLSoundProject/DLSoundProjectUtilities/Topic Utilities/topic_alias.json")
+        self.alias_json_path.set(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "character_mappings.json")))
+        self.topic_alias_json_path.set(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "topic_mappings.json")))
+        
+        
         self.source_folder_path.set("C:/Users/mcall/Proton Drive/mcallbosco/My files/Projects/Deadlock/Sound Extraction/2025/May/sounds/vo")
         self.output_json_path.set("C:/Users/mcall/Proton Drive/mcallbosco/My files/Projects/Deadlock/Sound Extraction/2025/May/qwerty.json")
         
