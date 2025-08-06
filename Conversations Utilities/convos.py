@@ -13,9 +13,9 @@ import uuid
 from datetime import datetime
 
 # Globals for transcription
-TRANSCRIPTIONS_DIR = "transcriptions"
+TRANSCRIPTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "Deadlock-Transcriptions", "data"))
 OPENAI_API_KEY = None  # Will be set by user input
-CHARACTER_MAPPINGS_FILE = "character_mappings.json"  # File to store character name mappings
+CHARACTER_MAPPINGS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "character_mappings.json"))  # File to store character name mappings (updated format)
 
 class TranscriptionPopup(tk.Toplevel):
     """Popup window to display transcription results"""
