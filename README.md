@@ -1,0 +1,1 @@
+# There are two types of outputs, Voicelines and Conversations. While conversations are made up of voicelines, they are not in the Voicelines files.

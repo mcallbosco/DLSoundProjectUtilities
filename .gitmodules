@@ -1,0 +1,6 @@
+[submodule "Assets/Deadlock-Transcriptions"]
+	path = Assets/Deadlock-Transcriptions
+	url = git@github.com:mcallbosco/Deadlock-Transcriptions.git
+[submodule "Assets/deadlock-sound-delta"]
+	path = Assets/deadlock-sound-delta
+	url = git@github.com:mcallbosco/deadlock-sound-delta.git
