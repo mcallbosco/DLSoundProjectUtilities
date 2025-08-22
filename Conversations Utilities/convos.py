@@ -7,6 +7,7 @@ from pathlib import Path
 import threading
 import time
 import json
+import ast
 import openai
 import io
 import uuid
@@ -200,8 +201,14 @@ class ConversationPlayer:
         # Transcription cache
         self.transcription_cache = {}
 
+        # File status map (from imported status file): stem -> set(status)
+        self.file_status_map = {}
+
         # Character name mappings - load first before creating widgets
+        # self.character_mappings: alias -> canonical (for quick lookup)
+        # self.canonical_to_aliases: canonical -> [aliases]
         self.character_mappings = {}
+        self.canonical_to_aliases = {}
         self.load_character_mappings()
 
         # Create GUI elements
@@ -309,9 +316,9 @@ class ConversationPlayer:
                 variation = groups[6] if len(groups) > 6 and groups[6] is not None else "1"
                 
                 # Apply character name mappings
-                starter = self.character_mappings.get(starter, starter)
-                char1 = self.character_mappings.get(char1, char1)
-                char2 = self.character_mappings.get(char2, char2)
+                starter = self.resolve_character_name(starter)
+                char1 = self.resolve_character_name(char1)
+                char2 = self.resolve_character_name(char2)
                 
             else:
                 # Try the pattern without a topic
@@ -324,9 +331,9 @@ class ConversationPlayer:
                     topic = None
                     
                     # Apply character name mappings
-                    starter = self.character_mappings.get(starter, starter)
-                    char1 = self.character_mappings.get(char1, char1)
-                    char2 = self.character_mappings.get(char2, char2)
+                    starter = self.resolve_character_name(starter)
+                    char1 = self.resolve_character_name(char1)
+                    char2 = self.resolve_character_name(char2)
                 else:
                     # No match found, skip this file
                     continue
@@ -441,6 +448,10 @@ class ConversationPlayer:
         mappings_button = ttk.Button(dir_frame, text="Character Mappings", command=self.edit_character_mappings)
         mappings_button.grid(row=0, column=4, padx=5, pady=5)
 
+        # Add Import Status File button
+        status_button = ttk.Button(dir_frame, text="Import Status File", command=self.import_status_file)
+        status_button.grid(row=0, column=5, padx=5, pady=5)
+
         # Transcriptions directory selection
         trans_dir_frame = ttk.LabelFrame(main_frame, text="Transcriptions Directory", padding="10")
         trans_dir_frame.pack(fill=tk.X, pady=5)
@@ -546,6 +557,47 @@ class ConversationPlayer:
             self.trans_dir_var.set(directory)
             self.transcriptions_dir = directory
             os.makedirs(self.transcriptions_dir, exist_ok=True)
+
+    def import_status_file(self):
+        """Import a text file listing audio changes to attach status to filenames"""
+        file_path = filedialog.askopenfilename(
+            title="Select Status File",
+            filetypes=[("Text Files", "*.txt;*.log;*.md"), ("All Files", "*.*")]
+        )
+        if not file_path:
+            return
+
+        status_map = {}
+
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('---') or line.startswith('Audio changes') or line.startswith('Source commit') or line.startswith('Repository:'):
+                        continue
+
+                    # Expect lines like: path/filename.vsnd_c CRC:... size:... STATUS
+                    # We only care about filename and trailing status token
+                    parts = line.split()
+                    if len(parts) < 2:
+                        continue
+
+                    # filename is in the first token (path/filename.ext)
+                    path_token = parts[0]
+                    base_name = os.path.basename(path_token)
+                    stem = os.path.splitext(base_name)[0].lower()
+
+                    # status is last token if it's all uppercase letters (e.g., ADDED, MODIFIED, REMOVED)
+                    status_token = parts[-1]
+                    if status_token.isupper() and status_token.isalpha():
+                        status_map.setdefault(stem, set()).add(status_token)
+
+            # Save
+            self.file_status_map = status_map
+            total = sum(len(v) for v in status_map.values())
+            messagebox.showinfo("Status Imported", f"Imported statuses for {len(status_map)} files ({total} tags). Export to include them.")
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import status file:\n{str(e)}")
     
     def load_directory(self):
         """Load audio files from the selected directory"""
@@ -1197,9 +1249,11 @@ class ConversationPlayer:
     def _transcribe_file(self, file_path):
         """Transcribe a single audio file using OpenAI's Whisper API"""
         try:
+            stem = os.path.splitext(os.path.basename(file_path))[0].lower()
+            force_retranscribe = stem in self.file_status_map and bool(self.file_status_map[stem])
             # Check for cached transcription
             cache_file = os.path.join(self.transcriptions_dir, f"{os.path.basename(file_path)}.json")
-            if os.path.exists(cache_file):
+            if not force_retranscribe and os.path.exists(cache_file):
                 try:
                     with open(cache_file, 'r', encoding='utf-8') as f:
                         return json.load(f)
@@ -1255,11 +1309,7 @@ class ConversationPlayer:
         """Extract the speaker from the filename as the first word before the underscore"""
         # Simply get the first part of the filename before the first underscore
         first_part = filename.split('_')[0]
-        
-        # Apply character name mappings if available
-        speaker = self.character_mappings.get(first_part, first_part)
-        
-        return speaker
+        return self.resolve_character_name(first_part)
     
     def _save_transcription(self, transcription, convo_key):
         """Save transcription to a file"""
@@ -1368,6 +1418,126 @@ Summary (maximum 7 words):"""
             print(f"Error generating summary: {str(e)}")
             return f"[Summary generation failed: {str(e)}]"
 
+    def _export_build_conversation(self, convo_key, files, transcribe_all, generate_summaries):
+        """Build a single conversation export dict. No UI calls here; safe for threads."""
+        # Get part groups
+        part_groups = files[0]['part_groups'] if 'part_groups' in files[0] else {}
+
+        # Get is_complete flag
+        is_complete = files[0]['is_complete'] if 'is_complete' in files[0] else False
+
+        # Get missing parts info
+        missing_parts = files[0]['missing_parts'] if 'missing_parts' in files[0] and is_complete is False else []
+
+        # Get character names
+        char_pair = convo_key[0]
+        char1, char2 = char_pair
+
+        # Get conversation number and topic
+        convo_num = convo_key[1]
+        topic = convo_key[2] if len(convo_key) > 2 else None
+
+        # Create conversation entry
+        conversation = {
+            "conversation_id": f"{char1}_{char2}_convo{convo_num}" + (f"_{topic}" if topic else ""),
+            "status": [],
+            "speakers": [char1, char2],
+            "convo_id": convo_num,
+            "topic": topic,
+            "is_complete": is_complete,
+            "missing_parts": missing_parts,
+            "starter": None,
+            "lines": []
+        }
+
+        # Process each part and its variations
+        for part in sorted(part_groups.keys()):
+            variations = part_groups[part]
+
+            for i, variation in enumerate(variations):
+                # Determine the speaker
+                filename = variation['filename']
+                speaker = self._get_speaker_from_filename(filename)
+
+                # Get transcription if available or generate if requested
+                transcription = None
+                cache_file = os.path.join(self.transcriptions_dir, f"{filename}.json")
+                has_transcription = False
+
+                stem = os.path.splitext(os.path.basename(filename))[0].lower()
+                force_retranscribe = stem in self.file_status_map and bool(self.file_status_map[stem])
+                if os.path.exists(cache_file) and not force_retranscribe:
+                    # Use existing transcription
+                    try:
+                        with open(cache_file, 'r', encoding='utf-8') as f:
+                            transcription_data = json.load(f)
+                            transcription = transcription_data.get('text', "")
+                            has_transcription = True
+                    except:
+                        transcription = "[Transcription not available]"
+                elif transcribe_all:
+                    # Generate new transcription
+                    file_path = os.path.join(self.audio_dir, filename)
+                    if os.path.exists(file_path):
+                        try:
+                            transcription_data = self._transcribe_file(file_path)
+                            if transcription_data:
+                                transcription = transcription_data.get('text', "")
+                                has_transcription = True
+                            else:
+                                transcription = "[Transcription failed]"
+                        except Exception as e:
+                            transcription = f"[Transcription error: {str(e)}]"
+                    else:
+                        transcription = "[Transcription not available]"
+                else:
+                    transcription = "[Transcription not available]"
+
+                # Create line entry
+                line = {
+                    "part": part,
+                    "variation": variation['variation'],
+                    "speaker": speaker,
+                    "filename": filename,
+                    "transcription": transcription,
+                    "has_transcription": has_transcription
+                }
+
+                # Add file last modified date
+                try:
+                    file_path = os.path.join(self.audio_dir, filename)
+                    file_modified_time = os.path.getmtime(file_path)
+                    line["file_creation_date"] = datetime.fromtimestamp(file_modified_time).isoformat()
+                except:
+                    line["file_creation_date"] = None
+
+                # Add to conversation lines
+                conversation["lines"].append(line)
+
+                # Collect status for this filename if present
+                stem2 = os.path.splitext(os.path.basename(filename))[0].lower()
+                if stem2 in self.file_status_map:
+                    for st in self.file_status_map[stem2]:
+                        if st not in conversation["status"]:
+                            conversation["status"].append(st)
+
+        # Set starter as the speaker of the first line, or "unknown"
+        conversation["starter"] = conversation["lines"][0]["speaker"] if conversation["lines"] else "unknown"
+
+        # Apply status precedence: ADDED overrides all others
+        if "ADDED" in conversation["status"]:
+            conversation["status"] = ["ADDED"]
+        else:
+            conversation["status"].sort()
+
+        # Generate summary if requested
+        if generate_summaries:
+            conversation["summary"] = self._generate_conversation_summary(conversation)
+        else:
+            conversation["summary"] = "[Summary not generated]"
+
+        return conversation
+
     def export_all_conversations(self):
         """Export all conversations to a single JSON file"""
         if not self.conversations:
@@ -1440,128 +1610,34 @@ Summary (maximum 7 words):"""
         
         total_convos = len(self.conversations)
         current_convo = 0
-        
-        for convo_key, files in self.conversations.items():
-            current_convo += 1
-            progress_value = int((current_convo / total_convos) * 100)
-            progress_bar["value"] = progress_value
-            progress_label.config(text=f"Exporting conversation {current_convo} of {total_convos}...")
-            progress_window.update()
-            
-            # Get part groups
-            part_groups = files[0]['part_groups'] if 'part_groups' in files[0] else {}
-            
-            # Get is_complete flag
-            is_complete = files[0]['is_complete'] if 'is_complete' in files[0] else False
-            
-            # Get missing parts info
-            missing_parts = files[0]['missing_parts'] if 'missing_parts' in files[0] and is_complete is False else []
-            
-            # Get character names
-            char_pair = convo_key[0]
-            char1, char2 = char_pair
-            
-            # Get conversation number and topic
-            convo_num = convo_key[1]
-            topic = convo_key[2] if len(convo_key) > 2 else None
-            
-            # Create conversation entry
-            conversation = {
-                "conversation_id": f"{char1}_{char2}_convo{convo_num}" + (f"_{topic}" if topic else ""),
-                "speakers": [char1, char2],
-                "convo_id": convo_num,
-                "topic": topic,
-                "is_complete": is_complete,
-                "missing_parts": missing_parts,
-                "starter": None,  # Will set after lines are built
-                "lines": []
-            }
-            
-            # Process each part and its variations
-            for part in sorted(part_groups.keys()):
-                variations = part_groups[part]
 
-                for i, variation in enumerate(variations):
-                    # Determine the speaker
-                    filename = variation['filename']
-                    speaker = self._get_speaker_from_filename(filename)
+        try:
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            max_workers = min(8, max(2, (os.cpu_count() or 4)))
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_key = {}
+                for convo_key, files in self.conversations.items():
+                    fut = executor.submit(self._export_build_conversation, convo_key, files, transcribe_all, generate_summaries)
+                    future_to_key[fut] = convo_key
 
-                    # Update status if transcribing
-                    if transcribe_all:
-                        status_text = f"Processing: {filename}"
-                        status_label.config(text=status_text)
-                        progress_window.update()
-
-                    # Get transcription if available or generate if requested
-                    transcription = None
-                    cache_file = os.path.join(self.transcriptions_dir, f"{filename}.json")
-                    has_transcription = False
-
-                    if os.path.exists(cache_file):
-                        # Use existing transcription
-                        try:
-                            with open(cache_file, 'r', encoding='utf-8') as f:
-                                transcription_data = json.load(f)
-                                transcription = transcription_data.get('text', "")
-                                has_transcription = True
-                        except:
-                            transcription = "[Transcription not available]"
-                    elif transcribe_all:
-                        # Generate new transcription
-                        file_path = os.path.join(self.audio_dir, filename)
-                        if os.path.exists(file_path):
-                            try:
-                                status_label.config(text=f"Transcribing: {filename}")
-                                progress_window.update()
-
-                                # Transcribe the file
-                                transcription_data = self._transcribe_file(file_path)
-                                if transcription_data:
-                                    transcription = transcription_data.get('text', "")
-                                    has_transcription = True
-                                else:
-                                    transcription = "[Transcription failed]"
-                            except Exception as e:
-                                transcription = f"[Transcription error: {str(e)}]"
-                        else:
-                            transcription = "[Transcription not available]"
-                    else:
-                        transcription = "[Transcription not available]"
-
-                    # Create line entry
-                    line = {
-                        "part": part,
-                        "variation": variation['variation'],
-                        "speaker": speaker,
-                        "filename": filename,
-                        "transcription": transcription,
-                        "has_transcription": has_transcription
-                    }
-
-                    # Add file last modified date
-                    try:
-                        file_path = os.path.join(self.audio_dir, filename)
-                        file_modified_time = os.path.getmtime(file_path)
-                        line["file_creation_date"] = datetime.fromtimestamp(file_modified_time).isoformat()
-                    except:
-                        line["file_creation_date"] = None
-
-                    # Add to conversation lines
-                    conversation["lines"].append(line)
-
-            # Set starter as the speaker of the first line, or "unknown"
-            conversation["starter"] = conversation["lines"][0]["speaker"] if conversation["lines"] else "unknown"
-
-            # Generate summary if requested
-            if generate_summaries:
-                status_label.config(text=f"Generating summary for conversation {current_convo}...")
+                for fut in as_completed(future_to_key):
+                    conversation = fut.result()
+                    export_data["conversations"].append(conversation)
+                    current_convo += 1
+                    progress_value = int((current_convo / total_convos) * 100)
+                    progress_bar["value"] = progress_value
+                    progress_label.config(text=f"Exporting conversation {current_convo} of {total_convos}...")
+                    progress_window.update()
+        except Exception as e:
+            # If parallel export fails for any reason, fall back to sequential as a safety net
+            for convo_key, files in self.conversations.items():
+                current_convo += 1
+                progress_value = int((current_convo / total_convos) * 100)
+                progress_bar["value"] = progress_value
+                progress_label.config(text=f"Exporting conversation {current_convo} of {total_convos}...")
                 progress_window.update()
-                conversation["summary"] = self._generate_conversation_summary(conversation)
-            else:
-                conversation["summary"] = "[Summary not generated]"
-
-            # Add conversation to export data
-            export_data["conversations"].append(conversation)
+                conversation = self._export_build_conversation(convo_key, files, transcribe_all, generate_summaries)
+                export_data["conversations"].append(conversation)
         
         # Close progress window
         progress_window.destroy()
@@ -1590,28 +1666,126 @@ Summary (maximum 7 words):"""
             print(error_message)  # Also print to console for debugging
 
     def load_character_mappings(self):
-        """Load character name mappings from file"""
+        """Load character name mappings from file (expects canonical -> [aliases])."""
         try:
+            self.character_mappings = {}
+            self.canonical_to_aliases = {}
+
             if os.path.exists(CHARACTER_MAPPINGS_FILE):
                 with open(CHARACTER_MAPPINGS_FILE, 'r', encoding='utf-8') as f:
-                    self.character_mappings = json.load(f)
-                    print(f"Loaded {len(self.character_mappings)} character mappings")
+                    raw_mappings = json.load(f)
+
+                if not isinstance(raw_mappings, dict):
+                    raise ValueError("character_mappings.json must be an object of canonical -> [aliases]")
+
+                canonical_to_aliases = {}
+                alias_to_canonical = {}
+
+                for canonical, aliases in raw_mappings.items():
+                    if not isinstance(canonical, str):
+                        continue
+                    canonical_display = canonical.strip()
+                    if not canonical_display:
+                        continue
+
+                    # Only accept list for the new format
+                    if not isinstance(aliases, list):
+                        # Skip non-list values to avoid flipping formats
+                        continue
+
+                    # Clean aliases: strings only, trimmed, non-empty
+                    cleaned_aliases = []
+                    for alias in aliases:
+                        if isinstance(alias, str):
+                            alias_trimmed = alias.strip()
+                            if alias_trimmed:
+                                cleaned_aliases.append(alias_trimmed)
+
+                    # Ensure canonical is included
+                    if canonical_display not in cleaned_aliases:
+                        cleaned_aliases.append(canonical_display)
+
+                    # De-duplicate preserving order
+                    seen = set()
+                    unique_aliases = []
+                    for a in cleaned_aliases:
+                        if a.lower() not in seen:
+                            seen.add(a.lower())
+                            unique_aliases.append(a)
+
+                    canonical_to_aliases[canonical_display] = unique_aliases
+
+                    # Populate alias -> canonical lookup (lowercased keys)
+                    for alias in unique_aliases:
+                        alias_lc = alias.lower()
+                        alias_to_canonical[alias_lc] = canonical_display
+
+                self.canonical_to_aliases = canonical_to_aliases
+                self.character_mappings = alias_to_canonical
+                print(f"Loaded {len(self.character_mappings)} aliases across {len(self.canonical_to_aliases)} canonicals")
             else:
-                # Initialize with some common examples
-                self.character_mappings = {
-                    "tengu": "ivy",  # Example mapping
-                }
+                # Start empty and persist an empty structure
+                self.canonical_to_aliases = {}
+                self.character_mappings = {}
                 self.save_character_mappings()
         except Exception as e:
             print(f"Error loading character mappings: {str(e)}")
+            self.canonical_to_aliases = {}
             self.character_mappings = {}
+
+    def resolve_character_name(self, name):
+        """Resolve any alias/case variation to the canonical display name."""
+        if not name:
+            return name
+        key = str(name).strip().lower()
+        return self.character_mappings.get(key, name)
     
     def save_character_mappings(self):
-        """Save character name mappings to file"""
+        """Save character name mappings to file (canonical -> [aliases])"""
         try:
+            # Prefer saving what was loaded/edited in canonical form if available
+            if isinstance(self.canonical_to_aliases, dict) and self.canonical_to_aliases:
+                output = {}
+                for canonical, aliases in self.canonical_to_aliases.items():
+                    if not isinstance(canonical, str):
+                        continue
+                    canonical_display = canonical.strip()
+                    if not canonical_display:
+                        continue
+                    # Clean and ensure canonical included
+                    cleaned = []
+                    if isinstance(aliases, list):
+                        for a in aliases:
+                            if isinstance(a, str) and a.strip():
+                                cleaned.append(a.strip())
+                    if canonical_display not in cleaned:
+                        cleaned.append(canonical_display)
+                    # De-duplicate preserving order (case-insensitive)
+                    seen = set()
+                    unique_aliases = []
+                    for a in cleaned:
+                        if a.lower() not in seen:
+                            seen.add(a.lower())
+                            unique_aliases.append(a)
+                    output[canonical_display] = unique_aliases
+            else:
+                # Fallback: reconstruct from alias -> canonical
+                canonical_to_aliases = {}
+                for alias, canonical in self.character_mappings.items():
+                    if not isinstance(alias, str) or not isinstance(canonical, str):
+                        continue
+                    canonical_display = canonical.strip()
+                    alias_display = alias.strip()
+                    if not canonical_display or not alias_display:
+                        continue
+                    alias_set = canonical_to_aliases.setdefault(canonical_display, set())
+                    alias_set.add(alias_display)
+                    alias_set.add(canonical_display)
+                output = {canon: sorted(list(aliases)) for canon, aliases in canonical_to_aliases.items()}
+
             with open(CHARACTER_MAPPINGS_FILE, 'w', encoding='utf-8') as f:
-                json.dump(self.character_mappings, f, indent=2)
-            print(f"Saved {len(self.character_mappings)} character mappings")
+                json.dump(output, f, indent=2)
+            print(f"Saved {len(output)} canonical names to mappings file")
         except Exception as e:
             print(f"Error saving character mappings: {str(e)}")
     
@@ -1649,33 +1823,33 @@ Summary (maximum 7 words):"""
         mappings_frame = ttk.Frame(canvas)
         canvas.create_window((0, 0), window=mappings_frame, anchor=tk.NW)
         
-        # Dictionary to store the entry widgets
-        entry_pairs = {}
+        # Dictionary to store the entry widgets (canonical -> aliases field)
+        entry_rows = {}
         
         # Function to add a new mapping row
-        def add_mapping_row(original="", preferred=""):
-            row = len(entry_pairs)
-            
-            # Original name entry
-            original_var = tk.StringVar(value=original)
-            original_entry = ttk.Entry(mappings_frame, textvariable=original_var, width=20)
-            original_entry.grid(row=row, column=0, padx=5, pady=2, sticky=tk.W)
-            
-            # Arrow label
-            ttk.Label(mappings_frame, text="→").grid(row=row, column=1, padx=5, pady=2)
-            
-            # Preferred name entry
-            preferred_var = tk.StringVar(value=preferred)
-            preferred_entry = ttk.Entry(mappings_frame, textvariable=preferred_var, width=20)
-            preferred_entry.grid(row=row, column=2, padx=5, pady=2, sticky=tk.W)
-            
+        def add_mapping_row(canonical_value="", aliases_value=""):
+            row = len(entry_rows)
+
+            # Canonical name entry
+            canonical_var = tk.StringVar(value=canonical_value)
+            canonical_entry = ttk.Entry(mappings_frame, textvariable=canonical_var, width=20)
+            canonical_entry.grid(row=row, column=0, padx=5, pady=2, sticky=tk.W)
+
+            # Arrow/label
+            ttk.Label(mappings_frame, text="aliases:").grid(row=row, column=1, padx=5, pady=2)
+
+            # Aliases entry (comma-separated)
+            aliases_var = tk.StringVar(value=aliases_value)
+            aliases_entry = ttk.Entry(mappings_frame, textvariable=aliases_var, width=30)
+            aliases_entry.grid(row=row, column=2, padx=5, pady=2, sticky=tk.W)
+
             # Delete button
             delete_button = ttk.Button(mappings_frame, text="X", width=2,
                                       command=lambda r=row: delete_mapping_row(r))
             delete_button.grid(row=row, column=3, padx=5, pady=2)
-            
+
             # Store the entries
-            entry_pairs[row] = (original_var, preferred_var, original_entry, preferred_entry, delete_button)
+            entry_rows[row] = (canonical_var, aliases_var, canonical_entry, aliases_entry, delete_button)
             
             # Update the canvas scroll region
             mappings_frame.update_idletasks()
@@ -1683,26 +1857,38 @@ Summary (maximum 7 words):"""
         
         # Function to delete a mapping row
         def delete_mapping_row(row):
-            if row in entry_pairs:
+            if row in entry_rows:
                 # Destroy the widgets
-                _, _, original_entry, preferred_entry, delete_button = entry_pairs[row]
-                original_entry.destroy()
-                preferred_entry.destroy()
+                _, _, canonical_entry, aliases_entry, delete_button = entry_rows[row]
+                canonical_entry.destroy()
+                aliases_entry.destroy()
                 delete_button.destroy()
                 
                 # Remove from the dictionary
-                del entry_pairs[row]
+                del entry_rows[row]
                 
                 # Update the canvas scroll region
                 mappings_frame.update_idletasks()
                 canvas.config(scrollregion=canvas.bbox(tk.ALL))
         
-        # Add existing mappings
-        for original, preferred in self.character_mappings.items():
-            add_mapping_row(original, preferred)
+        # Add existing mappings (from canonical -> aliases)
+        if isinstance(self.canonical_to_aliases, dict) and self.canonical_to_aliases:
+            for canonical, aliases in self.canonical_to_aliases.items():
+                # Show aliases excluding canonical in the field for clarity
+                aliases_list = []
+                if isinstance(aliases, list):
+                    aliases_list = [a for a in aliases if isinstance(a, str) and a.strip() and a.strip() != canonical]
+                add_mapping_row(canonical, ", ".join(aliases_list))
+        else:
+            # Fallback: derive from alias -> canonical if present
+            by_canonical = {}
+            for alias, canonical in self.character_mappings.items():
+                by_canonical.setdefault(canonical, set()).add(alias)
+            for canonical, aliases in by_canonical.items():
+                add_mapping_row(canonical, ", ".join(sorted(list(aliases))))
         
         # If no mappings exist, add an empty row
-        if not self.character_mappings:
+        if not self.canonical_to_aliases and not self.character_mappings:
             add_mapping_row()
         
         # Add button to add a new mapping
@@ -1715,17 +1901,43 @@ Summary (maximum 7 words):"""
         
         # Function to save mappings
         def save_mappings():
-            new_mappings = {}
-            for _, (original_var, preferred_var, _, _, _) in entry_pairs.items():
-                original = original_var.get().strip()
-                preferred = preferred_var.get().strip()
-                if original and preferred:  # Only save non-empty mappings
-                    new_mappings[original] = preferred
-            
-            self.character_mappings = new_mappings
+            # Build canonical -> [aliases] from the UI
+            new_canonical_map = {}
+            for _, (canonical_var, aliases_var, _, _, _) in entry_rows.items():
+                canonical = canonical_var.get().strip()
+                if not canonical:
+                    continue
+                # Parse aliases (comma-separated), keep strings only
+                aliases_text = aliases_var.get()
+                aliases_list = []
+                if isinstance(aliases_text, str) and aliases_text.strip():
+                    for token in aliases_text.split(','):
+                        token_trimmed = token.strip()
+                        if token_trimmed:
+                            aliases_list.append(token_trimmed)
+                # Ensure canonical included
+                if canonical not in aliases_list:
+                    aliases_list.append(canonical)
+                # De-duplicate case-insensitively, preserve order
+                seen = set()
+                unique_aliases = []
+                for a in aliases_list:
+                    if a.lower() not in seen:
+                        seen.add(a.lower())
+                        unique_aliases.append(a)
+                new_canonical_map[canonical] = unique_aliases
+
+            # Update both in-memory structures
+            self.canonical_to_aliases = new_canonical_map
+            alias_to_canonical = {}
+            for canonical, aliases in new_canonical_map.items():
+                for a in aliases:
+                    alias_to_canonical[a.lower()] = canonical
+            self.character_mappings = alias_to_canonical
+
             self.save_character_mappings()
             mapping_window.destroy()
-            messagebox.showinfo("Mappings Saved", f"Saved {len(new_mappings)} character name mappings.")
+            messagebox.showinfo("Mappings Saved", f"Saved {len(new_canonical_map)} canonical entries.")
         
         # Save button
         save_button = ttk.Button(button_frame, text="Save", command=save_mappings)

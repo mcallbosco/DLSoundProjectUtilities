@@ -786,19 +786,68 @@ class VoiceLineOrganizer:
                 else:
                     is_ping = True
             else:
-                # Attempt fallback: [speaker]_[action]_[target]_[variation]
                 fallback_parts = parts_initial
-                if len(fallback_parts) >= 4 and fallback_parts[-1].isdigit():
+                if len(fallback_parts) >= 4:                     # no longer insists on a trailing number
                     speaker = fallback_parts[0]
-                    topic_raw = fallback_parts[1]
-                    subject = fallback_parts[2]
-                    self.processing_debug_log.append(f"DEBUG: Fallback triggered for {filename}: speaker={speaker}, topic_raw={topic_raw}, subject={subject}, fallback_parts={fallback_parts}")
-                    relationship = None
-                    is_ping = False
-                    is_self = False
-                    rest = "_".join(fallback_parts[1:])
+
+                    def _strip_variation(tokens):
+                        """
+                        Remove trailing variation tokens – digits, 'short', 'alt', 'alt##', etc.
+                        and return the cleaned token list.
+                        """
+                        while tokens and (
+                            re.fullmatch(r"\d+", tokens[-1]) or
+                            tokens[-1] == "short" or
+                            tokens[-1].startswith("alt")
+                        ):
+                            tokens = tokens[:-1]
+                        return tokens
+
+                    # Case 1: filename contains explicit '_on_' separator
+                    if "on" in fallback_parts[1:]:
+                        on_idx = fallback_parts.index("on", 1)
+                        topic_raw = "_".join(fallback_parts[1:on_idx]) if on_idx > 1 else fallback_parts[1]
+
+                        subject_tokens = _strip_variation(fallback_parts[on_idx + 1:])
+                        subject = "_".join(subject_tokens) if subject_tokens else "self"
+
+                        # Prefer the longest candidate that matches a known hero alias
+                        for i in range(len(subject_tokens), 0, -1):
+                            candidate = "_".join(subject_tokens[:i])
+                            if candidate.lower() in valid_speakers:
+                                subject = candidate
+                                break
+
+                        self.processing_debug_log.append(
+                            f"DEBUG: Fallback (_on_) matched for {filename}: "
+                            f"speaker={speaker}, topic_raw={topic_raw}, subject={subject}, "
+                            f"fallback_parts={fallback_parts}"
+                        )
+
+                    # Case 2: classic speaker_topic_subject pattern
+                    else:
+                        topic_raw = fallback_parts[1]
+                        subject_tokens = _strip_variation(fallback_parts[2:])
+                        subject = "_".join(subject_tokens) if subject_tokens else fallback_parts[2]
+
+                        for i in range(len(subject_tokens), 0, -1):
+                            candidate = "_".join(subject_tokens[:i])
+                            if candidate.lower() in valid_speakers:
+                                subject = candidate
+                                break
+
+                        self.processing_debug_log.append(
+                            f"DEBUG: Fallback matched for {filename}: "
+                            f"speaker={speaker}, topic_raw={topic_raw}, subject={subject}, "
+                            f"fallback_parts={fallback_parts}"
+                        )
+
+                    relationship  = None
+                    is_ping       = False
+                    is_self       = False
+                    rest          = "_".join(fallback_parts[1:])   # keeps any trailing _short / _01 etc.
                     fallback_used = True
-                    # Continue to parsing below
+                    # continue parsing below
                 else:
                     self.processing_debug_log.append(f"Skipped (no pattern match): {filename}")
                     return None
