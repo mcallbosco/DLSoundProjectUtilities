@@ -67,7 +67,7 @@ def load_custom_vocabulary(vocab_file=None):
 
 def process_file(args):
     """Process a single file for transcription - designed for parallel execution"""
-    filename, source_folder, output_folder, force_reprocess, file_index, total_files, progress_callback, custom_vocab_prompt, file_metadata = args
+    filename, source_folder, output_folder, force_reprocess, reprocess_statuses, reprocess_status_map, file_index, total_files, progress_callback, custom_vocab_prompt, file_metadata = args
     
     # Extract metadata
     speaker = file_metadata.get("speaker")
@@ -107,8 +107,23 @@ def process_file(args):
     except:
         pass
     
+    # Determine whether to force based on file status selection
+    file_status = file_metadata.get("status")
+    # If provided, derive status from map by filename stem
+    mapped_status = None
+    try:
+        mapped_status = reprocess_status_map.get(os.path.splitext(os.path.basename(filename))[0].lower()) if reprocess_status_map else None
+    except Exception:
+        mapped_status = None
+    effective_status = mapped_status if mapped_status is not None else file_status
+    should_force = bool(
+        force_reprocess or (
+            reprocess_statuses and effective_status in reprocess_statuses
+        )
+    )
+
     # Check if we can use an existing transcription
-    if os.path.exists(output_json_path) and not force_reprocess:
+    if os.path.exists(output_json_path) and not should_force:
         try:
             with open(output_json_path, 'r') as f:
                 existing_transcription = json.load(f)
@@ -239,7 +254,7 @@ def process_file(args):
             "metadata": file_metadata
         }
 
-def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None):
+def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None, reprocess_statuses=None, reprocess_status_map=None):
     """
     Transcribe all MP3 files mentioned in the JSON file using OpenAI Whisper API.
     Creates a JSON file for each MP3 with the transcription results in the specified format.
@@ -304,11 +319,15 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
                 if isinstance(file_entry, dict) and 'filename' in file_entry:
                     filename = file_entry['filename']
                     original_path = file_entry.get('file_path', '')
+                    status = file_entry.get('status')
                 else:
                     filename = file_entry
                     original_path = ''
+                    status = None
                 metadata = metadata_base.copy()
                 metadata["original_path"] = original_path
+                if status is not None:
+                    metadata["status"] = status
                 mp3s.append({
                     "filename": filename,
                     "metadata": metadata,
@@ -351,7 +370,9 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             file_info["filename"], 
             source_folder, 
             output_folder, 
-            force_reprocess, 
+            force_reprocess,
+            set(reprocess_statuses) if reprocess_statuses else None,
+            reprocess_status_map if reprocess_status_map else None,
             i, 
             total_files, 
             progress_callback, 

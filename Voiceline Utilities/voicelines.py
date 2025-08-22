@@ -216,9 +216,17 @@ class VoiceLineUtilitiesGUI:
         ttk.Entry(frame, textvariable=self.transcribe_status_txt, width=80).grid(row=6, column=1, padx=5, pady=5)
         ttk.Button(frame, text="Browse", command=self.browse_transcribe_status_txt).grid(row=6, column=2, padx=5, pady=5)
 
+        # Status filter section for re-transcription
+        status_frame = ttk.LabelFrame(frame, text="Re-transcribe files with these statuses (checked = will be re-transcribed)", padding="10")
+        status_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        self.status_filter_vars = {}
+        self.status_checkboxes_container = ttk.Frame(status_frame)
+        self.status_checkboxes_container.pack(fill=tk.X, expand=True)
+        ttk.Button(status_frame, text="Load Statuses from Status TXT", command=self.refresh_status_filters_from_status_txt).pack(anchor=tk.W, pady=(8,0))
+
         # API key status and management
         api_key_frame = ttk.Frame(frame)
-        api_key_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        api_key_frame.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         
         self.api_key_status = tk.StringVar(value="API Key Status: Unknown")
         ttk.Label(api_key_frame, textvariable=self.api_key_status).pack(side=tk.LEFT)
@@ -347,6 +355,7 @@ class VoiceLineUtilitiesGUI:
         if filename:
             self.transcribe_input_json.set(filename)
             self.transcribe_log("Input JSON file selected: " + filename)
+            # No-op for statuses; statuses are loaded from Status TXT
     
     def browse_transcribe_source_folder(self):
         folder = filedialog.askdirectory(title="Select Source Folder")
@@ -528,6 +537,30 @@ class VoiceLineUtilitiesGUI:
                                                                  f"Failed: {stats['failed']}\n"
                                                                  f"Skipped: {stats['skipped']}"))
             
+            # Gather selected statuses from the UI (checked = include)
+            selected_statuses = [s for s, var in self.status_filter_vars.items() if var.get()]
+
+            # Build a status map from the Status TXT (if provided)
+            status_map = {}
+            status_txt_path = self.transcribe_status_txt.get()
+            if status_txt_path:
+                try:
+                    with open(status_txt_path, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            parts = line.split()
+                            if len(parts) < 2:
+                                continue
+                            path_part = parts[0]
+                            status_part = parts[-1]
+                            fname_stem = os.path.splitext(os.path.basename(path_part))[0].lower()
+                            status_map[fname_stem] = status_part
+                    self.transcribe_log(f"Loaded {len(status_map)} status entries from Status TXT for filtering.")
+                except Exception as e:
+                    self.transcribe_log(f"ERROR: Failed to parse Status TXT for filtering: {str(e)}")
+
             # Call the transcribe function with all parameters
             consolidated_json_path = self.transcribe_consolidated_json.get() if self.transcribe_consolidated_json.get() else None
             transcribe_voice_files.transcribe_voice_files(
@@ -537,7 +570,9 @@ class VoiceLineUtilitiesGUI:
                 progress_callback,
                 output_folder=self.transcribe_output_folder.get() if self.transcribe_output_folder.get() else None,
                 consolidated_json_path=consolidated_json_path,
-                custom_vocab_file=self.transcribe_custom_vocab.get() if self.transcribe_custom_vocab.get() else None
+                custom_vocab_file=self.transcribe_custom_vocab.get() if self.transcribe_custom_vocab.get() else None,
+                reprocess_statuses=selected_statuses if selected_statuses else None,
+                reprocess_status_map=status_map if status_map else None
             )
 
             # If status TXT is provided and consolidated JSON was written, apply status mapping
@@ -600,6 +635,50 @@ class VoiceLineUtilitiesGUI:
             self.root.after(0, lambda: self.transcribe_log(f"ERROR: {str(e)}"))
             self.root.after(0, lambda: messagebox.showerror("Error", f"An error occurred: {str(e)}"))
 
+    def refresh_status_filters_from_status_txt(self):
+        """Read the selected Status TXT and build a set of statuses, populating checkboxes (checked by default)."""
+        # Clear existing
+        for child in self.status_checkboxes_container.winfo_children():
+            child.destroy()
+        self.status_filter_vars.clear()
+
+        status_txt_path = self.transcribe_status_txt.get()
+        if not status_txt_path or not os.path.exists(status_txt_path):
+            ttk.Label(self.status_checkboxes_container, text="Select a Status TXT to load statuses.", foreground="gray").pack(anchor=tk.W)
+            return
+
+        # Collect unique statuses from the status TXT
+        statuses = set()
+        try:
+            with open(status_txt_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split()
+                    if len(parts) < 2:
+                        continue
+                    status_val = parts[-1]
+                    if status_val:
+                        statuses.add(status_val)
+        except Exception as e:
+            self.transcribe_log(f"ERROR: Failed to read Status TXT for statuses: {str(e)}")
+            return
+
+        # If no statuses found, nothing to render
+        if not statuses:
+            ttk.Label(self.status_checkboxes_container, text="No statuses found in Status TXT. All files will follow the Force setting.", foreground="gray").pack(anchor=tk.W)
+            return
+
+        # Create checkboxes, all checked by default
+        sorted_statuses = sorted(statuses)
+        # Arrange in a simple flow
+        for status in sorted_statuses:
+            var = tk.BooleanVar(value=True)
+            cb = ttk.Checkbutton(self.status_checkboxes_container, text=status, variable=var)
+            cb.pack(anchor=tk.W)
+            self.status_filter_vars[status] = var
+
     def browse_transcribe_status_txt(self):
         filename = filedialog.askopenfilename(
             title="Select Status TXT File",
@@ -608,6 +687,8 @@ class VoiceLineUtilitiesGUI:
         if filename:
             self.transcribe_status_txt.set(filename)
             self.transcribe_log(f"Status TXT file selected: {filename}")
+            # Auto-load statuses from the selected TXT
+            self.refresh_status_filters_from_status_txt()
 
     def apply_status_to_json(self):
         status_txt_path = self.transcribe_status_txt.get()

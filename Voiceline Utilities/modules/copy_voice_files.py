@@ -5,6 +5,12 @@ import argparse
 from pathlib import Path
 import datetime
 
+DEBUG_LOGGING_ENABLED = False
+
+def log_debug(message):
+	if DEBUG_LOGGING_ENABLED:
+		print(message)
+
 def get_file_date(file_path):
     """
     Get the creation or modification date of a file.
@@ -16,7 +22,7 @@ def get_file_date(file_path):
     Returns:
         str: Date in ISO format
     """
-    print(f"[DEBUG] Entering get_file_date for: {file_path}")
+    log_debug(f"[DEBUG] Entering get_file_date for: {file_path}")
     try:
         # Get file stats
         stats = os.stat(file_path)
@@ -29,13 +35,13 @@ def get_file_date(file_path):
         
         # Convert timestamp to datetime and format as ISO date
         date_obj = datetime.datetime.fromtimestamp(timestamp)
-        print(f"[DEBUG] Got date {date_obj.strftime('%Y-%m-%d')} for {file_path}")
+        log_debug(f"[DEBUG] Got date {date_obj.strftime('%Y-%m-%d')} for {file_path}")
         return date_obj.strftime("%Y-%m-%d")
     except Exception as e:
         print(f"Error getting date for {file_path}: {str(e)}")
         return None
     finally:
-        print(f"[DEBUG] Exiting get_file_date for: {file_path}")
+        log_debug(f"[DEBUG] Exiting get_file_date for: {file_path}")
 
 def copy_voice_files(input_json_path, source_folder, output_folder, output_json_path=None):
     """
@@ -48,22 +54,22 @@ def copy_voice_files(input_json_path, source_folder, output_folder, output_json_
         output_folder (str): Path to the output folder where files will be copied
         output_json_path (str, optional): Path to the output JSON file. If None, will use input_json_path with '_flat' suffix.
     """
-    print(f"[DEBUG] Entering copy_voice_files with input_json_path={input_json_path}, source_folder={source_folder}, output_folder={output_folder}, output_json_path={output_json_path}")
+    log_debug(f"[DEBUG] Entering copy_voice_files with input_json_path={input_json_path}, source_folder={source_folder}, output_folder={output_folder}, output_json_path={output_json_path}")
     # Create output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
-    print(f"[DEBUG] Ensured output folder exists: {output_folder}")
+    log_debug(f"[DEBUG] Ensured output folder exists: {output_folder}")
     
     # Set default output JSON path if not provided
     if output_json_path is None:
         input_path = Path(input_json_path)
         output_json_path = str(input_path.parent / f"{input_path.stem}_flat{input_path.suffix}")
-        print(f"[DEBUG] Set default output_json_path: {output_json_path}")
+        log_debug(f"[DEBUG] Set default output_json_path: {output_json_path}")
     
     # Load the input JSON file
-    print(f"[DEBUG] Loading input JSON file: {input_json_path}")
+    log_debug(f"[DEBUG] Loading input JSON file: {input_json_path}")
     with open(input_json_path, 'r') as f:
         data = json.load(f)
-    print(f"[DEBUG] Loaded input JSON file successfully.")
+    log_debug(f"[DEBUG] Loaded input JSON file successfully.")
     
     # Create a new data structure with filenames and dates
     flat_data = {}
@@ -84,7 +90,7 @@ def copy_voice_files(input_json_path, source_folder, output_folder, output_json_
             if filename not in copied_files:
                 dest_path = os.path.join(output_folder, filename)
                 try:
-                    print(f"[DEBUG]         Copying file {filename} to {dest_path}")
+                    log_debug(f"[DEBUG]         Copying file {filename} to {dest_path}")
                     shutil.copy2(source_path, dest_path)
                     copied_files.add(filename)
                     print(f"Copied: {filename}")
@@ -102,14 +108,14 @@ def copy_voice_files(input_json_path, source_folder, output_folder, output_json_
     flat_data = process_and_copy(data)
     
     # Save the flat data to the output JSON file
-    print(f"[DEBUG] Saving flat data to output JSON file: {output_json_path}")
+    log_debug(f"[DEBUG] Saving flat data to output JSON file: {output_json_path}")
     with open(output_json_path, 'w') as f:
         json.dump(flat_data, f, indent=2)
-    print(f"[DEBUG] Saved flat data to output JSON file successfully.")
+    log_debug(f"[DEBUG] Saved flat data to output JSON file successfully.")
     
     print(f"\nCopied {len(copied_files)} unique files to {output_folder}")
     print(f"Generated flat JSON file with dates at {output_json_path}")
-    print(f"[DEBUG] Exiting copy_voice_files")
+    log_debug(f"[DEBUG] Exiting copy_voice_files")
 
 def main():
     parser = argparse.ArgumentParser(description='Copy voice files and create a flat JSON structure with file dates')
