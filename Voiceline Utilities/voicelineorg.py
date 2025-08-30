@@ -250,10 +250,9 @@ class VoiceLineParserApp:
                         continue
 
                     speaker = rel_parts[0].lower()
-                    second = rel_parts[1].lower()
-                    if second != "default":
-                        # Only process Default sets per requirement
-                        continue
+                    skin_folder = rel_parts[1]
+                    second = skin_folder.lower()
+                    is_default = (second == "default")
 
                     # Folder containing file
                     folder_parts = rel_parts[:-1]
@@ -355,7 +354,19 @@ class VoiceLineParserApp:
                         self._log(f"  No targets/map parsed from {criteria_path.name}")
 
                     # Insert into structure
-                    self._insert_entry(data, speaker, subject, topic_key, subtopics, map_name, entry)
+                    if is_default:
+                        self._insert_entry(data, speaker, subject, topic_key, subtopics, map_name, entry)
+                    else:
+                        # Nest non-default sets under Skins/{skinName}/{topic/...}
+                        self._insert_entry(
+                            data,
+                            speaker,
+                            subject,
+                            "Skins",
+                            [skin_folder, topic_key, *subtopics],
+                            map_name,
+                            entry,
+                        )
 
                 except Exception as e:
                     self._log(f"Error processing {ogg_path}: {e}")
