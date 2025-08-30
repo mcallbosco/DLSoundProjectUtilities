@@ -222,6 +222,9 @@ class ConversationPlayer:
         
         # Exclusions: conversations to skip on export/convert
         self.excluded_convo_ids = set()
+
+        # Parts baseline for status computation (convo_id -> set(parts))
+        self.parts_baseline = {}
         
         # Character name mappings - load first before creating widgets
         self.character_mappings = {}
@@ -418,6 +421,12 @@ class ConversationPlayer:
         # Add Load Exclusions button
         exclusions_button = ttk.Button(dir_frame, text="Load Exclusions", command=self.select_exclusion_file)
         exclusions_button.grid(row=0, column=7, padx=5, pady=5)
+
+        # Baseline buttons
+        baseline_load_btn = ttk.Button(dir_frame, text="Load Parts Baseline", command=self.load_parts_baseline)
+        baseline_load_btn.grid(row=0, column=8, padx=5, pady=5)
+        baseline_export_btn = ttk.Button(dir_frame, text="Export Parts Baseline", command=self.export_parts_baseline)
+        baseline_export_btn.grid(row=0, column=9, padx=5, pady=5)
         
         # Character selection
         char_frame = ttk.LabelFrame(main_frame, text="Character Selection", padding="10")
@@ -1250,20 +1259,22 @@ class ConversationPlayer:
             speakers = convo_key[0]
             convo_id = convo_key[1]
             
-            # Gather statuses for this conversation
-            statuses = set()
-            if hasattr(self, "status_mapping"):
-                for file in files:
-                    fname = file["filename"]
-                    if DEBUG_STATUS_MATCHING:
-                        print(f"[DEBUG] Checking file: {fname}")
-                    for status_key, status_val in self.status_mapping.items():
-                        if DEBUG_STATUS_MATCHING:
-                            print(f"[DEBUG]   Against status file key: {status_key} (basename: {os.path.basename(status_key)})")
-                        if os.path.basename(status_key) == fname:
-                            if DEBUG_STATUS_MATCHING:
-                                print(f"[DEBUG]   MATCH: {fname} -> {status_val}")
-                            statuses.add(status_val)
+            # Determine status using parts baseline
+            statuses = []
+            try:
+                current_parts = sorted({f['part'] for f in files})
+                baseline_parts = sorted(self.parts_baseline.get(str(convo_id), []))
+                if not baseline_parts:
+                    # New conversation not in baseline
+                    statuses = ["ADDED"]
+                else:
+                    # If any new part beyond baseline
+                    if any(p not in baseline_parts for p in current_parts):
+                        statuses = ["UPDATED"]
+                    else:
+                        statuses = []
+            except Exception:
+                statuses = []
 
             # Create conversation entry
             conversation = {
@@ -1272,7 +1283,7 @@ class ConversationPlayer:
                 "convo_id": convo_id,
                 "is_complete": files[0]['is_complete'] if 'is_complete' in files[0] else True,
                 "missing_parts": files[0]['missing_parts'] if 'missing_parts' in files[0] else [],
-                "status": list(statuses),
+                "status": statuses,
                 "lines": []
             }
             
@@ -1723,6 +1734,81 @@ class ConversationPlayer:
             messagebox.showinfo("Exclusions Loaded", f"Loaded {len(self.excluded_convo_ids)} conversation IDs to exclude.")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load exclusions file: {str(e)}")
+
+    def export_parts_baseline(self):
+        """Export a baseline listing of all conversation parts currently loaded."""
+        if not self.conversations:
+            messagebox.showinfo("Info", "No conversations loaded. Please load files first.")
+            return
+        # Build baseline mapping: convo_id -> sorted unique parts
+        baseline = {}
+        for convo_key, files in self.conversations.items():
+            try:
+                convo_id = str(convo_key[1])
+                parts = sorted({int(f['part']) for f in files})
+                baseline[convo_id] = parts
+            except Exception:
+                continue
+        export_filename = filedialog.asksaveasfilename(
+            initialdir=os.getcwd(),
+            initialfile="parts_baseline.json",
+            title="Export Parts Baseline",
+            filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")],
+            defaultextension=".json"
+        )
+        if not export_filename:
+            return
+        try:
+            with open(export_filename, 'w', encoding='utf-8') as f:
+                json.dump({"parts_baseline": baseline}, f, indent=2)
+            messagebox.showinfo("Export Complete", f"Exported parts baseline to {export_filename}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to export baseline: {e}")
+
+    def load_parts_baseline(self):
+        """Load a baseline of conversation parts from JSON for status computation."""
+        file_path = filedialog.askopenfilename(
+            initialdir=self.audio_dir,
+            title="Load Parts Baseline JSON",
+            filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")]
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            normalized = {}
+            if isinstance(data, dict) and 'parts_baseline' in data:
+                baseline = data.get('parts_baseline', {})
+                for k, v in baseline.items():
+                    try:
+                        parts = {int(p) for p in (v or [])}
+                        normalized[str(k)] = parts
+                    except Exception:
+                        continue
+            elif isinstance(data, dict) and 'conversations' in data and isinstance(data['conversations'], list):
+                # Support using an Export All JSON file as the baseline
+                for convo in data.get('conversations', []):
+                    try:
+                        convo_id = str(convo.get('convo_id'))
+                        lines = convo.get('lines', [])
+                        parts = {int(l.get('part')) for l in lines if 'part' in l}
+                        if convo_id and parts:
+                            normalized[convo_id] = parts
+                    except Exception:
+                        continue
+            elif isinstance(data, dict):
+                # Plain mapping of convo_id -> [parts]
+                for k, v in data.items():
+                    try:
+                        parts = {int(p) for p in (v or [])}
+                        normalized[str(k)] = parts
+                    except Exception:
+                        continue
+            self.parts_baseline = normalized
+            messagebox.showinfo("Baseline Loaded", f"Loaded parts baseline for {len(self.parts_baseline)} conversations.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load parts baseline: {e}")
 
 if __name__ == "__main__":
     root = tk.Tk()
