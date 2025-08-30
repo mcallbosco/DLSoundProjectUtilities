@@ -220,6 +220,9 @@ class ConversationPlayer:
         # Transcription cache
         self.transcription_cache = {}
         
+        # Exclusions: conversations to skip on export/convert
+        self.excluded_convo_ids = set()
+        
         # Character name mappings - load first before creating widgets
         self.character_mappings = {}
         self.load_character_mappings()
@@ -411,6 +414,10 @@ class ConversationPlayer:
         # Add Character Mappings button
         mappings_button = ttk.Button(dir_frame, text="Character Mappings", command=self.edit_character_mappings)
         mappings_button.grid(row=0, column=6, padx=5, pady=5)
+        
+        # Add Load Exclusions button
+        exclusions_button = ttk.Button(dir_frame, text="Load Exclusions", command=self.select_exclusion_file)
+        exclusions_button.grid(row=0, column=7, padx=5, pady=5)
         
         # Character selection
         char_frame = ttk.LabelFrame(main_frame, text="Character Selection", padding="10")
@@ -1150,7 +1157,7 @@ class ConversationPlayer:
         for encoding in encodings:
             try:
                 with open(file_path, 'r', encoding=encoding) as f:
-                    transcript_text = f.read().strip()
+                    transcript_text = f.read().replace('\x00', '').strip()
                 # If we get here, reading succeeded
                 return transcript_text
             except UnicodeDecodeError as e:
@@ -1167,7 +1174,7 @@ class ConversationPlayer:
             with open(file_path, 'rb') as f:
                 binary_data = f.read()
                 # Try to decode with errors='replace' to substitute invalid chars
-                transcript_text = binary_data.decode('utf-8', errors='replace').strip()
+                transcript_text = binary_data.decode('utf-8', errors='replace').replace('\x00', '').strip()
                 print(f"Used binary fallback for {file_path}")
                 return transcript_text
         except Exception as e:
@@ -1226,6 +1233,13 @@ class ConversationPlayer:
         current_convo = 0
         
         for convo_key, files in self.conversations.items():
+            # Skip excluded conversations
+            try:
+                convo_id_skip = convo_key[1]
+                if convo_id_skip in self.excluded_convo_ids:
+                    continue
+            except Exception:
+                pass
             current_convo += 1
             progress_value = int((current_convo / total_convos) * 100)
             progress_bar["value"] = progress_value
@@ -1546,9 +1560,15 @@ class ConversationPlayer:
         # Create MP3 output directory if it doesn't exist
         os.makedirs(mp3_dir, exist_ok=True)
         
-        # Count total files to convert
+        # Count total files to convert (excluding marked conversations)
         total_files = 0
         for convo_key, files in self.conversations.items():
+            try:
+                convo_id_skip = convo_key[1]
+                if convo_id_skip in self.excluded_convo_ids:
+                    continue
+            except Exception:
+                pass
             total_files += len(files)
         
         # Create progress window
@@ -1586,6 +1606,13 @@ class ConversationPlayer:
         
         try:
             for convo_key, files in self.conversations.items():
+                # Skip excluded conversations
+                try:
+                    convo_id_skip = convo_key[1]
+                    if convo_id_skip in self.excluded_convo_ids:
+                        continue
+                except Exception:
+                    pass
                 for file in files:
                     if not self.conversion_running:
                         break
@@ -1669,6 +1696,33 @@ class ConversationPlayer:
             ))
         finally:
             self.conversion_running = False
+
+    def select_exclusion_file(self):
+        """Open a dialog to select a JSON file that lists conversations to exclude, then load it."""
+        file_path = filedialog.askopenfilename(
+            initialdir=self.audio_dir,
+            title="Select Exclusions JSON File",
+            filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")]
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            # Accept either {"deleted_conversations": [...]} or a direct list
+            if isinstance(data, dict) and 'deleted_conversations' in data:
+                ids = data.get('deleted_conversations', [])
+            elif isinstance(data, list):
+                ids = data
+            else:
+                ids = []
+            # Normalize to strings
+            ids = [str(x) for x in ids]
+            self.excluded_convo_ids = set(ids)
+            self.status_var.set(f"Loaded {len(self.excluded_convo_ids)} exclusions")
+            messagebox.showinfo("Exclusions Loaded", f"Loaded {len(self.excluded_convo_ids)} conversation IDs to exclude.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load exclusions file: {str(e)}")
 
 if __name__ == "__main__":
     root = tk.Tk()
