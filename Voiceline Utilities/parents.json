@@ -1,0 +1,30 @@
+{ 
+    "Battle Communications": ["Agreement", "AssistanceRequired", "BehindYou", "bye", 
+    "ClearArea", "CloseCall", "Countdown", "DamageBoosted", "EliminateTarget",
+    "EnemiesAttacking", "EnemiesDetected", "EnemiesGathers", "EnemiesResurrect", 
+    "Teleporter", "enemySeen", "EnemySniper", "Fallback", "getinThere", "groupUp",
+    "getOutOfThere", "getready", "goingIn", "groupUpContinue", "healing", "health",
+    "HealthPack", "imattacking", "imdefending", "imwithyou", "imready", "incoming", 
+    "MeleeEnemyKilledRemark", "MissionAlmostDone", "Objective", "OnFire", "OnMyWay",
+    "PressTheAttack", "PushForward", "TakeCover", "CTF", "enemydetected", "enemyGathers",
+    "EnemyResurrect", "setuphere", "ShieldGenerator", "Turret", "enemyComingDoorway", 
+    "LookingAtEarth", "RunningOutOfTime", "timeRunningOut", "UnderAttack", "LevelUp", 
+    "objective", "UltimateSeenRemark", "EnemyUsingUltimate", "EnemyNanoBoosted"],
+    "Abilities" : ["Bomb", "BioticGrenade", "Revive", "recall", "blink", "hack", "translocator", "stealthActivate", "uncloak", "healingDart", "sleep", "ComeForHealing"],
+    "Ultimate" :["Ultimate", "UsingUltimate", "ZaryaUlt", "SigmaUlt"],
+    "Screams and Grunts" : ["Death", "deathexplosion", "deathcharged", "ScreamFall", "screams", "pain", "cough", "stagger", "Knockdown", "electrocuted", "Jumping", "JumpEnd", "InAir", "MovingFast", "jumped", "Scream", "ScreamFall"],
+
+    "Health" : ["HealthRestoredFriendly", "HealedAlly", "HealingBeamConnectionLowHealth", "HealingBeamConnected",
+     "healing", "health", "healthpack","InjuredCallout","NanoBoosted", "NeedHealer", "NeedShields", "Armor",
+    "Discorded", "lowHealthBreathStart", "lowHealthBreathEnd", "lowHealthBreath"],
+    "General Communications" : ["agreement","hello", "ready", "sorry", "thanks", 
+    "Laugh", "no", "yes", "Disagreement", "excitement", "Understand", "Unwell", "YourWelcome",
+    "reward", "randomLines", "longDistance"
+     ],
+    "Start of Match/Spawning" : ["herochange", "heroselect", "karaoke", "match", 
+    "RespawnAfterKillstreak", "respawn", "Resurrected", "matchStartTalk", "matchtalk",
+    "MapNight", "MapRaining"],
+    "Events" : ["Junkenstein", "StormRising", "uprising", "uprisingactivity", "Retribution", "yetiHunt", "Lucioball", "SnowballOffensive", "BattleForOlympus", "DNDCampaign"],
+    "End of Match" : ["VotedEpic", "VotedLegendary", "MissionSuccess"],
+    "Elims" : ["Multikill","Revenge", "TeamKill", "Elimination", "KillStreak", "elims", "Headshot", "DirectHit", "EnemyKilled"]
+  }

@@ -301,6 +301,7 @@
     "HealedAlly": "Healed Ally",
     "EnemyUnseen": "Enemy Unseen",
     "HealingBeamConnectionLowHealth": "Healing Beam Connection Low Health",
-    "HealingBeamConnected": "Healing Beam Connected"
+    "HealingBeamConnected": "Healing Beam Connected",
+    "voicelines" : "Voicelines"
   }
   

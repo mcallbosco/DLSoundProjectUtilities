@@ -25,6 +25,7 @@ class VoiceLineParserApp:
         self.category_alias_path = tk.StringVar()
         self.category_exclude_path = tk.StringVar()
         self.target_exclude_path = tk.StringVar()
+        self.category_group_path = tk.StringVar()
 
         # UI
         self._build_ui()
@@ -70,6 +71,11 @@ class VoiceLineParserApp:
         ttk.Label(file_frame, text="Target exclusion JSON (optional):").grid(row=5, column=0, sticky=tk.W, pady=4)
         ttk.Entry(file_frame, textvariable=self.target_exclude_path, width=80).grid(row=5, column=1, padx=5, pady=4)
         ttk.Button(file_frame, text="Browse", command=self._browse_target_exclude).grid(row=5, column=2, padx=5, pady=4)
+
+        # Category grouping JSON (optional)
+        ttk.Label(file_frame, text="Category grouping JSON (optional):").grid(row=6, column=0, sticky=tk.W, pady=4)
+        ttk.Entry(file_frame, textvariable=self.category_group_path, width=80).grid(row=6, column=1, padx=5, pady=4)
+        ttk.Button(file_frame, text="Browse", command=self._browse_category_group).grid(row=6, column=2, padx=5, pady=4)
 
         # Options
         options_frame = ttk.LabelFrame(container, text="Options", padding="10")
@@ -127,6 +133,11 @@ class VoiceLineParserApp:
         if path:
             self.target_exclude_path.set(path)
 
+    def _browse_category_group(self) -> None:
+        path = filedialog.askopenfilename(title="Select Category Grouping JSON", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+        if path:
+            self.category_group_path.set(path)
+
     # Logging
     def _log(self, message: str) -> None:
         with self._log_lock:
@@ -170,6 +181,9 @@ class VoiceLineParserApp:
         if self.target_exclude_path.get() and not os.path.isfile(self.target_exclude_path.get()):
             messagebox.showwarning("Invalid path", "Target exclusion JSON path does not exist.")
             return False
+        if self.category_group_path.get() and not os.path.isfile(self.category_group_path.get()):
+            messagebox.showwarning("Invalid path", "Category grouping JSON path does not exist.")
+            return False
         # Ensure output dir exists if provided
         if self.audio_output_dir.get():
             Path(self.audio_output_dir.get()).mkdir(parents=True, exist_ok=True)
@@ -187,6 +201,8 @@ class VoiceLineParserApp:
             exclude_set: set[str] = set()
             target_exclude_exact: set[str] = set()
             target_exclude_prefixes: list[str] = []
+            # Grouping: child topic -> parent category (case-insensitive keys, preserve parent display)
+            group_child_to_parent: dict[str, str] = {}
             try:
                 if self.category_alias_path.get():
                     alias_text = self._read_text_best_effort(Path(self.category_alias_path.get()))
@@ -228,6 +244,26 @@ class VoiceLineParserApp:
                         self._log("Target exclusion file is not a list; ignoring.")
             except Exception as e:
                 self._log(f"Error loading target exclusion: {e}")
+
+            # Load optional category grouping
+            try:
+                if self.category_group_path.get():
+                    group_text = self._read_text_best_effort(Path(self.category_group_path.get()))
+                    loaded_g = json.loads(group_text)
+                    if isinstance(loaded_g, dict):
+                        for k, v in loaded_g.items():
+                            if isinstance(v, list):
+                                parent_display = str(k)
+                                for child in v:
+                                    group_child_to_parent[str(child).lower()] = parent_display
+                            else:
+                                # treat as child -> parent
+                                group_child_to_parent[str(k).lower()] = str(v)
+                        self._log(f"Loaded category grouping with {len(group_child_to_parent)} mappings")
+                    else:
+                        self._log("Category grouping file is not an object; ignoring.")
+            except Exception as e:
+                self._log(f"Error loading category grouping: {e}")
 
             ogg_files = self._collect_ogg_files(self.source_root.get())
             total = len(ogg_files)
@@ -355,7 +391,21 @@ class VoiceLineParserApp:
 
                     # Insert into structure
                     if is_default:
-                        self._insert_entry(data, speaker, subject, topic_key, subtopics, map_name, entry)
+                        # Optionally group default categories under a configured parent
+                        # Evaluate grouping BEFORE alias mapping (use original topic_lower)
+                        parent_group = group_child_to_parent.get(topic_lower)
+                        if parent_group:
+                            self._insert_entry(
+                                data,
+                                speaker,
+                                subject,
+                                parent_group,
+                                [topic_key, *subtopics],
+                                map_name,
+                                entry,
+                            )
+                        else:
+                            self._insert_entry(data, speaker, subject, topic_key, subtopics, map_name, entry)
                     else:
                         # Nest non-default sets under Skins/{skinName}/{topic/...}
                         self._insert_entry(
