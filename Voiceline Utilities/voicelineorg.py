@@ -22,6 +22,9 @@ class VoiceLineParserApp:
         self.json_output_path = tk.StringVar()
         self.workers = tk.IntVar(value=4)
         self.json_only = tk.BooleanVar(value=False)
+        self.category_alias_path = tk.StringVar()
+        self.category_exclude_path = tk.StringVar()
+        self.target_exclude_path = tk.StringVar()
 
         # UI
         self._build_ui()
@@ -52,6 +55,21 @@ class VoiceLineParserApp:
         ttk.Label(file_frame, text="Output JSON path:").grid(row=2, column=0, sticky=tk.W, pady=4)
         ttk.Entry(file_frame, textvariable=self.json_output_path, width=80).grid(row=2, column=1, padx=5, pady=4)
         ttk.Button(file_frame, text="Browse", command=self._browse_json_output).grid(row=2, column=2, padx=5, pady=4)
+
+        # Category alias JSON (optional)
+        ttk.Label(file_frame, text="Category alias JSON (optional):").grid(row=3, column=0, sticky=tk.W, pady=4)
+        ttk.Entry(file_frame, textvariable=self.category_alias_path, width=80).grid(row=3, column=1, padx=5, pady=4)
+        ttk.Button(file_frame, text="Browse", command=self._browse_category_alias).grid(row=3, column=2, padx=5, pady=4)
+
+        # Category exclusion JSON (optional)
+        ttk.Label(file_frame, text="Category exclusion JSON (optional):").grid(row=4, column=0, sticky=tk.W, pady=4)
+        ttk.Entry(file_frame, textvariable=self.category_exclude_path, width=80).grid(row=4, column=1, padx=5, pady=4)
+        ttk.Button(file_frame, text="Browse", command=self._browse_category_exclude).grid(row=4, column=2, padx=5, pady=4)
+
+        # Target exclusion JSON (optional)
+        ttk.Label(file_frame, text="Target exclusion JSON (optional):").grid(row=5, column=0, sticky=tk.W, pady=4)
+        ttk.Entry(file_frame, textvariable=self.target_exclude_path, width=80).grid(row=5, column=1, padx=5, pady=4)
+        ttk.Button(file_frame, text="Browse", command=self._browse_target_exclude).grid(row=5, column=2, padx=5, pady=4)
 
         # Options
         options_frame = ttk.LabelFrame(container, text="Options", padding="10")
@@ -94,6 +112,21 @@ class VoiceLineParserApp:
         if path:
             self.json_output_path.set(path)
 
+    def _browse_category_alias(self) -> None:
+        path = filedialog.askopenfilename(title="Select Category Alias JSON", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+        if path:
+            self.category_alias_path.set(path)
+
+    def _browse_category_exclude(self) -> None:
+        path = filedialog.askopenfilename(title="Select Category Exclusion JSON", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+        if path:
+            self.category_exclude_path.set(path)
+
+    def _browse_target_exclude(self) -> None:
+        path = filedialog.askopenfilename(title="Select Target Exclusion JSON", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+        if path:
+            self.target_exclude_path.set(path)
+
     # Logging
     def _log(self, message: str) -> None:
         with self._log_lock:
@@ -127,6 +160,16 @@ class VoiceLineParserApp:
         if not self.json_output_path.get():
             messagebox.showwarning("Missing input", "Please select an Output JSON path.")
             return False
+        # Optional: validate alias/exclude file existence if provided
+        if self.category_alias_path.get() and not os.path.isfile(self.category_alias_path.get()):
+            messagebox.showwarning("Invalid path", "Category alias JSON path does not exist.")
+            return False
+        if self.category_exclude_path.get() and not os.path.isfile(self.category_exclude_path.get()):
+            messagebox.showwarning("Invalid path", "Category exclusion JSON path does not exist.")
+            return False
+        if self.target_exclude_path.get() and not os.path.isfile(self.target_exclude_path.get()):
+            messagebox.showwarning("Invalid path", "Target exclusion JSON path does not exist.")
+            return False
         # Ensure output dir exists if provided
         if self.audio_output_dir.get():
             Path(self.audio_output_dir.get()).mkdir(parents=True, exist_ok=True)
@@ -138,6 +181,53 @@ class VoiceLineParserApp:
         try:
             self._log("Starting scan...")
             data: dict[str, dict] = {}
+
+            # Load category alias map and exclusion set
+            alias_map: dict[str, str] = {}
+            exclude_set: set[str] = set()
+            target_exclude_exact: set[str] = set()
+            target_exclude_prefixes: list[str] = []
+            try:
+                if self.category_alias_path.get():
+                    alias_text = self._read_text_best_effort(Path(self.category_alias_path.get()))
+                    loaded = json.loads(alias_text)
+                    if isinstance(loaded, dict):
+                        # Lowercase keys for case-insensitive match; values kept as provided
+                        alias_map = {str(k).lower(): str(v) for k, v in loaded.items()}
+                        self._log(f"Loaded category alias map with {len(alias_map)} entries")
+                    else:
+                        self._log("Category alias file is not an object; ignoring.")
+            except Exception as e:
+                self._log(f"Error loading category alias: {e}")
+            try:
+                if self.category_exclude_path.get():
+                    exclude_text = self._read_text_best_effort(Path(self.category_exclude_path.get()))
+                    loaded_ex = json.loads(exclude_text)
+                    if isinstance(loaded_ex, list):
+                        exclude_set = {str(x).lower() for x in loaded_ex}
+                        self._log(f"Loaded category exclusion list with {len(exclude_set)} entries")
+                    else:
+                        self._log("Category exclusion file is not a list; ignoring.")
+            except Exception as e:
+                self._log(f"Error loading category exclusion: {e}")
+            try:
+                if self.target_exclude_path.get():
+                    target_text = self._read_text_best_effort(Path(self.target_exclude_path.get()))
+                    loaded_t = json.loads(target_text)
+                    if isinstance(loaded_t, list):
+                        for raw in loaded_t:
+                            s = str(raw).strip().lower()
+                            if not s:
+                                continue
+                            if s.endswith('*'):
+                                target_exclude_prefixes.append(s[:-1])
+                            else:
+                                target_exclude_exact.add(s)
+                        self._log(f"Loaded target exclusion list with {len(target_exclude_exact)} exact and {len(target_exclude_prefixes)} wildcard prefixes")
+                    else:
+                        self._log("Target exclusion file is not a list; ignoring.")
+            except Exception as e:
+                self._log(f"Error loading target exclusion: {e}")
 
             ogg_files = self._collect_ogg_files(self.source_root.get())
             total = len(ogg_files)
@@ -168,8 +258,19 @@ class VoiceLineParserApp:
                     # Folder containing file
                     folder_parts = rel_parts[:-1]
                     # Topic is 3rd-level (index 2)
-                    topic_key = folder_parts[2].lower()
-                    subtopics = [p.lower() for p in folder_parts[3:]]  # any deeper folders
+                    orig_topic = folder_parts[2]
+                    orig_subtopics = folder_parts[3:]  # any deeper folders
+                    topic_lower = orig_topic.lower()
+                    subtopics_lower = [p.lower() for p in orig_subtopics]
+
+                    # Apply category exclusion: skip if topic or any subtopic is excluded
+                    if topic_lower in exclude_set or any(s in exclude_set for s in subtopics_lower):
+                        self._log(f"Skipping due to excluded category at {speaker}/{orig_topic}")
+                        continue
+
+                    # Apply alias mapping (case-insensitive) to topic and subtopics
+                    topic_key = alias_map.get(topic_lower, topic_lower)
+                    subtopics = [alias_map.get(s, s) for s in subtopics_lower]
 
                     ogg_file = Path(ogg_path)
                     stem = ogg_file.stem
@@ -209,7 +310,7 @@ class VoiceLineParserApp:
                     else:
                         hero_targets, map_name = ([], None)
 
-                    # Targets: preserve order, de-dup
+                    # Targets: preserve order, de-dup, apply exclusion (case-insensitive, supports '*' suffix prefix match)
                     seen = set()
                     ordered_targets = []
                     for t in hero_targets:
@@ -218,6 +319,10 @@ class VoiceLineParserApp:
                             continue
                         key = tl.lower()
                         if key in seen:
+                            continue
+                        # Apply target exclusion
+                        if self._is_target_excluded(key, target_exclude_exact, target_exclude_prefixes):
+                            self._log(f"  Excluding target '{tl}' via target exclusion list")
                             continue
                         seen.add(key)
                         ordered_targets.append(tl)
@@ -413,6 +518,14 @@ class VoiceLineParserApp:
         # Keep \n, \r, \t; remove others in \x00-\x1F and \x7F
         cleaned = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
         return cleaned.strip()
+
+    def _is_target_excluded(self, key: str, exact: set[str], prefixes: list[str]) -> bool:
+        if key in exact:
+            return True
+        for p in prefixes:
+            if key.startswith(p):
+                return True
+        return False
 
     def _read_text_best_effort(self, path: Path) -> str:
         # Try a few common encodings without dropping characters
