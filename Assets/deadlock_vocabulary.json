@@ -1,6 +1,6 @@
 {
   "Characters": [
-    "Holliday", "Shelly Fisher", "Geist", "Marla", "Marlowe", "Troubadour", "Nashala Dion", "Viscous", "John Hathorne", "Edrick", "Captain Murphy","Holliday", "Infernus", "Kelvin", "Abrams", "Vindicta", "Operative", "Bebop", "Cadence", "Paradox", "Dynamo", "McGinnis", "Lady Geist", "Seven", "Haze", "Krill", "Lash", "Magician", "Mirage", "Nano", "Grey Talon", "Shiv", "Slork", "Pocket", "Ivy", "Trapper", "Vyper", "Viscous", "Warden", "Wraith", "Wrecker", "Yamato", "Fern"
+    "Holliday", "Shelly Fisher", "Geist", "Marla", "Marlowe", "Troubadour", "Nashala Dion", "Viscous", "John Hathorne", "Edrick", "Captain Murphy","Holliday", "Infernus", "Kelvin", "Abrams", "Vindicta", "Operative", "Bebop", "Cadence", "Paradox", "Dynamo", "McGinnis", "Lady Geist", "Seven", "Haze", "Krill", "Lash", "Magician", "Mirage", "Nano", "Grey Talon", "Shiv", "Slork", "Pocket", "Ivy", "Trapper", "Vyper", "Viscous", "Warden", "Wraith", "Wrecker", "Yamato", "Fern", "Mina Ha", "Doorman", "Paige"
   ],
   "Groups": [
     "Djinn"
@@ -10,5 +10,11 @@
   ],
   "Game Terms": [
     "Mid", "Mid-Boss", "Gank", "Payload", "Capture", "Control", "Escort"
+  ],
+  "Transcription Guidelines": [
+    "Use sentence case for all transcriptions.",
+    "Use standard punctuation.",
+    "Follow the above spelling for ambiguous names.",
+    "Do not include extra whitespace at the beginning or end of transcriptions."
   ]
 } 

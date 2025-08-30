@@ -27,6 +27,14 @@ class TranscriptionDeleterApp:
         self.transcriptions_folder_entry.grid(row=1, column=1, padx=5, pady=3)
         tk.Button(config_frame, text="Browse...", command=self.browse_transcriptions_folder).grid(row=1, column=2, padx=5, pady=3)
 
+        # Only process UPDATED entries option
+        self.only_updated_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(
+            config_frame,
+            text="Only delete entries marked UPDATED",
+            variable=self.only_updated_var
+        ).grid(row=2, column=0, columnspan=3, sticky="w", padx=5, pady=3)
+
         # --- Action Frame ---
         action_frame = tk.Frame(master, padx=10, pady=10)
         action_frame.pack(fill=tk.X)
@@ -89,6 +97,7 @@ class TranscriptionDeleterApp:
 
         self._log_message(f"Processing input TXT file: {input_txt_file}")
         self._log_message(f"Looking for transcriptions in: {trans_folder}")
+        self._log_message(f"Filter: {'UPDATED only' if self.only_updated_var.get() else 'All entries'}")
 
         changed_lines_from_file = []
         try:
@@ -114,6 +123,13 @@ class TranscriptionDeleterApp:
         files_to_delete = []
         self._log_message("\nIdentifying transcription files to delete:")
         for line_entry in changed_lines_from_file:
+            # Optionally filter by UPDATED status
+            try:
+                status_token = line_entry.split()[-1]
+            except Exception:
+                status_token = ""
+            if self.only_updated_var.get() and status_token != "UPDATED":
+                continue
             parts = line_entry.split(" ", 1)
             if not parts:
                 self._log_message(f"Warning: Skipping empty or invalid line in input.txt: '{line_entry}'")
@@ -150,6 +166,8 @@ class TranscriptionDeleterApp:
         # --- MODIFIED: Shorten the confirmation message ---
         num_files_to_delete = len(files_to_delete)
         confirm_message_summary = f"{num_files_to_delete} transcription file(s) are identified for DELETION.\n\n"
+        if self.only_updated_var.get():
+            confirm_message_summary = "Filtering by status: UPDATED only\n" + confirm_message_summary
         if num_files_to_delete > 0:
             confirm_message_summary += "Examples:\n"
             for i, f_path in enumerate(files_to_delete):

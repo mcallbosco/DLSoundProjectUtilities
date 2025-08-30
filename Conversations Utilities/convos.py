@@ -452,6 +452,14 @@ class ConversationPlayer:
         status_button = ttk.Button(dir_frame, text="Import Status File", command=self.import_status_file)
         status_button.grid(row=0, column=5, padx=5, pady=5)
 
+        # Checkbox: control whether a found status forces re-transcription (default: on)
+        self.retranscribe_on_status_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            dir_frame,
+            text="Re-transcribe when status is present",
+            variable=self.retranscribe_on_status_var
+        ).grid(row=1, column=0, columnspan=3, sticky=tk.W, padx=5, pady=(0,5))
+
         # Transcriptions directory selection
         trans_dir_frame = ttk.LabelFrame(main_frame, text="Transcriptions Directory", padding="10")
         trans_dir_frame.pack(fill=tk.X, pady=5)
@@ -1165,6 +1173,12 @@ class ConversationPlayer:
         
         # Start transcription in a separate thread
         self.status_var.set("Starting transcription...")
+        # Snapshot thread-unsafe UI state for background use
+        try:
+            self._retranscribe_on_status_snapshot = bool(self.retranscribe_on_status_var.get())
+        except Exception:
+            self._retranscribe_on_status_snapshot = True
+
         threading.Thread(
             target=self._transcription_thread,
             args=(files_to_transcribe, convo_key, conversation_info),
@@ -1250,7 +1264,11 @@ class ConversationPlayer:
         """Transcribe a single audio file using OpenAI's Whisper API"""
         try:
             stem = os.path.splitext(os.path.basename(file_path))[0].lower()
-            force_retranscribe = stem in self.file_status_map and bool(self.file_status_map[stem])
+            # Use snapshot captured on UI thread to avoid Tk access from background thread
+            force_retranscribe = (
+                bool(getattr(self, '_retranscribe_on_status_snapshot', True)) and
+                stem in self.file_status_map and bool(self.file_status_map[stem])
+            )
             # Check for cached transcription
             cache_file = os.path.join(self.transcriptions_dir, f"{os.path.basename(file_path)}.json")
             if not force_retranscribe and os.path.exists(cache_file):
@@ -1268,7 +1286,8 @@ class ConversationPlayer:
                     model="whisper-1",
                     file=audio_file,
                     response_format="verbose_json",
-                    timestamp_granularities=["segment"]
+                    timestamp_granularities=["segment"],
+                    language="en"
                 )
                 
                 # Convert response to dictionary if it's not already
@@ -1465,7 +1484,11 @@ Summary (maximum 7 words):"""
                 has_transcription = False
 
                 stem = os.path.splitext(os.path.basename(filename))[0].lower()
-                force_retranscribe = stem in self.file_status_map and bool(self.file_status_map[stem])
+                # Use snapshot captured on UI thread to avoid Tk access from background thread
+                force_retranscribe = (
+                    bool(getattr(self, '_retranscribe_on_status_snapshot', True)) and
+                    stem in self.file_status_map and bool(self.file_status_map[stem])
+                )
                 if os.path.exists(cache_file) and not force_retranscribe:
                     # Use existing transcription
                     try:
@@ -1610,6 +1633,12 @@ Summary (maximum 7 words):"""
         
         total_convos = len(self.conversations)
         current_convo = 0
+
+        # Snapshot thread-unsafe UI state for background use
+        try:
+            self._retranscribe_on_status_snapshot = bool(self.retranscribe_on_status_var.get())
+        except Exception:
+            self._retranscribe_on_status_snapshot = True
 
         try:
             from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -1783,11 +1812,32 @@ Summary (maximum 7 words):"""
                     alias_set.add(canonical_display)
                 output = {canon: sorted(list(aliases)) for canon, aliases in canonical_to_aliases.items()}
 
+            # Write JSON with compact lists (arrays on a single line), but each key on a new line
             with open(CHARACTER_MAPPINGS_FILE, 'w', encoding='utf-8') as f:
-                json.dump(output, f, indent=2)
+                serialized = self._serialize_dict_compact_lists(output)
+                f.write(serialized)
             print(f"Saved {len(output)} canonical names to mappings file")
         except Exception as e:
             print(f"Error saving character mappings: {str(e)}")
+
+    def _serialize_dict_compact_lists(self, mapping):
+        """Serialize a dict as JSON with dict keys on separate lines and list values inline."""
+        try:
+            items = list(mapping.items())
+        except Exception:
+            # Fallback to regular dump if mapping is not a standard dict-like
+            return json.dumps(mapping, ensure_ascii=False, indent=2)
+
+        lines = ["{"]
+        total = len(items)
+        for index, (key, value) in enumerate(items):
+            key_json = json.dumps(key, ensure_ascii=False)
+            # Ensure list values are serialized inline; for non-lists, still serialize normally
+            value_json = json.dumps(value, ensure_ascii=False)
+            comma = "," if index < total - 1 else ""
+            lines.append(f"  {key_json}: {value_json}{comma}")
+        lines.append("}")
+        return "\n".join(lines)
     
     def edit_character_mappings(self):
         """Open a dialog to edit character name mappings"""
