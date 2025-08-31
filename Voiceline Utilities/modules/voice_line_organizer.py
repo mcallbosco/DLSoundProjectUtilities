@@ -11,7 +11,8 @@ class VoiceLineOrganizer:
     special_categories = {
         "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak"],
         "Movement": ["leave_base", "leaving_area"],
-        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4"],
+        # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
+        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line"],
         "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4"],
         "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4"],
         "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
@@ -699,6 +700,18 @@ class VoiceLineOrganizer:
                 subject = "self"
                 topic_proper = " ".join(parts).replace("_", " ").capitalize()
                 return (speaker, subject, topic_proper, None, rel_path, False)
+
+            # ========================= TEMPORARY SPECIAL CASE =========================
+            # Recognize pattern: <speaker>_bespoke_ability_line_<variation>
+            # Example: drifter_bespoke_ability_line_13.mp3
+            # Treat as a self voiceline with topic "Bespoke ability line",
+            # and ensure it falls under the "Use Power" category via special_categories.
+            if re.match(r'^[^_]+_bespoke_ability_line(_.*)?$', filename_without_ext):
+                speaker_alias = filename_without_ext.split("_", 1)[0]
+                if speaker_alias.lower() in valid_speakers:
+                    rel_path = os.path.relpath(file_path, self.source_folder_path.get())
+                    return (speaker_alias, "self", "Bespoke ability line", None, rel_path, False)
+            # ======================= END TEMPORARY SPECIAL CASE =======================
 
             # List of keywords for "self" voicelines
             self_keywords = [
