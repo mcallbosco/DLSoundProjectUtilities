@@ -735,8 +735,8 @@ class VoiceLineOrganizer:
                         break
                     if joined.startswith(kw + "_"):
                         suffix = joined[len(kw) + 1:]
-                        # Only treat as self if suffix is a number or alt/alt_XX
-                        if re.fullmatch(r"\d+", suffix) or re.fullmatch(r"alt(_\d+)?", suffix):
+                        # Accept numeric, numeric_numeric (e.g., 05_02), or alt/alt_XX
+                        if re.fullmatch(r"(\d+(_\d+)*)|alt(_\d+)?", suffix):
                             matched_self_keyword = kw
                             break
             if matched_self_keyword:
