@@ -26,6 +26,8 @@ class VoiceLineParserApp:
         self.category_exclude_path = tk.StringVar()
         self.target_exclude_path = tk.StringVar()
         self.category_group_path = tk.StringVar()
+        self.previous_output_path = tk.StringVar()
+        self.target_alias_path = tk.StringVar()
 
         # UI
         self._build_ui()
@@ -76,6 +78,16 @@ class VoiceLineParserApp:
         ttk.Label(file_frame, text="Category grouping JSON (optional):").grid(row=6, column=0, sticky=tk.W, pady=4)
         ttk.Entry(file_frame, textvariable=self.category_group_path, width=80).grid(row=6, column=1, padx=5, pady=4)
         ttk.Button(file_frame, text="Browse", command=self._browse_category_group).grid(row=6, column=2, padx=5, pady=4)
+
+        # Old output JSON (optional, for statuses)
+        ttk.Label(file_frame, text="Old output JSON (optional):").grid(row=7, column=0, sticky=tk.W, pady=4)
+        ttk.Entry(file_frame, textvariable=self.previous_output_path, width=80).grid(row=7, column=1, padx=5, pady=4)
+        ttk.Button(file_frame, text="Browse", command=self._browse_previous_output).grid(row=7, column=2, padx=5, pady=4)
+
+        # Target alias JSON (optional)
+        ttk.Label(file_frame, text="Target alias JSON (optional):").grid(row=8, column=0, sticky=tk.W, pady=4)
+        ttk.Entry(file_frame, textvariable=self.target_alias_path, width=80).grid(row=8, column=1, padx=5, pady=4)
+        ttk.Button(file_frame, text="Browse", command=self._browse_target_alias).grid(row=8, column=2, padx=5, pady=4)
 
         # Options
         options_frame = ttk.LabelFrame(container, text="Options", padding="10")
@@ -138,6 +150,16 @@ class VoiceLineParserApp:
         if path:
             self.category_group_path.set(path)
 
+    def _browse_previous_output(self) -> None:
+        path = filedialog.askopenfilename(title="Select Old Output JSON", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+        if path:
+            self.previous_output_path.set(path)
+
+    def _browse_target_alias(self) -> None:
+        path = filedialog.askopenfilename(title="Select Target Alias JSON", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+        if path:
+            self.target_alias_path.set(path)
+
     # Logging
     def _log(self, message: str) -> None:
         with self._log_lock:
@@ -184,6 +206,12 @@ class VoiceLineParserApp:
         if self.category_group_path.get() and not os.path.isfile(self.category_group_path.get()):
             messagebox.showwarning("Invalid path", "Category grouping JSON path does not exist.")
             return False
+        if self.previous_output_path.get() and not os.path.isfile(self.previous_output_path.get()):
+            messagebox.showwarning("Invalid path", "Old output JSON path does not exist.")
+            return False
+        if self.target_alias_path.get() and not os.path.isfile(self.target_alias_path.get()):
+            messagebox.showwarning("Invalid path", "Target alias JSON path does not exist.")
+            return False
         # Ensure output dir exists if provided
         if self.audio_output_dir.get():
             Path(self.audio_output_dir.get()).mkdir(parents=True, exist_ok=True)
@@ -195,12 +223,14 @@ class VoiceLineParserApp:
         try:
             self._log("Starting scan...")
             data: dict[str, dict] = {}
+            previous_ids: set[str] = set()
 
             # Load category alias map and exclusion set
             alias_map: dict[str, str] = {}
             exclude_set: set[str] = set()
             target_exclude_exact: set[str] = set()
             target_exclude_prefixes: list[str] = []
+            target_alias_map: dict[str, str] = {}
             # Grouping: child topic -> parent category (case-insensitive keys, preserve parent display)
             group_child_to_parent: dict[str, str] = {}
             try:
@@ -245,6 +275,19 @@ class VoiceLineParserApp:
             except Exception as e:
                 self._log(f"Error loading target exclusion: {e}")
 
+            # Load optional target alias map
+            try:
+                if self.target_alias_path.get():
+                    t_alias_text = self._read_text_best_effort(Path(self.target_alias_path.get()))
+                    loaded_ta = json.loads(t_alias_text)
+                    if isinstance(loaded_ta, dict):
+                        target_alias_map = {str(k).lower(): str(v) for k, v in loaded_ta.items()}
+                        self._log(f"Loaded target alias map with {len(target_alias_map)} entries")
+                    else:
+                        self._log("Target alias file is not an object; ignoring.")
+            except Exception as e:
+                self._log(f"Error loading target alias: {e}")
+
             # Load optional category grouping
             try:
                 if self.category_group_path.get():
@@ -264,6 +307,16 @@ class VoiceLineParserApp:
                         self._log("Category grouping file is not an object; ignoring.")
             except Exception as e:
                 self._log(f"Error loading category grouping: {e}")
+
+            # Load previous output ids (optional)
+            try:
+                if self.previous_output_path.get():
+                    prev_text = self._read_text_best_effort(Path(self.previous_output_path.get()))
+                    prev_json = json.loads(prev_text)
+                    previous_ids = self._collect_voiceline_ids(prev_json)
+                    self._log(f"Loaded previous output with {len(previous_ids)} voiceline ids")
+            except Exception as e:
+                self._log(f"Error loading previous output: {e}")
 
             ogg_files = self._collect_ogg_files(self.source_root.get())
             total = len(ogg_files)
@@ -352,6 +405,10 @@ class VoiceLineParserApp:
                         tl = t.strip()
                         if not tl:
                             continue
+                        # Apply alias map to target before de-dupe/exclusion
+                        alias_val = target_alias_map.get(tl.lower())
+                        if alias_val is not None:
+                            tl = alias_val
                         key = tl.lower()
                         if key in seen:
                             continue
@@ -384,6 +441,12 @@ class VoiceLineParserApp:
                         "voiceline_id": self._sanitize_id(stem),
                         "transcription": transcription,
                     }
+                    # Add status if not in previous set
+                    try:
+                        if entry["voiceline_id"] not in previous_ids:
+                            entry["status"] = "ADDED"
+                    except Exception:
+                        pass
                     if ordered_targets:
                         entry["targets"] = [h.lower() for h in ordered_targets]
                     elif criteria_path is not None:
@@ -602,6 +665,24 @@ class VoiceLineParserApp:
             return data.decode("utf-8", errors="replace")
         except Exception:
             return ""
+
+    def _collect_voiceline_ids(self, obj) -> set[str]:
+        ids: set[str] = set()
+        def visit(node):
+            if isinstance(node, dict):
+                # If dict looks like a map of map->list or nested dicts, dive in; also check entries possibly under 'general'
+                for v in node.values():
+                    visit(v)
+            elif isinstance(node, list):
+                for item in node:
+                    if isinstance(item, dict):
+                        vid = item.get("voiceline_id")
+                        if isinstance(vid, str):
+                            ids.add(vid)
+                    else:
+                        visit(item)
+        visit(obj)
+        return ids
 
 
 def main() -> None:
