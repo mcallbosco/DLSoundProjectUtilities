@@ -1,0 +1,1 @@
+Dynamo requests case; Pocket refuses permission.

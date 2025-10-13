@@ -17,6 +17,7 @@ from datetime import datetime
 TRANSCRIPTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "Deadlock-Transcriptions", "data"))
 OPENAI_API_KEY = None  # Will be set by user input
 CHARACTER_MAPPINGS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "character_mappings.json"))  # File to store character name mappings (updated format)
+SUMMARIES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "Conversation-Summaries"))
 
 class TranscriptionPopup(tk.Toplevel):
     """Popup window to display transcription results"""
@@ -189,6 +190,7 @@ class ConversationPlayer:
         self.root.geometry("800x600")
         self.audio_dir = os.getcwd()  # Default to current directory
         self.transcriptions_dir = TRANSCRIPTIONS_DIR  # Default transcriptions directory
+        self.summaries_dir = SUMMARIES_DIR  # Default summaries directory
 
         # Initialize pygame mixer for audio playback
         pygame.mixer.init()
@@ -222,6 +224,8 @@ class ConversationPlayer:
 
         # Ensure transcriptions directory exists
         os.makedirs(self.transcriptions_dir, exist_ok=True)
+        # Ensure summaries directory exists
+        os.makedirs(self.summaries_dir, exist_ok=True)
 
         # Bind window close event
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -283,16 +287,20 @@ class ConversationPlayer:
         """Parse audio files and organize them into conversations"""
         conversations = {}
         
-        # Get list of audio files
+        # Get list of audio files recursively from all subfolders
         try:
-            files = [f for f in os.listdir(self.audio_dir) if f.endswith(".mp3")]
+            files = []
+            for root, dirs, filenames in os.walk(self.audio_dir):
+                for filename in filenames:
+                    if filename.endswith(".mp3"):
+                        files.append(filename)
             self.status_var.set(f"Found {len(files)} audio files")
         except Exception as e:
             messagebox.showerror("Error", f"Could not read directory: {self.audio_dir}\n{str(e)}")
             return {}
         
         if not files:
-            messagebox.showinfo("Info", "No MP3 files found in the selected directory")
+            messagebox.showinfo("Info", "No MP3 files found in the selected directory or its subfolders")
             return {}
             
         # Regular expression to extract information from filenames
@@ -451,6 +459,14 @@ class ConversationPlayer:
         # Add Import Status File button
         status_button = ttk.Button(dir_frame, text="Import Status File", command=self.import_status_file)
         status_button.grid(row=0, column=5, padx=5, pady=5)
+
+        # Add Generate Summaries (Updated only) button
+        gen_sum_button = ttk.Button(dir_frame, text="Generate Summaries (Updated only)", command=self.generate_summaries_updated_only)
+        gen_sum_button.grid(row=0, column=6, padx=5, pady=5)
+
+        # Add Generate Summaries (All) button
+        gen_all_button = ttk.Button(dir_frame, text="Generate Summaries (All)", command=self.generate_summaries_all)
+        gen_all_button.grid(row=0, column=7, padx=5, pady=5)
 
         # Checkbox: control whether a found status forces re-transcription (default: on)
         self.retranscribe_on_status_var = tk.BooleanVar(value=True)
@@ -1269,8 +1285,9 @@ class ConversationPlayer:
                 bool(getattr(self, '_retranscribe_on_status_snapshot', True)) and
                 stem in self.file_status_map and bool(self.file_status_map[stem])
             )
-            # Check for cached transcription
-            cache_file = os.path.join(self.transcriptions_dir, f"{os.path.basename(file_path)}.json")
+            # Check for cached transcription (use base filename including extension)
+            base_with_ext = os.path.basename(file_path)
+            cache_file = os.path.join(self.transcriptions_dir, f"{base_with_ext}.json")
             if not force_retranscribe and os.path.exists(cache_file):
                 try:
                     with open(cache_file, 'r', encoding='utf-8') as f:
@@ -1437,6 +1454,41 @@ Summary (maximum 7 words):"""
             print(f"Error generating summary: {str(e)}")
             return f"[Summary generation failed: {str(e)}]"
 
+    # ===== Summary IO helpers =====
+    def _conversation_id(self, convo_key):
+        try:
+            char1, char2 = convo_key[0]
+            convo_num = convo_key[1]
+            topic = convo_key[2] if len(convo_key) > 2 else None
+            base = f"{char1}_{char2}_convo{convo_num}"
+            return f"{base}_{topic}" if topic else base
+        except Exception:
+            return str(convo_key)
+
+    def _summary_path(self, convo_key):
+        conv_id = self._conversation_id(convo_key)
+        return os.path.join(self.summaries_dir, f"{conv_id}.txt")
+
+    def _read_saved_summary(self, convo_key):
+        try:
+            path = self._summary_path(convo_key)
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    return f.read().strip()
+        except Exception:
+            pass
+        return None
+
+    def _write_summary(self, convo_key, summary_text):
+        try:
+            os.makedirs(self.summaries_dir, exist_ok=True)
+            path = self._summary_path(convo_key)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write((summary_text or "").strip())
+            return path
+        except Exception:
+            return None
+
     def _export_build_conversation(self, convo_key, files, transcribe_all, generate_summaries):
         """Build a single conversation export dict. No UI calls here; safe for threads."""
         # Get part groups
@@ -1480,7 +1532,9 @@ Summary (maximum 7 words):"""
 
                 # Get transcription if available or generate if requested
                 transcription = None
-                cache_file = os.path.join(self.transcriptions_dir, f"{filename}.json")
+                # Use base filename including extension for cache file
+                base_with_ext = os.path.basename(filename)
+                cache_file = os.path.join(self.transcriptions_dir, f"{base_with_ext}.json")
                 has_transcription = False
 
                 stem = os.path.splitext(os.path.basename(filename))[0].lower()
@@ -1553,9 +1607,18 @@ Summary (maximum 7 words):"""
         else:
             conversation["status"].sort()
 
-        # Generate summary if requested
-        if generate_summaries:
-            conversation["summary"] = self._generate_conversation_summary(conversation)
+        # Prefer saved summary; optionally generate and persist if requested
+        saved_summary = self._read_saved_summary(convo_key)
+        if saved_summary:
+            conversation["summary"] = saved_summary
+        elif generate_summaries:
+            summary = self._generate_conversation_summary(conversation)
+            conversation["summary"] = summary
+            # Persist the generated summary
+            try:
+                self._write_summary(convo_key, summary)
+            except Exception:
+                pass
         else:
             conversation["summary"] = "[Summary not generated]"
 
@@ -2008,6 +2071,82 @@ Summary (maximum 7 words):"""
         if selection:
             # Re-show variation options for the currently selected conversation
             self.show_variation_options()
+
+    # ===== Summary generation for updated conversations =====
+    def generate_summaries_updated_only(self):
+        """Generate and save summaries for conversations that are missing a summary or have updated statuses."""
+        if not getattr(self, 'conversations', None):
+            messagebox.showinfo("Info", "No conversations loaded. Please load files first.")
+            return
+
+        def is_convo_updated(files):
+            try:
+                for file in files:
+                    stem = os.path.splitext(os.path.basename(file['filename']))[0].lower()
+                    if stem in self.file_status_map and self.file_status_map[stem]:
+                        return True
+            except Exception:
+                pass
+            return False
+
+        def worker():
+            try:
+                total = len(self.conversations)
+                processed = 0
+                updated_written = 0
+                missing_written = 0
+                for convo_key, files in self.conversations.items():
+                    processed += 1
+                    self.root.after(0, lambda p=processed, t=total: self.status_var.set(f"Summaries: {p}/{t}"))
+
+                    path = self._summary_path(convo_key)
+                    exists = os.path.exists(path)
+                    updated = is_convo_updated(files)
+                    if exists and not updated:
+                        continue
+
+                    # Build conversation data without triggering generation inside
+                    conversation = self._export_build_conversation(convo_key, files, transcribe_all=False, generate_summaries=False)
+                    summary = self._generate_conversation_summary(conversation)
+                    self._write_summary(convo_key, summary)
+                    if updated and exists:
+                        updated_written += 1
+                    else:
+                        missing_written += 1
+
+                msg = f"Summaries saved. Updated: {updated_written}, New: {missing_written}."
+                self.root.after(0, lambda m=msg: messagebox.showinfo("Summaries", m))
+            except Exception as e:
+                self.root.after(0, lambda err=str(e): messagebox.showerror("Summaries Error", err))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def generate_summaries_all(self):
+        """Generate and save summaries for all conversations (overwrites existing)."""
+        if not getattr(self, 'conversations', None):
+            messagebox.showinfo("Info", "No conversations loaded. Please load files first.")
+            return
+
+        def worker():
+            try:
+                total = len(self.conversations)
+                processed = 0
+                written = 0
+                for convo_key, files in self.conversations.items():
+                    processed += 1
+                    self.root.after(0, lambda p=processed, t=total: self.status_var.set(f"Summaries (all): {p}/{t}"))
+
+                    conversation = self._export_build_conversation(convo_key, files, transcribe_all=False, generate_summaries=False)
+                    summary = self._generate_conversation_summary(conversation)
+                    self._write_summary(convo_key, summary)
+                    written += 1
+
+                msg = f"Summaries saved for {written} conversations."
+                self.root.after(0, lambda m=msg: messagebox.showinfo("Summaries", m))
+            except Exception as e:
+                self.root.after(0, lambda err=str(e): messagebox.showerror("Summaries Error", err))
+
+        threading.Thread(target=worker, daemon=True).start()
 
 if __name__ == "__main__":
     root = tk.Tk()
