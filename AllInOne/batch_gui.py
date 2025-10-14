@@ -25,6 +25,7 @@ import sys
 CONFIG_DIR = os.path.dirname(__file__)
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 LEGACY_CONFIG_FILE = os.path.join(CONFIG_DIR, "s2v_config.json")
+RENAME_MAP_FILE = os.path.join(CONFIG_DIR, "rename_map.json")
 
 
 def load_config():
@@ -106,6 +107,10 @@ class BatchGUI(tk.Tk):
 
         # Conversations/status state
         self.file_status_map = {}
+        # Paths snapshot for post-run utilities
+        self._last_convos_json = ""
+        self._last_flat_json = ""
+        self._last_audio_dir = ""
 
         self._build_ui()
 
@@ -191,6 +196,13 @@ class BatchGUI(tk.Tk):
         self.save_btn = tk.Button(btn_frm, text="Save Config", command=self.on_save_config)
         self.save_btn.pack(side=tk.RIGHT, padx=(6, 0))
 
+        # Export unmatched voicelines (enabled after run)
+        self.unmatched_btn = tk.Button(btn_frm, text="Export Unmatched Voicelines", command=self.export_unmatched_voicelines, state=tk.DISABLED)
+        self.unmatched_btn.pack(side=tk.RIGHT, padx=(6, 0))
+        # Move processed audio files (enabled after run)
+        self.move_btn = tk.Button(btn_frm, text="Move Processed Audio Files", command=self.move_processed_audio_files, state=tk.DISABLED)
+        self.move_btn.pack(side=tk.RIGHT, padx=(6, 0))
+
         self.log = scrolledtext.ScrolledText(self, height=20, width=100, state=tk.NORMAL)
         self.log.pack(padx=10, pady=(0, 10), fill=tk.BOTH, expand=True)
 
@@ -246,6 +258,103 @@ class BatchGUI(tk.Tk):
             self.log.configure(state=tk.DISABLED)
         except Exception:
             pass
+
+    def _maybe_enable_unmatched_button(self):
+        try:
+            have_audio = bool(self._last_audio_dir and os.path.isdir(self._last_audio_dir))
+            have_flat = bool(self._last_flat_json and os.path.isfile(self._last_flat_json))
+            if have_audio and have_flat and hasattr(self, 'unmatched_btn'):
+                self.after(0, lambda: self.unmatched_btn.configure(state=tk.NORMAL))
+            if have_audio and have_flat and hasattr(self, 'move_btn'):
+                self.after(0, lambda: self.move_btn.configure(state=tk.NORMAL))
+        except Exception:
+            pass
+
+    def _apply_rename_map(self, audio_dir):
+        """
+        Apply user-provided rename mappings to .mp3 files under audio_dir.
+        Mapping file path: RENAME_MAP_FILE. Keys and values are basenames.
+        Values missing .mp3 will be appended. Conflicts are skipped.
+        """
+        try:
+            if not audio_dir or not os.path.isdir(audio_dir):
+                return
+            if not os.path.isfile(RENAME_MAP_FILE):
+                return
+
+            # Load mapping
+            try:
+                with open(RENAME_MAP_FILE, 'r', encoding='utf-8') as f:
+                    mapping = json.load(f)
+            except Exception as e:
+                self.log_write(f"[Rename] Failed to load rename map: {e}\n")
+                return
+
+            if not isinstance(mapping, dict):
+                self.log_write("[Rename] Rename map is not a JSON object; skipping.\n")
+                return
+
+            # Normalize mapping to str->str and ensure target has .mp3
+            norm_map = {}
+            for k, v in mapping.items():
+                try:
+                    src = str(k).strip()
+                    dst = str(v).strip()
+                    if not src:
+                        continue
+                    if not dst.lower().endswith('.mp3'):
+                        dst = dst + '.mp3'
+                    norm_map[src] = dst
+                except Exception:
+                    continue
+
+            if not norm_map:
+                return
+
+            # Build index of basename -> [fullpaths]
+            index = {}
+            for root, _, files in os.walk(audio_dir):
+                for name in files:
+                    if not name.lower().endswith('.mp3'):
+                        continue
+                    index.setdefault(name, []).append(os.path.join(root, name))
+
+            found = 0
+            renamed = 0
+            conflicts = 0
+            missing = 0
+
+            self.log_write(f"[Rename] Loaded {len(norm_map)} entries from {RENAME_MAP_FILE}\n")
+
+            for src_base, dst_base in norm_map.items():
+                paths = index.get(src_base)
+                if not paths:
+                    missing += 1
+                    continue
+                found += len(paths)
+                for src_path in paths:
+                    dst_path = os.path.join(os.path.dirname(src_path), dst_base)
+                    try:
+                        if os.path.abspath(src_path) == os.path.abspath(dst_path):
+                            continue
+                        if os.path.exists(dst_path):
+                            conflicts += 1
+                            self.log_write(f"[Rename][SKIP] Target exists: {os.path.basename(src_path)} -> {os.path.basename(dst_path)}\n")
+                            continue
+                        os.rename(src_path, dst_path)
+                        renamed += 1
+                        self.log_write(f"[Rename] {os.path.basename(src_path)} -> {os.path.basename(dst_path)}\n")
+                    except Exception as e:
+                        conflicts += 1
+                        self.log_write(f"[Rename][ERROR] {src_base}: {e}\n")
+
+            self.log_write(f"[Rename] Summary: found {found}, renamed {renamed}, missing {missing}, conflicts {conflicts}.\n")
+        except Exception as e:
+            # Keep UI quiet unless failure
+            try:
+                self.log_write(f"[Rename][ERROR] {e}\n")
+            except Exception:
+                pass
 
     def on_save_config(self):
         self.cfg["source2viewer_binary"] = self.bin_entry.get().strip()
@@ -371,6 +480,12 @@ class BatchGUI(tk.Tk):
                 if not audio_dir or not os.path.isdir(audio_dir):
                     return
 
+                # Apply user rename map before parsing/exports
+                try:
+                    self._apply_rename_map(audio_dir)
+                except Exception:
+                    pass
+
                 # Determine output JSON path
                 out_path = (self.convos_json_entry.get().strip() if hasattr(self, 'convos_json_entry') else "") or self.cfg.get("conversations_export_json", "")
                 if not out_path:
@@ -426,6 +541,12 @@ class BatchGUI(tk.Tk):
                         json.dump(export_data, f, indent=2)
 
                     self.log_write(f"Exported {len(player.conversations)} conversations to {out_path}\n")
+                    # Snapshot conversations export path for later use
+                    try:
+                        self._last_convos_json = out_path
+                        self._maybe_enable_unmatched_button()
+                    except Exception:
+                        pass
                     # After conversations export completes, start voicelines pipeline
                     try:
                         self._start_voicelines_pipeline(audio_dir)
@@ -447,6 +568,13 @@ class BatchGUI(tk.Tk):
             try:
                 if not audio_dir or not os.path.isdir(audio_dir):
                     return
+
+                # Snapshot audio dir early
+                try:
+                    self._last_audio_dir = audio_dir
+                    self._maybe_enable_unmatched_button()
+                except Exception:
+                    pass
 
                 # Prepare temp working paths
                 voi_tmp_dir = os.path.join(self.tempdir or os.getcwd(), "voicelines")
@@ -611,6 +739,14 @@ class BatchGUI(tk.Tk):
                 except Exception:
                     pass
                 self.log_write(f"[Copy] Done. Copied -> {copy_dir}; Flat JSON -> {flat_json}\n")
+
+                # Snapshot flat.json path for later use
+                try:
+                    if os.path.isfile(flat_json):
+                        self._last_flat_json = flat_json
+                        self._maybe_enable_unmatched_button()
+                except Exception:
+                    pass
 
                 # Status mapping
                 reprocess_statuses = None
@@ -820,6 +956,244 @@ class BatchGUI(tk.Tk):
                 return
             audio_dir = picked
         self._start_generate_summaries(audio_dir)
+
+    def export_unmatched_voicelines(self):
+        # Gather inputs on UI thread, then compute in background
+        audio_dir = self._last_audio_dir if (self._last_audio_dir and os.path.isdir(self._last_audio_dir)) else ""
+        flat_json = self._last_flat_json if (self._last_flat_json and os.path.isfile(self._last_flat_json)) else ""
+        convos_json = self._last_convos_json if (self._last_convos_json and os.path.isfile(self._last_convos_json)) else ""
+
+        if not audio_dir:
+            picked = filedialog.askdirectory(title="Select exported conversations audio folder (sounds/vo)")
+            if not picked:
+                return
+            audio_dir = picked
+
+        if not flat_json:
+            picked_flat = filedialog.askopenfilename(title="Select voicelines flat.json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+            if not picked_flat:
+                messagebox.showwarning("Missing flat.json", "A flat.json from the voicelines copy step is required.")
+                return
+            flat_json = picked_flat
+
+        # Optional conversations JSON (skip if not provided)
+        if not convos_json:
+            picked_convos = filedialog.askopenfilename(title="Select conversations export JSON (optional)", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+            if picked_convos:
+                convos_json = picked_convos
+
+        # Choose output path
+        try:
+            default_dir = os.path.join(self.tempdir or os.getcwd(), "voicelines")
+            try:
+                os.makedirs(default_dir, exist_ok=True)
+            except Exception:
+                pass
+            out_path = filedialog.asksaveasfilename(title="Save Unmatched Voicelines As", initialdir=default_dir, initialfile="unmatched_voicelines.txt", defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+            if not out_path:
+                return
+        except Exception:
+            return
+
+        def run_unmatched():
+            try:
+                # Collect all mp3s under audio_dir
+                all_rel_paths = []
+                total_files = 0
+                for root, _, files in os.walk(audio_dir):
+                    for name in files:
+                        if name.lower().endswith(".mp3"):
+                            total_files += 1
+                            full = os.path.join(root, name)
+                            rel = os.path.relpath(full, audio_dir)
+                            # Normalize to sounds/vo/... with forward slashes
+                            rel_norm = ("sounds/vo/" + rel.replace(os.sep, "/")).replace("//", "/")
+                            all_rel_paths.append((os.path.basename(name), rel_norm))
+
+                # Load flat.json and gather basenames
+                flat_names = set()
+                try:
+                    with open(flat_json, 'r', encoding='utf-8') as f:
+                        flat_data = json.load(f)
+                    def _collect_filenames(node, acc):
+                        if isinstance(node, dict):
+                            if 'filename' in node and isinstance(node['filename'], str):
+                                acc.add(os.path.basename(node['filename']))
+                            for v in node.values():
+                                _collect_filenames(v, acc)
+                        elif isinstance(node, list):
+                            for item in node:
+                                _collect_filenames(item, acc)
+                    _collect_filenames(flat_data, flat_names)
+                except Exception:
+                    pass
+
+                # Load conversations JSON (optional) and gather basenames
+                convo_names = set()
+                if convos_json and os.path.isfile(convos_json):
+                    try:
+                        with open(convos_json, 'r', encoding='utf-8') as f:
+                            convo_data = json.load(f)
+                        def _collect_conv_filenames(node, acc):
+                            if isinstance(node, dict):
+                                if 'filename' in node and isinstance(node['filename'], str):
+                                    acc.add(os.path.basename(node['filename']))
+                                for v in node.values():
+                                    _collect_conv_filenames(v, acc)
+                            elif isinstance(node, list):
+                                for item in node:
+                                    _collect_conv_filenames(item, acc)
+                        _collect_conv_filenames(convo_data, convo_names)
+                    except Exception:
+                        pass
+
+                matched = flat_names.union(convo_names)
+                unmatched_lines = sorted({rel for bn, rel in all_rel_paths if bn not in matched})
+
+                # Write output
+                try:
+                    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+                except Exception:
+                    pass
+                with open(out_path, 'w', encoding='utf-8') as f:
+                    for line in unmatched_lines:
+                        f.write(line + "\n")
+
+                self.log_write(f"[Unmatched] Audio files scanned: {total_files}\n")
+                self.log_write(f"[Unmatched] Matched names (flat+convos): {len(matched)}\n")
+                self.log_write(f"[Unmatched] Unmatched count: {len(unmatched_lines)} -> {out_path}\n")
+                try:
+                    self.after(0, lambda: messagebox.showinfo("Export Complete", f"Saved {len(unmatched_lines)} unmatched voicelines to:\n{out_path}"))
+                except Exception:
+                    pass
+            except Exception as e:
+                self.log_write(f"[Unmatched][ERROR] {e}\n")
+
+        threading.Thread(target=run_unmatched, daemon=True).start()
+
+    def move_processed_audio_files(self):
+        # Gather inputs
+        audio_dir = self._last_audio_dir if (self._last_audio_dir and os.path.isdir(self._last_audio_dir)) else ""
+        flat_json = self._last_flat_json if (self._last_flat_json and os.path.isfile(self._last_flat_json)) else ""
+        convos_json = self._last_convos_json if (self._last_convos_json and os.path.isfile(self._last_convos_json)) else ""
+
+        if not audio_dir:
+            picked = filedialog.askdirectory(title="Select exported conversations audio folder (sounds/vo)")
+            if not picked:
+                return
+            audio_dir = picked
+
+        if not flat_json:
+            picked_flat = filedialog.askopenfilename(title="Select voicelines flat.json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+            if not picked_flat:
+                messagebox.showwarning("Missing flat.json", "A flat.json from the voicelines copy step is required.")
+                return
+            flat_json = picked_flat
+
+        # Optional convos JSON
+        if not convos_json:
+            picked_convos = filedialog.askopenfilename(title="Select conversations export JSON (optional)", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+            if picked_convos:
+                convos_json = picked_convos
+
+        # Destination folder
+        dest_dir = filedialog.askdirectory(title="Select destination folder for processed audio files")
+        if not dest_dir:
+            return
+
+        def run_move():
+            try:
+                # Build processed basenames set from flat.json
+                processed_basenames = set()
+                try:
+                    with open(flat_json, 'r', encoding='utf-8') as f:
+                        flat_data = json.load(f)
+                    def _collect_filenames(node, acc):
+                        if isinstance(node, dict):
+                            if 'filename' in node and isinstance(node['filename'], str):
+                                acc.add(os.path.basename(node['filename']))
+                            for v in node.values():
+                                _collect_filenames(v, acc)
+                        elif isinstance(node, list):
+                            for item in node:
+                                _collect_filenames(item, acc)
+                    _collect_filenames(flat_data, processed_basenames)
+                except Exception:
+                    pass
+
+                # Include conversation filenames if available
+                if convos_json and os.path.isfile(convos_json):
+                    try:
+                        with open(convos_json, 'r', encoding='utf-8') as f:
+                            convo_data = json.load(f)
+                        def _collect_conv_filenames(node, acc):
+                            if isinstance(node, dict):
+                                if 'filename' in node and isinstance(node['filename'], str):
+                                    acc.add(os.path.basename(node['filename']))
+                                for v in node.values():
+                                    _collect_conv_filenames(v, acc)
+                            elif isinstance(node, list):
+                                for item in node:
+                                    _collect_conv_filenames(item, acc)
+                        _collect_conv_filenames(convo_data, processed_basenames)
+                    except Exception:
+                        pass
+
+                # Walk audio_dir and select actual files to move by basename membership
+                files_to_move = []
+                for root, _, files in os.walk(audio_dir):
+                    for name in files:
+                        if name.lower().endswith('.mp3') and name in processed_basenames:
+                            files_to_move.append(os.path.join(root, name))
+
+                if not files_to_move:
+                    self.log_write("[Move] No processed files found to move.\n")
+                    try:
+                        self.after(0, lambda: messagebox.showinfo("Move", "No processed files found to move."))
+                    except Exception:
+                        pass
+                    return
+
+                # Ensure destination exists
+                try:
+                    os.makedirs(dest_dir, exist_ok=True)
+                except Exception:
+                    pass
+
+                def _unique_dest_path(base_dir, filename):
+                    stem, ext = os.path.splitext(filename)
+                    candidate = os.path.join(base_dir, filename)
+                    if not os.path.exists(candidate):
+                        return candidate
+                    i = 1
+                    while True:
+                        cand = os.path.join(base_dir, f"{stem}_{i}{ext}")
+                        if not os.path.exists(cand):
+                            return cand
+                        i += 1
+
+                moved = 0
+                errors = 0
+                for src in files_to_move:
+                    try:
+                        dest_path = _unique_dest_path(dest_dir, os.path.basename(src))
+                        shutil.move(src, dest_path)
+                        moved += 1
+                        if moved % 200 == 0:
+                            self.log_write(f"[Move] Moved {moved}/{len(files_to_move)}...\n")
+                    except Exception as e:
+                        errors += 1
+                        self.log_write(f"[Move][ERROR] {src}: {e}\n")
+
+                self.log_write(f"[Move] Completed. Moved {moved} files to {dest_dir}. Errors: {errors}.\n")
+                try:
+                    self.after(0, lambda: messagebox.showinfo("Move Complete", f"Moved {moved} files to:\n{dest_dir}\nErrors: {errors}"))
+                except Exception:
+                    pass
+            except Exception as e:
+                self.log_write(f"[Move][ERROR] {e}\n")
+
+        threading.Thread(target=run_move, daemon=True).start()
 
     def on_stop(self):
         if self.process:
