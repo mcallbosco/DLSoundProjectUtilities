@@ -701,17 +701,7 @@ class VoiceLineOrganizer:
                 topic_proper = " ".join(parts).replace("_", " ").capitalize()
                 return (speaker, subject, topic_proper, None, rel_path, False)
 
-            # ========================= TEMPORARY SPECIAL CASE =========================
-            # Recognize pattern: <speaker>_bespoke_ability_line_<variation>
-            # Example: drifter_bespoke_ability_line_13.mp3
-            # Treat as a self voiceline with topic "Bespoke ability line",
-            # and ensure it falls under the "Use Power" category via special_categories.
-            if re.match(r'^[^_]+_bespoke_ability_line(_.*)?$', filename_without_ext):
-                speaker_alias = filename_without_ext.split("_", 1)[0]
-                if speaker_alias.lower() in valid_speakers:
-                    rel_path = os.path.relpath(file_path, self.source_folder_path.get())
-                    return (speaker_alias, "self", "Bespoke ability line", None, rel_path, False)
-            # ======================= END TEMPORARY SPECIAL CASE =======================
+            
 
             # List of keywords for "self" voicelines
             self_keywords = [
@@ -723,6 +713,7 @@ class VoiceLineOrganizer:
                 "upgrade_power4","use_power1", "use_power2", "use_power3", "use_power4",
                 "solo_lasso_kill","kill_anyhero","use_power4_as_enemy", "desperation_power1",
                 "desperation_power2", "desperation_power3", "desperation_power4", "hunt", "hs_select",
+                "bespoke_ability_line",
             ]
             
             # Parse the filename based on the specified structure
@@ -748,8 +739,8 @@ class VoiceLineOrganizer:
                         break
                     if joined.startswith(kw + "_"):
                         suffix = joined[len(kw) + 1:]
-                        # Accept numeric, numeric_numeric (e.g., 05_02), or alt/alt_XX
-                        if re.fullmatch(r"(\d+(_\d+)*)|alt(_\d+)?", suffix):
+                        # Accept sequences of digits, alt(_digits) or short, including combos like 13_alt_01
+                        if re.fullmatch(r"(?:\d+|alt(?:_\d+)?|short)(?:_(?:\d+|alt(?:_\d+)?|short))*", suffix):
                             matched_self_keyword = kw
                             break
             if matched_self_keyword:
