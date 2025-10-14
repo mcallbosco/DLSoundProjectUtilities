@@ -36,7 +36,10 @@ def load_config():
         "transcriptions_dir": "",
         "retranscribe_on_status": True,
         "character_mappings_file": "",
-        "conversations_export_json": ""
+        "conversations_export_json": "",
+        "voicelines_consolidated_json": "",
+        "voicelines_custom_vocab": "",
+        "voicelines_retranscribe_on_status": True
     }
 
     cfg = None
@@ -148,9 +151,27 @@ class BatchGUI(tk.Tk):
         self.convos_json_entry.insert(0, self.cfg.get("conversations_export_json", ""))
         tk.Button(frm, text="Save As...", command=self.browse_convos_json).grid(row=5, column=2, padx=6)
 
+        # Voicelines consolidated JSON path
+        tk.Label(frm, text="Voicelines Consolidated JSON: ").grid(row=6, column=0, sticky=tk.W)
+        self.voi_consolidated_entry = tk.Entry(frm, width=60)
+        self.voi_consolidated_entry.grid(row=6, column=1, padx=(4, 0), sticky=tk.W)
+        self.voi_consolidated_entry.insert(0, self.cfg.get("voicelines_consolidated_json", ""))
+        tk.Button(frm, text="Save As...", command=self.browse_voicelines_consolidated_json).grid(row=6, column=2, padx=6)
+
+        # Voicelines custom vocabulary file
+        tk.Label(frm, text="Voicelines Custom Vocabulary: ").grid(row=7, column=0, sticky=tk.W)
+        self.voi_vocab_entry = tk.Entry(frm, width=60)
+        self.voi_vocab_entry.grid(row=7, column=1, padx=(4, 0), sticky=tk.W)
+        self.voi_vocab_entry.insert(0, self.cfg.get("voicelines_custom_vocab", ""))
+        tk.Button(frm, text="Browse...", command=self.browse_voicelines_vocab).grid(row=7, column=2, padx=6)
+
         # Retranscribe checkbox
         self.retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("retranscribe_on_status", True)))
-        tk.Checkbutton(frm, text="Re-transcribe when status present", variable=self.retranscribe_var).grid(row=6, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Re-transcribe when status present", variable=self.retranscribe_var).grid(row=8, column=0, columnspan=2, sticky=tk.W)
+
+        # Voicelines retranscribe checkbox
+        self.voi_retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("voicelines_retranscribe_on_status", True)))
+        tk.Checkbutton(frm, text="Re-transcribe voicelines when status present", variable=self.voi_retranscribe_var).grid(row=9, column=0, columnspan=2, sticky=tk.W)
 
         btn_frm = tk.Frame(self)
         btn_frm.pack(padx=10, pady=(6, 6), fill=tk.X)
@@ -204,6 +225,19 @@ class BatchGUI(tk.Tk):
             self.convos_json_entry.delete(0, tk.END)
             self.convos_json_entry.insert(0, p)
 
+    def browse_voicelines_consolidated_json(self):
+        initial = self.voi_consolidated_entry.get().strip() or os.getcwd()
+        p = filedialog.asksaveasfilename(title="Select voicelines consolidated JSON output", initialfile="voicelines_consolidated.json", initialdir=os.path.dirname(initial) if os.path.isdir(os.path.dirname(initial)) else os.getcwd(), defaultextension=".json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+        if p:
+            self.voi_consolidated_entry.delete(0, tk.END)
+            self.voi_consolidated_entry.insert(0, p)
+
+    def browse_voicelines_vocab(self):
+        p = filedialog.askopenfilename(title="Select custom vocabulary JSON", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+        if p:
+            self.voi_vocab_entry.delete(0, tk.END)
+            self.voi_vocab_entry.insert(0, p)
+
     def log_write(self, s):
         try:
             self.log.configure(state=tk.NORMAL)
@@ -221,6 +255,9 @@ class BatchGUI(tk.Tk):
         self.cfg["transcriptions_dir"] = self.trans_entry.get().strip()
         self.cfg["retranscribe_on_status"] = bool(self.retranscribe_var.get())
         self.cfg["conversations_export_json"] = self.convos_json_entry.get().strip()
+        self.cfg["voicelines_consolidated_json"] = self.voi_consolidated_entry.get().strip()
+        self.cfg["voicelines_custom_vocab"] = self.voi_vocab_entry.get().strip()
+        self.cfg["voicelines_retranscribe_on_status"] = bool(self.voi_retranscribe_var.get())
         ok = save_config(self.cfg)
         if ok:
             messagebox.showinfo("Saved", f"Config saved to {CONFIG_FILE}")
@@ -389,6 +426,11 @@ class BatchGUI(tk.Tk):
                         json.dump(export_data, f, indent=2)
 
                     self.log_write(f"Exported {len(player.conversations)} conversations to {out_path}\n")
+                    # After conversations export completes, start voicelines pipeline
+                    try:
+                        self._start_voicelines_pipeline(audio_dir)
+                    except Exception as e:
+                        self.log_write(f"Voicelines pipeline failed to start: {e}\n")
                 finally:
                     try:
                         temp_root.destroy()
@@ -398,6 +440,292 @@ class BatchGUI(tk.Tk):
                 self.log_write(f"Error exporting conversations: {e}\n")
 
         threading.Thread(target=run_export, daemon=True).start()
+
+    def _start_voicelines_pipeline(self, audio_dir):
+        # Orchestrate the voicelines organizer -> copy -> transcribe flow
+        def run_vo():
+            try:
+                if not audio_dir or not os.path.isdir(audio_dir):
+                    return
+
+                # Prepare temp working paths
+                voi_tmp_dir = os.path.join(self.tempdir or os.getcwd(), "voicelines")
+                try:
+                    os.makedirs(voi_tmp_dir, exist_ok=True)
+                except Exception:
+                    pass
+                organized_json = os.path.join(voi_tmp_dir, "organized.json")
+                flat_json = os.path.join(voi_tmp_dir, "flat.json")
+                copy_dir = os.path.join(voi_tmp_dir, "copy")
+
+                # Resolve user settings
+                consolidated_out = (self.voi_consolidated_entry.get().strip() if hasattr(self, 'voi_consolidated_entry') else "") or self.cfg.get("voicelines_consolidated_json", "")
+                trans_dir = (self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else "") or self.cfg.get("transcriptions_dir", "")
+                custom_vocab = (self.voi_vocab_entry.get().strip() if hasattr(self, 'voi_vocab_entry') else "") or self.cfg.get("voicelines_custom_vocab", "")
+
+                if not trans_dir:
+                    self.log_write("[Voicelines] Transcriptions Dir not set. Skipping voicelines pipeline.\n")
+                    return
+                if not consolidated_out:
+                    consolidated_out = os.path.join(voi_tmp_dir, "voicelines_consolidated.json")
+
+                # Import voicelines modules
+                voi_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Voiceline Utilities"))
+                if voi_root not in sys.path:
+                    sys.path.insert(0, voi_root)
+
+                # Organizer
+                assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets"))
+                alias_path = os.path.join(assets_dir, "character_mappings.json")
+                topic_alias_path = os.path.join(assets_dir, "topic_alias.json")
+                if not os.path.exists(topic_alias_path):
+                    alt = os.path.join(assets_dir, "topic_mappings.json")
+                    if os.path.exists(alt):
+                        topic_alias_path = alt
+                try:
+                    import importlib as _importlib
+                    _voi_mod = _importlib.import_module('modules.voice_line_organizer')
+                    VoiceLineOrganizer = _voi_mod.VoiceLineOrganizer
+                except Exception as e:
+                    self.log_write(f"[Organizer] Import error: {e}\n")
+                    return
+
+                temp_root = tk.Tk()
+                temp_root.withdraw()
+                try:
+                    organizer = VoiceLineOrganizer(temp_root)
+                    # Disable internal organizer logging for performance
+                    try:
+                        organizer.log = lambda *args, **kwargs: None
+                    except Exception:
+                        pass
+                    # Disable message boxes from the organizer module
+                    try:
+                        if hasattr(_voi_mod, 'messagebox') and hasattr(_voi_mod.messagebox, 'showinfo'):
+                            _voi_mod.messagebox.showinfo = lambda *args, **kwargs: None
+                    except Exception:
+                        pass
+                    # Null out per-file UI updates
+                    try:
+                        organizer.root.after = lambda *args, **kwargs: None
+                    except Exception:
+                        pass
+                    try:
+                        class _NullProgress:
+                            def __setitem__(self, key, value):
+                                return None
+                        organizer.progress = _NullProgress()
+                    except Exception:
+                        pass
+                    try:
+                        class _NullLog:
+                            def insert(self, *args, **kwargs):
+                                return None
+                            def see(self, *args, **kwargs):
+                                return None
+                            def config(self, *args, **kwargs):
+                                return None
+                        organizer.log_text = _NullLog()
+                    except Exception:
+                        pass
+                    # Remove per-file progress logging wrapper to avoid overhead
+                    organizer.alias_json_path.set(alias_path)
+                    organizer.topic_alias_json_path.set(topic_alias_path)
+                    organizer.source_folder_path.set(audio_dir)
+                    organizer.output_json_path.set(organized_json)
+                    self.log_write("[Organizer] Starting...\n")
+                    organizer.process_voice_lines()
+                    self.log_write(f"[Organizer] Done. Output: {organized_json}\n")
+                finally:
+                    try:
+                        temp_root.destroy()
+                    except Exception:
+                        pass
+
+                # Copy
+                try:
+                    from modules import copy_voice_files as _copy
+                except Exception as e:
+                    self.log_write(f"[Copy] Import error: {e}\n")
+                    return
+
+                copy_stats = {"copied": 0, "last_report": 0}
+                class _Writer:
+                    def __init__(self, gui, prefix, stats):
+                        self._gui = gui
+                        self._prefix = prefix
+                        self._stats = stats
+                    def write(self, s):
+                        s = str(s)
+                        for line in s.splitlines():
+                            if not line:
+                                continue
+                            text = line.strip()
+                            if not text:
+                                continue
+                            try:
+                                if text.startswith("Copied:"):
+                                    self._stats["copied"] += 1
+                                    # Report every 200 files to reduce UI churn
+                                    if self._stats["copied"] - self._stats["last_report"] >= 200:
+                                        self._stats["last_report"] = self._stats["copied"]
+                                        self._gui.log_write(f"{self._prefix} Copied {self._stats['copied']} files...\n")
+                                else:
+                                    self._gui.log_write(f"{self._prefix} {text}\n")
+                            except Exception:
+                                pass
+                    def flush(self):
+                        pass
+
+                _old_out, _old_err = sys.stdout, sys.stderr
+                try:
+                    sys.stdout, sys.stderr = _Writer(self, "[Copy]", copy_stats), _Writer(self, "[Copy]", copy_stats)
+                    # Fast copy: prefer hardlink/symlink over byte copy to speed up
+                    try:
+                        orig_copy2 = _copy.shutil.copy2
+                        def fast_copy2(src, dst, follow_symlinks=True):
+                            try:
+                                os.link(src, dst)
+                                return dst
+                            except Exception:
+                                pass
+                            try:
+                                os.symlink(src, dst)
+                                return dst
+                            except Exception:
+                                pass
+                            return orig_copy2(src, dst, follow_symlinks=follow_symlinks)
+                        _copy.shutil.copy2 = fast_copy2
+                        try:
+                            _copy.copy_voice_files(organized_json, audio_dir, copy_dir, flat_json)
+                        finally:
+                            _copy.shutil.copy2 = orig_copy2
+                    except Exception:
+                        _copy.copy_voice_files(organized_json, audio_dir, copy_dir, flat_json)
+                finally:
+                    sys.stdout, sys.stderr = _old_out, _old_err
+                # Final copy summary
+                try:
+                    if copy_stats["copied"]:
+                        self.log_write(f"[Copy] Copied total {copy_stats['copied']} files.\n")
+                except Exception:
+                    pass
+                self.log_write(f"[Copy] Done. Copied -> {copy_dir}; Flat JSON -> {flat_json}\n")
+
+                # Status mapping
+                reprocess_statuses = None
+                reprocess_status_map = None
+                try:
+                    use_status = bool(self.voi_retranscribe_var.get()) if hasattr(self, 'voi_retranscribe_var') else bool(self.cfg.get("voicelines_retranscribe_on_status", True))
+                except Exception:
+                    use_status = True
+                if use_status:
+                    status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
+                    status_map_sets = self._load_status_file(status_dir)
+                    if status_map_sets:
+                        reprocess_statuses = sorted({s for sset in status_map_sets.values() for s in sset})
+                        reprocess_status_map = {}
+                        for stem, sset in status_map_sets.items():
+                            if "UPDATED" in sset:
+                                reprocess_status_map[stem] = "UPDATED"
+                            else:
+                                reprocess_status_map[stem] = sorted(list(sset))[0]
+                        self.log_write(f"[Transcribe] Status filtering enabled. Statuses: {', '.join(reprocess_statuses)}\n")
+                else:
+                    self.log_write("[Transcribe] Status filtering disabled. Existing JSONs will be reused; only new files will be transcribed.\n")
+
+                # Pre-create expected JSON filenames to avoid accidental reprocess when legacy names exist (e.g., name.json vs name.mp3.json)
+                try:
+                    if os.path.isdir(trans_dir) and os.path.isfile(flat_json):
+                        with open(flat_json, 'r', encoding='utf-8') as f:
+                            flat_data = json.load(f)
+
+                        def _collect_filenames(node, acc):
+                            if isinstance(node, dict):
+                                if 'filename' in node and isinstance(node['filename'], str):
+                                    acc.add(node['filename'])
+                                for v in node.values():
+                                    _collect_filenames(v, acc)
+                            elif isinstance(node, list):
+                                for item in node:
+                                    _collect_filenames(item, acc)
+                        names = set()
+                        _collect_filenames(flat_data, names)
+                        for fn in names:
+                            try:
+                                expected = os.path.join(trans_dir, f"{fn}.json")
+                                if os.path.exists(expected):
+                                    continue
+                                stem = os.path.splitext(fn)[0]
+                                legacy = os.path.join(trans_dir, f"{stem}.json")
+                                if os.path.exists(legacy):
+                                    try:
+                                        # Prefer hardlink/symlink; fall back to copy
+                                        try:
+                                            os.link(legacy, expected)
+                                        except Exception:
+                                            try:
+                                                os.symlink(legacy, expected)
+                                            except Exception:
+                                                shutil.copy2(legacy, expected)
+                                        self.log_write(f"[Transcribe] Linked legacy transcription for {fn} -> {os.path.basename(expected)}\n")
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+
+                # Transcribe
+                try:
+                    from modules import transcribe_voice_files as _trans
+                except Exception as e:
+                    self.log_write(f"[Transcribe] Import error: {e}\n")
+                    return
+
+                tr_state = {"total": None, "last_bucket": -1}
+                def progress_callback(file=None, current=None, total=None, status=None, error=None, complete=None, stats=None):
+                    try:
+                        if total is not None and tr_state["total"] is None:
+                            tr_state["total"] = total
+                        if error:
+                            self.log_write(f"[Transcribe][ERROR] {error}\n")
+                        # Throttle per-file progress to 10% buckets only
+                        if current is not None and (total is not None or tr_state["total"] is not None):
+                            t = total if total is not None else tr_state["total"]
+                            if t:
+                                pct = int(((current + 1) * 100) / t)
+                                bucket = (pct // 10) * 10
+                                if bucket >= 10 and bucket != tr_state["last_bucket"]:
+                                    self.log_write(f"[Transcribe] {bucket}% ({current+1}/{t})\n")
+                                    tr_state["last_bucket"] = bucket
+                            return
+                        # Log non-per-file status lines (setup/summary)
+                        if status and (not status.startswith("Processing ")):
+                            self.log_write(f"[Transcribe] {status}\n")
+                        if complete:
+                            self.log_write(f"[Transcribe] Complete. Stats: {stats}\n")
+                    except Exception:
+                        pass
+
+                self.log_write("[Transcribe] Starting...\n")
+                _trans.transcribe_voice_files(
+                    flat_json,
+                    copy_dir,
+                    force_reprocess=False,
+                    progress_callback=progress_callback,
+                    output_folder=trans_dir,
+                    consolidated_json_path=consolidated_out,
+                    custom_vocab_file=custom_vocab if custom_vocab else None,
+                    reprocess_statuses=reprocess_statuses,
+                    reprocess_status_map=reprocess_status_map
+                )
+                self.log_write(f"[Transcribe] Consolidated JSON -> {consolidated_out}\n")
+
+            except Exception as e:
+                self.log_write(f"[Voicelines] Pipeline error: {e}\n")
+
+        threading.Thread(target=run_vo, daemon=True).start()
 
     def export_conversations_manual(self):
         # Prefer last run's output folder; else ask for a folder
