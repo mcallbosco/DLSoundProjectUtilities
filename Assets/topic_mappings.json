@@ -1,0 +1,24 @@
+{
+  "use_refresher": ["use_ability_refresher"],
+  "use_bouncepad": ["use_bouncepad"],
+  "use_colossus": ["use_colossus"],
+  "use_curse": ["use_curse"],
+  "use_decay": ["use_decay"],
+  "use_echo_shard": ["use_echo_shard"],
+  "use_ice_blast": ["use_ice_blast"],
+  "use_metal_skin": ["use_metal_skin"],
+  "use_phantom_strike": ["use_phantom_strike"],
+  "use_rupture": ["use_rupture"],
+  "use_shadow_weave": ["use_shadow_weave"],
+  "use_silence": ["use_silencer", "use_silence"],
+  "use_tech_purge": ["use_tech_purge"],
+  "use_unstoppable": ["use_unstoppable"],
+  "use_vampiric_burst": ["use_vampiric_burst"],
+
+  "attack_enemy": ["attack_enemy_avatar"],
+  "take_mid": ["enemy_take_mid"],
+  "see_on_bridge": ["see_enemy_on_bridge"],
+  "see_on_roof": ["see_enemy_on_roof"]
+}
+
+

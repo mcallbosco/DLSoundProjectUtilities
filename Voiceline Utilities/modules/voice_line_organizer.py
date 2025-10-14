@@ -18,6 +18,8 @@ class VoiceLineOrganizer:
         "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
         "Emotions": ["angry", "concerned", "happy", "sad"],
         "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill"],
+        # New special category for use_* non-ping topics (items, shards, etc.)
+        "Item Usage": [],
     }
     # Define special categories for pings
     special_ping_categories = {
@@ -485,6 +487,15 @@ class VoiceLineOrganizer:
                         base_topic = topic
                         topic_key_for_category = topic.replace(" ", "_").lower()
                     placed_in_category = False
+                    # Route all non-power use_* topics under Item Usage
+                    if topic_key_for_category.startswith("use_") and not topic_key_for_category.startswith("use_power"):
+                        if "Item Usage" not in result_data[speaker][subject_key]:
+                            result_data[speaker][subject_key]["Item Usage"] = {}
+                        if topic not in result_data[speaker][subject_key]["Item Usage"]:
+                            result_data[speaker][subject_key]["Item Usage"][topic] = []
+                        result_data[speaker][subject_key]["Item Usage"][topic].append(rel_path)
+                        placed_in_category = True
+
                     for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
                         if topic_key_for_category in keywords:
                             if cat_name not in result_data[speaker][subject_key]:
@@ -714,6 +725,10 @@ class VoiceLineOrganizer:
                 "solo_lasso_kill","kill_anyhero","use_power4_as_enemy", "desperation_power1",
                 "desperation_power2", "desperation_power3", "desperation_power4", "hunt", "hs_select",
                 "bespoke_ability_line",
+                # New self single-keyword topics
+                "start_match", "ap_reminder", "congrats", "be_careful", "end_streak",
+                "lose", "lose_early", "lose_late", "enemy_gets_rejuv", "kill_high_networth",
+                "boost_past_on_zipline",
             ]
             
             # Parse the filename based on the specified structure
@@ -745,6 +760,13 @@ class VoiceLineOrganizer:
                             break
             if matched_self_keyword:
                 # Handle self voiceline: [speaker]_[keyword][_variation]
+                relationship = None
+                rest = joined
+                is_self = True
+            # Prefix-based self voiceline detection
+            elif len(parts_initial) > 1 and (
+                joined.startswith("use_") or joined.startswith("effort_") or joined.startswith("pain_")
+            ):
                 relationship = None
                 rest = joined
                 is_self = True
