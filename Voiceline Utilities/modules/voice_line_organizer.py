@@ -10,14 +10,14 @@ class VoiceLineOrganizer:
     # Define multiple special categories as a dict: {category_name: [keywords]}
     special_categories = {
         "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak"],
-        "Movement": ["leave_base", "leaving_area"],
+        "Movement": ["leave_base", "leaving_area", "boost_past_on_zipline"],
         # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
         "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line"],
         "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4"],
         "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4"],
         "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
-        "Emotions": ["angry", "concerned", "happy", "sad"],
-        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill"],
+        "Emotions": ["angry", "concerned", "happy", "sad", "congrats"],
+        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth"],
         # New special category for use_* non-ping topics (items, shards, etc.)
         "Item Usage": [],
     }
@@ -495,6 +495,27 @@ class VoiceLineOrganizer:
                             result_data[speaker][subject_key]["Item Usage"][topic] = []
                         result_data[speaker][subject_key]["Item Usage"][topic].append(rel_path)
                         placed_in_category = True
+
+                    # Route pain_* topics under Emotions -> Pain and effort_* under Emotions -> Effort
+                    if not placed_in_category:
+                        if topic_key_for_category == "pain" or topic_key_for_category.startswith("pain_"):
+                            if "Emotions" not in result_data[speaker][subject_key]:
+                                result_data[speaker][subject_key]["Emotions"] = {}
+                            if "Pain" not in result_data[speaker][subject_key]["Emotions"]:
+                                result_data[speaker][subject_key]["Emotions"]["Pain"] = {}
+                            if topic not in result_data[speaker][subject_key]["Emotions"]["Pain"]:
+                                result_data[speaker][subject_key]["Emotions"]["Pain"][topic] = []
+                            result_data[speaker][subject_key]["Emotions"]["Pain"][topic].append(rel_path)
+                            placed_in_category = True
+                        elif topic_key_for_category == "effort" or topic_key_for_category.startswith("effort_"):
+                            if "Emotions" not in result_data[speaker][subject_key]:
+                                result_data[speaker][subject_key]["Emotions"] = {}
+                            if "Effort" not in result_data[speaker][subject_key]["Emotions"]:
+                                result_data[speaker][subject_key]["Emotions"]["Effort"] = {}
+                            if topic not in result_data[speaker][subject_key]["Emotions"]["Effort"]:
+                                result_data[speaker][subject_key]["Emotions"]["Effort"][topic] = []
+                            result_data[speaker][subject_key]["Emotions"]["Effort"][topic].append(rel_path)
+                            placed_in_category = True
 
                     for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
                         if topic_key_for_category in keywords:

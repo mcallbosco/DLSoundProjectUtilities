@@ -8,7 +8,7 @@
   "retranscribe_on_status": false,
   "character_mappings_file": "/home/mcall/Documents/Projects/DLSoundProject/DLSoundProjectUtilities/Assets/character_mappings.json",
   "conversations_export_json": "/home/mcall/Documents/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockAugust22025/all_conversations.json",
-  "voicelines_consolidated_json": "/home/mcall/Documents/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockAugust22025/voicelines.json",
+  "voicelines_consolidated_json": "/home/mcall/Documents/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockAugust22025/all_voicelines.json",
   "voicelines_custom_vocab": "/home/mcall/Documents/Projects/DLSoundProject/DLSoundProjectUtilities/Assets/deadlock_vocabulary.json",
   "voicelines_retranscribe_on_status": false
 }
