@@ -1321,9 +1321,9 @@ class ConversationPlayer:
                         'text': segment.get('text', '').strip()
                     })
                 
+                # Build result without a top-level "text" field; consumers should derive from segments
                 result = {
                     'file': os.path.basename(file_path),
-                    'text': response.get('text', ''),
                     'segments': segments
                 }
                 
@@ -1544,12 +1544,20 @@ Summary (maximum 7 words):"""
                     stem in self.file_status_map and bool(self.file_status_map[stem])
                 )
                 if os.path.exists(cache_file) and not force_retranscribe:
-                    # Use existing transcription
+                    # Use existing transcription, deriving text from segments
                     try:
                         with open(cache_file, 'r', encoding='utf-8') as f:
                             transcription_data = json.load(f)
-                            transcription = transcription_data.get('text', "")
-                            has_transcription = True
+                            segs = transcription_data.get('segments', [])
+                            if isinstance(segs, list):
+                                transcription = " ".join(
+                                    s.get('text', '').strip()
+                                    for s in segs
+                                    if isinstance(s, dict) and s.get('text')
+                                ).strip()
+                            else:
+                                transcription = ""
+                            has_transcription = bool(transcription)
                     except:
                         transcription = "[Transcription not available]"
                 elif transcribe_all:
@@ -1559,8 +1567,16 @@ Summary (maximum 7 words):"""
                         try:
                             transcription_data = self._transcribe_file(file_path)
                             if transcription_data:
-                                transcription = transcription_data.get('text', "")
-                                has_transcription = True
+                                segs = transcription_data.get('segments', [])
+                                if isinstance(segs, list):
+                                    transcription = " ".join(
+                                        s.get('text', '').strip()
+                                        for s in segs
+                                        if isinstance(s, dict) and s.get('text')
+                                    ).strip()
+                                else:
+                                    transcription = ""
+                                has_transcription = bool(transcription)
                             else:
                                 transcription = "[Transcription failed]"
                         except Exception as e:

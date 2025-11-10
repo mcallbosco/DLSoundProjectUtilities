@@ -252,10 +252,17 @@ class BatchGUI(tk.Tk):
 
     def log_write(self, s):
         try:
-            self.log.configure(state=tk.NORMAL)
-            self.log.insert(tk.END, s)
-            self.log.see(tk.END)
-            self.log.configure(state=tk.DISABLED)
+            def _append():
+                try:
+                    self.log.configure(state=tk.NORMAL)
+                    self.log.insert(tk.END, s)
+                    self.log.see(tk.END)
+                    self.log.configure(state=tk.DISABLED)
+                except Exception:
+                    pass
+            # Always marshal UI updates to the Tk main thread
+            if self.winfo_exists():
+                self.after(0, _append)
         except Exception:
             pass
 
@@ -431,6 +438,7 @@ class BatchGUI(tk.Tk):
                 # Trigger conversations export after successful extraction
                 try:
                     audio_dir = os.path.join(self.tempdir or "", "sounds", "vo")
+                    # Start export on a worker thread; it will marshal UI updates safely
                     self._start_conversations_export(audio_dir)
                 except Exception as e:
                     # Keep UI quiet unless failure
