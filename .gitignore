@@ -4,3 +4,4 @@
 video_generator.py
 video_generator_README.md
 *.pyc
+/.venv
