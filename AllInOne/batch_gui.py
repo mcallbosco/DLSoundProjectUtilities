@@ -461,7 +461,28 @@ class BatchGUI(tk.Tk):
                     candidates.append(os.path.join(status_dir, name))
             if not candidates:
                 return {}
-            newest = max(candidates, key=os.path.getmtime)
+            
+            # Try to parse embedded timestamp from filename (changes_YYYYMMDD_HHMMSS_<hash>.txt pattern)
+            def extract_timestamp(filepath):
+                basename = os.path.basename(filepath)
+                parts = basename.split('_')
+                if len(parts) >= 3:
+                    try:
+                        # Format: changes_YYYYMMDD_HHMMSS_<hash>
+                        date_part = parts[1]
+                        time_part = parts[2]
+                        if len(date_part) == 8 and len(time_part) == 6:
+                            timestamp_str = date_part + time_part
+                            return int(timestamp_str)
+                    except (ValueError, IndexError):
+                        pass
+                # Fallback to file modification time if parsing fails
+                try:
+                    return int(os.path.getmtime(filepath))
+                except Exception:
+                    return 0
+            
+            newest = max(candidates, key=extract_timestamp)
             status_map = {}
             with open(newest, 'r', encoding='utf-8', errors='ignore') as f:
                 for line in f:
