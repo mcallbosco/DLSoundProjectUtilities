@@ -110,6 +110,7 @@ class BatchGUI(tk.Tk):
         # Paths snapshot for post-run utilities
         self._last_convos_json = ""
         self._last_flat_json = ""
+        self._last_consolidated_json = ""
         self._last_audio_dir = ""
 
         self._build_ui()
@@ -887,6 +888,14 @@ class BatchGUI(tk.Tk):
                 )
                 self.log_write(f"[Transcribe] Consolidated JSON -> {consolidated_out}\n")
 
+                # Snapshot consolidated JSON path for later use
+                try:
+                    if os.path.isfile(consolidated_out):
+                        self._last_consolidated_json = consolidated_out
+                        self._maybe_enable_unmatched_button()
+                except Exception:
+                    pass
+
             except Exception as e:
                 self.log_write(f"[Voicelines] Pipeline error: {e}\n")
 
@@ -989,7 +998,7 @@ class BatchGUI(tk.Tk):
     def export_unmatched_voicelines(self):
         # Gather inputs on UI thread, then compute in background
         audio_dir = self._last_audio_dir if (self._last_audio_dir and os.path.isdir(self._last_audio_dir)) else ""
-        flat_json = self._last_flat_json if (self._last_flat_json and os.path.isfile(self._last_flat_json)) else ""
+        consolidated_json = self._last_consolidated_json if (self._last_consolidated_json and os.path.isfile(self._last_consolidated_json)) else ""
         convos_json = self._last_convos_json if (self._last_convos_json and os.path.isfile(self._last_convos_json)) else ""
 
         if not audio_dir:
@@ -998,12 +1007,12 @@ class BatchGUI(tk.Tk):
                 return
             audio_dir = picked
 
-        if not flat_json:
-            picked_flat = filedialog.askopenfilename(title="Select voicelines flat.json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
-            if not picked_flat:
-                messagebox.showwarning("Missing flat.json", "A flat.json from the voicelines copy step is required.")
+        if not consolidated_json:
+            picked_consolidated = filedialog.askopenfilename(title="Select voicelines consolidated JSON", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+            if not picked_consolidated:
+                messagebox.showwarning("Missing consolidated JSON", "A consolidated JSON from the voicelines transcribe step is required.")
                 return
-            flat_json = picked_flat
+            consolidated_json = picked_consolidated
 
         # Optional conversations JSON (skip if not provided)
         if not convos_json:
@@ -1018,7 +1027,7 @@ class BatchGUI(tk.Tk):
                 os.makedirs(default_dir, exist_ok=True)
             except Exception:
                 pass
-            out_path = filedialog.asksaveasfilename(title="Save Unmatched Voicelines As", initialdir=default_dir, initialfile="unmatched_voicelines.txt", defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+            out_path = filedialog.asksaveasfilename(title="Save Unmatched Voicelines As", initialdir=default_dir, initialfile="unmatched_voicelines.json", defaultextension=".json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
             if not out_path:
                 return
         except Exception:
@@ -1039,11 +1048,11 @@ class BatchGUI(tk.Tk):
                             rel_norm = ("sounds/vo/" + rel.replace(os.sep, "/")).replace("//", "/")
                             all_rel_paths.append((os.path.basename(name), rel_norm))
 
-                # Load flat.json and gather basenames
-                flat_names = set()
+                # Load consolidated voicelines JSON and gather basenames
+                voicelines_names = set()
                 try:
-                    with open(flat_json, 'r', encoding='utf-8') as f:
-                        flat_data = json.load(f)
+                    with open(consolidated_json, 'r', encoding='utf-8') as f:
+                        consolidated_data = json.load(f)
                     def _collect_filenames(node, acc):
                         if isinstance(node, dict):
                             if 'filename' in node and isinstance(node['filename'], str):
@@ -1053,7 +1062,7 @@ class BatchGUI(tk.Tk):
                         elif isinstance(node, list):
                             for item in node:
                                 _collect_filenames(item, acc)
-                    _collect_filenames(flat_data, flat_names)
+                    _collect_filenames(consolidated_data, voicelines_names)
                 except Exception:
                     pass
 
@@ -1076,23 +1085,51 @@ class BatchGUI(tk.Tk):
                     except Exception:
                         pass
 
-                matched = flat_names.union(convo_names)
-                unmatched_lines = sorted({rel for bn, rel in all_rel_paths if bn not in matched})
+                matched = voicelines_names.union(convo_names)
+                unmatched_paths = sorted({rel for bn, rel in all_rel_paths if bn not in matched})
+                matched_count = len(matched)
+                unmatched_count = len(unmatched_paths)
 
-                # Write output
+                # Organize unmatched files by folder structure
+                unmatched_by_folder = {}
+                for path in unmatched_paths:
+                    # Extract folder path (everything except the filename)
+                    folder = os.path.dirname(path)
+                    if folder not in unmatched_by_folder:
+                        unmatched_by_folder[folder] = []
+                    unmatched_by_folder[folder].append(os.path.basename(path))
+
+                # Calculate coverage percentage
+                coverage_pct = (matched_count / total_files * 100) if total_files > 0 else 0.0
+
+                # Create structured JSON output
+                output_data = {
+                    "summary": {
+                        "total_files": total_files,
+                        "matched_files": matched_count,
+                        "unmatched_files": unmatched_count,
+                        "coverage_percentage": round(coverage_pct, 2),
+                        "matched_in_voicelines": len(voicelines_names),
+                        "matched_in_conversations": len(convo_names)
+                    },
+                    "unmatched_by_folder": {k: sorted(v) for k, v in sorted(unmatched_by_folder.items())},
+                    "unmatched_files": unmatched_paths
+                }
+
+                # Write output as JSON
                 try:
                     os.makedirs(os.path.dirname(out_path), exist_ok=True)
                 except Exception:
                     pass
                 with open(out_path, 'w', encoding='utf-8') as f:
-                    for line in unmatched_lines:
-                        f.write(line + "\n")
+                    json.dump(output_data, f, indent=2)
 
                 self.log_write(f"[Unmatched] Audio files scanned: {total_files}\n")
-                self.log_write(f"[Unmatched] Matched names (flat+convos): {len(matched)}\n")
-                self.log_write(f"[Unmatched] Unmatched count: {len(unmatched_lines)} -> {out_path}\n")
+                self.log_write(f"[Unmatched] Matched: {matched_count} ({coverage_pct:.2f}%)\n")
+                self.log_write(f"[Unmatched] Unmatched: {unmatched_count} files in {len(unmatched_by_folder)} folders\n")
+                self.log_write(f"[Unmatched] Output -> {out_path}\n")
                 try:
-                    self.after(0, lambda: messagebox.showinfo("Export Complete", f"Saved {len(unmatched_lines)} unmatched voicelines to:\n{out_path}"))
+                    self.after(0, lambda: messagebox.showinfo("Export Complete", f"Coverage: {matched_count}/{total_files} ({coverage_pct:.1f}%)\nUnmatched: {unmatched_count} files\nSaved to:\n{out_path}"))
                 except Exception:
                     pass
             except Exception as e:
@@ -1103,7 +1140,7 @@ class BatchGUI(tk.Tk):
     def move_processed_audio_files(self):
         # Gather inputs
         audio_dir = self._last_audio_dir if (self._last_audio_dir and os.path.isdir(self._last_audio_dir)) else ""
-        flat_json = self._last_flat_json if (self._last_flat_json and os.path.isfile(self._last_flat_json)) else ""
+        consolidated_json = self._last_consolidated_json if (self._last_consolidated_json and os.path.isfile(self._last_consolidated_json)) else ""
         convos_json = self._last_convos_json if (self._last_convos_json and os.path.isfile(self._last_convos_json)) else ""
 
         if not audio_dir:
@@ -1112,12 +1149,12 @@ class BatchGUI(tk.Tk):
                 return
             audio_dir = picked
 
-        if not flat_json:
-            picked_flat = filedialog.askopenfilename(title="Select voicelines flat.json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
-            if not picked_flat:
-                messagebox.showwarning("Missing flat.json", "A flat.json from the voicelines copy step is required.")
+        if not consolidated_json:
+            picked_consolidated = filedialog.askopenfilename(title="Select voicelines consolidated JSON", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
+            if not picked_consolidated:
+                messagebox.showwarning("Missing consolidated JSON", "A consolidated JSON from the voicelines transcribe step is required.")
                 return
-            flat_json = picked_flat
+            consolidated_json = picked_consolidated
 
         # Optional convos JSON
         if not convos_json:
@@ -1132,11 +1169,11 @@ class BatchGUI(tk.Tk):
 
         def run_move():
             try:
-                # Build processed basenames set from flat.json
+                # Build processed basenames set from consolidated voicelines JSON
                 processed_basenames = set()
                 try:
-                    with open(flat_json, 'r', encoding='utf-8') as f:
-                        flat_data = json.load(f)
+                    with open(consolidated_json, 'r', encoding='utf-8') as f:
+                        consolidated_data = json.load(f)
                     def _collect_filenames(node, acc):
                         if isinstance(node, dict):
                             if 'filename' in node and isinstance(node['filename'], str):
@@ -1146,7 +1183,7 @@ class BatchGUI(tk.Tk):
                         elif isinstance(node, list):
                             for item in node:
                                 _collect_filenames(item, acc)
-                    _collect_filenames(flat_data, processed_basenames)
+                    _collect_filenames(consolidated_data, processed_basenames)
                 except Exception:
                     pass
 
