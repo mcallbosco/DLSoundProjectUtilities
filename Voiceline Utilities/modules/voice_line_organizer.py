@@ -764,6 +764,20 @@ class VoiceLineOrganizer:
                 "high_max_health",
                 "nano_kills_turrets",
                 "allies_lasso_kill", "allies_no_attack",
+                # Kelvin dome ability
+                "bad_dome_alone", "bad_dome_rejuvinator", "dome_enemy_core", "dome_own_core",
+                "heal_grenade",
+                # Objective interactions
+                "idol_drop",
+                # Krill ability
+                "power2_resurface",
+                "see_enemy_use_metal_skin",
+                # Lash abilities
+                "massive_ground_pound",
+                "upgrade_power5",
+                "win_with_bebop",
+                # Effort sound variations
+                "dash_effort", "melee_efforts", "efforts",
             ]
             
             # Parse the filename based on the specified structure
