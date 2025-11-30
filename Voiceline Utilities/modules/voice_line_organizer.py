@@ -756,9 +756,17 @@ class VoiceLineOrganizer:
             # Pattern: speaker_ally/enemy_subject_topic_variation
             # Example: astro_ally_operative_kill_01.mp3
 
-            # Always extract speaker as the first part before "_"
+            # Extract speaker - try multi-part names first (e.g., "magician_henry")
             parts_initial = filename_without_ext.split("_")
             speaker = parts_initial[0] if len(parts_initial) > 1 else filename_without_ext
+
+            # Try to match longer speaker names (e.g., "magician_henry" instead of just "magician")
+            if len(parts_initial) > 1:
+                # Try matching the first 2 parts as a speaker name
+                if len(parts_initial) >= 2:
+                    candidate = f"{parts_initial[0]}_{parts_initial[1]}"
+                    if candidate.lower() in valid_speakers:
+                        speaker = candidate
 
             # First, determine if it's an ally or enemy pattern, bespoke, or ping, or self
             is_ping = False
@@ -766,8 +774,10 @@ class VoiceLineOrganizer:
             # Enhanced self voiceline detection for keywords with underscores
             matched_self_keyword = None
             rest = None
-            if len(parts_initial) > 1:
-                joined = "_".join(parts_initial[1:])
+            # Determine how many parts were used for the speaker name
+            speaker_parts_count = len(speaker.split("_"))
+            if len(parts_initial) > speaker_parts_count:
+                joined = "_".join(parts_initial[speaker_parts_count:])
                 # Sort self_keywords by length descending to match longest first
                 for kw in sorted(self_keywords, key=len, reverse=True):
                     if joined == kw:
