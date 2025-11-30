@@ -792,6 +792,10 @@ class VoiceLineOrganizer:
                 "hook_gig_mid_ult", "hook_lands",
                 "sticky_bomb_invis",
                 "uppercut_to_t1", "uppercut_to_t2", "uppercut_to_titan",
+                # Warden ultimate ability
+                "ult_interrupted", "ult_last_alive", "ult_total_miss",
+                #shiv
+                "multi_dash",
                 # Effort sound variations
                 "dash_effort", "melee_efforts", "efforts",
             ]
