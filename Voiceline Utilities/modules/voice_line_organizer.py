@@ -27,29 +27,7 @@ class VoiceLineOrganizer:
         # Objective and map events
         "Objective Events": ["tower_got_denied", "idol_drop"],
         # Enemy observations
-        "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"],
-        # Character-specific abilities (organized for clarity)
-        "Abilities": [
-            # Dynamo
-            "catch_team_blackhole", "kill_team_blackhole", "no_allies_help_blackhole", "repeat_blackhole",
-            # Gigawatt
-            "storm_cloud_1_survives", "storm_cloud_kelvin_survives", "storm_cloud_last_standing", "storm_cloud_team_wipe",
-            # Ghost
-            "high_max_health",
-            # Forge
-            "nano_kills_turrets",
-            # Astro
-            "allies_lasso_kill", "allies_no_attack",
-            # Kelvin
-            "bad_dome_alone", "bad_dome_rejuvinator", "dome_enemy_core", "dome_own_core", "heal_grenade",
-            # Krill
-            "power2_resurface",
-            # Lash
-            "massive_ground_pound",
-            # Bebop
-            "hook_gig_mid_ult", "hook_lands", "sticky_bomb_invis",
-            "uppercut_to_t1", "uppercut_to_t2", "uppercut_to_titan",
-        ],
+        "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"]
     }
     # Define special categories for pings
     special_ping_categories = {
