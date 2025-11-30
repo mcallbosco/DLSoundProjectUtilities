@@ -14,23 +14,55 @@ class VoiceLineOrganizer:
         # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
         "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line"],
         "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4"],
-        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4"],
+        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5"],
         "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
         "Emotions": ["angry", "concerned", "happy", "sad", "congrats"],
         "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth"],
         # New special category for use_* non-ping topics (items, shards, etc.)
         "Item Usage": [],
+        # Shop system reminders
+        "Shop System": ["t1_shop_reminder", "t2_shop_reminder", "t3_shop_reminder", "t4_shop_reminder"],
+        # Victory and match outcomes
+        "Victory": ["win", "win_early", "win_late"],
+        # Objective and map events
+        "Objective Events": ["tower_got_denied", "idol_drop"],
+        # Enemy observations
+        "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"],
+        # Character-specific abilities (organized for clarity)
+        "Abilities": [
+            # Dynamo
+            "catch_team_blackhole", "kill_team_blackhole", "no_allies_help_blackhole", "repeat_blackhole",
+            # Gigawatt
+            "storm_cloud_1_survives", "storm_cloud_kelvin_survives", "storm_cloud_last_standing", "storm_cloud_team_wipe",
+            # Ghost
+            "high_max_health",
+            # Forge
+            "nano_kills_turrets",
+            # Astro
+            "allies_lasso_kill", "allies_no_attack",
+            # Kelvin
+            "bad_dome_alone", "bad_dome_rejuvinator", "dome_enemy_core", "dome_own_core", "heal_grenade",
+            # Krill
+            "power2_resurface",
+            # Lash
+            "massive_ground_pound",
+            # Bebop
+            "hook_gig_mid_ult", "hook_lands", "sticky_bomb_invis",
+            "uppercut_to_t1", "uppercut_to_t2", "uppercut_to_titan",
+        ],
     }
     # Define special categories for pings
     special_ping_categories = {
         "Objective Commands": [
         "attack_enemy",
+        "attack_enemy_avatar",
         "clear_troopers",
         "defend_base",
         "defend_blue",
         "defend_green",
         "defend_purple",
         "defend_yellow",
+        "enemy_take_mid",
         "help_with_idol",
         "lets_go_blue",
         "lets_go_blue_alt",
@@ -130,6 +162,8 @@ class VoiceLineOrganizer:
         "see_enemy",
         "see_on_bridge",
         "see_on_roof",
+        "see_enemy_on_bridge",
+        "see_enemy_on_roof",
         "theyre_in_mid",
         "theyre_on_top_of_garage",
         "theyre_on_top_of_mid",
@@ -776,6 +810,10 @@ class VoiceLineOrganizer:
                 "massive_ground_pound",
                 "upgrade_power5",
                 "win_with_bebop",
+                # Bebop abilities
+                "hook_gig_mid_ult", "hook_lands",
+                "sticky_bomb_invis",
+                "uppercut_to_t1", "uppercut_to_t2", "uppercut_to_titan",
                 # Effort sound variations
                 "dash_effort", "melee_efforts", "efforts",
             ]
