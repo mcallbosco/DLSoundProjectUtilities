@@ -749,7 +749,21 @@ class VoiceLineOrganizer:
                 # New self single-keyword topics
                 "start_match", "ap_reminder", "congrats", "be_careful", "end_streak",
                 "lose", "lose_early", "lose_late", "enemy_gets_rejuv", "kill_high_networth",
-                "boost_past_on_zipline",
+                "boost_past_on_zipline", "respawn",
+                # Shop system
+                "t1_shop_reminder", "t2_shop_reminder", "t3_shop_reminder", "t4_shop_reminder",
+                # Win conditions
+                "win", "win_early", "win_late",
+                # Tower/objective events
+                "tower_got_denied",
+                # Enemy observations
+                "see_enemy_metal_skin",
+                # Character-specific ability reactions
+                "catch_team_blackhole", "kill_team_blackhole", "no_allies_help_blackhole", "repeat_blackhole",
+                "storm_cloud_1_survives", "storm_cloud_kelvin_survives", "storm_cloud_last_standing", "storm_cloud_team_wipe",
+                "high_max_health",
+                "nano_kills_turrets",
+                "allies_lasso_kill", "allies_no_attack",
             ]
             
             # Parse the filename based on the specified structure
@@ -785,8 +799,8 @@ class VoiceLineOrganizer:
                         break
                     if joined.startswith(kw + "_"):
                         suffix = joined[len(kw) + 1:]
-                        # Accept sequences of digits, alt(_digits) or short, including combos like 13_alt_01
-                        if re.fullmatch(r"(?:\d+|alt(?:_\d+)?|short)(?:_(?:\d+|alt(?:_\d+)?|short))*", suffix):
+                        # Accept sequences of digits, alt(_digits), short, or single letter (a-z), including combos like 02_a or 13_alt_01
+                        if re.fullmatch(r"(?:\d+|alt(?:_\d+)?|short|[a-z])(?:_(?:\d+|alt(?:_\d+)?|short|[a-z]))*", suffix):
                             matched_self_keyword = kw
                             break
             if matched_self_keyword:
