@@ -33,14 +33,12 @@ class VoiceLineOrganizer:
     special_ping_categories = {
         "Objective Commands": [
         "attack_enemy",
-        "attack_enemy_avatar",
         "clear_troopers",
         "defend_base",
         "defend_blue",
         "defend_green",
         "defend_purple",
         "defend_yellow",
-        "enemy_take_mid",
         "help_with_idol",
         "lets_go_blue",
         "lets_go_blue_alt",
@@ -140,8 +138,6 @@ class VoiceLineOrganizer:
         "see_enemy",
         "see_on_bridge",
         "see_on_roof",
-        "see_enemy_on_bridge",
-        "see_enemy_on_roof",
         "theyre_in_mid",
         "theyre_on_top_of_garage",
         "theyre_on_top_of_mid",
@@ -449,14 +445,17 @@ class VoiceLineOrganizer:
                 
                 # Handle special case for pings
                 if is_ping:
+                    self.processing_debug_log.append(f"DEBUG PING: Processing ping file - speaker='{speaker}', subject='{subject}', topic='{topic}'")
                     # Store under "Pings" key
                     if "Pings" not in result_data[speaker][subject_key]:
                         result_data[speaker][subject_key]["Pings"] = {}
                     # Check for special ping categories
                     topic_key = topic.replace(" ", "_").lower()
+                    self.processing_debug_log.append(f"DEBUG PING: topic_key='{topic_key}', checking against special_ping_categories")
                     placed_in_ping_category = False
                     for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
                         if topic_key in keywords:
+                            self.processing_debug_log.append(f"DEBUG PING: MATCH! topic_key='{topic_key}' found in category '{cat_name}'")
                             if cat_name not in result_data[speaker][subject_key]["Pings"]:
                                 result_data[speaker][subject_key]["Pings"][cat_name] = {}
                             if topic not in result_data[speaker][subject_key]["Pings"][cat_name]:
@@ -465,6 +464,7 @@ class VoiceLineOrganizer:
                             placed_in_ping_category = True
                             break
                     if not placed_in_ping_category:
+                        self.processing_debug_log.append(f"DEBUG PING: No category match for topic_key='{topic_key}', storing uncategorized")
                         if topic not in result_data[speaker][subject_key]["Pings"]:
                             result_data[speaker][subject_key]["Pings"][topic] = []
                         result_data[speaker][subject_key]["Pings"][topic].append(rel_path)
@@ -845,6 +845,26 @@ class VoiceLineOrganizer:
                 relationship = None
                 rest = joined
                 is_self = True
+            # IMPORTANT: Check _ping_ BEFORE _ally_/_enemy_ because ping topics may contain 
+            # "enemy" in their name (e.g., astro_ping_attack_enemy_avatar)
+            # BUT only if the part before _ping_ is a valid speaker (to avoid matching 
+            # files like astro_enemy_ghost_ping_with_swap where _ping_ is part of the topic)
+            elif "_ping_" in filename_without_ext and filename_without_ext.split("_ping_", 1)[0].lower() in valid_speakers:
+                # Handle ping pattern: [speaker]_ping_[topic][_subject][_variation]
+                parts = filename_without_ext.split("_ping_", 1)
+                relationship = None
+                speaker = parts[0]
+                rest = parts[1]
+                # Check for pre_game or post_game special case
+                ping_parts = rest.split('_')
+                if (len(ping_parts) == 3 and ping_parts[0] in ["pre", "post"] and ping_parts[1] == "game" and ping_parts[2].isdigit()) or \
+                   (len(ping_parts) == 2 and ping_parts[0] in ["pre_game", "post_game"] and ping_parts[1].isdigit()):
+                    # Treat as self voiceline
+                    is_ping = False
+                    is_self = True
+                    rest = rest  # already correct for self parsing
+                else:
+                    is_ping = True
             elif "_ally_" in filename_without_ext:
                 relationship = "ally"
                 parts = filename_without_ext.split("_ally_", 1)
@@ -870,22 +890,6 @@ class VoiceLineOrganizer:
                 parts = filename_without_ext.split("_bespoke_enemy_", 1)
                 speaker = parts[0] + "_bespoke"
                 rest = parts[1]
-            elif "_ping_" in filename_without_ext:
-                # Handle ping pattern: [speaker]_ping_[topic][_subject][_variation]
-                relationship = None
-                parts = filename_without_ext.split("_ping_", 1)
-                speaker = parts[0]
-                rest = parts[1]
-                # Check for pre_game or post_game special case
-                ping_parts = rest.split('_')
-                if (len(ping_parts) == 3 and ping_parts[0] in ["pre", "post"] and ping_parts[1] == "game" and ping_parts[2].isdigit()) or \
-                   (len(ping_parts) == 2 and ping_parts[0] in ["pre_game", "post_game"] and ping_parts[1].isdigit()):
-                    # Treat as self voiceline
-                    is_ping = False
-                    is_self = True
-                    rest = rest  # already correct for self parsing
-                else:
-                    is_ping = True
             else:
                 fallback_parts = parts_initial
                 if len(fallback_parts) >= 4:                     # no longer insists on a trailing number
@@ -1075,15 +1079,6 @@ class VoiceLineOrganizer:
                         continue
                     break
                 topic_raw = topic_candidate
-                subject = "self"
-            elif is_self:
-                # Self voiceline: [speaker]_[keyword][_variation]
-                # Remove trailing variation if present
-                match = re.search(r'_(\d+)$', rest)
-                if match:
-                    topic_raw = rest[:match.start()]
-                else:
-                    topic_raw = rest
                 subject = "self"
             else:
                 if not locals().get("fallback_used", False):
