@@ -745,6 +745,57 @@ class VoiceLineOrganizer:
                 topic_proper = " ".join(parts).replace("_", " ").capitalize()
                 return (speaker, subject, topic_proper, None, rel_path, False)
 
+            # Special handling for patron_female and patron_male
+            if filename_without_ext.startswith(("patron_female_", "patron_male_")):
+                speaker = "patron_female" if filename_without_ext.startswith("patron_female_") else "patron_male"
+                base = filename_without_ext[len(speaker) + 1:]  # Remove "patron_female_" or "patron_male_"
+
+                # Remove trailing variations
+                base_clean = re.sub(r'_alt_\d+$', '', base)
+                base_clean = re.sub(r'_(\d+)_alt$', '', base_clean)
+                base_clean = re.sub(r'_(\d+)$', '', base_clean)
+
+                parts = base_clean.split("_")
+                rel_path = os.path.relpath(file_path, self.source_folder_path.get())
+
+                # Character-based patterns: {topic}_by_{character}
+                if len(parts) >= 3 and parts[-2] == "by":
+                    # patron_female_big_healing_by_astro, patron_female_stolen_by_abrams, patron_female_many_assists_by_astro
+                    subject = self._get_proper_name(parts[-1], alias_data)
+                    topic_proper = " ".join(parts[:-2]).replace("_", " ").capitalize()
+                    return (speaker, subject, topic_proper, None, rel_path, False)
+
+                # help_out_{character}
+                if len(parts) >= 3 and parts[0] == "help" and parts[1] == "out":
+                    subject = self._get_proper_name(parts[2], alias_data)
+                    topic_proper = "Help out"
+                    return (speaker, subject, topic_proper, None, rel_path, False)
+
+                # praise_{character}
+                if len(parts) >= 2 and parts[0] == "praise":
+                    subject = self._get_proper_name(parts[1], alias_data)
+                    topic_proper = "Praise"
+                    return (speaker, subject, topic_proper, None, rel_path, False)
+
+                # For ally/enemy patterns with non-character subjects, treat as self with full topic
+                if parts[0] in ["ally", "enemy"]:
+                    # patron_female_ally_blue_guardian_destroyed_01 -> self / "Ally blue guardian destroyed"
+                    # patron_female_enemy_core_exposed_01 -> self / "Enemy core exposed"
+                    subject = "self"
+                    topic_proper = " ".join(parts).replace("_", " ").capitalize()
+                    return (speaker, subject, topic_proper, None, rel_path, False)
+
+                # bespoke_ally_{character}
+                if len(parts) >= 3 and parts[0] == "bespoke" and parts[1] == "ally":
+                    subject = self._get_proper_name(parts[2], alias_data)
+                    topic_proper = "Bespoke ally " + " ".join(parts[3:]).replace("_", " ")
+                    return (speaker, subject, topic_proper.strip().capitalize(), None, rel_path, False)
+
+                # All other patron voicelines are self voicelines
+                subject = "self"
+                topic_proper = " ".join(parts).replace("_", " ").capitalize()
+                return (speaker, subject, topic_proper, None, rel_path, False)
+
             
 
             # List of keywords for "self" voicelines

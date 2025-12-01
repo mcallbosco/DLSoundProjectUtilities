@@ -896,6 +896,12 @@ class BatchGUI(tk.Tk):
                 except Exception:
                     pass
 
+                # Auto-generate coverage report
+                try:
+                    self._generate_coverage_report(audio_dir, consolidated_out, self._last_convos_json)
+                except Exception as e:
+                    self.log_write(f"[Coverage] Failed to generate coverage report: {e}\n")
+
             except Exception as e:
                 self.log_write(f"[Voicelines] Pipeline error: {e}\n")
 
@@ -995,6 +1001,111 @@ class BatchGUI(tk.Tk):
             audio_dir = picked
         self._start_generate_summaries(audio_dir)
 
+    def _generate_coverage_report(self, audio_dir, consolidated_json, convos_json):
+        """Generate coverage report and save to coverage.json in same folder as consolidated JSON."""
+        try:
+            # Determine output path
+            consolidated_dir = os.path.dirname(consolidated_json)
+            out_path = os.path.join(consolidated_dir, "coverage.json")
+
+            # Collect all mp3s under audio_dir
+            all_rel_paths = []
+            total_files = 0
+            for root, _, files in os.walk(audio_dir):
+                for name in files:
+                    if name.lower().endswith(".mp3"):
+                        total_files += 1
+                        full = os.path.join(root, name)
+                        rel = os.path.relpath(full, audio_dir)
+                        # Normalize to sounds/vo/... with forward slashes
+                        rel_norm = ("sounds/vo/" + rel.replace(os.sep, "/")).replace("//", "/")
+                        all_rel_paths.append((os.path.basename(name), rel_norm))
+
+            # Load consolidated voicelines JSON and gather basenames
+            voicelines_names = set()
+            try:
+                with open(consolidated_json, 'r', encoding='utf-8') as f:
+                    consolidated_data = json.load(f)
+                def _collect_filenames(node, acc):
+                    if isinstance(node, dict):
+                        if 'filename' in node and isinstance(node['filename'], str):
+                            acc.add(os.path.basename(node['filename']))
+                        for v in node.values():
+                            _collect_filenames(v, acc)
+                    elif isinstance(node, list):
+                        for item in node:
+                            _collect_filenames(item, acc)
+                _collect_filenames(consolidated_data, voicelines_names)
+            except Exception:
+                pass
+
+            # Load conversations JSON (optional) and gather basenames
+            convo_names = set()
+            if convos_json and os.path.isfile(convos_json):
+                try:
+                    with open(convos_json, 'r', encoding='utf-8') as f:
+                        convo_data = json.load(f)
+                    def _collect_conv_filenames(node, acc):
+                        if isinstance(node, dict):
+                            if 'filename' in node and isinstance(node['filename'], str):
+                                acc.add(os.path.basename(node['filename']))
+                            for v in node.values():
+                                _collect_conv_filenames(v, acc)
+                        elif isinstance(node, list):
+                            for item in node:
+                                _collect_conv_filenames(item, acc)
+                    _collect_conv_filenames(convo_data, convo_names)
+                except Exception:
+                    pass
+
+            matched = voicelines_names.union(convo_names)
+            unmatched_paths = sorted({rel for bn, rel in all_rel_paths if bn not in matched})
+            matched_count = len(matched)
+            unmatched_count = len(unmatched_paths)
+
+            # Organize unmatched files by folder structure
+            unmatched_by_folder = {}
+            for path in unmatched_paths:
+                # Extract folder path (everything except the filename)
+                folder = os.path.dirname(path)
+                if folder not in unmatched_by_folder:
+                    unmatched_by_folder[folder] = []
+                unmatched_by_folder[folder].append(os.path.basename(path))
+
+            # Calculate coverage percentage
+            coverage_pct = (matched_count / total_files * 100) if total_files > 0 else 0.0
+
+            # Create structured JSON output
+            output_data = {
+                "summary": {
+                    "total_files": total_files,
+                    "matched_files": matched_count,
+                    "unmatched_files": unmatched_count,
+                    "coverage_percentage": round(coverage_pct, 2),
+                    "matched_in_voicelines": len(voicelines_names),
+                    "matched_in_conversations": len(convo_names)
+                },
+                "unmatched_by_folder": {k: sorted(v) for k, v in sorted(unmatched_by_folder.items())},
+                "unmatched_files": unmatched_paths
+            }
+
+            # Write output as JSON
+            try:
+                os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            except Exception:
+                pass
+            with open(out_path, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=2)
+
+            self.log_write(f"[Coverage] Audio files scanned: {total_files}\n")
+            self.log_write(f"[Coverage] Matched: {matched_count} ({coverage_pct:.2f}%)\n")
+            self.log_write(f"[Coverage] Unmatched: {unmatched_count} files in {len(unmatched_by_folder)} folders\n")
+            self.log_write(f"[Coverage] Report -> {out_path}\n")
+
+        except Exception as e:
+            self.log_write(f"[Coverage][ERROR] {e}\n")
+            raise
+
     def export_unmatched_voicelines(self):
         # Gather inputs on UI thread, then compute in background
         audio_dir = self._last_audio_dir if (self._last_audio_dir and os.path.isdir(self._last_audio_dir)) else ""
@@ -1020,120 +1131,25 @@ class BatchGUI(tk.Tk):
             if picked_convos:
                 convos_json = picked_convos
 
-        # Choose output path
-        try:
-            default_dir = os.path.join(self.tempdir or os.getcwd(), "voicelines")
-            try:
-                os.makedirs(default_dir, exist_ok=True)
-            except Exception:
-                pass
-            out_path = filedialog.asksaveasfilename(title="Save Unmatched Voicelines As", initialdir=default_dir, initialfile="unmatched_voicelines.json", defaultextension=".json", filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")])
-            if not out_path:
-                return
-        except Exception:
-            return
-
         def run_unmatched():
             try:
-                # Collect all mp3s under audio_dir
-                all_rel_paths = []
-                total_files = 0
-                for root, _, files in os.walk(audio_dir):
-                    for name in files:
-                        if name.lower().endswith(".mp3"):
-                            total_files += 1
-                            full = os.path.join(root, name)
-                            rel = os.path.relpath(full, audio_dir)
-                            # Normalize to sounds/vo/... with forward slashes
-                            rel_norm = ("sounds/vo/" + rel.replace(os.sep, "/")).replace("//", "/")
-                            all_rel_paths.append((os.path.basename(name), rel_norm))
-
-                # Load consolidated voicelines JSON and gather basenames
-                voicelines_names = set()
+                self._generate_coverage_report(audio_dir, consolidated_json, convos_json)
+                # Show completion dialog
                 try:
-                    with open(consolidated_json, 'r', encoding='utf-8') as f:
-                        consolidated_data = json.load(f)
-                    def _collect_filenames(node, acc):
-                        if isinstance(node, dict):
-                            if 'filename' in node and isinstance(node['filename'], str):
-                                acc.add(os.path.basename(node['filename']))
-                            for v in node.values():
-                                _collect_filenames(v, acc)
-                        elif isinstance(node, list):
-                            for item in node:
-                                _collect_filenames(item, acc)
-                    _collect_filenames(consolidated_data, voicelines_names)
-                except Exception:
-                    pass
-
-                # Load conversations JSON (optional) and gather basenames
-                convo_names = set()
-                if convos_json and os.path.isfile(convos_json):
-                    try:
-                        with open(convos_json, 'r', encoding='utf-8') as f:
-                            convo_data = json.load(f)
-                        def _collect_conv_filenames(node, acc):
-                            if isinstance(node, dict):
-                                if 'filename' in node and isinstance(node['filename'], str):
-                                    acc.add(os.path.basename(node['filename']))
-                                for v in node.values():
-                                    _collect_conv_filenames(v, acc)
-                            elif isinstance(node, list):
-                                for item in node:
-                                    _collect_conv_filenames(item, acc)
-                        _collect_conv_filenames(convo_data, convo_names)
-                    except Exception:
-                        pass
-
-                matched = voicelines_names.union(convo_names)
-                unmatched_paths = sorted({rel for bn, rel in all_rel_paths if bn not in matched})
-                matched_count = len(matched)
-                unmatched_count = len(unmatched_paths)
-
-                # Organize unmatched files by folder structure
-                unmatched_by_folder = {}
-                for path in unmatched_paths:
-                    # Extract folder path (everything except the filename)
-                    folder = os.path.dirname(path)
-                    if folder not in unmatched_by_folder:
-                        unmatched_by_folder[folder] = []
-                    unmatched_by_folder[folder].append(os.path.basename(path))
-
-                # Calculate coverage percentage
-                coverage_pct = (matched_count / total_files * 100) if total_files > 0 else 0.0
-
-                # Create structured JSON output
-                output_data = {
-                    "summary": {
-                        "total_files": total_files,
-                        "matched_files": matched_count,
-                        "unmatched_files": unmatched_count,
-                        "coverage_percentage": round(coverage_pct, 2),
-                        "matched_in_voicelines": len(voicelines_names),
-                        "matched_in_conversations": len(convo_names)
-                    },
-                    "unmatched_by_folder": {k: sorted(v) for k, v in sorted(unmatched_by_folder.items())},
-                    "unmatched_files": unmatched_paths
-                }
-
-                # Write output as JSON
-                try:
-                    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-                except Exception:
-                    pass
-                with open(out_path, 'w', encoding='utf-8') as f:
-                    json.dump(output_data, f, indent=2)
-
-                self.log_write(f"[Unmatched] Audio files scanned: {total_files}\n")
-                self.log_write(f"[Unmatched] Matched: {matched_count} ({coverage_pct:.2f}%)\n")
-                self.log_write(f"[Unmatched] Unmatched: {unmatched_count} files in {len(unmatched_by_folder)} folders\n")
-                self.log_write(f"[Unmatched] Output -> {out_path}\n")
-                try:
+                    consolidated_dir = os.path.dirname(consolidated_json)
+                    out_path = os.path.join(consolidated_dir, "coverage.json")
+                    with open(out_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                    summary = data.get("summary", {})
+                    matched_count = summary.get("matched_files", 0)
+                    total_files = summary.get("total_files", 0)
+                    coverage_pct = summary.get("coverage_percentage", 0.0)
+                    unmatched_count = summary.get("unmatched_files", 0)
                     self.after(0, lambda: messagebox.showinfo("Export Complete", f"Coverage: {matched_count}/{total_files} ({coverage_pct:.1f}%)\nUnmatched: {unmatched_count} files\nSaved to:\n{out_path}"))
                 except Exception:
                     pass
             except Exception as e:
-                self.log_write(f"[Unmatched][ERROR] {e}\n")
+                self.log_write(f"[Coverage] Button export failed: {e}\n")
 
         threading.Thread(target=run_unmatched, daemon=True).start()
 
