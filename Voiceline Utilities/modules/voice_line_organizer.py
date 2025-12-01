@@ -9,7 +9,7 @@ import re
 class VoiceLineOrganizer:
     # Define multiple special categories as a dict: {category_name: [keywords]}
     special_categories = {
-        "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak"],
+        "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak", "killing_streak_generic_high", "killing_streak_generic_low", "killing_streak_generic_medium", "killstreak_count", "killstreak_title"],
         "Movement": ["leave_base", "leaving_area", "boost_past_on_zipline"],
         # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
         "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line"],
@@ -22,12 +22,112 @@ class VoiceLineOrganizer:
         "Item Usage": [],
         # Shop system reminders
         "Shop System": ["t1_shop_reminder", "t2_shop_reminder", "t3_shop_reminder", "t4_shop_reminder"],
-        # Victory and match outcomes
-        "Victory": ["win", "win_early", "win_late"],
-        # Objective and map events
-        "Objective Events": ["tower_got_denied", "idol_drop"],
-        # Enemy observations
-        "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"]
+        
+        "Match Status": [
+            "win", "win_early", "win_late", "match_win", "match_start", "introduction", 
+            "ally_comeback", "enemy_comeback", "ally_team_wipe", "enemy_team_wipe", 
+            "ally_troopers_are_stronger", "enemy_troopers_are_stronger", 
+            "networth_update_ahead", "networth_update_behind", "avatar_is_destroyed",
+            "lose_objective_while_ahead"
+        ],
+
+        "Global Objectives": [
+            "tower_got_denied", "idol_drop",
+            "ally_delivered_many_urns", "ally_urn_movement", "ally_urn_delivered", 
+            "enemy_delivered_many_urns", "enemy_urn_delivered", "enemy_urn_movement", 
+            "urn_delivered", "urn_dropped", "urn_moving", "urn_waiting", 
+            "idol_delivered", "idol_dropped", "idol_landed", "idol_moving", "idol_waiting", 
+            "rejuv_spawn", "rejuvinator_expired", "ally_rejuvinator_almost_expired", 
+            "ally_steal_rejuv", "enemy_steal_rejuv", "mid_spawn", 
+            "vanguard_ally_capture", "vanguard_ally_capture_attempt", "vanguard_available", 
+            "vanguard_enemy_capture", "vanguard_enemy_capture_attempt", 
+            "ally_vanguard_defeated", "enemy_vanguard_defeated", "push_objectives_for_flex_slots",
+            "stolen_by_the_boss"
+        ],
+
+        "Ally Structures": [
+            "ally_blue_guardian_attack", "ally_blue_guardian_destroyed", 
+            "ally_blue_walker_attack", "ally_blue_walker_destroyed", 
+            "ally_core_attack", "ally_core_critical", "ally_core_exposed", "ally_core_reminder", 
+            "ally_first_generator_destroyed", "ally_generator_attack", 
+            "ally_green_guardian_attack", "ally_green_guardian_destroyed", 
+            "ally_green_walker_attack", "ally_green_walker_destroyed", 
+            "ally_guardian_destroyed", 
+            "ally_orange_guardian_attack", "ally_orange_guardian_destroyed", 
+            "ally_orange_walker_attack", "ally_orange_walker_destroyed", 
+            "ally_purple_guardian_attack", "ally_purple_guardian_destroyed", 
+            "ally_purple_walker_attack", "ally_purple_walker_destroyed", 
+            "ally_titan_attack", "ally_titan_destroyed", "ally_titan_exposed", "ally_titan_reminder", 
+            "ally_walker_destroyed", 
+            "ally_yellow_guardian_attack", "ally_yellow_guardian_destroyed", 
+            "ally_yellow_walker_attack", "ally_yellow_walker_destroyed", 
+            "base_breached", "base_defended", "base_guardians_under_attack"
+        ],
+
+        "Enemy Structures": [
+            "enemy_blue_guardian", "enemy_blue_walker", 
+            "enemy_core", "enemy_core_exposed", "enemy_core_healing", 
+            "enemy_first_generator_destroyed", 
+            "enemy_guardian_destroyed", 
+            "enemy_orange_guardian", "enemy_orange_walker", 
+            "enemy_purple_guardian", "enemy_purple_walker", 
+            "enemy_titan", "enemy_titan_exposed", 
+            "enemy_walker_destroyed", 
+            "enemy_yellow_guardian", "enemy_yellow_walker", 
+            "titan_destroyed"
+        ],
+
+        "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"],
+
+        "Boons": [
+            "grant_boon_armor", "grant_boon_armor_10", "grant_boon_general", 
+            "grant_boon_magic", "grant_boon_weapon"
+        ],
+
+        "Map Alerts": [
+            "broadway_attacked", "orchard_attacked", "park_attacked", "york_attacked"
+        ],
+
+        "Patron Specific": [
+            "saphire_flame_lines"
+        ],
+
+        "Tutorial": [
+            "tutorial_1_tasks_left", "tutorial_2_tasks_left", "tutorial_2nd_ap_earned", 
+            "tutorial_3_tasks_left", "tutorial_4_tasks_left", "tutorial_boons", 
+            "tutorial_buy_mod_reminder", "tutorial_collect_souls", 
+            "tutorial_combat_1st_kill_on_atlas", "tutorial_combat_1st_kill_on_dynamo", 
+            "tutorial_combat_1st_kill_on_haze", "tutorial_combat_1st_kill_on_inferno", 
+            "tutorial_combat_1st_kill_on_kali", "tutorial_combat_1st_kill_on_lash", 
+            "tutorial_combat_1st_kill_on_nano", "tutorial_combat_1st_kill_on_orion", 
+            "tutorial_combat_companion_dies", "tutorial_combat_companion_need_help", 
+            "tutorial_combat_death_info", "tutorial_combat_disarm_info", 
+            "tutorial_combat_enemy_atlas_info", "tutorial_combat_enemy_dynamo_info", 
+            "tutorial_combat_enemy_haze_info", "tutorial_combat_enemy_lash_info", 
+            "tutorial_combat_enemy_orion_info", "tutorial_combat_immobilze_info", 
+            "tutorial_combat_melee", "tutorial_combat_melee_short", 
+            "tutorial_combat_neutrals_info", "tutorial_combat_out_of_range", 
+            "tutorial_combat_parry", "tutorial_combat_silence_info", 
+            "tutorial_combat_stun_info", "tutorial_combat_zoom_reminder", 
+            "tutorial_congrats_t1_killed", "tutorial_congrats_t2_killed", 
+            "tutorial_deny_enemy", "tutorial_destroy_t1", "tutorial_destroy_t2", 
+            "tutorial_destroy_titan", "tutorial_dont_fight_t2_yet", "tutorial_fall_back", 
+            "tutorial_farm_info", "tutorial_farm_info_alt2", "tutorial_farm_info_short", 
+            "tutorial_farm_reminder", "tutorial_final_push", "tutorial_first_shop_short_edit", 
+            "tutorial_go_forth_my_child", "tutorial_gold_orb_reminder", "tutorial_heal_reminder_short", 
+            "tutorial_healing_info", "tutorial_idol_info", "tutorial_lane_info", 
+            "tutorial_level_up", "tutorial_level_up_info", "tutorial_level_up_info_short", 
+            "tutorial_lower_shields", "tutorial_mid_info", "tutorial_push_lane", 
+            "tutorial_red_orb_reminder", "tutorial_safe_info", "tutorial_shop_ap_only", 
+            "tutorial_shop_ap_reminder", "tutorial_shop_info", "tutorial_shop_reminder", 
+            "tutorial_single_lane_report_card_bronze", "tutorial_single_lane_report_card_gold", 
+            "tutorial_single_lane_report_card_intro", "tutorial_single_lane_report_card_silver", 
+            "tutorial_single_lane_walker_down", "tutorial_single_lane_walker_intro", 
+            "tutorial_stamina_reminder", "tutorial_starting_ability", "tutorial_t1_shield_is_up", 
+            "tutorial_tasks_complete", "tutorial_total_cred_reminder", 
+            "tutorial_unlock_power_reminder", "tutorial_use_ap_reminder", "tutorial_welcome", 
+            "tutorial_zipline_info", "tutorial_zipline_info_short", "tutorial_zipline_reminder"
+        ]
     }
     # Define special categories for pings
     special_ping_categories = {
@@ -753,6 +853,7 @@ class VoiceLineOrganizer:
                 # Remove trailing variations
                 base_clean = re.sub(r'_alt_\d+$', '', base)
                 base_clean = re.sub(r'_(\d+)_alt$', '', base_clean)
+                base_clean = re.sub(r'_alt$', '', base_clean)  # Handle _alt without number
                 base_clean = re.sub(r'_(\d+)$', '', base_clean)
 
                 parts = base_clean.split("_")
@@ -777,19 +878,68 @@ class VoiceLineOrganizer:
                     topic_proper = "Praise"
                     return (speaker, subject, topic_proper, None, rel_path, False)
 
-                # For ally/enemy patterns with non-character subjects, treat as self with full topic
+                # For ally/enemy patterns
                 if parts[0] in ["ally", "enemy"]:
+                    # Try to find a character name starting at index 1
+                    # Check from longest possible name down to 1 word (to handle multi-word names like "grey talon")
+                    for i in range(len(parts), 1, -1):
+                        candidate_parts = parts[1:i]
+                        candidate_name_spaces = " ".join(candidate_parts)
+                        
+                        if candidate_name_spaces in valid_speakers:
+                            subject = self._get_proper_name(candidate_name_spaces, alias_data)
+                            
+                            # Topic is the rest
+                            topic_parts = parts[i:]
+                            if topic_parts:
+                                topic_proper = " ".join(topic_parts).replace("_", " ").capitalize()
+                            else:
+                                # Just "Ally" or "Enemy" (unlikely alone but safe fallback)
+                                topic_proper = parts[0].capitalize()
+                            
+                            return (speaker, subject, topic_proper, None, rel_path, False)
+
+                    # If no character found, treat as self with full topic
                     # patron_female_ally_blue_guardian_destroyed_01 -> self / "Ally blue guardian destroyed"
                     # patron_female_enemy_core_exposed_01 -> self / "Enemy core exposed"
                     subject = "self"
                     topic_proper = " ".join(parts).replace("_", " ").capitalize()
                     return (speaker, subject, topic_proper, None, rel_path, False)
 
-                # bespoke_ally_{character}
+                # bespoke_ally_{character} or bespoke_ally_{topic}_{character}
                 if len(parts) >= 3 and parts[0] == "bespoke" and parts[1] == "ally":
-                    subject = self._get_proper_name(parts[2], alias_data)
-                    topic_proper = "Bespoke ally " + " ".join(parts[3:]).replace("_", " ")
-                    return (speaker, subject, topic_proper.strip().capitalize(), None, rel_path, False)
+                    # Check if the last part is a valid character (prefer that as subject)
+                    if parts[-1].lower() in valid_speakers:
+                        subject = self._get_proper_name(parts[-1], alias_data)
+                        if len(parts) > 3:
+                            topic_proper = " ".join(parts[2:-1]).replace("_", " ").capitalize()
+                        else:
+                            topic_proper = "Bespoke ally"
+                    else:
+                        # Fallback to old behavior if last part isn't a character
+                        subject = self._get_proper_name(parts[2], alias_data)
+                        topic_proper = "Bespoke ally " + " ".join(parts[3:]).replace("_", " ")
+                        topic_proper = topic_proper.strip().capitalize()
+                    return (speaker, subject, topic_proper, None, rel_path, False)
+
+                # bespoke_enemy_{character} or bespoke_enemy_{topic}_{character}
+                if len(parts) >= 3 and parts[0] == "bespoke" and parts[1] == "enemy":
+                    # Check if the last part is a valid character (prefer that as subject)
+                    if parts[-1].lower() in valid_speakers:
+                        subject = self._get_proper_name(parts[-1], alias_data)
+                        if len(parts) > 3:
+                            topic_proper = " ".join(parts[2:-1]).replace("_", " ").capitalize()
+                        else:
+                            topic_proper = "Bespoke enemy"
+                        return (speaker, subject, topic_proper, None, rel_path, False)
+                
+                # bespoke_for_{character}
+                if len(parts) >= 3 and parts[0] == "bespoke" and parts[1] == "for":
+                    candidate = "_".join(parts[2:])
+                    if candidate.lower() in valid_speakers:
+                        subject = self._get_proper_name(candidate, alias_data)
+                        topic_proper = "Bespoke for"
+                        return (speaker, subject, topic_proper, None, rel_path, False)
 
                 # All other patron voicelines are self voicelines
                 subject = "self"
