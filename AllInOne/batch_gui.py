@@ -454,13 +454,18 @@ class BatchGUI(tk.Tk):
 
     def _load_status_file(self, status_dir):
         try:
-            if not status_dir or not os.path.isdir(status_dir):
+            if not status_dir:
+                print("[Status] No status directory configured")
+                return {}
+            if not os.path.isdir(status_dir):
+                print(f"[Status] Status directory does not exist: {status_dir}")
                 return {}
             candidates = []
             for name in os.listdir(status_dir):
                 if name.lower().endswith((".txt", ".log", ".md")):
                     candidates.append(os.path.join(status_dir, name))
             if not candidates:
+                print(f"[Status] No .txt/.log/.md files found in: {status_dir}")
                 return {}
             
             # Try to parse embedded timestamp from filename (changes_YYYYMMDD_HHMMSS_<hash>.txt pattern)
@@ -484,6 +489,7 @@ class BatchGUI(tk.Tk):
                     return 0
             
             newest = max(candidates, key=extract_timestamp)
+            print(f"[Status] Using status file: {newest}")
             status_map = {}
             with open(newest, 'r', encoding='utf-8', errors='ignore') as f:
                 for line in f:
@@ -499,11 +505,21 @@ class BatchGUI(tk.Tk):
                     status_token = parts[-1]
                     if status_token.isupper() and status_token.isalpha():
                         status_map.setdefault(stem, set()).add(status_token)
+            print(f"[Status] Parsed {len(status_map)} file entries from status file")
             return status_map
-        except Exception:
+        except Exception as e:
+            print(f"[Status] Exception while loading status file: {e}")
             return {}
 
     def _start_conversations_export(self, audio_dir):
+        # Capture UI values on main thread BEFORE starting background thread
+        out_path = (self.convos_json_entry.get().strip() if hasattr(self, 'convos_json_entry') else "") or self.cfg.get("conversations_export_json", "")
+        if not out_path:
+            out_path = os.path.join(audio_dir, "all_conversations.json")
+        trans_dir = self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else self.cfg.get("transcriptions_dir", "")
+        status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
+        retranscribe_flag = bool(self.retranscribe_var.get()) if hasattr(self, 'retranscribe_var') else True
+
         # Export in background to keep UI responsive
         def run_export():
             try:
@@ -515,11 +531,6 @@ class BatchGUI(tk.Tk):
                     self._apply_rename_map(audio_dir)
                 except Exception:
                     pass
-
-                # Determine output JSON path
-                out_path = (self.convos_json_entry.get().strip() if hasattr(self, 'convos_json_entry') else "") or self.cfg.get("conversations_export_json", "")
-                if not out_path:
-                    out_path = os.path.join(audio_dir, "all_conversations.json")
 
                 # Prepare ConversationPlayer headlessly
                 convos_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Conversations Utilities"))
@@ -536,20 +547,17 @@ class BatchGUI(tk.Tk):
                 try:
                     player = ConversationPlayer(temp_root)
                     player.audio_dir = audio_dir
-                    trans_dir = self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else self.cfg.get("transcriptions_dir", "")
                     if trans_dir:
                         player.transcriptions_dir = trans_dir
 
                     # Load newest status file if provided
-                    status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
+                    self.log_write(f"[Conversations] Loading status from: {status_dir or '(not set)'}\n")
                     status_map = self._load_status_file(status_dir)
+                    self.log_write(f"[Conversations] Loaded {len(status_map)} status entries\n")
                     player.file_status_map = status_map
 
-                    # Snapshot retranscribe flag
-                    try:
-                        player._retranscribe_on_status_snapshot = bool(self.retranscribe_var.get())
-                    except Exception:
-                        player._retranscribe_on_status_snapshot = True
+                    # Use captured retranscribe flag
+                    player._retranscribe_on_status_snapshot = retranscribe_flag
 
                     # Parse files and export
                     player.conversations = player.parse_audio_files()
@@ -593,6 +601,14 @@ class BatchGUI(tk.Tk):
         threading.Thread(target=run_export, daemon=True).start()
 
     def _start_voicelines_pipeline(self, audio_dir):
+        # Capture UI values on main thread BEFORE starting background thread
+        consolidated_out = (self.voi_consolidated_entry.get().strip() if hasattr(self, 'voi_consolidated_entry') else "") or self.cfg.get("voicelines_consolidated_json", "")
+        trans_dir = (self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else "") or self.cfg.get("transcriptions_dir", "")
+        custom_vocab = (self.voi_vocab_entry.get().strip() if hasattr(self, 'voi_vocab_entry') else "") or self.cfg.get("voicelines_custom_vocab", "")
+        status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
+        voi_retranscribe_flag = bool(self.voi_retranscribe_var.get()) if hasattr(self, 'voi_retranscribe_var') else True
+        tempdir_snapshot = self.tempdir
+
         # Orchestrate the voicelines organizer -> copy -> transcribe flow
         def run_vo():
             try:
@@ -607,7 +623,7 @@ class BatchGUI(tk.Tk):
                     pass
 
                 # Prepare temp working paths
-                voi_tmp_dir = os.path.join(self.tempdir or os.getcwd(), "voicelines")
+                voi_tmp_dir = os.path.join(tempdir_snapshot or os.getcwd(), "voicelines")
                 try:
                     os.makedirs(voi_tmp_dir, exist_ok=True)
                 except Exception:
@@ -616,16 +632,11 @@ class BatchGUI(tk.Tk):
                 flat_json = os.path.join(voi_tmp_dir, "flat.json")
                 copy_dir = os.path.join(voi_tmp_dir, "copy")
 
-                # Resolve user settings
-                consolidated_out = (self.voi_consolidated_entry.get().strip() if hasattr(self, 'voi_consolidated_entry') else "") or self.cfg.get("voicelines_consolidated_json", "")
-                trans_dir = (self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else "") or self.cfg.get("transcriptions_dir", "")
-                custom_vocab = (self.voi_vocab_entry.get().strip() if hasattr(self, 'voi_vocab_entry') else "") or self.cfg.get("voicelines_custom_vocab", "")
-
                 if not trans_dir:
                     self.log_write("[Voicelines] Transcriptions Dir not set. Skipping voicelines pipeline.\n")
                     return
-                if not consolidated_out:
-                    consolidated_out = os.path.join(voi_tmp_dir, "voicelines_consolidated.json")
+                # Use captured value or default to temp location
+                final_consolidated_out = consolidated_out if consolidated_out else os.path.join(voi_tmp_dir, "voicelines_consolidated.json")
 
                 # Import voicelines modules
                 voi_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Voiceline Utilities"))
@@ -778,24 +789,26 @@ class BatchGUI(tk.Tk):
                 except Exception:
                     pass
 
-                # Status mapping
+                # Status mapping (using pre-captured values from main thread)
+                # Always load status map for output purposes
+                self.log_write(f"[Voicelines] Loading status from: {status_dir or '(not set)'}\n")
+                status_map_sets = self._load_status_file(status_dir)
+                self.log_write(f"[Voicelines] Loaded {len(status_map_sets)} status entries\n")
+
+                # Build reprocess_status_map for output (always needed for status in output)
+                reprocess_status_map = {}
+                if status_map_sets:
+                    for stem, sset in status_map_sets.items():
+                        if "UPDATED" in sset:
+                            reprocess_status_map[stem] = "UPDATED"
+                        else:
+                            reprocess_status_map[stem] = sorted(list(sset))[0]
+
+                # Only set reprocess_statuses if flag is enabled (controls re-transcription)
                 reprocess_statuses = None
-                reprocess_status_map = None
-                try:
-                    use_status = bool(self.voi_retranscribe_var.get()) if hasattr(self, 'voi_retranscribe_var') else bool(self.cfg.get("voicelines_retranscribe_on_status", True))
-                except Exception:
-                    use_status = True
-                if use_status:
-                    status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
-                    status_map_sets = self._load_status_file(status_dir)
+                if voi_retranscribe_flag:
                     if status_map_sets:
                         reprocess_statuses = sorted({s for sset in status_map_sets.values() for s in sset})
-                        reprocess_status_map = {}
-                        for stem, sset in status_map_sets.items():
-                            if "UPDATED" in sset:
-                                reprocess_status_map[stem] = "UPDATED"
-                            else:
-                                reprocess_status_map[stem] = sorted(list(sset))[0]
                         self.log_write(f"[Transcribe] Status filtering enabled. Statuses: {', '.join(reprocess_statuses)}\n")
                 else:
                     self.log_write("[Transcribe] Status filtering disabled. Existing JSONs will be reused; only new files will be transcribed.\n")
@@ -881,24 +894,24 @@ class BatchGUI(tk.Tk):
                     force_reprocess=False,
                     progress_callback=progress_callback,
                     output_folder=trans_dir,
-                    consolidated_json_path=consolidated_out,
+                    consolidated_json_path=final_consolidated_out,
                     custom_vocab_file=custom_vocab if custom_vocab else None,
                     reprocess_statuses=reprocess_statuses,
                     reprocess_status_map=reprocess_status_map
                 )
-                self.log_write(f"[Transcribe] Consolidated JSON -> {consolidated_out}\n")
+                self.log_write(f"[Transcribe] Consolidated JSON -> {final_consolidated_out}\n")
 
                 # Snapshot consolidated JSON path for later use
                 try:
-                    if os.path.isfile(consolidated_out):
-                        self._last_consolidated_json = consolidated_out
+                    if os.path.isfile(final_consolidated_out):
+                        self._last_consolidated_json = final_consolidated_out
                         self._maybe_enable_unmatched_button()
                 except Exception:
                     pass
 
                 # Auto-generate coverage report
                 try:
-                    self._generate_coverage_report(audio_dir, consolidated_out, self._last_convos_json)
+                    self._generate_coverage_report(audio_dir, final_consolidated_out, self._last_convos_json)
                 except Exception as e:
                     self.log_write(f"[Coverage] Failed to generate coverage report: {e}\n")
 

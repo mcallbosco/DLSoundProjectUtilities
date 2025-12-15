@@ -1604,15 +1604,20 @@ Summary (maximum 7 words):"""
                 except:
                     line["file_creation_date"] = None
 
-                # Add to conversation lines
-                conversation["lines"].append(line)
-
-                # Collect status for this filename if present
+                # Collect status for this filename if present and add to line
                 stem2 = os.path.splitext(os.path.basename(filename))[0].lower()
-                if stem2 in self.file_status_map:
+                if stem2 in self.file_status_map and self.file_status_map[stem2]:
+                    # Add status to individual line
+                    line_statuses = list(self.file_status_map[stem2])
+                    if line_statuses:
+                        line["status"] = line_statuses[0] if len(line_statuses) == 1 else line_statuses
+                    # Also collect for conversation-level status
                     for st in self.file_status_map[stem2]:
                         if st not in conversation["status"]:
                             conversation["status"].append(st)
+
+                # Add to conversation lines
+                conversation["lines"].append(line)
 
         # Set starter as the speaker of the first line, or "unknown"
         conversation["starter"] = conversation["lines"][0]["speaker"] if conversation["lines"] else "unknown"

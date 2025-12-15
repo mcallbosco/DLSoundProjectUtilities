@@ -289,6 +289,13 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
         progress_callback(status=f"Loaded custom vocabulary prompt: {custom_vocab_prompt[:100]}...")
     elif custom_vocab_prompt:
         print(f"Loaded custom vocabulary prompt: {custom_vocab_prompt[:100]}...")
+
+    # Debug: log status map info
+    status_map_size = len(reprocess_status_map) if reprocess_status_map else 0
+    if progress_callback:
+        progress_callback(status=f"[Debug] Received reprocess_status_map with {status_map_size} entries")
+    else:
+        print(f"[Debug] Received reprocess_status_map with {status_map_size} entries")
     
     # Create output folder if specified and it doesn't exist
     if output_folder:
@@ -420,7 +427,19 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
                 "voiceline_id": result["transcription_data"]["voiceline_id"],
                 "transcription": transcription_text
             }
+            # Add status from reprocess_status_map if available
+            if reprocess_status_map:
+                stem = os.path.splitext(os.path.basename(result["filename"]))[0].lower()
+                if stem in reprocess_status_map:
+                    entry["status"] = reprocess_status_map[stem]
             filename_to_transcription[result["filename"]] = entry
+
+    # Debug: count entries with status
+    entries_with_status = sum(1 for e in filename_to_transcription.values() if "status" in e)
+    if progress_callback:
+        progress_callback(status=f"[Debug] Added status to {entries_with_status}/{len(filename_to_transcription)} entries")
+    else:
+        print(f"[Debug] Added status to {entries_with_status}/{len(filename_to_transcription)} entries")
 
     # Recursively walk the input JSON and replace file dicts with transcription dicts
     def merge_structure_with_transcriptions(node):
