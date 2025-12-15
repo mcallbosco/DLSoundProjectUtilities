@@ -821,6 +821,11 @@ class VoiceLineOrganizer:
                 parts = base_clean.split("_")
                 rel_path = os.path.relpath(file_path, self.source_folder_path.get())
                 speaker = "shopkeeper_hotdog"
+                # seasonal t4 lines: shopkeeper_hotdog_seasonal_t4_{character}_...
+                if parts[0] == "seasonal" and len(parts) >= 3 and parts[1] == "t4":
+                    subject = self._get_proper_name(parts[2], alias_data)
+                    topic_proper = "Seasonal"
+                    return (speaker, subject, topic_proper, None, rel_path, False)
                 # t4 lines: shopkeeper_hotdog_t4_{character}_...
                 if parts[0] == "t4" and len(parts) >= 2:
                     subject = self._get_proper_name(parts[1], alias_data)
