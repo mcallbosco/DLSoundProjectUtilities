@@ -823,16 +823,39 @@ class VoiceLineOrganizer:
                 speaker = "shopkeeper_hotdog"
                 # seasonal t4 lines: shopkeeper_hotdog_seasonal_t4_{character}_...
                 if parts[0] == "seasonal" and len(parts) >= 3 and parts[1] == "t4":
-                    subject = self._get_proper_name(parts[2], alias_data)
+                    # Try to match multi-part character names (e.g., magician_henry)
+                    subject = None
+                    character_parts_count = 1
+                    if len(parts) >= 4:
+                        # Try two-part character name first
+                        two_part = f"{parts[2]}_{parts[3]}".lower()
+                        if two_part in valid_speakers:
+                            subject = self._get_proper_name(two_part, alias_data)
+                            character_parts_count = 2
+                    if subject is None:
+                        # Fall back to single-part character name
+                        subject = self._get_proper_name(parts[2], alias_data)
                     topic_proper = "Seasonal"
                     return (speaker, subject, topic_proper, None, rel_path, False)
                 # t4 lines: shopkeeper_hotdog_t4_{character}_...
                 if parts[0] == "t4" and len(parts) >= 2:
-                    subject = self._get_proper_name(parts[1], alias_data)
+                    # Try to match multi-part character names (e.g., magician_henry)
+                    subject = None
+                    character_parts_count = 1
+                    if len(parts) >= 3:
+                        # Try two-part character name first
+                        two_part = f"{parts[1]}_{parts[2]}".lower()
+                        if two_part in valid_speakers:
+                            subject = self._get_proper_name(two_part, alias_data)
+                            character_parts_count = 2
+                    if subject is None:
+                        # Fall back to single-part character name
+                        subject = self._get_proper_name(parts[1], alias_data)
                     topic = "t4"
                     # The rest after character
-                    if len(parts) > 2:
-                        topic_rest = "_".join(parts[2:])
+                    remaining_start = 1 + character_parts_count
+                    if len(parts) > remaining_start:
+                        topic_rest = "_".join(parts[remaining_start:])
                         topic_proper = topic_rest.replace("_", " ").capitalize()
                     else:
                         topic_proper = ""
