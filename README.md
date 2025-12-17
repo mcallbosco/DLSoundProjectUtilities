@@ -11,19 +11,8 @@ The tools expect all of the VO files as .mp3s within a single folder. This is su
 
 ### Running the Batch GUI
 
-To launch the Source2Viewer Batch GUI application, simply run:
+To launch the Batch GUI application (This will extract the game files and run the voiceline and conversation utility together), simply run:
 
-```bash
-./AllInOne/run_batch_gui.sh
-```
-
-This script will:
-- Automatically activate the virtual environment
-- Verify the Python and Tcl/Tk versions
-- Launch the batch_gui.py application
-- Provide helpful error messages if issues are detected
-
-**Alternative manual method:**
 ```bash
 source .venv/bin/activate
 python AllInOne/batch_gui.py
