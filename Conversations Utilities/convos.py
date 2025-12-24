@@ -17,6 +17,7 @@ from datetime import datetime
 TRANSCRIPTIONS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "Deadlock-Transcriptions", "data"))
 OPENAI_API_KEY = None  # Will be set by user input
 CHARACTER_MAPPINGS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "character_mappings.json"))  # File to store character name mappings (updated format)
+CONVERSATION_OVERRIDES_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "conversation_overrides.json"))  # File to store conversation completion overrides
 SUMMARIES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "Conversation-Summaries"))
 
 class TranscriptionPopup(tk.Toplevel):
@@ -1508,9 +1509,19 @@ Summary (maximum 7 words):"""
         convo_num = convo_key[1]
         topic = convo_key[2] if len(convo_key) > 2 else None
 
+        # Create conversation ID
+        conversation_id = f"{char1}_{char2}_convo{convo_num}" + (f"_{topic}" if topic else "")
+        
+        # Load completion overrides and check if this conversation should be marked as complete
+        completion_overrides = self._load_completion_overrides()
+        if conversation_id in completion_overrides:
+            # Override: mark as complete and clear missing parts
+            is_complete = True
+            missing_parts = []
+
         # Create conversation entry
         conversation = {
-            "conversation_id": f"{char1}_{char2}_convo{convo_num}" + (f"_{topic}" if topic else ""),
+            "conversation_id": conversation_id,
             "status": [],
             "speakers": [char1, char2],
             "convo_id": convo_num,
@@ -1852,6 +1863,53 @@ Summary (maximum 7 words):"""
             return name
         key = str(name).strip().lower()
         return self.character_mappings.get(key, name)
+    
+    def _load_completion_overrides(self):
+        """Load conversation completion overrides from conversation_overrides.json.
+        
+        Returns:
+            set: A set of conversation IDs that should be marked as complete.
+                 Returns empty set if file doesn't exist, is malformed, or key is missing.
+        """
+        try:
+            if not os.path.exists(CONVERSATION_OVERRIDES_FILE):
+                return set()
+            
+            with open(CONVERSATION_OVERRIDES_FILE, 'r', encoding='utf-8') as f:
+                overrides_data = json.load(f)
+            
+            # Validate that it's a dictionary
+            if not isinstance(overrides_data, dict):
+                print(f"Warning: conversation_overrides.json is not a JSON object. Expected object, got {type(overrides_data).__name__}")
+                return set()
+            
+            # Extract complete_conversations array
+            if 'complete_conversations' not in overrides_data:
+                # Key missing is fine - allows file to exist with other override types
+                return set()
+            
+            complete_list = overrides_data['complete_conversations']
+            
+            # Validate that it's a list/array
+            if not isinstance(complete_list, list):
+                print(f"Warning: complete_conversations in conversation_overrides.json is not a list. Expected list, got {type(complete_list).__name__}")
+                return set()
+            
+            # Convert to set for fast lookup, filtering out non-string values
+            override_set = set()
+            for item in complete_list:
+                if isinstance(item, str):
+                    override_set.add(item.strip())
+                # Silently ignore non-string values
+            
+            return override_set
+            
+        except json.JSONDecodeError as e:
+            print(f"Error parsing conversation_overrides.json: {str(e)}")
+            return set()
+        except Exception as e:
+            print(f"Error loading conversation_overrides.json: {str(e)}")
+            return set()
     
     def save_character_mappings(self):
         """Save character name mappings to file (canonical -> [aliases])"""
