@@ -778,6 +778,165 @@ class VoiceLineUtilitiesGUI:
             self.transcribe_log(f"ERROR: Failed to save updated JSON: {str(e)}")
             messagebox.showerror("Error", f"Failed to save updated JSON: {str(e)}")
 
+
+def export_category_tree(input_json_path=None, output_path=None):
+    """
+    Export a text-based tree file showing all categories from the processed voicelines output JSON.
+    
+    This helps identify topics/categories that appear in the data but may not be in
+    the predefined special_categories, allowing you to find uncategorized topics.
+    
+    Args:
+        input_json_path: Path to the organized voicelines JSON output. If None, prompts user.
+        output_path: Path to save the tree file. If None, prompts user with file dialog.
+    
+    Returns:
+        True if export was successful, False otherwise.
+    """
+    try:
+        # If no input path provided, prompt user
+        if input_json_path is None:
+            input_json_path = filedialog.askopenfilename(
+                title="Select Organized Voicelines JSON",
+                filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+            )
+            if not input_json_path:
+                return False
+        
+        # Load the organized voicelines JSON
+        with open(input_json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Build the tree content
+        lines = []
+        lines.append("=" * 70)
+        lines.append("VOICELINE CATEGORY TREE (from output JSON)")
+        lines.append(f"Source: {input_json_path}")
+        lines.append("=" * 70)
+        lines.append("")
+        
+        # Collect all unique topics/categories at different levels
+        all_topics = set()
+        special_cat_names = set(VoiceLineOrganizer.special_categories.keys())
+        ping_cat_names = set(VoiceLineOrganizer.special_ping_categories.keys())
+        
+        topics_in_special = set()
+        topics_not_in_special = set()
+        
+        # Process each speaker
+        for speaker in sorted(data.keys()):
+            subjects = data[speaker]
+            lines.append(f"├── {speaker}")
+            
+            subject_keys = sorted(subjects.keys())
+            for si, subject in enumerate(subject_keys):
+                is_last_subject = (si == len(subject_keys) - 1)
+                prefix = "│   └── " if is_last_subject else "│   ├── "
+                lines.append(f"{prefix}{subject}")
+                
+                topics = subjects[subject]
+                topic_keys = sorted(topics.keys())
+                
+                for ti, topic in enumerate(topic_keys):
+                    is_last_topic = (ti == len(topic_keys) - 1)
+                    inner_prefix = "│       " if not is_last_subject else "        "
+                    topic_prefix = "└── " if is_last_topic else "├── "
+                    
+                    # Mark if topic is a known special category
+                    marker = ""
+                    if topic in special_cat_names:
+                        marker = " [SPECIAL]"
+                        topics_in_special.add(topic)
+                    elif topic == "Pings":
+                        marker = " [PINGS]"
+                    else:
+                        # Check if it's a known topic inside special categories
+                        topic_key = topic.replace(" ", "_").lower()
+                        found_in_special = False
+                        for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
+                            if topic_key in keywords:
+                                found_in_special = True
+                                break
+                        if not found_in_special:
+                            marker = " [UNCATEGORIZED]"
+                            topics_not_in_special.add(topic)
+                    
+                    lines.append(f"{inner_prefix}{topic_prefix}{topic}{marker}")
+                    all_topics.add(topic)
+                    
+                    # If it's a dict (nested category or Pings), show subtopics
+                    content = topics[topic]
+                    if isinstance(content, dict):
+                        subtopic_keys = sorted(content.keys())
+                        for sti, subtopic in enumerate(subtopic_keys):
+                            is_last_subtopic = (sti == len(subtopic_keys) - 1)
+                            sub_inner = inner_prefix + ("    " if is_last_topic else "│   ")
+                            sub_prefix = "└── " if is_last_subtopic else "├── "
+                            
+                            # Check if subtopic is categorized
+                            sub_marker = ""
+                            sub_key = subtopic.replace(" ", "_").lower()
+                            if topic == "Pings":
+                                if subtopic in ping_cat_names:
+                                    sub_marker = " [PING-CAT]"
+                                else:
+                                    # Check if in ping keywords
+                                    found_in_ping = False
+                                    for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
+                                        if sub_key in keywords:
+                                            found_in_ping = True
+                                            break
+                                    if not found_in_ping and subtopic not in ping_cat_names:
+                                        sub_marker = " [UNCATEGORIZED-PING]"
+                            
+                            lines.append(f"{sub_inner}{sub_prefix}{subtopic}{sub_marker}")
+            
+            lines.append("│")
+        
+        # Summary section
+        lines.append("")
+        lines.append("=" * 70)
+        lines.append("SUMMARY")
+        lines.append("-" * 40)
+        lines.append(f"Total Speakers: {len(data)}")
+        lines.append(f"Total Unique Topics: {len(all_topics)}")
+        lines.append(f"Topics in Special Categories: {len(topics_in_special)}")
+        lines.append(f"Uncategorized Topics: {len(topics_not_in_special)}")
+        lines.append("")
+        
+        if topics_not_in_special:
+            lines.append("UNCATEGORIZED TOPICS (consider adding to special_categories):")
+            lines.append("-" * 40)
+            for topic in sorted(topics_not_in_special):
+                topic_key = topic.replace(" ", "_").lower()
+                lines.append(f"  - {topic} (key: {topic_key})")
+        
+        lines.append("=" * 70)
+        
+        tree_content = "\n".join(lines)
+        
+        # If no output path provided, prompt user
+        if output_path is None:
+            output_path = filedialog.asksaveasfilename(
+                title="Save Category Tree As",
+                defaultextension=".txt",
+                filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+                initialfile="category_tree.txt"
+            )
+            if not output_path:
+                return False
+        
+        # Write the tree file
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(tree_content)
+        
+        return True
+        
+    except Exception as e:
+        print(f"Error exporting category tree: {e}")
+        return False
+
+
 def main():
     root = tk.Tk()
     app = VoiceLineUtilitiesGUI(root)

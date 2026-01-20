@@ -1,0 +1,471 @@
+============================================================
+VOICELINE CATEGORY TREE (for debugging)
+============================================================
+
+SPECIAL CATEGORIES
+----------------------------------------
+├── Killstreaks
+│   ├── killstreak_high
+│   ├── killstreak_mid
+│   ├── killstreak_start
+│   ├── killing_streak_high
+│   ├── killing_streak_low
+│   ├── killing_streak_medium
+│   ├── killing_streak
+│   ├── killing_streak_generic_high
+│   ├── killing_streak_generic_low
+│   ├── killing_streak_generic_medium
+│   ├── killstreak_count
+│   └── killstreak_title
+│
+├── Movement
+│   ├── leave_base
+│   ├── leaving_area
+│   └── boost_past_on_zipline
+│
+├── Use Power
+│   ├── use_power1
+│   ├── use_power2
+│   ├── use_power3
+│   ├── use_power4
+│   └── bespoke_ability_line
+│
+├── Desperation Use Power
+│   ├── desperation_power1
+│   ├── desperation_power2
+│   ├── desperation_power3
+│   └── desperation_power4
+│
+├── Upgrade Power
+│   ├── upgrade_power1
+│   ├── upgrade_power2
+│   ├── upgrade_power3
+│   ├── upgrade_power4
+│   └── upgrade_power5
+│
+├── Pick Up
+│   ├── see_money
+│   ├── pick_up_gold
+│   └── pick_up_rejuv
+│
+├── Emotions
+│   ├── angry
+│   ├── concerned
+│   ├── happy
+│   ├── sad
+│   └── congrats
+│
+├── Combat
+│   ├── parry
+│   ├── near_miss
+│   ├── melee_kill
+│   ├── revenge_kill
+│   ├── last_one_standing
+│   ├── close_call
+│   ├── interrupt
+│   ├── hunt
+│   ├── kill_anyhero
+│   ├── low_health_warning
+│   ├── outnumbered
+│   ├── solo_lasso_kill
+│   ├── be_careful
+│   ├── ap_reminder
+│   └── kill_high_networth
+│
+├── Item Usage
+│   └── (no keywords defined)
+│
+├── Shop System
+│   ├── t1_shop_reminder
+│   ├── t2_shop_reminder
+│   ├── t3_shop_reminder
+│   └── t4_shop_reminder
+│
+├── Match Status
+│   ├── win
+│   ├── win_early
+│   ├── win_late
+│   ├── match_win
+│   ├── match_start
+│   ├── introduction
+│   ├── ally_comeback
+│   ├── enemy_comeback
+│   ├── ally_team_wipe
+│   ├── enemy_team_wipe
+│   ├── ally_troopers_are_stronger
+│   ├── enemy_troopers_are_stronger
+│   ├── networth_update_ahead
+│   ├── networth_update_behind
+│   ├── avatar_is_destroyed
+│   └── lose_objective_while_ahead
+│
+├── Global Objectives
+│   ├── tower_got_denied
+│   ├── idol_drop
+│   ├── ally_delivered_many_urns
+│   ├── ally_urn_movement
+│   ├── ally_urn_delivered
+│   ├── enemy_delivered_many_urns
+│   ├── enemy_urn_delivered
+│   ├── enemy_urn_movement
+│   ├── urn_delivered
+│   ├── urn_dropped
+│   ├── urn_moving
+│   ├── urn_waiting
+│   ├── idol_delivered
+│   ├── idol_dropped
+│   ├── idol_landed
+│   ├── idol_moving
+│   ├── idol_waiting
+│   ├── rejuv_spawn
+│   ├── rejuvinator_expired
+│   ├── ally_rejuvinator_almost_expired
+│   ├── ally_steal_rejuv
+│   ├── enemy_steal_rejuv
+│   ├── mid_spawn
+│   ├── vanguard_ally_capture
+│   ├── vanguard_ally_capture_attempt
+│   ├── vanguard_available
+│   ├── vanguard_enemy_capture
+│   ├── vanguard_enemy_capture_attempt
+│   ├── ally_vanguard_defeated
+│   ├── enemy_vanguard_defeated
+│   ├── push_objectives_for_flex_slots
+│   └── stolen_by_the_boss
+│
+├── Ally Structures
+│   ├── ally_blue_guardian_attack
+│   ├── ally_blue_guardian_destroyed
+│   ├── ally_blue_walker_attack
+│   ├── ally_blue_walker_destroyed
+│   ├── ally_core_attack
+│   ├── ally_core_critical
+│   ├── ally_core_exposed
+│   ├── ally_core_reminder
+│   ├── ally_first_generator_destroyed
+│   ├── ally_generator_attack
+│   ├── ally_green_guardian_attack
+│   ├── ally_green_guardian_destroyed
+│   ├── ally_green_walker_attack
+│   ├── ally_green_walker_destroyed
+│   ├── ally_guardian_destroyed
+│   ├── ally_orange_guardian_attack
+│   ├── ally_orange_guardian_destroyed
+│   ├── ally_orange_walker_attack
+│   ├── ally_orange_walker_destroyed
+│   ├── ally_purple_guardian_attack
+│   ├── ally_purple_guardian_destroyed
+│   ├── ally_purple_walker_attack
+│   ├── ally_purple_walker_destroyed
+│   ├── ally_titan_attack
+│   ├── ally_titan_destroyed
+│   ├── ally_titan_exposed
+│   ├── ally_titan_reminder
+│   ├── ally_walker_destroyed
+│   ├── ally_yellow_guardian_attack
+│   ├── ally_yellow_guardian_destroyed
+│   ├── ally_yellow_walker_attack
+│   ├── ally_yellow_walker_destroyed
+│   ├── base_breached
+│   ├── base_defended
+│   └── base_guardians_under_attack
+│
+├── Enemy Structures
+│   ├── enemy_blue_guardian
+│   ├── enemy_blue_walker
+│   ├── enemy_core
+│   ├── enemy_core_exposed
+│   ├── enemy_core_healing
+│   ├── enemy_first_generator_destroyed
+│   ├── enemy_guardian_destroyed
+│   ├── enemy_orange_guardian
+│   ├── enemy_orange_walker
+│   ├── enemy_purple_guardian
+│   ├── enemy_purple_walker
+│   ├── enemy_titan
+│   ├── enemy_titan_exposed
+│   ├── enemy_walker_destroyed
+│   ├── enemy_yellow_guardian
+│   ├── enemy_yellow_walker
+│   └── titan_destroyed
+│
+├── Enemy Observations
+│   ├── see_enemy_metal_skin
+│   └── see_enemy_use_metal_skin
+│
+├── Boons
+│   ├── grant_boon_armor
+│   ├── grant_boon_armor_10
+│   ├── grant_boon_general
+│   ├── grant_boon_magic
+│   └── grant_boon_weapon
+│
+├── Map Alerts
+│   ├── broadway_attacked
+│   ├── orchard_attacked
+│   ├── park_attacked
+│   └── york_attacked
+│
+├── Patron Specific
+│   └── saphire_flame_lines
+│
+├── Tutorial
+│   ├── tutorial_1_tasks_left
+│   ├── tutorial_2_tasks_left
+│   ├── tutorial_2nd_ap_earned
+│   ├── tutorial_3_tasks_left
+│   ├── tutorial_4_tasks_left
+│   ├── tutorial_boons
+│   ├── tutorial_buy_mod_reminder
+│   ├── tutorial_collect_souls
+│   ├── tutorial_combat_1st_kill_on_atlas
+│   ├── tutorial_combat_1st_kill_on_dynamo
+│   ├── tutorial_combat_1st_kill_on_haze
+│   ├── tutorial_combat_1st_kill_on_inferno
+│   ├── tutorial_combat_1st_kill_on_kali
+│   ├── tutorial_combat_1st_kill_on_lash
+│   ├── tutorial_combat_1st_kill_on_nano
+│   ├── tutorial_combat_1st_kill_on_orion
+│   ├── tutorial_combat_companion_dies
+│   ├── tutorial_combat_companion_need_help
+│   ├── tutorial_combat_death_info
+│   ├── tutorial_combat_disarm_info
+│   ├── tutorial_combat_enemy_atlas_info
+│   ├── tutorial_combat_enemy_dynamo_info
+│   ├── tutorial_combat_enemy_haze_info
+│   ├── tutorial_combat_enemy_lash_info
+│   ├── tutorial_combat_enemy_orion_info
+│   ├── tutorial_combat_immobilze_info
+│   ├── tutorial_combat_melee
+│   ├── tutorial_combat_melee_short
+│   ├── tutorial_combat_neutrals_info
+│   ├── tutorial_combat_out_of_range
+│   ├── tutorial_combat_parry
+│   ├── tutorial_combat_silence_info
+│   ├── tutorial_combat_stun_info
+│   ├── tutorial_combat_zoom_reminder
+│   ├── tutorial_congrats_t1_killed
+│   ├── tutorial_congrats_t2_killed
+│   ├── tutorial_deny_enemy
+│   ├── tutorial_destroy_t1
+│   ├── tutorial_destroy_t2
+│   ├── tutorial_destroy_titan
+│   ├── tutorial_dont_fight_t2_yet
+│   ├── tutorial_fall_back
+│   ├── tutorial_farm_info
+│   ├── tutorial_farm_info_alt2
+│   ├── tutorial_farm_info_short
+│   ├── tutorial_farm_reminder
+│   ├── tutorial_final_push
+│   ├── tutorial_first_shop_short_edit
+│   ├── tutorial_go_forth_my_child
+│   ├── tutorial_gold_orb_reminder
+│   ├── tutorial_heal_reminder_short
+│   ├── tutorial_healing_info
+│   ├── tutorial_idol_info
+│   ├── tutorial_lane_info
+│   ├── tutorial_level_up
+│   ├── tutorial_level_up_info
+│   ├── tutorial_level_up_info_short
+│   ├── tutorial_lower_shields
+│   ├── tutorial_mid_info
+│   ├── tutorial_push_lane
+│   ├── tutorial_red_orb_reminder
+│   ├── tutorial_safe_info
+│   ├── tutorial_shop_ap_only
+│   ├── tutorial_shop_ap_reminder
+│   ├── tutorial_shop_info
+│   ├── tutorial_shop_reminder
+│   ├── tutorial_single_lane_report_card_bronze
+│   ├── tutorial_single_lane_report_card_gold
+│   ├── tutorial_single_lane_report_card_intro
+│   ├── tutorial_single_lane_report_card_silver
+│   ├── tutorial_single_lane_walker_down
+│   ├── tutorial_single_lane_walker_intro
+│   ├── tutorial_stamina_reminder
+│   ├── tutorial_starting_ability
+│   ├── tutorial_t1_shield_is_up
+│   ├── tutorial_tasks_complete
+│   ├── tutorial_total_cred_reminder
+│   ├── tutorial_unlock_power_reminder
+│   ├── tutorial_use_ap_reminder
+│   ├── tutorial_welcome
+│   ├── tutorial_zipline_info
+│   ├── tutorial_zipline_info_short
+│   └── tutorial_zipline_reminder
+│
+
+
+SPECIAL PING CATEGORIES
+----------------------------------------
+├── Objective Commands
+│   ├── attack_enemy
+│   ├── clear_troopers
+│   ├── defend_base
+│   ├── defend_blue
+│   ├── defend_green
+│   ├── defend_purple
+│   ├── defend_yellow
+│   ├── help_with_idol
+│   ├── lets_go_blue
+│   ├── lets_go_blue_alt
+│   ├── lets_go_green
+│   ├── lets_go_green_alt
+│   ├── lets_go_purple
+│   ├── lets_go_purple_alt
+│   ├── lets_go_yellow
+│   ├── lets_go_yellow_alt
+│   ├── push_blue
+│   ├── push_green
+│   ├── push_purple
+│   ├── push_yellow
+│   ├── take_mid
+│   └── take_shrine
+│
+├── Ability Status/Usage
+│   ├── ability1_almost_ready
+│   ├── ability1_not_ready
+│   ├── ability2_almost_ready
+│   ├── ability2_not_ready
+│   ├── ability3_almost_ready
+│   ├── ability3_not_ready
+│   ├── ability4_almost_ready
+│   ├── ability4_not_ready
+│   ├── use_ability1
+│   ├── use_ability2
+│   ├── use_ability3
+│   └── use_ability4
+│
+├── Item Status/Usage
+│   ├── can_heal
+│   ├── glitch_almost_ready
+│   ├── glitch_not_ready
+│   ├── heal_ready
+│   ├── health_nova_almost_ready
+│   ├── health_nova_not_ready
+│   ├── item_almost_ready
+│   ├── item_not_ready
+│   ├── kncokdown_almost_ready
+│   ├── knockdown_almost_ready
+│   ├── kncokdown_not_ready
+│   ├── knockdown_not_ready
+│   ├── refresher_almost_ready
+│   ├── refresher_not_ready
+│   ├── silence_almost_ready
+│   ├── silence_not_ready
+│   ├── stim_pack_almost_ready
+│   ├── stim_pack_not_ready
+│   ├── warp_stone_almost_ready
+│   ├── warp_stone_not_ready
+│   ├── use_glitch
+│   ├── use_health_nova
+│   ├── use_item
+│   ├── use_kncokdown
+│   ├── use_knockdown
+│   ├── use_refresher
+│   ├── use_rupture
+│   ├── use_silence
+│   ├── use_stim_pack
+│   └── use_warp_stone
+│
+├── Movement and Positioning
+│   ├── be_back_soon
+│   ├── flank
+│   ├── going_in
+│   ├── going_shop
+│   ├── headed_blue
+│   ├── headed_green
+│   ├── headed_purple
+│   ├── headed_this_way
+│   ├── headed_yellow
+│   ├── leaving_area
+│   ├── lets_hide
+│   ├── meet_here
+│   ├── on_way
+│   ├── request_follow
+│   ├── retreat
+│   ├── returning_to_base
+│   ├── right_back
+│   ├── stay_together
+│   └── wait
+│
+├── Enemy Information and Location
+│   ├── danger_area
+│   ├── in_mid
+│   ├── missing
+│   ├── missing_blue
+│   ├── missing_green
+│   ├── missing_purple
+│   ├── missing_yellow
+│   ├── on_top_of_garage
+│   ├── on_top_of_mid
+│   ├── saw
+│   ├── saw_them
+│   ├── see
+│   ├── see_enemy
+│   ├── see_on_bridge
+│   ├── see_on_roof
+│   ├── theyre_in_mid
+│   ├── theyre_on_top_of_garage
+│   ├── theyre_on_top_of_mid
+│   ├── theyre_under_garage
+│   ├── they_were_here
+│   ├── under_garage
+│   └── was_here
+│
+├── Requests and Alerts
+│   ├── almost_respawn
+│   ├── avatar_under_attack
+│   ├── blue_help
+│   ├── dead
+│   ├── green_help
+│   ├── need_cover
+│   ├── need_heal
+│   ├── need_help_blue
+│   ├── need_help_blue_alt
+│   ├── need_help_green
+│   ├── need_help_green_alt
+│   ├── need_help_purple
+│   ├── need_help_purple_alt
+│   ├── need_help_yellow
+│   ├── need_help_yellow_alt
+│   ├── purple_help
+│   ├── t1_under_attack
+│   ├── t2_under_attack
+│   └── yellow_help
+│
+├── Tactical Communication
+│   ├── attack
+│   ├── careful
+│   ├── gank
+│   ├── ignore
+│   ├── need_plan
+│   ├── no_teamfight
+│   ├── press_advantage
+│   └── stun
+│
+├── General Communication / Social
+│   ├── affermative
+│   ├── good_game
+│   ├── good_job
+│   ├── negative
+│   ├── nice_work
+│   ├── sorry
+│   ├── thanks
+│   ├── thank_you
+│   ├── welcome
+│   ├── well_played
+│   └── with
+│
+├── Miscellaneous Status
+│   ├── check_items
+│   ├── jar_call
+│   └── rejuv_drop
+│
+
+============================================================
+Total Special Categories: 19
+Total Special Ping Categories: 9
+Total Special Category Keywords: 251
+Total Ping Category Keywords: 146
+============================================================

@@ -204,6 +204,10 @@ class BatchGUI(tk.Tk):
         self.move_btn = tk.Button(btn_frm, text="Move Processed Audio Files", command=self.move_processed_audio_files, state=tk.DISABLED)
         self.move_btn.pack(side=tk.RIGHT, padx=(6, 0))
 
+        # Export category tree for debugging
+        self.category_tree_btn = tk.Button(btn_frm, text="Export Category Tree", command=self.export_category_tree)
+        self.category_tree_btn.pack(side=tk.RIGHT, padx=(6, 0))
+
         self.log = scrolledtext.ScrolledText(self, height=20, width=100, state=tk.NORMAL)
         self.log.pack(padx=10, pady=(0, 10), fill=tk.BOTH, expand=True)
 
@@ -1303,6 +1307,47 @@ class BatchGUI(tk.Tk):
                     self.process.kill()
             except Exception as e:
                 self.log_write(f"Failed to stop process: {e}\n")
+
+    def export_category_tree(self):
+        """Export a tree file showing all voiceline categories for debugging."""
+        try:
+            # Import from voicelines module
+            voi_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Voiceline Utilities"))
+            if voi_root not in sys.path:
+                sys.path.insert(0, voi_root)
+            
+            from voicelines import export_category_tree as do_export
+            
+            # Prompt for input JSON (the organized voicelines output)
+            input_json_path = filedialog.askopenfilename(
+                title="Select Organized Voicelines JSON",
+                filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+            )
+            if not input_json_path:
+                return
+            
+            # Prompt for save location
+            output_path = filedialog.asksaveasfilename(
+                title="Save Category Tree As",
+                defaultextension=".txt",
+                filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+                initialfile="category_tree.txt"
+            )
+            if not output_path:
+                return
+            
+            # Call the export function with both paths
+            success = do_export(input_json_path, output_path)
+            
+            if success:
+                self.log_write(f"[Category Tree] Exported to: {output_path}\n")
+                messagebox.showinfo("Export Complete", f"Category tree exported to:\n{output_path}")
+            else:
+                self.log_write("[Category Tree] Export failed.\n")
+                messagebox.showerror("Export Failed", "Failed to export category tree.")
+        except Exception as e:
+            self.log_write(f"[Category Tree] Error: {e}\n")
+            messagebox.showerror("Error", f"Failed to export category tree: {e}")
 
     def on_close(self):
         if self.process:

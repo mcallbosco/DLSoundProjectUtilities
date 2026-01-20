@@ -39,7 +39,6 @@
   "drifter": ["drifter"],
   "paige": ["bookworm", "paige"],
   "doorman": ["doorman"],
-  "priest": ["priest"],
   "jake": ["jake"],
   "boho": ["boho"],
   "druid": ["druid"],
@@ -53,5 +52,13 @@
   "sinclair (savannah)": ["magician_savannah", "sinclair (savannah)"],
   "murphy": ["murphy"],
   "skyrunner": ["skyrunner"],
-  "boss": ["the_boss"]
+  "boss": ["the_boss"],
+  "rem" : ["familiar"],
+  "apollo" : ["fencer"],
+  "necro" : ["necro"],
+  "pepper" : ["unicorn"],
+  "priest": ["priest"],
+  "Silver" : ["werewolf"]
+
+
 }
