@@ -287,35 +287,40 @@ class ConversationPlayer:
     def parse_audio_files(self):
         """Parse audio files and organize them into conversations"""
         conversations = {}
-        
+
         # Get list of audio files recursively from all subfolders
+        # Store relative paths from audio_dir to handle files in subdirectories
         try:
             files = []
             for root, dirs, filenames in os.walk(self.audio_dir):
                 for filename in filenames:
                     if filename.endswith(".mp3"):
-                        files.append(filename)
+                        # Store relative path from audio_dir, not just basename
+                        rel_path = os.path.relpath(os.path.join(root, filename), self.audio_dir)
+                        files.append(rel_path)
             self.status_var.set(f"Found {len(files)} audio files")
         except Exception as e:
             messagebox.showerror("Error", f"Could not read directory: {self.audio_dir}\n{str(e)}")
             return {}
-        
+
         if not files:
             messagebox.showinfo("Info", "No MP3 files found in the selected directory or its subfolders")
             return {}
-            
+
         # Regular expression to extract information from filenames
         # Format examples:
         # - [char1]_match_start_[char1]_[char2]_convo[##]_[##]_[##].mp3
         # - [char1]_match_start_[char1]_[char2]_[topic]_convo[##]_[##]_[##].mp3
-        
+
         # First try the pattern with a topic
         pattern_with_topic = r'(\w+)_match_start_(\w+)_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?\.mp3'
-        
+
         # Fallback pattern without a topic
         pattern_without_topic = r'(\w+)_match_start_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?\.mp3'
-        
-        for filename in files:
+
+        for filepath in files:
+            # Use basename for pattern matching, but keep full relative path for file access
+            filename = os.path.basename(filepath)
             # First try to match the pattern with a topic
             match = re.match(pattern_with_topic, filename)
             if match:
@@ -361,7 +366,7 @@ class ConversationPlayer:
                 conversations[convo_key] = []
             
             conversations[convo_key].append({
-                'filename': filename,
+                'filename': filepath,  # Use relative path for file access
                 'part': int(part_num),
                 'variation': int(variation),
                 'characters': (char1, char2),
@@ -1344,8 +1349,9 @@ class ConversationPlayer:
     
     def _get_speaker_from_filename(self, filename):
         """Extract the speaker from the filename as the first word before the underscore"""
-        # Simply get the first part of the filename before the first underscore
-        first_part = filename.split('_')[0]
+        # Use basename to handle paths, then get the first part before the first underscore
+        basename = os.path.basename(filename)
+        first_part = basename.split('_')[0]
         return self.resolve_character_name(first_part)
     
     def _save_transcription(self, transcription, convo_key):
@@ -1571,8 +1577,8 @@ Summary (maximum 7 words):"""
                             has_transcription = bool(transcription)
                     except:
                         transcription = "[Transcription not available]"
-                elif transcribe_all:
-                    # Generate new transcription
+                elif transcribe_all or force_retranscribe:
+                    # Generate new transcription (also triggered when force_retranscribe is True)
                     file_path = os.path.join(self.audio_dir, filename)
                     if os.path.exists(file_path):
                         try:

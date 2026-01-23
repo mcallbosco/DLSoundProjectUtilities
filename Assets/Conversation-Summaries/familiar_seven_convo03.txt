@@ -1,0 +1,1 @@
+Warning about OSIC after ritual failure.

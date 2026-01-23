@@ -55,10 +55,10 @@
   "boss": ["the_boss"],
   "rem" : ["familiar"],
   "apollo" : ["fencer"],
-  "necro" : ["necro"],
+  "graves" : ["necro"],
   "pepper" : ["unicorn"],
-  "priest": ["priest"],
-  "Silver" : ["werewolf"]
+  "venator": ["priest"],
+  "silver" : ["werewolf"]
 
 
 }
