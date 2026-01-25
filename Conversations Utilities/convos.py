@@ -1608,7 +1608,7 @@ Summary (maximum 7 words):"""
                     "part": part,
                     "variation": variation['variation'],
                     "speaker": speaker,
-                    "filename": filename,
+                    "filename": os.path.basename(filename),
                     "transcription": transcription,
                     "has_transcription": has_transcription
                 }

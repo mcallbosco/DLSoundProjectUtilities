@@ -32,6 +32,7 @@ def load_config():
     default = {
         "source2viewer_binary": "",
         "vpk_path": "/home/mcall/Apps/SteamFolder/steamapps/common/Deadlock/game/citadel/pak01_dir.vpk",
+        "game_base_path": "/home/mcall/Apps/SteamFolder/steamapps/common/Deadlock",
         "file_filter": "sounds\\vo",
         "status_dir": "",
         "transcriptions_dir": "",
@@ -406,6 +407,20 @@ class BatchGUI(tk.Tk):
         except Exception as e:
             messagebox.showerror("Temp dir", f"Failed to create temp folder: {e}")
             return
+
+        # Copy citadel_generated_vo from game files to temp folder
+        game_base = self.cfg.get("game_base_path", "")
+        if game_base:
+            vo_localization_path = os.path.join(game_base, "game", "citadel", "resource", "localization", "citadel_generated_vo", "citadel_generated_vo_english.txt")
+            if os.path.isfile(vo_localization_path):
+                try:
+                    dest_path = os.path.join(self.tempdir, "citadel_generated_vo.txt")
+                    shutil.copy2(vo_localization_path, dest_path)
+                    self.log_write(f"[Pre-run] Copied citadel_generated_vo.txt to temp folder\n")
+                except Exception as e:
+                    self.log_write(f"[Pre-run] Failed to copy citadel_generated_vo.txt: {e}\n")
+            else:
+                self.log_write(f"[Pre-run] citadel_generated_vo.txt not found at {vo_localization_path}\n")
 
         cmd = [binary, "-i", vpk, "-o", self.tempdir, "-f", ffilter, "-d"]
 

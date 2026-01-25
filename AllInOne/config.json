@@ -1,6 +1,7 @@
 {
   "source2viewer_binary": "/home/mcall/Apps/S2ViewerCLI/Source2Viewer-CLI",
   "vpk_path": "/home/mcall/Apps/SteamFolder/steamapps/common/Deadlock/game/citadel/pak01_dir.vpk",
+  "game_base_path": "/home/mcall/Apps/SteamFolder/steamapps/common/Deadlock",
   "file_filter": "sounds\\vo",
   "conversations_dir": "",
   "status_dir": "/home/mcall/Documents/Projects/DLSoundProject/DLSoundProjectUtilities/Assets/deadlock-sound-delta",
