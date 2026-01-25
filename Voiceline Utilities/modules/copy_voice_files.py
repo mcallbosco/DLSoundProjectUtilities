@@ -80,6 +80,9 @@ def copy_voice_files(input_json_path, source_folder, output_folder, output_json_
     def process_and_copy(node):
         # Recursively mirror the structure, replacing file path strings with dicts containing filename/date
         if isinstance(node, dict):
+            # Pass through phantom entries without processing
+            if node.get("is_phantom"):
+                return node
             return {k: process_and_copy(v) for k, v in node.items()}
         elif isinstance(node, list):
             return [process_and_copy(item) for item in node]

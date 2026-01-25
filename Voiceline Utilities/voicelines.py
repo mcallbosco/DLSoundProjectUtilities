@@ -11,6 +11,8 @@ from modules.voice_line_organizer import VoiceLineOrganizer
 from modules import copy_voice_files
 from modules import transcribe_voice_files
 
+ENABLE_VDF_SUPPORT = True
+
 class APIKeyDialog(tk.Toplevel):
     def __init__(self, parent, current_key=""):
         super().__init__(parent)
@@ -177,6 +179,8 @@ class VoiceLineUtilitiesGUI:
         self.transcribe_consolidated_json = tk.StringVar()  # New variable for consolidated JSON
         self.transcribe_custom_vocab = tk.StringVar()  # New variable for custom vocabulary
         self.transcribe_force = tk.BooleanVar(value=False)
+        self.transcribe_vdf_path = tk.StringVar() # VDF file path
+        self.transcribe_use_vdf = tk.BooleanVar(value=True) # Use VDF flag
         
         # Input JSON selection
         ttk.Label(frame, text="Input JSON:").grid(row=0, column=0, sticky=tk.W, pady=5)
@@ -202,31 +206,52 @@ class VoiceLineUtilitiesGUI:
         ttk.Label(frame, text="Custom Vocabulary (optional):").grid(row=4, column=0, sticky=tk.W, pady=5)
         ttk.Entry(frame, textvariable=self.transcribe_custom_vocab, width=50).grid(row=4, column=1, padx=5, pady=5)
         ttk.Button(frame, text="Browse", command=self.browse_transcribe_custom_vocab).grid(row=4, column=2, padx=5, pady=5)
+
+        # VDF selection (new) - conditional on ENABLE_VDF_SUPPORT
+        if ENABLE_VDF_SUPPORT:
+            ttk.Label(frame, text="VDF Subtitles File (optional):").grid(row=5, column=0, sticky=tk.W, pady=5)
+            ttk.Entry(frame, textvariable=self.transcribe_vdf_path, width=50).grid(row=5, column=1, padx=5, pady=5)
+            ttk.Button(frame, text="Browse", command=self.browse_transcribe_vdf).grid(row=5, column=2, padx=5, pady=5)
+            
+            self.transcribe_include_phantom = tk.BooleanVar(value=True)
+            ttk.Checkbutton(
+                frame,
+                text="Include voicelines without audio files (phantom lines)",
+                variable=self.transcribe_include_phantom
+            ).grid(row=6, column=0, columnspan=3, sticky=tk.W, pady=5)
+            
+            row_offset = 7
+        else:
+            row_offset = 5
         
         # Force reprocessing checkbox
         ttk.Checkbutton(
             frame, 
             text="Force reprocessing of files that already have transcriptions", 
             variable=self.transcribe_force
-        ).grid(row=5, column=0, columnspan=3, sticky=tk.W, pady=5)
+        ).grid(row=row_offset, column=0, columnspan=3, sticky=tk.W, pady=5)
+        row_offset += 1
 
         # Status TXT file selection and process button
-        ttk.Label(frame, text="Status TXT File (optional):").grid(row=6, column=0, sticky=tk.W, pady=5)
+        ttk.Label(frame, text="Status TXT File (optional):").grid(row=row_offset, column=0, sticky=tk.W, pady=5)
         self.transcribe_status_txt = tk.StringVar()
-        ttk.Entry(frame, textvariable=self.transcribe_status_txt, width=80).grid(row=6, column=1, padx=5, pady=5)
-        ttk.Button(frame, text="Browse", command=self.browse_transcribe_status_txt).grid(row=6, column=2, padx=5, pady=5)
+        ttk.Entry(frame, textvariable=self.transcribe_status_txt, width=80).grid(row=row_offset, column=1, padx=5, pady=5)
+        ttk.Button(frame, text="Browse", command=self.browse_transcribe_status_txt).grid(row=row_offset, column=2, padx=5, pady=5)
+        row_offset += 1
 
         # Status filter section for re-transcription
         status_frame = ttk.LabelFrame(frame, text="Re-transcribe files with these statuses (checked = will be re-transcribed)", padding="10")
-        status_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        status_frame.grid(row=row_offset, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         self.status_filter_vars = {}
         self.status_checkboxes_container = ttk.Frame(status_frame)
         self.status_checkboxes_container.pack(fill=tk.X, expand=True)
         ttk.Button(status_frame, text="Load Statuses from Status TXT", command=self.refresh_status_filters_from_status_txt).pack(anchor=tk.W, pady=(8,0))
+        row_offset += 1
 
         # API key status and management
         api_key_frame = ttk.Frame(frame)
-        api_key_frame.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        api_key_frame.grid(row=row_offset, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        row_offset += 1
         
         self.api_key_status = tk.StringVar(value="API Key Status: Unknown")
         ttk.Label(api_key_frame, textvariable=self.api_key_status).pack(side=tk.LEFT)
@@ -237,20 +262,23 @@ class VoiceLineUtilitiesGUI:
                   command=self.edit_api_key).pack(side=tk.RIGHT, padx=5)
         
         # Process button
-        ttk.Button(frame, text="Transcribe Files", command=self.transcribe_files).grid(row=9, column=0, columnspan=3, pady=20)
+        ttk.Button(frame, text="Transcribe Files", command=self.transcribe_files).grid(row=row_offset, column=0, columnspan=3, pady=20)
+        row_offset += 1
         
         # Progress bar
         self.transcribe_progress = ttk.Progressbar(frame, orient=tk.HORIZONTAL, length=700, mode='determinate')
-        self.transcribe_progress.grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
+        self.transcribe_progress.grid(row=row_offset, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
+        row_offset += 1
         
         # Current file label
         self.current_file_label = ttk.Label(frame, text="")
-        self.current_file_label.grid(row=11, column=0, columnspan=3, sticky=tk.W, pady=5)
+        self.current_file_label.grid(row=row_offset, column=0, columnspan=3, sticky=tk.W, pady=5)
+        row_offset += 1
         
         # Log section
         log_frame = ttk.LabelFrame(frame, text="Log", padding="10")
-        log_frame.grid(row=12, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=10)
-        frame.rowconfigure(12, weight=1)
+        log_frame.grid(row=row_offset, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=10)
+        frame.rowconfigure(row_offset, weight=1)
         frame.columnconfigure(0, weight=1)
         frame.columnconfigure(1, weight=1)
         frame.columnconfigure(2, weight=1)
@@ -404,6 +432,16 @@ class VoiceLineUtilitiesGUI:
                     self.transcribe_log(f"Loaded vocabulary with {len(vocab_data)} terms")
             except Exception as e:
                 self.transcribe_log(f"Error loading vocabulary file: {str(e)}")
+
+    def browse_transcribe_vdf(self):
+        """Browse for VDF subtitles file"""
+        filename = filedialog.askopenfilename(
+            title="Select VDF Subtitles File",
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+        )
+        if filename:
+            self.transcribe_vdf_path.set(filename)
+            self.transcribe_log(f"VDF subtitles file selected: {filename}")
     
     def transcribe_log(self, message):
         self.transcribe_log_text.insert(tk.END, message + "\n")
@@ -490,10 +528,11 @@ class VoiceLineUtilitiesGUI:
             messagebox.showwarning("Missing Input", "Please select a source folder.")
             return
         
-        # Check API key
+        # Check API key (only if not relying solely on VDF, but let's assume we always check for now)
         try:
             transcribe_voice_files.load_api_key()
         except Exception as e:
+            # If using VDF, we might proceed? For now, strict check.
             messagebox.showerror("API Key Error", str(e))
             return
         
@@ -561,6 +600,13 @@ class VoiceLineUtilitiesGUI:
                 except Exception as e:
                     self.transcribe_log(f"ERROR: Failed to parse Status TXT for filtering: {str(e)}")
 
+            # Determine VDF path to use
+            vdf_path = None
+            include_phantom = False
+            if ENABLE_VDF_SUPPORT and self.transcribe_vdf_path.get():
+                vdf_path = self.transcribe_vdf_path.get()
+                include_phantom = self.transcribe_include_phantom.get()
+
             # Call the transcribe function with all parameters
             consolidated_json_path = self.transcribe_consolidated_json.get() if self.transcribe_consolidated_json.get() else None
             transcribe_voice_files.transcribe_voice_files(
@@ -572,7 +618,9 @@ class VoiceLineUtilitiesGUI:
                 consolidated_json_path=consolidated_json_path,
                 custom_vocab_file=self.transcribe_custom_vocab.get() if self.transcribe_custom_vocab.get() else None,
                 reprocess_statuses=selected_statuses if selected_statuses else None,
-                reprocess_status_map=status_map if status_map else None
+                reprocess_status_map=status_map if status_map else None,
+                vdf_path=vdf_path,
+                include_phantom=include_phantom
             )
 
             # If status TXT is provided and consolidated JSON was written, apply status mapping

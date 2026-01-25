@@ -41,7 +41,10 @@ def load_config():
         "conversations_export_json": "",
         "voicelines_consolidated_json": "",
         "voicelines_custom_vocab": "",
-        "voicelines_retranscribe_on_status": True
+        "voicelines_retranscribe_on_status": True,
+        "delete_json_on_vdf_match": False,
+        
+        "include_phantom_lines": True
     }
 
     cfg = None
@@ -179,6 +182,14 @@ class BatchGUI(tk.Tk):
         # Voicelines retranscribe checkbox
         self.voi_retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("voicelines_retranscribe_on_status", True)))
         tk.Checkbutton(frm, text="Re-transcribe voicelines when status present", variable=self.voi_retranscribe_var).grid(row=9, column=0, columnspan=2, sticky=tk.W)
+
+        # Delete JSON on VDF match checkbox
+        self.delete_json_var = tk.BooleanVar(value=bool(self.cfg.get("delete_json_on_vdf_match", False)))
+        tk.Checkbutton(frm, text="Delete transcript JSON if VDF match found", variable=self.delete_json_var).grid(row=10, column=0, columnspan=2, sticky=tk.W)
+
+        # Include phantom lines checkbox
+        self.include_phantom_var = tk.BooleanVar(value=bool(self.cfg.get("include_phantom_lines", True)))
+        tk.Checkbutton(frm, text="Include voicelines without audio (phantom)", variable=self.include_phantom_var).grid(row=11, column=0, columnspan=2, sticky=tk.W)
 
         btn_frm = tk.Frame(self)
         btn_frm.pack(padx=10, pady=(6, 6), fill=tk.X)
@@ -380,6 +391,8 @@ class BatchGUI(tk.Tk):
         self.cfg["voicelines_consolidated_json"] = self.voi_consolidated_entry.get().strip()
         self.cfg["voicelines_custom_vocab"] = self.voi_vocab_entry.get().strip()
         self.cfg["voicelines_retranscribe_on_status"] = bool(self.voi_retranscribe_var.get())
+        self.cfg["delete_json_on_vdf_match"] = bool(self.delete_json_var.get())
+        self.cfg["include_phantom_lines"] = bool(self.include_phantom_var.get())
         ok = save_config(self.cfg)
         if ok:
             messagebox.showinfo("Saved", f"Config saved to {CONFIG_FILE}")
@@ -538,6 +551,10 @@ class BatchGUI(tk.Tk):
         trans_dir = self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else self.cfg.get("transcriptions_dir", "")
         status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
         retranscribe_flag = bool(self.retranscribe_var.get()) if hasattr(self, 'retranscribe_var') else True
+        include_phantom_flag = bool(self.include_phantom_var.get()) if hasattr(self, 'include_phantom_var') else True
+
+        # Capture VDF path
+        vdf_path = os.path.join(self.tempdir, "citadel_generated_vo.txt") if self.tempdir else None
 
         # Export in background to keep UI responsive
         def run_export():
@@ -575,11 +592,26 @@ class BatchGUI(tk.Tk):
                     self.log_write(f"[Conversations] Loaded {len(status_map)} status entries\n")
                     player.file_status_map = status_map
 
-                    # Use captured retranscribe flag
+                    # Load VDF if present
+                    if vdf_path and os.path.exists(vdf_path):
+                        self.log_write(f"[Conversations] Loading VDF from: {vdf_path}\n")
+                        try:
+                            count = player.load_vdf_from_file(vdf_path)
+                            self.log_write(f"[Conversations] Loaded {count} VDF entries\n")
+                        except Exception as e:
+                            self.log_write(f"[Conversations] Failed to load VDF: {e}\n")
+
+                    # Use captured flags
                     player._retranscribe_on_status_snapshot = retranscribe_flag
+                    player.include_phantom = include_phantom_flag
 
                     # Parse files and export
                     player.conversations = player.parse_audio_files()
+                    
+                    # Merge VDF data again because parse_audio_files overwrites conversations
+                    if player.vdf_loaded:
+                        player.merge_vdf_data()
+                        
                     if not player.conversations:
                         self.log_write("No conversations found in exported audio.\n")
                         return
@@ -626,7 +658,12 @@ class BatchGUI(tk.Tk):
         custom_vocab = (self.voi_vocab_entry.get().strip() if hasattr(self, 'voi_vocab_entry') else "") or self.cfg.get("voicelines_custom_vocab", "")
         status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
         voi_retranscribe_flag = bool(self.voi_retranscribe_var.get()) if hasattr(self, 'voi_retranscribe_var') else True
+        delete_json_flag = bool(self.delete_json_var.get()) if hasattr(self, 'delete_json_var') else False
+        include_phantom_flag = bool(self.include_phantom_var.get()) if hasattr(self, 'include_phantom_var') else True
         tempdir_snapshot = self.tempdir
+        
+        # Capture VDF path
+        vdf_path = os.path.join(self.tempdir, "citadel_generated_vo.txt") if self.tempdir else None
 
         # Orchestrate the voicelines organizer -> copy -> transcribe flow
         def run_vo():
@@ -721,6 +758,8 @@ class BatchGUI(tk.Tk):
                     organizer.topic_alias_json_path.set(topic_alias_path)
                     organizer.source_folder_path.set(audio_dir)
                     organizer.output_json_path.set(organized_json)
+                    if vdf_path:
+                        organizer.vdf_path.set(vdf_path)
                     self.log_write("[Organizer] Starting...\n")
                     organizer.process_voice_lines()
                     self.log_write(f"[Organizer] Done. Output: {organized_json}\n")
@@ -907,6 +946,8 @@ class BatchGUI(tk.Tk):
                         pass
 
                 self.log_write("[Transcribe] Starting...\n")
+                if vdf_path:
+                    self.log_write(f"[Transcribe] Using VDF: {vdf_path}\n")
                 _trans.transcribe_voice_files(
                     flat_json,
                     copy_dir,
@@ -916,7 +957,12 @@ class BatchGUI(tk.Tk):
                     consolidated_json_path=final_consolidated_out,
                     custom_vocab_file=custom_vocab if custom_vocab else None,
                     reprocess_statuses=reprocess_statuses,
-                    reprocess_status_map=reprocess_status_map
+                    reprocess_status_map=reprocess_status_map,
+                    vdf_path=vdf_path,
+                    include_phantom=include_phantom_flag,
+                    delete_json_on_vdf_match=delete_json_flag,
+                    alias_path=alias_path,
+                    topic_alias_path=topic_alias_path
                 )
                 self.log_write(f"[Transcribe] Consolidated JSON -> {final_consolidated_out}\n")
 

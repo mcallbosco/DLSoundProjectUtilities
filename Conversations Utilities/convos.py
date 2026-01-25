@@ -214,6 +214,12 @@ class ConversationPlayer:
         self.canonical_to_aliases = {}
         self.load_character_mappings()
 
+        # VDF Data storage
+        # Map: (char_pair, convo_num, topic) -> { (part, variation) -> text }
+        self.vdf_texts = {} 
+        self.vdf_loaded = False
+        self.include_phantom = True # Default to True
+
         # Create GUI elements
         self.create_widgets()
 
@@ -466,13 +472,17 @@ class ConversationPlayer:
         status_button = ttk.Button(dir_frame, text="Import Status File", command=self.import_status_file)
         status_button.grid(row=0, column=5, padx=5, pady=5)
 
+        # Add Import VDF Subtitles button
+        vdf_button = ttk.Button(dir_frame, text="Import VDF Subtitles", command=self.import_vdf_file)
+        vdf_button.grid(row=0, column=6, padx=5, pady=5)
+
         # Add Generate Summaries (Updated only) button
         gen_sum_button = ttk.Button(dir_frame, text="Generate Summaries (Updated only)", command=self.generate_summaries_updated_only)
-        gen_sum_button.grid(row=0, column=6, padx=5, pady=5)
+        gen_sum_button.grid(row=0, column=7, padx=5, pady=5)
 
         # Add Generate Summaries (All) button
         gen_all_button = ttk.Button(dir_frame, text="Generate Summaries (All)", command=self.generate_summaries_all)
-        gen_all_button.grid(row=0, column=7, padx=5, pady=5)
+        gen_all_button.grid(row=0, column=8, padx=5, pady=5)
 
         # Checkbox: control whether a found status forces re-transcription (default: on)
         self.retranscribe_on_status_var = tk.BooleanVar(value=True)
@@ -481,6 +491,19 @@ class ConversationPlayer:
             text="Re-transcribe when status is present",
             variable=self.retranscribe_on_status_var
         ).grid(row=1, column=0, columnspan=3, sticky=tk.W, padx=5, pady=(0,5))
+
+        # Add Delete VDF-Matched Transcripts button
+        del_vdf_button = ttk.Button(dir_frame, text="Delete VDF-Matched Transcripts", command=self.delete_vdf_matched_transcripts)
+        del_vdf_button.grid(row=1, column=6, padx=5, pady=(0,5))
+
+        # Include Phantom Lines Checkbox
+        self.include_phantom_var = tk.BooleanVar(value=self.include_phantom)
+        def _update_phantom_flag():
+            self.include_phantom = self.include_phantom_var.get()
+            if self.vdf_loaded:
+                self.load_directory() # Reload to apply changes (re-merge)
+        
+        ttk.Checkbutton(dir_frame, text="Include Phantom Lines", variable=self.include_phantom_var, command=_update_phantom_flag).grid(row=1, column=7, padx=5, pady=(0,5))
 
         # Transcriptions directory selection
         trans_dir_frame = ttk.LabelFrame(main_frame, text="Transcriptions Directory", padding="10")
@@ -628,6 +651,276 @@ class ConversationPlayer:
             messagebox.showinfo("Status Imported", f"Imported statuses for {len(status_map)} files ({total} tags). Export to include them.")
         except Exception as e:
             messagebox.showerror("Import Error", f"Failed to import status file:\n{str(e)}")
+
+    def import_vdf_file(self):
+        """Import VDF subtitles file"""
+        file_path = filedialog.askopenfilename(
+            title="Select VDF File",
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+        )
+        if not file_path:
+            return
+
+        self.status_var.set("Parsing VDF file...")
+        self.root.update()
+
+        try:
+            count = self.load_vdf_from_file(file_path)
+            
+            # Update GUI
+            self.update_conversation_list()
+            
+            messagebox.showinfo("VDF Import", f"Imported {count} subtitles.")
+            
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to parse VDF:\n{str(e)}")
+
+    def load_vdf_from_file(self, file_path):
+        """Load and parse VDF file programmatically. Returns count of entries."""
+        count = 0
+        # Reset VDF storage
+        self.vdf_texts = {}
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                # Simple line parsing: look for "key" "value"
+                # Regex for "key" "value"
+                m = re.match(r'^"([^"]+)"\s+"([^"]+)"$', line)
+                if m:
+                    key, text = m.groups()
+                    # Process key
+                    parsed = self._parse_vdf_key(key)
+                    if parsed:
+                        # (char_pair, convo_num, topic), part, variation, speaker
+                        convo_key, part, variation, speaker = parsed
+                        
+                        if convo_key not in self.vdf_texts:
+                            self.vdf_texts[convo_key] = {}
+                        
+                        # Store text and speaker, keyed by part and variation
+                        # We use last wins for duplicates (though shouldn't happen often for same part/var)
+                        self.vdf_texts[convo_key][(part, variation)] = {
+                            'text': text,
+                            'speaker': speaker
+                        }
+                        count += 1
+        
+        self.vdf_loaded = True
+        
+        # Merge into current conversations
+        self.merge_vdf_data()
+        
+        return count
+
+    def delete_vdf_matched_transcripts(self):
+        """Delete transcription files that have corresponding VDF entries"""
+        if not self.vdf_loaded:
+            messagebox.showinfo("Info", "Please import a VDF file first.")
+            return
+            
+        files_to_delete = []
+        
+        # 1. Identify individual file transcription caches to delete
+        for convo_key, files in self.conversations.items():
+            # Check if this conversation exists in VDF
+            if convo_key not in self.vdf_texts:
+                continue
+                
+            vdf_parts = self.vdf_texts[convo_key]
+            
+            for file_data in files:
+                # Skip phantom files (they don't have audio files, thus no transcripts)
+                if file_data.get('is_phantom', False) or not file_data.get('filename'):
+                    continue
+                    
+                part = file_data['part']
+                variation = file_data['variation']
+                
+                # Check if this specific part/variation is in VDF
+                if (part, variation) in vdf_parts:
+                    # Construct cache filename: filename.ext.json
+                    filename = os.path.basename(file_data['filename'])
+                    cache_filename = f"{filename}.json"
+                    cache_path = os.path.join(self.transcriptions_dir, cache_filename)
+                    
+                    if os.path.exists(cache_path):
+                        files_to_delete.append(cache_path)
+
+        # 2. Identify conversation-level transcription exports to delete
+        # These are named: char1_char2_convoXX[_topic].json
+        for convo_key in self.vdf_texts.keys():
+            char_pair = convo_key[0]
+            convo_num = convo_key[1]
+            topic = convo_key[2] if len(convo_key) > 2 else None
+            
+            char1, char2 = char_pair
+            
+            if topic:
+                convo_filename = f"{char1}_{char2}_convo{convo_num}_{topic}.json"
+            else:
+                convo_filename = f"{char1}_{char2}_convo{convo_num}.json"
+                
+            convo_path = os.path.join(self.transcriptions_dir, convo_filename)
+            if os.path.exists(convo_path):
+                files_to_delete.append(convo_path)
+        
+        # Remove duplicates
+        files_to_delete = list(set(files_to_delete))
+        
+        if not files_to_delete:
+            messagebox.showinfo("Info", "No matching transcription files found to delete.")
+            return
+            
+        # Confirm deletion
+        msg = f"Found {len(files_to_delete)} transcription files that match VDF entries.\n\nAre you sure you want to PERMANENTLY DELETE them?"
+        if messagebox.askyesno("Confirm Deletion", msg, icon='warning'):
+            deleted_count = 0
+            errors = 0
+            
+            for file_path in files_to_delete:
+                try:
+                    os.remove(file_path)
+                    deleted_count += 1
+                except Exception as e:
+                    print(f"Error deleting {file_path}: {e}")
+                    errors += 1
+            
+            result_msg = f"Deleted {deleted_count} files."
+            if errors > 0:
+                result_msg += f"\nFailed to delete {errors} files."
+                
+            messagebox.showinfo("Deletion Complete", result_msg)
+            
+            # Clear internal cache if keys match deleted files
+            # This is a bit rough since cache keys are convo_keys or filenames, 
+            # but clearing the whole cache is safest/easiest to ensure consistency
+            self.transcription_cache = {}
+
+    def _parse_vdf_key(self, key):
+        """Parse a VDF key to extract conversation info.
+        Returns: ((char_pair, convo_num, topic), part, variation, speaker) or None
+        """
+        # Regex patterns similar to parse_audio_files but allowing suffixes and relaxed matching
+        
+        # Pattern 1: With topic
+        # e.g. char1_match_start_char1_char2_topic_convo01_02_suffix
+        p1 = r'^(\w+)_match_start_(\w+)_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?'
+        
+        # Pattern 2: Without topic
+        # e.g. char1_match_start_char1_char2_convo01_02_suffix
+        p2 = r'^(\w+)_match_start_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?'
+        
+        m = re.match(p1, key)
+        if m:
+            starter_raw, char1, char2, topic, convo_num, part_num, variation = m.groups()
+            variation = variation if variation else "1"
+        else:
+            m = re.match(p2, key)
+            if m:
+                starter_raw, char1, char2, convo_num, part_num, variation = m.groups()
+                variation = variation if variation else "1"
+                topic = None
+            else:
+                return None
+        
+        # Resolve names
+        char1_resolved = self.resolve_character_name(char1)
+        char2_resolved = self.resolve_character_name(char2)
+        starter_resolved = self.resolve_character_name(starter_raw)
+        
+        char_pair = tuple(sorted([char1_resolved, char2_resolved]))
+        
+        if topic:
+            convo_key = (char_pair, convo_num, topic)
+        else:
+            convo_key = (char_pair, convo_num)
+            
+        return convo_key, int(part_num), int(variation), starter_resolved
+
+    def merge_vdf_data(self):
+        """Merge loaded VDF data into conversations"""
+        if not self.vdf_loaded:
+            return
+            
+        for convo_key, parts_data in self.vdf_texts.items():
+            # If conversation doesn't exist, create it (phantom) only if include_phantom is True
+            if convo_key not in self.conversations:
+                if not self.include_phantom:
+                    continue
+                self.conversations[convo_key] = []
+            
+            # Get existing files to check what we have
+            existing_files = self.conversations[convo_key]
+            
+            # Check for parts in VDF that are missing in audio
+            for (part, variation), data in parts_data.items():
+                text = data['text']
+                speaker = data['speaker']
+                
+                # Check if this part/variation exists
+                found = False
+                for file_data in existing_files:
+                    if file_data['part'] == part and file_data['variation'] == variation:
+                        found = True
+                        break
+                
+                if not found:
+                    if self.include_phantom:
+                        # Create phantom file entry
+                        phantom_entry = {
+                            'filename': "", # Empty filename indicates phantom/VDF-only
+                            'part': part,
+                            'variation': variation,
+                            'characters': convo_key[0],
+                            'starter': speaker, # Use the speaker from the key
+                            'topic': convo_key[2] if len(convo_key) > 2 else None,
+                            'is_phantom': True,
+                            'vdf_text': text,
+                            'speaker': speaker
+                        }
+                        self.conversations[convo_key].append(phantom_entry)
+            
+            # Re-process the conversation to update part_groups and sort
+            files = self.conversations[convo_key]
+            
+            # Re-group
+            part_groups = {}
+            
+            for file in files:
+                part = file['part']
+                if part not in part_groups:
+                    part_groups[part] = []
+                part_groups[part].append(file)
+            
+            # Sort variations
+            for part, variations in part_groups.items():
+                variations.sort(key=lambda x: x['variation'])
+            
+            # Update all file entries with new groups
+            # Preserve original is_complete from audio analysis if present
+            # Completeness logic based purely on audio files
+            
+            audio_files = [f for f in files if f.get('filename')]
+            
+            if audio_files:
+                # Use existing status from audio files
+                # Assumes all audio files share the same status (which they should from parse_audio_files)
+                ref_file = audio_files[0]
+                is_complete = ref_file.get('is_complete', False)
+                missing_parts = ref_file.get('missing_parts', [])
+                missing_reasons = ref_file.get('missing_reasons', [])
+            else:
+                # No audio files at all -> Incomplete by definition (if we care about audio)
+                is_complete = False
+                missing_parts = [] 
+                missing_reasons = ["No audio files"]
+
+            for file in files:
+                file['part_groups'] = part_groups
+                file['is_complete'] = is_complete
+                file['missing_parts'] = missing_parts
+                file['missing_reasons'] = missing_reasons
     
     def load_directory(self):
         """Load audio files from the selected directory"""
@@ -653,6 +946,10 @@ class ConversationPlayer:
         
         # Load new data
         self.conversations = self.parse_audio_files()
+        
+        # Merge VDF data if available
+        if self.vdf_loaded:
+            self.merge_vdf_data()
         
         # Extract unique characters and build relationship mappings
         character_set = set()
@@ -1543,95 +1840,120 @@ Summary (maximum 7 words):"""
             variations = part_groups[part]
 
             for i, variation in enumerate(variations):
-                # Determine the speaker
                 filename = variation['filename']
-                speaker = self._get_speaker_from_filename(filename)
+                var_num = variation['variation']
+                
+                # Check for VDF text
+                vdf_text = None
+                if convo_key in self.vdf_texts:
+                    if (part, var_num) in self.vdf_texts[convo_key]:
+                        vdf_text = self.vdf_texts[convo_key][(part, var_num)]['text']
 
-                # Get transcription if available or generate if requested
-                transcription = None
-                # Use base filename including extension for cache file
-                base_with_ext = os.path.basename(filename)
-                cache_file = os.path.join(self.transcriptions_dir, f"{base_with_ext}.json")
+                official_transcription = False
+                transcription = ""
                 has_transcription = False
+                speaker = "unknown"
 
-                stem = os.path.splitext(os.path.basename(filename))[0].lower()
-                # Use snapshot captured on UI thread to avoid Tk access from background thread
-                force_retranscribe = (
-                    bool(getattr(self, '_retranscribe_on_status_snapshot', True)) and
-                    stem in self.file_status_map and bool(self.file_status_map[stem])
-                )
-                if os.path.exists(cache_file) and not force_retranscribe:
-                    # Use existing transcription, deriving text from segments
-                    try:
-                        with open(cache_file, 'r', encoding='utf-8') as f:
-                            transcription_data = json.load(f)
-                            segs = transcription_data.get('segments', [])
-                            if isinstance(segs, list):
-                                transcription = " ".join(
-                                    s.get('text', '').strip()
-                                    for s in segs
-                                    if isinstance(s, dict) and s.get('text')
-                                ).strip()
-                            else:
-                                transcription = ""
-                            has_transcription = bool(transcription)
-                    except:
-                        transcription = "[Transcription not available]"
-                elif transcribe_all or force_retranscribe:
-                    # Generate new transcription (also triggered when force_retranscribe is True)
-                    file_path = os.path.join(self.audio_dir, filename)
-                    if os.path.exists(file_path):
-                        try:
-                            transcription_data = self._transcribe_file(file_path)
-                            if transcription_data:
-                                segs = transcription_data.get('segments', [])
-                                if isinstance(segs, list):
-                                    transcription = " ".join(
-                                        s.get('text', '').strip()
-                                        for s in segs
-                                        if isinstance(s, dict) and s.get('text')
-                                    ).strip()
-                                else:
-                                    transcription = ""
-                                has_transcription = bool(transcription)
-                            else:
-                                transcription = "[Transcription failed]"
-                        except Exception as e:
-                            transcription = f"[Transcription error: {str(e)}]"
+                if not filename:
+                    # Phantom entry (VDF only)
+                    speaker = variation.get('speaker', 'unknown')
+                    if vdf_text:
+                        transcription = vdf_text
+                        official_transcription = True
+                        has_transcription = True
                     else:
-                        transcription = "[Transcription not available]"
+                        transcription = variation.get('vdf_text', "[Text missing]") # Should match vdf_text above
+                        official_transcription = True
+                        has_transcription = True
                 else:
-                    transcription = "[Transcription not available]"
+                    # Determine the speaker from filename
+                    speaker = self._get_speaker_from_filename(filename)
+
+                    if vdf_text:
+                        # Use VDF text if available
+                        transcription = vdf_text
+                        official_transcription = True
+                        has_transcription = True
+                    else:
+                        # Get transcription if available or generate if requested
+                        # Use base filename including extension for cache file
+                        base_with_ext = os.path.basename(filename)
+                        cache_file = os.path.join(self.transcriptions_dir, f"{base_with_ext}.json")
+                        
+                        stem = os.path.splitext(os.path.basename(filename))[0].lower()
+                        # Use snapshot captured on UI thread to avoid Tk access from background thread
+                        force_retranscribe = (
+                            bool(getattr(self, '_retranscribe_on_status_snapshot', True)) and
+                            stem in self.file_status_map and bool(self.file_status_map[stem])
+                        )
+                        if os.path.exists(cache_file) and not force_retranscribe:
+                            # Use existing transcription, deriving text from segments
+                            try:
+                                with open(cache_file, 'r', encoding='utf-8') as f:
+                                    transcription_data = json.load(f)
+                                    segs = transcription_data.get('segments', [])
+                                    if isinstance(segs, list):
+                                        transcription = " ".join(
+                                            s.get('text', '').strip()
+                                            for s in segs
+                                            if isinstance(s, dict) and s.get('text')
+                                        ).strip()
+                                    else:
+                                        transcription = ""
+                                    has_transcription = bool(transcription)
+                            except:
+                                transcription = "[Transcription not available]"
+                        elif transcribe_all or force_retranscribe:
+                            # Generate new transcription (also triggered when force_retranscribe is True)
+                            file_path = os.path.join(self.audio_dir, filename)
+                            if os.path.exists(file_path):
+                                try:
+                                    transcription_data = self._transcribe_file(file_path)
+                                    if transcription_data:
+                                        segs = transcription_data.get('segments', [])
+                                        if isinstance(segs, list):
+                                            transcription = " ".join(
+                                                s.get('text', '').strip()
+                                                for s in segs
+                                                if isinstance(s, dict) and s.get('text')
+                                            ).strip()
+                                        else:
+                                            transcription = ""
+                                        has_transcription = bool(transcription)
+                                    else:
+                                        transcription = "[Transcription failed]"
+                                except Exception as e:
+                                    transcription = f"[Transcription error: {str(e)}]"
+                            else:
+                                transcription = "[Transcription not available]"
+                        else:
+                            transcription = "[Transcription not available]"
 
                 # Create line entry
                 line = {
                     "part": part,
-                    "variation": variation['variation'],
+                    "variation": var_num,
                     "speaker": speaker,
-                    "filename": os.path.basename(filename),
+                    "filename": os.path.basename(filename) if filename else "",
                     "transcription": transcription,
                     "has_transcription": has_transcription
                 }
-
-                # Add file last modified date
-                try:
-                    file_path = os.path.join(self.audio_dir, filename)
-                    file_modified_time = os.path.getmtime(file_path)
-                    line["file_creation_date"] = datetime.fromtimestamp(file_modified_time).isoformat()
-                except:
-                    line["file_creation_date"] = None
+                
+                if official_transcription:
+                    line["officialtranscription"] = True
 
                 # Collect status for this filename if present and add to line
-                stem2 = os.path.splitext(os.path.basename(filename))[0].lower()
-                if stem2 in self.file_status_map and self.file_status_map[stem2]:
-                    # Add status to individual line
-                    line_statuses = list(self.file_status_map[stem2])
-                    if line_statuses:
-                        line["status"] = line_statuses[0] if len(line_statuses) == 1 else line_statuses
-                    # Also collect for conversation-level status
-                    for st in self.file_status_map[stem2]:
-                        if st not in conversation["status"]:
-                            conversation["status"].append(st)
+                if filename:
+                    stem2 = os.path.splitext(os.path.basename(filename))[0].lower()
+                    if stem2 in self.file_status_map and self.file_status_map[stem2]:
+                        # Add status to individual line
+                        line_statuses = list(self.file_status_map[stem2])
+                        if line_statuses:
+                            line["status"] = line_statuses[0] if len(line_statuses) == 1 else line_statuses
+                        # Also collect for conversation-level status
+                        for st in self.file_status_map[stem2]:
+                            if st not in conversation["status"]:
+                                conversation["status"].append(st)
 
                 # Add to conversation lines
                 conversation["lines"].append(line)

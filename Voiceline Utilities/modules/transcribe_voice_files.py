@@ -10,8 +10,57 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 import threading
 
-# Thread-local storage for OpenAI clients
+try:
+    from .voice_line_organizer import VoiceLineOrganizer
+except ImportError:
+    # Fallback for standalone execution if needed, though likely running as module
+    try:
+        from voice_line_organizer import VoiceLineOrganizer
+    except ImportError:
+        VoiceLineOrganizer = None
+
+class HeadlessOrganizer(VoiceLineOrganizer):
+    def __init__(self):
+        self.processing_debug_log = []
+        self.source_folder_path = type('MockVar', (), {'get': lambda: ""})()
+        self.disregarded_heroes = set()
+
+# Common VDF key suffixes to check during matching
 thread_local = threading.local()
+
+# Common VDF key suffixes to check during matching
+KNOWN_SUFFIXES = [
+    "_announcer",
+    "_hero_3d",
+    "_ability_3d",
+    "_ult_3d",
+    "_hero_announcer",
+    "_ping_2d",
+    "_idol"
+    "_shopkeeper" # Added for robustness based on common patterns
+]
+
+# Filename patterns to skip Whisper transcription for (non-verbal sounds)
+# These will get empty transcriptions unless a VDF entry exists
+SKIP_WHISPER_PATTERNS = [
+    "_effort_dash_",
+    "_effort_general_",
+    "_effort_melee_big_",
+    "_effort_melee_small_",
+    "_pain_akira_laser_",
+    "_pain_big_",
+    "_pain_death_",
+    "_pain_low_health_",
+    "_pain_small_",
+]
+
+def should_skip_whisper(filename):
+    """Check if a filename matches patterns that should skip Whisper transcription"""
+    filename_lower = filename.lower()
+    for pattern in SKIP_WHISPER_PATTERNS:
+        if pattern in filename_lower:
+            return True
+    return False
 
 def get_openai_client():
     """Get or create a thread-local OpenAI client"""
@@ -33,6 +82,48 @@ def load_api_key():
         raise ValueError("API key is empty. Please add your OpenAI API key to the .open_ai_key file.")
     
     return api_key
+
+def load_vdf(vdf_path):
+    """Load VDF file and return a dictionary of key -> text"""
+    if not vdf_path or not os.path.exists(vdf_path):
+        return None
+    
+    vdf_data = {}
+    try:
+        with open(vdf_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                # Simple parsing: "key" "value"
+                # Handle escaped quotes if necessary, but keep it simple for now
+                # Regex matches "key" "value"
+                import re
+                m = re.match(r'^"([^"]+)"\s+"([^"]+)"$', line)
+                if m:
+                    key, text = m.groups()
+                    vdf_data[key.lower()] = text # Key is case-insensitive usually
+    except Exception as e:
+        print(f"Error loading VDF: {e}")
+        return None
+    return vdf_data
+
+def find_vdf_match(filename, vdf_data):
+    """Find a matching VDF entry for a filename"""
+    if not vdf_data:
+        return None, None
+
+    stem = os.path.splitext(filename)[0].lower()
+    
+    # 1. Exact match
+    if stem in vdf_data:
+        return stem, vdf_data[stem]
+    
+    # 2. Check stem + known suffixes
+    for suffix in KNOWN_SUFFIXES:
+        candidate = f"{stem}{suffix}"
+        if candidate in vdf_data:
+            return candidate, vdf_data[candidate]
+            
+    return None, None
 
 def load_custom_vocabulary(vocab_file=None):
     """Load custom vocabulary from a JSON file if provided"""
@@ -67,7 +158,7 @@ def load_custom_vocabulary(vocab_file=None):
 
 def process_file(args):
     """Process a single file for transcription - designed for parallel execution"""
-    filename, source_folder, output_folder, force_reprocess, reprocess_statuses, reprocess_status_map, file_index, total_files, progress_callback, custom_vocab_prompt, file_metadata = args
+    filename, source_folder, output_folder, force_reprocess, reprocess_statuses, reprocess_status_map, file_index, total_files, progress_callback, custom_vocab_prompt, file_metadata, vdf_data, delete_json_on_vdf_match = args
     
     # Extract metadata
     speaker = file_metadata.get("speaker")
@@ -75,6 +166,22 @@ def process_file(args):
     topic = file_metadata.get("topic")
     ping_type = file_metadata.get("ping_type")
     
+    # Handle phantom entries (audioless VDF lines)
+    if file_metadata.get("is_phantom"):
+        # Phantom entries store VDF text in "transcription" field
+        phantom_text = file_metadata.get("transcription", "") or file_metadata.get("vdf_text", "")
+        return {
+            "status": "success",
+            "filename": filename,
+            "transcription_data": {
+                "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                "voiceline_id": file_metadata.get("voiceline_id", filename),
+                "transcription": phantom_text,
+                "officialtranscription": True
+            },
+            "metadata": file_metadata
+        }
+
     # Get the full path to the MP3 file
     full_path = os.path.join(source_folder, filename)
     
@@ -122,6 +229,81 @@ def process_file(args):
         )
     )
 
+    # Check for VDF match first
+    vdf_key, vdf_text = find_vdf_match(filename, vdf_data)
+    is_vdf_transcription = False
+
+    # Check if this file should skip Whisper (effort/pain sounds)
+    skip_whisper = should_skip_whisper(filename)
+
+    if vdf_key:
+        # VDF match found! Use it.
+        # Even if force_reprocess is True, VDF is "official" so we should probably prefer it?
+        # Let's say we prefer VDF over everything else.
+        is_vdf_transcription = True
+        
+        # Create result directly
+        filename_without_ext = os.path.splitext(filename)[0]
+        output_data = {
+            "voiceline_id": filename_without_ext,
+            "timestamp": datetime.datetime.now().isoformat(),
+            "segments": [
+                {
+                    "start": 0.0,
+                    "end": 0.0, # Unknown duration without audio analysis, but fine for text
+                    "text": vdf_text,
+                    "part": 1
+                }
+            ],
+            "text": vdf_text,
+            "officialtranscription": True,
+            "vdf_key": vdf_key
+        }
+        
+        # We do NOT save the VDF transcription to an individual JSON file,
+        # as requested. It is only used for the consolidated output.
+        
+        # Option to delete existing transcript if VDF covers it
+        if delete_json_on_vdf_match and os.path.exists(output_json_path):
+            try:
+                os.remove(output_json_path)
+            except Exception as e:
+                if progress_callback:
+                    progress_callback(error=f"Failed to delete {output_json_path}: {e}")
+            
+        return {
+            "status": "success",
+            "filename": filename,
+            "transcription_data": {
+                "date": file_date,
+                "voiceline_id": filename_without_ext,
+                "transcription": vdf_text,
+                "officialtranscription": True
+            },
+            "metadata": file_metadata,
+            "vdf_used": vdf_key
+        }
+
+    # If no VDF match but file should skip Whisper, return empty transcription
+    if skip_whisper:
+        filename_without_ext = os.path.splitext(filename)[0]
+        if progress_callback:
+            progress_callback(status=f"Skipping Whisper for {filename} (non-verbal sound)")
+        else:
+            print(f"Skipping Whisper for {filename} (non-verbal sound)")
+
+        return {
+            "status": "success",
+            "filename": filename,
+            "transcription_data": {
+                "date": file_date,
+                "voiceline_id": filename_without_ext,
+                "transcription": ""
+            },
+            "metadata": file_metadata,
+            "skipped_whisper": True
+        }
+
     # Check if we can use an existing transcription
     if os.path.exists(output_json_path) and not should_force:
         try:
@@ -130,6 +312,7 @@ def process_file(args):
             
             # Extract the transcription text from the existing file
             transcription_text = ""
+            official = existing_transcription.get("officialtranscription", False)
             
             # Try to get text from different possible formats
             if "text" in existing_transcription:
@@ -151,6 +334,8 @@ def process_file(args):
                 },
                 "metadata": file_metadata
             }
+            if official:
+                result_data["transcription_data"]["officialtranscription"] = True
             
             if progress_callback:
                 progress_callback(status=f"Skipping {filename} (already transcribed)")
@@ -254,7 +439,7 @@ def process_file(args):
             "metadata": file_metadata
         }
 
-def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None, reprocess_statuses=None, reprocess_status_map=None):
+def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None, reprocess_statuses=None, reprocess_status_map=None, vdf_path=None, include_phantom=False, delete_json_on_vdf_match=False, alias_path=None, topic_alias_path=None):
     """
     Transcribe all MP3 files mentioned in the JSON file using OpenAI Whisper API.
     Creates a JSON file for each MP3 with the transcription results in the specified format.
@@ -268,6 +453,11 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
         consolidated_json_path (str, optional): Path to save a consolidated JSON file with all transcriptions
         max_workers (int): Maximum number of parallel workers for transcription (default: 5)
         custom_vocab_file (str, optional): Path to a JSON file containing custom vocabulary
+        vdf_path (str, optional): Path to VDF subtitles file
+        include_phantom (bool, optional): Whether to include VDF entries without audio files in the consolidated JSON
+        delete_json_on_vdf_match (bool, optional): Whether to delete individual JSON transcript files if VDF match is found
+        alias_path (str, optional): Path to character alias JSON file for categorization
+        topic_alias_path (str, optional): Path to topic alias JSON file for categorization
     
     Returns:
         dict: Statistics about the transcription process
@@ -276,13 +466,32 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
         # Validate API key first
         api_key = load_api_key()
     except Exception as e:
+        # If we have VDF, we might proceed even without API key for those matches?
+        # But we still need API key for non-VDF files.
+        # Let's assume API key is required unless we only process VDF?
+        # For simplicity, keep existing check but maybe warn instead of fail if VDF is present?
+        # The user's request implies full VDF support, potentially replacing API.
+        pass # Allow continuing if VDF is used, check inside process_file if needed?
+        # Actually, existing code fails fast. I'll leave it but maybe catch later.
+        # But if VDF is passed, maybe we can skip API key check if ALL files match?
+        # Unlikely. Let's stick to requiring API key or handling error gracefully.
         error_msg = f"Error loading API key: {str(e)}"
-        if progress_callback:
-            progress_callback(error=error_msg)
-        else:
-            print(error_msg)
-        return {"error": error_msg}
+        if not vdf_path: # Only fail strictly if no VDF
+            if progress_callback:
+                progress_callback(error=error_msg)
+            else:
+                print(error_msg)
+            return {"error": error_msg}
     
+    # Load VDF
+    vdf_data = load_vdf(vdf_path) if vdf_path else None
+    if vdf_data:
+        msg = f"Loaded {len(vdf_data)} VDF entries."
+        if progress_callback:
+            progress_callback(status=msg)
+        else:
+            print(msg)
+
     # Load custom vocabulary if provided
     custom_vocab_prompt = load_custom_vocabulary(custom_vocab_file)
     if custom_vocab_prompt and progress_callback:
@@ -335,6 +544,16 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
                 metadata["original_path"] = original_path
                 if status is not None:
                     metadata["status"] = status
+                
+                # Copy all other fields from file_entry to metadata if it's a dict
+                if isinstance(file_entry, dict):
+                    for k, v in file_entry.items():
+                        if k not in metadata and k != "filename":
+                            metadata[k] = v
+                
+                if metadata.get("is_phantom") and not include_phantom:
+                    continue
+                
                 mp3s.append({
                     "filename": filename,
                     "metadata": metadata,
@@ -384,12 +603,15 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             total_files, 
             progress_callback, 
             custom_vocab_prompt,
-            file_info["metadata"]
+            file_info["metadata"],
+            vdf_data,
+            delete_json_on_vdf_match
         )
         for i, file_info in enumerate(mp3_files_with_metadata)
     ]
     
     # Process files in parallel
+    used_vdf_keys = set()
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         results = list(executor.map(process_file, file_args))
     
@@ -417,6 +639,10 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
         else:
             failed += 1
             continue
+        
+        # Track VDF usage
+        if "vdf_used" in result and result["vdf_used"]:
+            used_vdf_keys.add(result["vdf_used"])
 
         if consolidated_json_path and "transcription_data" in result:
             transcription_text = result["transcription_data"]["transcription"]
@@ -427,6 +653,9 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
                 "voiceline_id": result["transcription_data"]["voiceline_id"],
                 "transcription": transcription_text
             }
+            if result["transcription_data"].get("officialtranscription"):
+                entry["officialtranscription"] = True
+
             # Add status from reprocess_status_map if available
             if reprocess_status_map:
                 stem = os.path.splitext(os.path.basename(result["filename"]))[0].lower()
@@ -448,6 +677,10 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
         elif isinstance(node, list):
             new_list = []
             for file_entry in node:
+                # Check if phantom and we want to exclude
+                if isinstance(file_entry, dict) and file_entry.get("is_phantom") and not include_phantom:
+                    continue
+
                 if isinstance(file_entry, dict) and "filename" in file_entry:
                     fname = file_entry["filename"]
                 else:

@@ -6,29 +6,76 @@ from tkinter import filedialog, messagebox, ttk
 from pathlib import Path
 import re
 
+# Common VDF key suffixes to check during matching
+KNOWN_SUFFIXES = [
+    "_announcer",
+    "_hero_3d",
+    "_ability_3d",
+    "_ult_3d",
+    "_hero_announcer",
+    "_hero_zipline_3d",
+    "_ping_2d",
+    "_idol",
+    "_shopkeeper"
+]
+
 class VoiceLineOrganizer:
     # Define multiple special categories as a dict: {category_name: [keywords]}
     special_categories = {
+        "Hero Selection": ["select","hs_select", "unselect"],
         "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak", "killing_streak_generic_high", "killing_streak_generic_low", "killing_streak_generic_medium", "killstreak_count", "killstreak_title"],
         "Movement": ["leave_base", "leaving_area", "boost_past_on_zipline"],
         # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
-        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line"],
+        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line", "use_power4_01-imported", "use_power4_as_enemy", "use_power4_end", "use_power4_seasonal", "use_power4_start", "use_power5", "power2_resurface", "power4"],
         "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4"],
         "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5"],
+        
+        "Character-Specific Abilities": [
+            "bad_dome_alone", "bad_dome_rejuvinator", "big_kelvin", "big_healing",
+            "big_healing_by_forge_alt_01__duplicate_id", "big_healing_by_forge_alt_02__duplicate_id",
+            "catch_team_blackhole", "dome_enemy_core", "dome_own_core",
+            "heal_grenade", "hook_gig_mid_ult", "kill_team_blackhole",
+            "nano_kills_turrets", "no_allies_help_blackhole", "sticky_bomb_invis",
+            "ult_interrupted", "ult_last_alive", "ult_total_miss",
+            "use_power2_on_ally", "use_power2_on_others", "use_power2_on_self",
+            "storm_cloud_1_survives", "storm_cloud_kelvin_survives",
+            "storm_cloud_last_standing", "storm_cloud_team_wipe",
+            "uppercut_to_t1", "uppercut_to_t2", "uppercut_to_titan"
+
+        ],
         "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
-        "Emotions": ["angry", "concerned", "happy", "sad", "congrats"],
-        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth"],
+        "Emotions": ["angry", "concerned", "happy", "sad", "congrats","praise"],
+        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth", "end_streak", "kill", "catch", "dash_effort", "efforts", "melee_efforts", "multi_dash", "hook", "hook_lands", "help_out", "kill_fat_ghost_(enemy)", "kill_in_lift_(ally)", "kill_mid_laser_(enemy)", "kill_on_ice_path_(enemy)", "kill_post_swap_(enemy)", "kill_when_invisible_(enemy)", "killed_in_lane_(ally)", "killed_in_lane_01-imported_(ally)", "killed_mid_air_(enemy)", "killed_mid_ult_(enemy)", "mid_air_kill_(enemy)"],
+        
+        "Ally Actions": [
+            "allies_lasso_kill", "allies_no_attack", "ally_urn_runner", "big_blackhole_(ally)",
+            "big_stun_(ally)", "big_ult_(ally)", "bounce_pad_(ally)", "burns_down_objective_(ally)",
+            "clutch_cube_(ally)", "clutch_heal_(ally)", "far_hook_(ally)", "far_shot_(ally)",
+            "far_snipe_(ally)", "grab_mid_enemy_ult_(ally)", "kill_in_lift_(ally)",
+            "killed_in_lane_(ally)", "killed_in_lane_01-imported_(ally)", "kills_with_hook_(ally)",
+            "lasso_victim_(ally)", "missile_stops_ult_(ally)", "multi_kill_ult_(ally)",
+            "multikill_(ally)", "see_big_swap_(ally)", "see_massive_stomp_(ally)",
+            "steals_rejuv_(ally)", "swap_to_boss_(ally)", "take_objective_with_teather_(ally)",
+            "unkillable_(ally)", "uppercut_towards_boss_(ally)", "wall_stun_kill_(ally)",
+            
+        ],
+        
         # New special category for use_* non-ping topics (items, shards, etc.)
-        "Item Usage": [],
+        "Item Purchase": [
+            "t4", "t4_01", "t4_buys_carpet", "t4_slork"
+        ],
         # Shop system reminders
-        "Shop System": ["t1_shop_reminder", "t2_shop_reminder", "t3_shop_reminder", "t4_shop_reminder"],
+        "Shop System": ["t1_shop_reminder", "t2_shop_reminder", "t3_shop_reminder", "t4_shop_reminder","choose_item", "close_shop","open_gun", "open_spirit", "call_out"],
+         
+        
         
         "Match Status": [
-            "win", "win_early", "win_late", "match_win", "match_start", "introduction", 
-            "ally_comeback", "enemy_comeback", "ally_team_wipe", "enemy_team_wipe", 
+            "win", "win_early", "win_late", "match_win", "win_with_bebop", "match_start", "introduction", 
+            "lose", "lose_early", "lose_late","ally_comeback", "enemy_comeback", "ally_team_wipe", "enemy_team_wipe", 
             "ally_troopers_are_stronger", "enemy_troopers_are_stronger", 
             "networth_update_ahead", "networth_update_behind", "avatar_is_destroyed",
-            "lose_objective_while_ahead"
+            "lose_objective_while_ahead", "post_game", "update_up_on_money_down_on_obj",
+            "high_max_health", "enemy_gets_rejuv"
         ],
 
         "Global Objectives": [
@@ -78,6 +125,16 @@ class VoiceLineOrganizer:
         ],
 
         "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"],
+        
+        "Enemy Actions": [
+            "blocked_by_wall_(enemy)", "bounce_escape_(enemy)", "charges_(enemy)",
+            "damaged_by_snipe_(enemy)", "destroy_turrets_(enemy)", "enemy_urn_runner",
+            "flies_away_(enemy)", "grabbed_(enemy)", "hide_from_ult_(enemy)",
+            "hooked_(enemy)", "lassoed_(enemy)",
+            "lifts_(enemy)", "ping__with_swap_(enemy)",
+            "see_missile_(enemy)", "see_ult_(enemy)", "starts_ult_(enemy)",
+            "steals_rejuv_(enemy)", "unkillable_(enemy)"
+        ],
 
         "Boons": [
             "grant_boon_armor", "grant_boon_armor_10", "grant_boon_general", 
@@ -126,7 +183,13 @@ class VoiceLineOrganizer:
             "tutorial_stamina_reminder", "tutorial_starting_ability", "tutorial_t1_shield_is_up", 
             "tutorial_tasks_complete", "tutorial_total_cred_reminder", 
             "tutorial_unlock_power_reminder", "tutorial_use_ap_reminder", "tutorial_welcome", 
-            "tutorial_zipline_info", "tutorial_zipline_info_short", "tutorial_zipline_reminder"
+            "tutorial_zipline_info", "tutorial_zipline_info_short", "tutorial_zipline_reminder",
+            "tutorial_attacked", "tutorial_complete_tasks_to_fight", "greenwich_attacked"
+        ],
+        
+        "Street Brawl Mode": [
+            "street_brawl_draw", "street_brawl_loss", "street_brawl_round_complete",
+            "street_brawl_round_lose", "street_brawl_round_win", "street_brawl_victory"
         ]
     }
     # Define special categories for pings
@@ -316,6 +379,7 @@ class VoiceLineOrganizer:
         self.topic_alias_json_path = tk.StringVar()
         self.source_folder_path = tk.StringVar()
         self.output_json_path = tk.StringVar()
+        self.vdf_path = tk.StringVar() # Path to VDF file for phantom lines
 
         # Set default values for debugging
         self.alias_json_path.set(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "character_mappings.json")))
@@ -453,300 +517,7 @@ class VoiceLineOrganizer:
         else:
             self.root.after(0, append)
     
-    def process_voice_lines(self):
-        try:
-            # Entry debug
-            self.processing_debug_log = []
-            self.processing_debug_log.append("DEBUG: Entered process_voice_lines")
-            # Validate inputs
-            if not self._validate_inputs():
-                self.processing_debug_log.append("DEBUG: Input validation failed, exiting process_voice_lines")
-                return
 
-            # Prepare debug log for sorting
-            self.sort_debug_log = []
-            # Prepare debug log for processing
-            # self.processing_debug_log = []  # Already initialized above
-
-            # Reset progress
-            self.progress['value'] = 0
-            
-            # Load alias data
-            self.processing_debug_log.append(f"DEBUG: Loading alias data from {self.alias_json_path.get()}")
-            with open(self.alias_json_path.get(), 'r') as f:
-                alias_data = json.load(f)
-            self.processing_debug_log.append("DEBUG: Loaded alias data successfully")
-            
-            # Load topic alias data
-            self.processing_debug_log.append(f"DEBUG: Loading topic alias data from {self.topic_alias_json_path.get()}")
-            with open(self.topic_alias_json_path.get(), 'r') as f:
-                topic_alias_data = json.load(f)
-            self.processing_debug_log.append("DEBUG: Loaded topic alias data successfully")
-            
-            # Get all valid speaker names (lowercase)
-            valid_speakers = set()
-            for name, aliases in alias_data.items():
-                if isinstance(aliases, list):
-                    valid_speakers.update([a.lower() for a in aliases])
-            
-            # Clear disregarded heroes set
-            self.disregarded_heroes = set()
-            
-            # Process all MP3 files in the source folder
-            self.processing_debug_log.append(f"DEBUG: Scanning for mp3 files in {self.source_folder_path.get()}")
-            mp3_files = []
-            for root, _, files in os.walk(self.source_folder_path.get()):
-                for file in files:
-                    if file.lower().endswith('.mp3'):
-                        mp3_files.append(os.path.join(root, file))
-            self.processing_debug_log.append(f"DEBUG: Found {len(mp3_files)} mp3 files")
-            
-            # Initialize result data structure
-            result_data = {}
-            
-            # Process each file
-            total_files = len(mp3_files)
-            processed = 0
-            disregarded = 0
-            
-            for file_path in mp3_files:
-                self.processing_debug_log.append(f"DEBUG: About to process file: {os.path.basename(file_path)}")
-                # Process the file
-                result = self._process_file(file_path, alias_data, topic_alias_data, valid_speakers)
-                
-                # Update progress
-                processed += 1
-                def update_progress():
-                    self.progress['value'] = (processed / total_files) * 100
-                self.root.after(0, update_progress)
-                self.root.after(0, self.parent.update_idletasks)
-                
-                # Skip if the file was not processed successfully
-                if result is None:
-                    continue
-                
-                # Skip if the file was disregarded
-                if result == "disregarded":
-                    disregarded += 1
-                    continue
-                
-                # Unpack the result
-                # Now returns (speaker, subject, topic, relationship, rel_path, is_ping)
-                speaker, subject, topic, relationship, rel_path, is_ping = result
-                
-                # Initialize speaker if not exists
-                if speaker not in result_data:
-                    result_data[speaker] = {}
-                
-                # Capitalize 'self' key for consistency
-                subject_key = subject.capitalize() if subject.lower() == "self" else subject
-                if subject_key not in result_data[speaker]:
-                    result_data[speaker][subject_key] = {}
-                
-                # Handle special case for pings
-                if is_ping:
-                    self.processing_debug_log.append(f"DEBUG PING: Processing ping file - speaker='{speaker}', subject='{subject}', topic='{topic}'")
-                    # Store under "Pings" key
-                    if "Pings" not in result_data[speaker][subject_key]:
-                        result_data[speaker][subject_key]["Pings"] = {}
-                    # Check for special ping categories
-                    topic_key = topic.replace(" ", "_").lower()
-                    self.processing_debug_log.append(f"DEBUG PING: topic_key='{topic_key}', checking against special_ping_categories")
-                    placed_in_ping_category = False
-                    for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
-                        if topic_key in keywords:
-                            self.processing_debug_log.append(f"DEBUG PING: MATCH! topic_key='{topic_key}' found in category '{cat_name}'")
-                            if cat_name not in result_data[speaker][subject_key]["Pings"]:
-                                result_data[speaker][subject_key]["Pings"][cat_name] = {}
-                            if topic not in result_data[speaker][subject_key]["Pings"][cat_name]:
-                                result_data[speaker][subject_key]["Pings"][cat_name][topic] = []
-                            result_data[speaker][subject_key]["Pings"][cat_name][topic].append(rel_path)
-                            placed_in_ping_category = True
-                            break
-                    if not placed_in_ping_category:
-                        self.processing_debug_log.append(f"DEBUG PING: No category match for topic_key='{topic_key}', storing uncategorized")
-                        if topic not in result_data[speaker][subject_key]["Pings"]:
-                            result_data[speaker][subject_key]["Pings"][topic] = []
-                        result_data[speaker][subject_key]["Pings"][topic].append(rel_path)
-                    # Also store as self ping if subject is not already "Self" and subject == speaker
-                    if subject_key.lower() != "self" and (subject_key.lower() == speaker.lower()):
-                        if "Self" not in result_data[speaker]:
-                            result_data[speaker]["Self"] = {}
-                        if "Pings" not in result_data[speaker]["Self"]:
-                            result_data[speaker]["Self"]["Pings"] = {}
-                        # Repeat special ping category logic for self pings
-                        placed_in_ping_category_self = False
-                        for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
-                            if topic_key in keywords:
-                                if cat_name not in result_data[speaker]["Self"]["Pings"]:
-                                    result_data[speaker]["Self"]["Pings"][cat_name] = {}
-                                if topic not in result_data[speaker]["Self"]["Pings"][cat_name]:
-                                    result_data[speaker]["Self"]["Pings"][cat_name][topic] = []
-                                result_data[speaker]["Self"]["Pings"][cat_name][topic].append(rel_path)
-                                placed_in_ping_category_self = True
-                                break
-                        if not placed_in_ping_category_self:
-                            if topic not in result_data[speaker]["Self"]["Pings"]:
-                                result_data[speaker]["Self"]["Pings"][topic] = []
-                            result_data[speaker]["Self"]["Pings"][topic].append(rel_path)
-                else:
-                    # For all voicelines (not just self), check if topic is in any special category
-                    # Use the base topic (without relationship) for category matching
-                    if relationship in ("ally", "enemy") and topic.endswith(f"({relationship})"):
-                        base_topic = topic[:-(len(f" ({relationship})"))].strip()
-                        topic_key_for_category = base_topic.replace(" ", "_").lower()
-                    else:
-                        base_topic = topic
-                        topic_key_for_category = topic.replace(" ", "_").lower()
-                    placed_in_category = False
-                    # Route all non-power use_* topics under Item Usage
-                    if topic_key_for_category.startswith("use_") and not topic_key_for_category.startswith("use_power"):
-                        if "Item Usage" not in result_data[speaker][subject_key]:
-                            result_data[speaker][subject_key]["Item Usage"] = {}
-                        if topic not in result_data[speaker][subject_key]["Item Usage"]:
-                            result_data[speaker][subject_key]["Item Usage"][topic] = []
-                        result_data[speaker][subject_key]["Item Usage"][topic].append(rel_path)
-                        placed_in_category = True
-
-                    # Route pain_* topics under Emotions -> Pain and effort_* under Emotions -> Effort
-                    if not placed_in_category:
-                        if topic_key_for_category == "pain" or topic_key_for_category.startswith("pain_"):
-                            if "Emotions" not in result_data[speaker][subject_key]:
-                                result_data[speaker][subject_key]["Emotions"] = {}
-                            if "Pain" not in result_data[speaker][subject_key]["Emotions"]:
-                                result_data[speaker][subject_key]["Emotions"]["Pain"] = {}
-                            if topic not in result_data[speaker][subject_key]["Emotions"]["Pain"]:
-                                result_data[speaker][subject_key]["Emotions"]["Pain"][topic] = []
-                            result_data[speaker][subject_key]["Emotions"]["Pain"][topic].append(rel_path)
-                            placed_in_category = True
-                        elif topic_key_for_category == "effort" or topic_key_for_category.startswith("effort_"):
-                            if "Emotions" not in result_data[speaker][subject_key]:
-                                result_data[speaker][subject_key]["Emotions"] = {}
-                            if "Effort" not in result_data[speaker][subject_key]["Emotions"]:
-                                result_data[speaker][subject_key]["Emotions"]["Effort"] = {}
-                            if topic not in result_data[speaker][subject_key]["Emotions"]["Effort"]:
-                                result_data[speaker][subject_key]["Emotions"]["Effort"][topic] = []
-                            result_data[speaker][subject_key]["Emotions"]["Effort"][topic].append(rel_path)
-                            placed_in_category = True
-
-                    for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
-                        if topic_key_for_category in keywords:
-                            if cat_name not in result_data[speaker][subject_key]:
-                                result_data[speaker][subject_key][cat_name] = {}
-                            if topic not in result_data[speaker][subject_key][cat_name]:
-                                result_data[speaker][subject_key][cat_name][topic] = []
-                            result_data[speaker][subject_key][cat_name][topic].append(rel_path)
-                            placed_in_category = True
-                            break
-                    if not placed_in_category:
-                        if topic not in result_data[speaker][subject_key]:
-                            result_data[speaker][subject_key][topic] = []
-                        result_data[speaker][subject_key][topic].append(rel_path)
-            
-            # Custom sort for self voicelines: select, unselect, pre_game, post_game first
-            def custom_self_sort(topics, debug_log):
-                priority = ["Select", "Unselect", "Pre game", "Post game"]
-                def sort_key(k):
-                    try:
-                        idx = priority.index(k)
-                        debug_log.append(f"Sorting: '{k}' found in priority at index {idx}")
-                        return (idx, k)
-                    except ValueError:
-                        debug_log.append(f"Sorting: '{k}' not in priority, assigned index {len(priority)}")
-                        return (len(priority), k)
-                # Remove all special categories and "Pings" if present, sort the rest, then add special categories and "Pings" at the end
-                special_keys = list(VoiceLineOrganizer.special_categories.keys())
-                keys_to_remove = special_keys + ["Pings"]
-                topics_no_special = {k: v for k, v in topics.items() if k not in keys_to_remove}
-                debug_log.append(f"Topics before sorting (excluding special): {list(topics_no_special.keys())}")
-                sorted_topics = dict(sorted(topics_no_special.items(), key=lambda x: sort_key(x[0])))
-                debug_log.append(f"Topics after sorting: {list(sorted_topics.keys())}")
-                for cat in special_keys:
-                    if cat in topics:
-                        debug_log.append(f"Adding special category '{cat}' to sorted topics")
-                        sorted_topics[cat] = topics[cat]
-                if "Pings" in topics:
-                    debug_log.append("Adding 'Pings' to sorted topics")
-                    sorted_topics["Pings"] = topics["Pings"]
-                return sorted_topics
-
-            # Apply custom sort to self topics
-            for speaker in result_data:
-                if "Self" in result_data[speaker]:
-                    result_data[speaker]["Self"] = custom_self_sort(result_data[speaker]["Self"], self.sort_debug_log)
-
-            # Save the result to the output JSON file
-            self.processing_debug_log.append(f"DEBUG: Saving result data to {self.output_json_path.get()}")
-            with open(self.output_json_path.get(), 'w') as f:
-                json.dump(result_data, f, indent=2)
-            self.processing_debug_log.append("DEBUG: Saved result data successfully")
-
-            # Output processing debug info to log box (insert all at once for speed)
-            if self.processing_debug_log:
-                def insert_processing_log():
-                    self.log_text.insert(tk.END, "\n--- Processing Debug Output ---\n")
-                    self.log_text.insert(tk.END, "\n".join(self.processing_debug_log) + "\n")
-                    self.log_text.insert(tk.END, "--- End Processing Debug Output ---\n\n")
-                    self.log_text.see(tk.END)
-                self.root.after(0, insert_processing_log)
-
-            # Output sorting debug info to log box (insert all at once for speed)
-            if self.sort_debug_log:
-                def insert_sorting_log():
-                    self.log_text.insert(tk.END, "\n--- Sorting Debug Output ---\n")
-                    self.log_text.insert(tk.END, "\n".join(self.sort_debug_log) + "\n")
-                    self.log_text.insert(tk.END, "--- End Sorting Debug Output ---\n\n")
-                    self.log_text.see(tk.END)
-                self.root.after(0, insert_sorting_log)
-
-            # Log completion
-            self.log(f"\nProcessing complete!")
-            self.log(f"Processed {processed} files")
-            self.log(f"Disregarded {disregarded} files")
-            represented = processed - disregarded
-            total = processed + disregarded
-            coverage_str = f"Coverage: {represented}/{total} voicelines represented"
-            self.log(coverage_str)
-            self.processing_debug_log.append(f"DEBUG: {coverage_str}")
-            self.processing_debug_log.append("DEBUG: Exiting process_voice_lines")
-            
-            if self.disregarded_heroes:
-                self.log(f"\nDisregarded hero names (not found in alias data):")
-                for hero in sorted(self.disregarded_heroes):
-                    self.log(f"  - {hero}")
-            
-            self.log(f"\nOutput saved to: {self.output_json_path.get()}")
-
-            # List all unique topics
-            def collect_topics(data):
-                topics = set()
-                for speaker in data.values():
-                    for subject in speaker.values():
-                        for topic in subject:
-                            if isinstance(subject[topic], list):
-                                topics.add(topic)
-                            elif isinstance(subject[topic], dict):
-                                topics.add(topic)
-                                # Add subtopics if present
-                                for subtopic in subject[topic]:
-                                    topics.add(subtopic)
-                return sorted(topics)
-            all_topics = collect_topics(result_data)
-            self.log("\nAll topics found:")
-            for t in all_topics:
-                self.log(f"  - {t}")
-
-            # Show completion message
-            def show_info():
-                messagebox.showinfo("Processing Complete", f"Successfully processed {processed} files.\nOutput saved to: {self.output_json_path.get()}")
-            self.root.after(0, show_info)
-            
-        except Exception as e:
-            self.processing_debug_log.append(f"DEBUG: Exception in process_voice_lines: {str(e)}")
-            def show_error():
-                messagebox.showerror("Error", f"An error occurred: {str(e)}")
-            self.root.after(0, show_error)
-            self.log(f"ERROR: {str(e)}")
     
     def _validate_inputs(self):
         # Check if all required files and folders are selected
@@ -1391,6 +1162,295 @@ class VoiceLineOrganizer:
         
         # If no alias found, capitalize and return
         return topic_raw.capitalize()
+
+    def _load_vdf(self, vdf_path):
+        vdf_data = {}
+        if not vdf_path or not os.path.exists(vdf_path):
+            return vdf_data
+        try:
+            with open(vdf_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    m = re.match(r'^"([^"]+)"\s+"([^"]+)"$', line)
+                    if m:
+                        key, text = m.groups()
+                        vdf_data[key.lower()] = text
+        except Exception as e:
+            self.log(f"Error loading VDF: {e}")
+        return vdf_data
+
+    def _find_vdf_match(self, filename, vdf_data):
+        if not vdf_data:
+            return None
+        stem = os.path.splitext(filename)[0].lower()
+        if stem in vdf_data: return stem
+        for suffix in KNOWN_SUFFIXES:
+            candidate = f"{stem}{suffix}"
+            if candidate in vdf_data: return candidate
+        return None
+
+    def _place_in_result(self, result_data, result, item):
+        speaker, subject, topic, relationship, rel_path, is_ping = result
+        
+        # Initialize speaker if not exists
+        if speaker not in result_data:
+            result_data[speaker] = {}
+        
+        # Capitalize 'self' key for consistency
+        subject_key = subject.capitalize() if subject.lower() == "self" else subject
+        if subject_key not in result_data[speaker]:
+            result_data[speaker][subject_key] = {}
+        
+        # Handle special case for pings
+        if is_ping:
+            # Store under "Pings" key
+            if "Pings" not in result_data[speaker][subject_key]:
+                result_data[speaker][subject_key]["Pings"] = {}
+            # Check for special ping categories
+            topic_key = topic.replace(" ", "_").lower()
+            placed_in_ping_category = False
+            for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
+                if topic_key in keywords:
+                    if cat_name not in result_data[speaker][subject_key]["Pings"]:
+                        result_data[speaker][subject_key]["Pings"][cat_name] = {}
+                    if topic not in result_data[speaker][subject_key]["Pings"][cat_name]:
+                        result_data[speaker][subject_key]["Pings"][cat_name][topic] = []
+                    result_data[speaker][subject_key]["Pings"][cat_name][topic].append(item)
+                    placed_in_ping_category = True
+                    break
+            if not placed_in_ping_category:
+                if topic not in result_data[speaker][subject_key]["Pings"]:
+                    result_data[speaker][subject_key]["Pings"][topic] = []
+                result_data[speaker][subject_key]["Pings"][topic].append(item)
+            # Also store as self ping if subject is not already "Self" and subject == speaker
+            if subject_key.lower() != "self" and (subject_key.lower() == speaker.lower()):
+                if "Self" not in result_data[speaker]:
+                    result_data[speaker]["Self"] = {}
+                if "Pings" not in result_data[speaker]["Self"]:
+                    result_data[speaker]["Self"]["Pings"] = {}
+                # Repeat special ping category logic for self pings
+                placed_in_ping_category_self = False
+                for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
+                    if topic_key in keywords:
+                        if cat_name not in result_data[speaker]["Self"]["Pings"]:
+                            result_data[speaker]["Self"]["Pings"][cat_name] = {}
+                        if topic not in result_data[speaker]["Self"]["Pings"][cat_name]:
+                            result_data[speaker]["Self"]["Pings"][cat_name][topic] = []
+                        result_data[speaker]["Self"]["Pings"][cat_name][topic].append(item)
+                        placed_in_ping_category_self = True
+                        break
+                if not placed_in_ping_category_self:
+                    if topic not in result_data[speaker]["Self"]["Pings"]:
+                        result_data[speaker]["Self"]["Pings"][topic] = []
+                    result_data[speaker]["Self"]["Pings"][topic].append(item)
+        else:
+            # For all voicelines (not just self), check if topic is in any special category
+            # Use the base topic (without relationship) for category matching
+            if relationship in ("ally", "enemy") and topic.endswith(f"({relationship})"):
+                base_topic = topic[:-(len(f" ({relationship})"))].strip()
+                topic_key_for_category = base_topic.replace(" ", "_").lower()
+            else:
+                base_topic = topic
+                topic_key_for_category = topic.replace(" ", "_").lower()
+            placed_in_category = False
+            # Route all non-power use_* topics under Item Usage
+            if topic_key_for_category.startswith("use_") and not topic_key_for_category.startswith("use_power"):
+                if "Item Usage" not in result_data[speaker][subject_key]:
+                    result_data[speaker][subject_key]["Item Usage"] = {}
+                if topic not in result_data[speaker][subject_key]["Item Usage"]:
+                    result_data[speaker][subject_key]["Item Usage"][topic] = []
+                result_data[speaker][subject_key]["Item Usage"][topic].append(item)
+                placed_in_category = True
+
+            # Route pain_* topics under Emotions -> Pain and effort_* under Emotions -> Effort
+            if not placed_in_category:
+                if topic_key_for_category == "pain" or topic_key_for_category.startswith("pain_"):
+                    if "Emotions" not in result_data[speaker][subject_key]:
+                        result_data[speaker][subject_key]["Emotions"] = {}
+                    if "Pain" not in result_data[speaker][subject_key]["Emotions"]:
+                        result_data[speaker][subject_key]["Emotions"]["Pain"] = {}
+                    if topic not in result_data[speaker][subject_key]["Emotions"]["Pain"]:
+                        result_data[speaker][subject_key]["Emotions"]["Pain"][topic] = []
+                    result_data[speaker][subject_key]["Emotions"]["Pain"][topic].append(item)
+                    placed_in_category = True
+                elif topic_key_for_category == "effort" or topic_key_for_category.startswith("effort_"):
+                    if "Emotions" not in result_data[speaker][subject_key]:
+                        result_data[speaker][subject_key]["Emotions"] = {}
+                    if "Effort" not in result_data[speaker][subject_key]["Emotions"]:
+                        result_data[speaker][subject_key]["Emotions"]["Effort"] = {}
+                    if topic not in result_data[speaker][subject_key]["Emotions"]["Effort"]:
+                        result_data[speaker][subject_key]["Emotions"]["Effort"][topic] = []
+                    result_data[speaker][subject_key]["Emotions"]["Effort"][topic].append(item)
+                    placed_in_category = True
+
+            for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
+                if topic_key_for_category in keywords:
+                    if cat_name not in result_data[speaker][subject_key]:
+                        result_data[speaker][subject_key][cat_name] = {}
+                    if topic not in result_data[speaker][subject_key][cat_name]:
+                        result_data[speaker][subject_key][cat_name][topic] = []
+                    result_data[speaker][subject_key][cat_name][topic].append(item)
+                    placed_in_category = True
+                    break
+            if not placed_in_category:
+                if topic not in result_data[speaker][subject_key]:
+                    result_data[speaker][subject_key][topic] = []
+                result_data[speaker][subject_key][topic].append(item)
+
+    def process_voice_lines(self):
+        try:
+            # Entry debug
+            self.processing_debug_log = []
+            self.processing_debug_log.append("DEBUG: Entered process_voice_lines")
+            # Validate inputs
+            if not self._validate_inputs():
+                self.processing_debug_log.append("DEBUG: Input validation failed, exiting process_voice_lines")
+                return
+
+            self.sort_debug_log = []
+            self.progress['value'] = 0
+            
+            self.processing_debug_log.append(f"DEBUG: Loading alias data from {self.alias_json_path.get()}")
+            with open(self.alias_json_path.get(), 'r') as f:
+                alias_data = json.load(f)
+            self.processing_debug_log.append("DEBUG: Loaded alias data successfully")
+            
+            self.processing_debug_log.append(f"DEBUG: Loading topic alias data from {self.topic_alias_json_path.get()}")
+            with open(self.topic_alias_json_path.get(), 'r') as f:
+                topic_alias_data = json.load(f)
+            self.processing_debug_log.append("DEBUG: Loaded topic alias data successfully")
+            
+            valid_speakers = set()
+            for name, aliases in alias_data.items():
+                if isinstance(aliases, list):
+                    valid_speakers.update([a.lower() for a in aliases])
+            
+            # Load VDF if available (for phantom lines)
+            vdf_path = self.vdf_path.get() if hasattr(self, 'vdf_path') else None
+            vdf_data = self._load_vdf(vdf_path)
+            used_vdf_keys = set()
+
+            self.disregarded_heroes = set()
+            
+            self.processing_debug_log.append(f"DEBUG: Scanning for mp3 files in {self.source_folder_path.get()}")
+            mp3_files = []
+            for root, _, files in os.walk(self.source_folder_path.get()):
+                for file in files:
+                    if file.lower().endswith('.mp3'):
+                        mp3_files.append(os.path.join(root, file))
+            self.processing_debug_log.append(f"DEBUG: Found {len(mp3_files)} mp3 files")
+            
+            result_data = {}
+            
+            total_files = len(mp3_files)
+            processed = 0
+            disregarded = 0
+            
+            # 1. Process Real Files
+            for file_path in mp3_files:
+                self.processing_debug_log.append(f"DEBUG: About to process file: {os.path.basename(file_path)}")
+                result = self._process_file(file_path, alias_data, topic_alias_data, valid_speakers)
+                
+                processed += 1
+                def update_progress():
+                    self.progress['value'] = (processed / total_files) * 100
+                self.root.after(0, update_progress)
+                self.root.after(0, self.parent.update_idletasks)
+                
+                if result is None: continue
+                if result == "disregarded":
+                    disregarded += 1
+                    continue
+                
+                vdf_key = self._find_vdf_match(os.path.basename(file_path), vdf_data)
+                if vdf_key: used_vdf_keys.add(vdf_key)
+
+                speaker, subject, topic, relationship, rel_path, is_ping = result
+                self._place_in_result(result_data, result, rel_path)
+
+            # 2. Process Phantom VDF Files
+            if vdf_data:
+                unused = set(vdf_data.keys()) - used_vdf_keys
+                for key in unused:
+                    # Filter by suffix and strip it for categorization
+                    matching_suffix = None
+                    for suffix in KNOWN_SUFFIXES:
+                        if key.lower().endswith(suffix):
+                            matching_suffix = suffix
+                            break
+                    
+                    if not matching_suffix:
+                        continue
+                    
+                    # Strip suffix to simulate the audio filename format
+                    clean_key = key[:-len(matching_suffix)]
+                    fake_path = clean_key + ".mp3"
+                    result = self._process_file(fake_path, alias_data, topic_alias_data, valid_speakers)
+                    
+                    if result and result != "disregarded":
+                        speaker, subject, topic, relationship, _, is_ping = result
+                        # Create phantom entry
+                        item = {
+                            "filename": "", # Key as filename placeholder -> changed to empty as requested
+                            "is_phantom": True,
+                            "transcription": vdf_data[key],
+                            "officialtranscription": True,
+                            "voiceline_id": key
+                        }
+                        self._place_in_result(result_data, result, item)
+            
+            # Custom sort
+            def custom_self_sort(topics, debug_log):
+                priority = ["Select", "Unselect", "Pre game", "Post game"]
+                def sort_key(k):
+                    try:
+                        idx = priority.index(k)
+                        return (idx, k)
+                    except ValueError:
+                        return (len(priority), k)
+                special_keys = list(VoiceLineOrganizer.special_categories.keys())
+                keys_to_remove = special_keys + ["Pings"]
+                topics_no_special = {k: v for k, v in topics.items() if k not in keys_to_remove}
+                sorted_topics = dict(sorted(topics_no_special.items(), key=lambda x: sort_key(x[0])))
+                for cat in special_keys:
+                    if cat in topics:
+                        sorted_topics[cat] = topics[cat]
+                if "Pings" in topics:
+                    sorted_topics["Pings"] = topics["Pings"]
+                return sorted_topics
+
+            for speaker in result_data:
+                if "Self" in result_data[speaker]:
+                    result_data[speaker]["Self"] = custom_self_sort(result_data[speaker]["Self"], self.sort_debug_log)
+
+            # Save
+            self.processing_debug_log.append(f"DEBUG: Saving result data to {self.output_json_path.get()}")
+            with open(self.output_json_path.get(), 'w') as f:
+                json.dump(result_data, f, indent=2)
+            self.processing_debug_log.append("DEBUG: Saved result data successfully")
+
+            if self.processing_debug_log:
+                def insert_processing_log():
+                    self.log_text.insert(tk.END, "\n--- Processing Debug Output ---\n")
+                    self.log_text.insert(tk.END, "\n".join(self.processing_debug_log) + "\n")
+                    self.log_text.insert(tk.END, "--- End Processing Debug Output ---\n\n")
+                    self.log_text.see(tk.END)
+                self.root.after(0, insert_processing_log)
+
+            self.log(f"\nProcessing complete!")
+            self.log(f"Processed {processed} files")
+            self.log(f"Output saved to: {self.output_json_path.get()}")
+
+            def show_info():
+                messagebox.showinfo("Processing Complete", f"Successfully processed {processed} files.\nOutput saved to: {self.output_json_path.get()}")
+            self.root.after(0, show_info)
+            
+        except Exception as e:
+            self.processing_debug_log.append(f"DEBUG: Exception in process_voice_lines: {str(e)}")
+            def show_error():
+                messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            self.root.after(0, show_error)
+            self.log(f"ERROR: {str(e)}")
 
 def main():
     root = tk.Tk()

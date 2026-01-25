@@ -52,11 +52,11 @@
   "sinclair (savannah)": ["magician_savannah", "sinclair (savannah)"],
   "murphy": ["murphy"],
   "skyrunner": ["skyrunner"],
-  "boss": ["the_boss"],
-  "rem" : ["familiar"],
-  "apollo" : ["fencer"],
-  "graves" : ["necro"],
-  "pepper" : ["unicorn"],
-  "venator": ["priest"],
-  "silver" : ["werewolf"]
+  "boss": ["the_boss", "boss"],
+  "rem": ["familiar", "rem"],
+  "apollo": ["fencer", "apollo"],
+  "graves": ["necro", "graves"],
+  "celeste": ["unicorn", "pepper", "celeste"],
+  "venator": ["priest", "venator"],
+  "silver": ["werewolf", "silver"]
 }
