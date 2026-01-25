@@ -94,12 +94,13 @@ def load_vdf(vdf_path):
             for line in f:
                 line = line.strip()
                 # Simple parsing: "key" "value"
-                # Handle escaped quotes if necessary, but keep it simple for now
-                # Regex matches "key" "value"
+                # Use .* for value to handle escaped quotes like \"
                 import re
-                m = re.match(r'^"([^"]+)"\s+"([^"]+)"$', line)
+                m = re.match(r'^"([^"]+)"\s+"(.*)"$', line)
                 if m:
                     key, text = m.groups()
+                    # Unescape \" to "
+                    text = text.replace('\\"', '"')
                     vdf_data[key.lower()] = text # Key is case-insensitive usually
     except Exception as e:
         print(f"Error loading VDF: {e}")

@@ -685,10 +685,12 @@ class ConversationPlayer:
             for line in f:
                 line = line.strip()
                 # Simple line parsing: look for "key" "value"
-                # Regex for "key" "value"
-                m = re.match(r'^"([^"]+)"\s+"([^"]+)"$', line)
+                # Use .* for value to handle escaped quotes like \"
+                m = re.match(r'^"([^"]+)"\s+"(.*)"$', line)
                 if m:
                     key, text = m.groups()
+                    # Unescape \" to "
+                    text = text.replace('\\"', '"')
                     # Process key
                     parsed = self._parse_vdf_key(key)
                     if parsed:
