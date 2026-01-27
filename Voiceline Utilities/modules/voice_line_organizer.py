@@ -23,12 +23,12 @@ class VoiceLineOrganizer:
     # Define multiple special categories as a dict: {category_name: [keywords]}
     special_categories = {
         "Hero Selection": ["select","hs_select", "unselect"],
-        "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak", "killing_streak_generic_high", "killing_streak_generic_low", "killing_streak_generic_medium", "killstreak_count", "killstreak_title"],
+        "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak", "killing_streak_generic_high", "killing_streak_generic_low", "killing_streak_generic_medium", "killstreak_count", "killstreak_title", "asleep_killstreak_high", "asleep_killstreak_mid", "asleep_killstreak_start"],
         "Movement": ["leave_base", "leaving_area", "boost_past_on_zipline"],
         # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
-        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line", "use_power4_01-imported", "use_power4_as_enemy", "use_power4_end", "use_power4_seasonal", "use_power4_start", "use_power5", "power2_resurface", "power4"],
+        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line", "use_power4_01-imported", "use_power4_as_enemy", "use_power4_end", "use_power4_seasonal", "use_power4_start", "use_power5", "power2_resurface", "power4", "asleep_use_power1", "asleep_use_power3", "asleep_use_power4"],
         "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4"],
-        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5"],
+        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5", "asleep_upgrade_power1", "asleep_upgrade_power2", "asleep_upgrade_power3", "asleep_upgrade_power4"],
         
         "Character-Specific Abilities": [
             "bad_dome_alone", "bad_dome_rejuvinator", "big_kelvin", "big_healing",
@@ -44,8 +44,8 @@ class VoiceLineOrganizer:
 
         ],
         "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
-        "Emotions": ["angry", "concerned", "happy", "sad", "congrats","praise"],
-        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth", "end_streak", "kill", "catch", "dash_effort", "efforts", "melee_efforts", "multi_dash", "hook", "hook_lands", "help_out", "kill_fat_ghost_(enemy)", "kill_in_lift_(ally)", "kill_mid_laser_(enemy)", "kill_on_ice_path_(enemy)", "kill_post_swap_(enemy)", "kill_when_invisible_(enemy)", "killed_in_lane_(ally)", "killed_in_lane_01-imported_(ally)", "killed_mid_air_(enemy)", "killed_mid_ult_(enemy)", "mid_air_kill_(enemy)"],
+        "Emotions": ["angry", "concerned", "happy", "sad", "congrats","praise", "asleep_congrats"],
+        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth", "end_streak", "kill", "catch", "dash_effort", "efforts", "melee_efforts", "multi_dash", "hook", "hook_lands", "help_out", "kill_fat_ghost_(enemy)", "kill_in_lift_(ally)", "kill_mid_laser_(enemy)", "kill_on_ice_path_(enemy)", "kill_post_swap_(enemy)", "kill_when_invisible_(enemy)", "killed_in_lane_(ally)", "killed_in_lane_01-imported_(ally)", "killed_mid_air_(enemy)", "killed_mid_ult_(enemy)", "mid_air_kill_(enemy)", "asleep_kill_anyhereo", "asleep_kill_anyhero"],
         
         "Ally Actions": [
             "allies_lasso_kill", "allies_no_attack", "ally_urn_runner", "big_blackhole_(ally)",
@@ -798,6 +798,20 @@ class VoiceLineOrganizer:
                 "multi_dash",
                 # Effort sound variations
                 "dash_effort", "melee_efforts", "efforts",
+                # Familiar (Rem) asleep state voicelines
+                "asleep_congrats",
+                "asleep_kill_anyhereo",  # Note: original typo in filename
+                "asleep_kill_anyhero",   # Corrected version
+                "asleep_killstreak_high",
+                "asleep_killstreak_mid",
+                "asleep_killstreak_start",
+                "asleep_upgrade_power1",
+                "asleep_upgrade_power2",
+                "asleep_upgrade_power3",
+                "asleep_upgrade_power4",
+                "asleep_use_power1",
+                "asleep_use_power3",
+                "asleep_use_power4",
             ]
             
             # Parse the filename based on the specified structure
@@ -849,6 +863,46 @@ class VoiceLineOrganizer:
                 relationship = None
                 rest = joined
                 is_self = True
+            # Special pattern: sleepy_use_power_{character} -> treat as enemy voiceline
+            elif joined.startswith("sleepy_use_power_") and len(joined.split("_")) >= 4:
+                # Extract character name (last part before any variations)
+                sleepy_parts = joined.split("_")
+                # Character name starts at index 3 (after "sleepy_use_power")
+                char_and_rest = "_".join(sleepy_parts[3:])
+                # Remove variations to find character
+                char_clean = re.sub(r'_alt_\d+$', '', char_and_rest)
+                char_clean = re.sub(r'_alt$', '', char_clean)
+                char_clean = re.sub(r'_(\d+)$', '', char_clean)
+                if char_clean.lower() in valid_speakers:
+                    # Reformat as enemy pattern
+                    relationship = "enemy"
+                    rest = f"{char_clean}_sleepy_use_power"
+                    # Add back variations if they existed
+                    if char_and_rest != char_clean:
+                        variation_part = char_and_rest[len(char_clean):]
+                        rest += variation_part
+                else:
+                    # If not a valid character, treat as self voiceline
+                    relationship = None
+                    rest = joined
+                    is_self = True
+            # Special pattern: asleep_ping_ or sleepy_ping_ -> reformat to standard ping
+            elif joined.startswith(("asleep_ping_", "sleepy_ping_")):
+                # Strip the state prefix to get standard ping format
+                if joined.startswith("asleep_ping_"):
+                    rest = joined[len("asleep_ping_"):]
+                else:  # sleepy_ping_
+                    rest = joined[len("sleepy_ping_"):]
+                relationship = None
+                # Check for pre_game or post_game special case
+                ping_parts = rest.split('_')
+                if (len(ping_parts) == 3 and ping_parts[0] in ["pre", "post"] and ping_parts[1] == "game" and ping_parts[2].isdigit()) or \
+                   (len(ping_parts) == 2 and ping_parts[0] in ["pre_game", "post_game"] and ping_parts[1].isdigit()):
+                    # Treat as self voiceline
+                    is_ping = False
+                    is_self = True
+                else:
+                    is_ping = True
             # IMPORTANT: Check _ping_ BEFORE _ally_/_enemy_ because ping topics may contain 
             # "enemy" in their name (e.g., astro_ping_attack_enemy_avatar)
             # BUT only if the part before _ping_ is a valid speaker (to avoid matching 
