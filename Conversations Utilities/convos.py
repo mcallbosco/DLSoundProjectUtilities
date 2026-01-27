@@ -1905,8 +1905,9 @@ Summary (maximum 7 words):"""
                                     has_transcription = bool(transcription)
                             except:
                                 transcription = "[Transcription not available]"
-                        elif transcribe_all or force_retranscribe:
-                            # Generate new transcription (also triggered when force_retranscribe is True)
+                        else:
+                            # Generate new transcription if no cached transcription exists, 
+                            # or if transcribe_all or force_retranscribe is enabled
                             file_path = os.path.join(self.audio_dir, filename)
                             if os.path.exists(file_path):
                                 try:
@@ -1928,8 +1929,6 @@ Summary (maximum 7 words):"""
                                     transcription = f"[Transcription error: {str(e)}]"
                             else:
                                 transcription = "[Transcription not available]"
-                        else:
-                            transcription = "[Transcription not available]"
 
                 # Create line entry
                 line = {
