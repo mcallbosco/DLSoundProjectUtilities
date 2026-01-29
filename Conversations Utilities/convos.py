@@ -317,12 +317,13 @@ class ConversationPlayer:
         # Format examples:
         # - [char1]_match_start_[char1]_[char2]_convo[##]_[##]_[##].mp3
         # - [char1]_match_start_[char1]_[char2]_[topic]_convo[##]_[##]_[##].mp3
+        # - [char1]_match_start_[char1]_[char2]_convo[##]_[##]_alt_[##].mp3
 
         # First try the pattern with a topic
-        pattern_with_topic = r'(\w+)_match_start_(\w+)_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?\.mp3'
+        pattern_with_topic = r'(\w+)_match_start_(\w+)_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(?:alt_)?(\d+))?\.mp3'
 
         # Fallback pattern without a topic
-        pattern_without_topic = r'(\w+)_match_start_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?\.mp3'
+        pattern_without_topic = r'(\w+)_match_start_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(?:alt_)?(\d+))?\.mp3'
 
         for filepath in files:
             # Use basename for pattern matching, but keep full relative path for file access
@@ -806,12 +807,12 @@ class ConversationPlayer:
         # Regex patterns similar to parse_audio_files but allowing suffixes and relaxed matching
         
         # Pattern 1: With topic
-        # e.g. char1_match_start_char1_char2_topic_convo01_02_suffix
-        p1 = r'^(\w+)_match_start_(\w+)_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?'
+        # e.g. char1_match_start_char1_char2_topic_convo01_02_suffix or convo01_02_alt_01_suffix
+        p1 = r'^(\w+)_match_start_(\w+)_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(?:alt_)?(\d+))?'
         
         # Pattern 2: Without topic
-        # e.g. char1_match_start_char1_char2_convo01_02_suffix
-        p2 = r'^(\w+)_match_start_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(\d+))?'
+        # e.g. char1_match_start_char1_char2_convo01_02_suffix or convo01_02_alt_01_suffix
+        p2 = r'^(\w+)_match_start_(\w+)_(\w+)_convo(\d+)_(\d+)(?:_(?:alt_)?(\d+))?'
         
         m = re.match(p1, key)
         if m:

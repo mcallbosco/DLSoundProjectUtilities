@@ -26,9 +26,9 @@ class VoiceLineOrganizer:
         "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak", "killing_streak_generic_high", "killing_streak_generic_low", "killing_streak_generic_medium", "killstreak_count", "killstreak_title", "asleep_killstreak_high", "asleep_killstreak_mid", "asleep_killstreak_start"],
         "Movement": ["leave_base", "leaving_area", "boost_past_on_zipline"],
         # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
-        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line", "use_power4_01-imported", "use_power4_as_enemy", "use_power4_end", "use_power4_seasonal", "use_power4_start", "use_power5", "power2_resurface", "power4", "asleep_use_power1", "asleep_use_power3", "asleep_use_power4"],
-        "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4"],
-        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5", "asleep_upgrade_power1", "asleep_upgrade_power2", "asleep_upgrade_power3", "asleep_upgrade_power4"],
+        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line", "use_power4_01-imported", "use_power4_as_enemy", "use_power4_end", "use_power4_seasonal", "use_power4_start", "use_power5", "power2_resurface", "power4", "asleep_use_power1", "asleep_use_power3", "asleep_use_power4","use_power6" ],
+        "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4", "desperation_power5", "desperation_power6"],
+        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5", "upgrade_power6", "asleep_upgrade_power1", "asleep_upgrade_power2", "asleep_upgrade_power3", "asleep_upgrade_power4"],
         
         "Character-Specific Abilities": [
             "bad_dome_alone", "bad_dome_rejuvinator", "big_kelvin", "big_healing",
@@ -754,9 +754,9 @@ class VoiceLineOrganizer:
                 "see_money", "select", "unselect","killstreak_high","killstreak_mid","killstreak_start",
                 "leave_base", "leaving_area","low_health_warning","outnumbered","pick_up_gold", "revenge_kill",
                 "pick_up_rejuv", "upgrade_power1", "upgrade_power2", "upgrade_power3",
-                "upgrade_power4","use_power1", "use_power2", "use_power3", "use_power4",
+                "upgrade_power4", "upgrade_power5", "upgrade_power6","use_power1", "use_power2", "use_power3", "use_power4",
                 "solo_lasso_kill","kill_anyhero","use_power4_as_enemy", "desperation_power1",
-                "desperation_power2", "desperation_power3", "desperation_power4", "hunt", "hs_select",
+                "desperation_power2", "desperation_power3", "desperation_power4", "desperation_power5", "desperation_power6", "hunt", "hs_select",
                 "bespoke_ability_line",
                 # New self single-keyword topics
                 "start_match", "ap_reminder", "congrats", "be_careful", "end_streak",
