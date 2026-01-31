@@ -1,1 +1,1 @@
-Warning about OSIC if ritual fails.
+Warning about OSIC and ritual failure consequences.
