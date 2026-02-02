@@ -812,6 +812,11 @@ class VoiceLineOrganizer:
                 "asleep_use_power1",
                 "asleep_use_power3",
                 "asleep_use_power4",
+                # Silver things
+                "howl",
+                "snarl",
+
+
             ]
             
             # Parse the filename based on the specified structure

@@ -58,5 +58,5 @@
   "graves": ["necro", "graves"],
   "celeste": ["unicorn", "pepper", "celeste"],
   "venator": ["priest", "venator"],
-  "silver": ["werewolf", "silver"]
+  "silver": ["werewolf", "silver", "werewolf_wolf"]
 }

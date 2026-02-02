@@ -11,5 +11,7 @@
   "conversations_export_json": "/home/mcall/Documents/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockJan2026/all_conversations.json",
   "voicelines_consolidated_json": "/home/mcall/Documents/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockJan2026/all_voicelines.json",
   "voicelines_custom_vocab": "/home/mcall/Documents/Projects/DLSoundProject/DLSoundProjectUtilities/Assets/deadlock_vocabulary.json",
-  "voicelines_retranscribe_on_status": false
+  "voicelines_retranscribe_on_status": false,
+  "delete_json_on_vdf_match": false,
+  "include_phantom_lines": false
 }

@@ -52,6 +52,8 @@ SKIP_WHISPER_PATTERNS = [
     "_pain_death_",
     "_pain_low_health_",
     "_pain_small_",
+    "_howl_",
+    "_snarl_",
 ]
 
 def should_skip_whisper(filename):
