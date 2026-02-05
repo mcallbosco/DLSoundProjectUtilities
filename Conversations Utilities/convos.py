@@ -336,6 +336,10 @@ class ConversationPlayer:
                 starter, char1, char2, topic, convo_num, part_num = groups[:6]
                 variation = groups[6] if len(groups) > 6 and groups[6] is not None else "1"
                 
+                # Handle alt variations - increment index to separate from main (default 1)
+                if "_alt_" in filename and variation.isdigit():
+                    variation = str(int(variation) + 1)
+                
                 # Apply character name mappings
                 starter = self.resolve_character_name(starter)
                 char1 = self.resolve_character_name(char1)
@@ -350,6 +354,10 @@ class ConversationPlayer:
                     starter, char1, char2, convo_num, part_num = groups[:5]
                     variation = groups[5] if len(groups) > 5 and groups[5] is not None else "1"
                     topic = None
+                    
+                    # Handle alt variations - increment index to separate from main (default 1)
+                    if "_alt_" in filename and variation.isdigit():
+                        variation = str(int(variation) + 1)
                     
                     # Apply character name mappings
                     starter = self.resolve_character_name(starter)
@@ -393,7 +401,7 @@ class ConversationPlayer:
             
             # Sort variations within each part
             for part, variations in part_groups.items():
-                variations.sort(key=lambda x: x['variation'])
+                variations.sort(key=lambda x: (x['variation'], x['filename']))
             
             # Get unique part numbers for completeness check
             unique_parts = sorted(part_groups.keys())
@@ -818,12 +826,18 @@ class ConversationPlayer:
         if m:
             starter_raw, char1, char2, topic, convo_num, part_num, variation = m.groups()
             variation = variation if variation else "1"
+            # Handle alt variations same as audio files
+            if "_alt_" in key and variation.isdigit():
+                variation = str(int(variation) + 1)
         else:
             m = re.match(p2, key)
             if m:
                 starter_raw, char1, char2, convo_num, part_num, variation = m.groups()
                 variation = variation if variation else "1"
                 topic = None
+                # Handle alt variations same as audio files
+                if "_alt_" in key and variation.isdigit():
+                    variation = str(int(variation) + 1)
             else:
                 return None
         
@@ -898,7 +912,7 @@ class ConversationPlayer:
             
             # Sort variations
             for part, variations in part_groups.items():
-                variations.sort(key=lambda x: x['variation'])
+                variations.sort(key=lambda x: (x['variation'], x.get('filename', '')))
             
             # Update all file entries with new groups
             # Preserve original is_complete from audio analysis if present
