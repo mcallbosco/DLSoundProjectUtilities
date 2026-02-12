@@ -1,1 +1,1 @@
-Trust issues and identity conflict discussed.
+Trust issues between Apollo and Venator.

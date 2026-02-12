@@ -815,6 +815,7 @@ class VoiceLineOrganizer:
                 # Silver things
                 "howl",
                 "snarl",
+                "vote"
 
 
             ]
