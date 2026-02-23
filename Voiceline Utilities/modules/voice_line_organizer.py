@@ -6,18 +6,18 @@ from tkinter import filedialog, messagebox, ttk
 from pathlib import Path
 import re
 
-# Common VDF key suffixes to check during matching
-KNOWN_SUFFIXES = [
-    "_announcer",
-    "_hero_3d",
-    "_ability_3d",
-    "_ult_3d",
-    "_hero_announcer",
-    "_hero_zipline_3d",
-    "_ping_2d",
-    "_idol",
-    "_shopkeeper"
-]
+try:
+    from .vdf_kv_common import (
+        ORDERED_KNOWN_SUFFIXES,
+        find_vdf_key_for_filename,
+        load_vdf_key_text_map,
+    )
+except ImportError:
+    from vdf_kv_common import (
+        ORDERED_KNOWN_SUFFIXES,
+        find_vdf_key_for_filename,
+        load_vdf_key_text_map,
+    )
 
 class VoiceLineOrganizer:
     # Define multiple special categories as a dict: {category_name: [keywords]}
@@ -1224,30 +1224,18 @@ class VoiceLineOrganizer:
         return topic_raw.capitalize()
 
     def _load_vdf(self, vdf_path):
-        vdf_data = {}
         if not vdf_path or not os.path.exists(vdf_path):
-            return vdf_data
+            return {}
         try:
-            with open(vdf_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    m = re.match(r'^"([^"]+)"\s+"([^"]+)"$', line)
-                    if m:
-                        key, text = m.groups()
-                        vdf_data[key.lower()] = text
+            return load_vdf_key_text_map(vdf_path)
         except Exception as e:
             self.log(f"Error loading VDF: {e}")
-        return vdf_data
+        return {}
 
     def _find_vdf_match(self, filename, vdf_data):
         if not vdf_data:
             return None
-        stem = os.path.splitext(filename)[0].lower()
-        if stem in vdf_data: return stem
-        for suffix in KNOWN_SUFFIXES:
-            candidate = f"{stem}{suffix}"
-            if candidate in vdf_data: return candidate
-        return None
+        return find_vdf_key_for_filename(filename, vdf_data)
 
     def _place_in_result(self, result_data, result, item):
         speaker, subject, topic, relationship, rel_path, is_ping = result
@@ -1434,7 +1422,7 @@ class VoiceLineOrganizer:
                 for key in unused:
                     # Filter by suffix and strip it for categorization
                     matching_suffix = None
-                    for suffix in KNOWN_SUFFIXES:
+                    for suffix in ORDERED_KNOWN_SUFFIXES:
                         if key.lower().endswith(suffix):
                             matching_suffix = suffix
                             break

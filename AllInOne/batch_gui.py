@@ -12,6 +12,7 @@ Features:
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -27,6 +28,167 @@ CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 LEGACY_CONFIG_FILE = os.path.join(CONFIG_DIR, "s2v_config.json")
 RENAME_MAP_FILE = os.path.join(CONFIG_DIR, "rename_map.json")
 
+# Shared VDF/localization helpers live under Voiceline Utilities/modules.
+VOICELINE_UTILS_ROOT = os.path.abspath(os.path.join(CONFIG_DIR, "..", "Voiceline Utilities"))
+if VOICELINE_UTILS_ROOT not in sys.path:
+    sys.path.insert(0, VOICELINE_UTILS_ROOT)
+from modules.vdf_kv_common import ORDERED_KNOWN_SUFFIXES, parse_quoted_kv_line
+
+LOCALIZATION_FILE_PREFIX = "citadel_generated_vo_"
+HERO_NAME_FILE_PREFIX = "citadel_gc_hero_names_"
+HERO_NAME_OUTPUT_FILE = "hero_name_localizations.json"
+LOCALIZATION_LANGUAGE_META = {
+    "brazilian": {
+        "friendly_name": "Portuguese (Brazil)",
+        "native_name": "Português (Brasil)",
+        "country_code": "BR",
+    },
+    "bulgarian": {
+        "friendly_name": "Bulgarian",
+        "native_name": "Български",
+        "country_code": "BG",
+    },
+    "czech": {
+        "friendly_name": "Czech",
+        "native_name": "Čeština",
+        "country_code": "CZ",
+    },
+    "danish": {
+        "friendly_name": "Danish",
+        "native_name": "Dansk",
+        "country_code": "DK",
+    },
+    "dutch": {
+        "friendly_name": "Dutch",
+        "native_name": "Nederlands",
+        "country_code": "NL",
+    },
+    "english": {
+        "friendly_name": "English",
+        "native_name": "English",
+        "country_code": "US",
+    },
+    "finnish": {
+        "friendly_name": "Finnish",
+        "native_name": "Suomi",
+        "country_code": "FI",
+    },
+    "french": {
+        "friendly_name": "French",
+        "native_name": "Français",
+        "country_code": "FR",
+    },
+    "german": {
+        "friendly_name": "German",
+        "native_name": "Deutsch",
+        "country_code": "DE",
+    },
+    "greek": {
+        "friendly_name": "Greek",
+        "native_name": "Ελληνικά",
+        "country_code": "GR",
+    },
+    "hungarian": {
+        "friendly_name": "Hungarian",
+        "native_name": "Magyar",
+        "country_code": "HU",
+    },
+    "indonesian": {
+        "friendly_name": "Indonesian",
+        "native_name": "Bahasa Indonesia",
+        "country_code": "ID",
+    },
+    "italian": {
+        "friendly_name": "Italian",
+        "native_name": "Italiano",
+        "country_code": "IT",
+    },
+    "japanese": {
+        "friendly_name": "Japanese",
+        "native_name": "日本語",
+        "country_code": "JP",
+    },
+    "koreana": {
+        "friendly_name": "Korean",
+        "native_name": "한국어",
+        "country_code": "KR",
+    },
+    "latam": {
+        "friendly_name": "Spanish (Latin America)",
+        "native_name": "Español (Latinoamérica)",
+        "country_code": "MX",
+    },
+    "norwegian": {
+        "friendly_name": "Norwegian",
+        "native_name": "Norsk",
+        "country_code": "NO",
+    },
+    "polish": {
+        "friendly_name": "Polish",
+        "native_name": "Polski",
+        "country_code": "PL",
+    },
+    "portuguese": {
+        "friendly_name": "Portuguese",
+        "native_name": "Português",
+        "country_code": "PT",
+    },
+    "romanian": {
+        "friendly_name": "Romanian",
+        "native_name": "Română",
+        "country_code": "RO",
+    },
+    "russian": {
+        "friendly_name": "Russian",
+        "native_name": "Русский",
+        "country_code": "RU",
+    },
+    "schinese": {
+        "friendly_name": "Chinese (Simplified)",
+        "native_name": "简体中文",
+        "country_code": "CN",
+    },
+    "spanish": {
+        "friendly_name": "Spanish",
+        "native_name": "Español",
+        "country_code": "ES",
+    },
+    "swedish": {
+        "friendly_name": "Swedish",
+        "native_name": "Svenska",
+        "country_code": "SE",
+    },
+    "tchinese": {
+        "friendly_name": "Chinese (Traditional)",
+        "native_name": "繁體中文",
+        "country_code": "TW",
+    },
+    "thai": {
+        "friendly_name": "Thai",
+        "native_name": "ไทย",
+        "country_code": "TH",
+    },
+    "turkish": {
+        "friendly_name": "Turkish",
+        "native_name": "Türkçe",
+        "country_code": "TR",
+    },
+    "ukrainian": {
+        "friendly_name": "Ukrainian",
+        "native_name": "Українська",
+        "country_code": "UA",
+    },
+    "vietnamese": {
+        "friendly_name": "Vietnamese",
+        "native_name": "Tiếng Việt",
+        "country_code": "VN",
+    },
+}
+
+
+class LocalizationMetadataError(Exception):
+    """Raised when a discovered localization file has incomplete language metadata."""
+
 
 def load_config():
     default = {
@@ -36,6 +198,7 @@ def load_config():
         "file_filter": "sounds\\vo",
         "status_dir": "",
         "transcriptions_dir": "",
+        "localizations_output_dir": "",
         "retranscribe_on_status": True,
         "character_mappings_file": "",
         "conversations_export_json": "",
@@ -154,42 +317,49 @@ class BatchGUI(tk.Tk):
         self.trans_entry.insert(0, self.cfg.get("transcriptions_dir", ""))
         tk.Button(frm, text="Browse...", command=self.browse_trans).grid(row=4, column=2, padx=6)
 
+        # Localization output directory
+        tk.Label(frm, text="Localizations Output Dir: ").grid(row=5, column=0, sticky=tk.W)
+        self.loc_out_entry = tk.Entry(frm, width=60)
+        self.loc_out_entry.grid(row=5, column=1, padx=(4, 0), sticky=tk.W)
+        self.loc_out_entry.insert(0, self.cfg.get("localizations_output_dir", ""))
+        tk.Button(frm, text="Browse...", command=self.browse_localizations_output_dir).grid(row=5, column=2, padx=6)
+
         # Conversations JSON export path
-        tk.Label(frm, text="Convos JSON Path: ").grid(row=5, column=0, sticky=tk.W)
+        tk.Label(frm, text="Convos JSON Path: ").grid(row=6, column=0, sticky=tk.W)
         self.convos_json_entry = tk.Entry(frm, width=60)
-        self.convos_json_entry.grid(row=5, column=1, padx=(4, 0), sticky=tk.W)
+        self.convos_json_entry.grid(row=6, column=1, padx=(4, 0), sticky=tk.W)
         self.convos_json_entry.insert(0, self.cfg.get("conversations_export_json", ""))
-        tk.Button(frm, text="Save As...", command=self.browse_convos_json).grid(row=5, column=2, padx=6)
+        tk.Button(frm, text="Save As...", command=self.browse_convos_json).grid(row=6, column=2, padx=6)
 
         # Voicelines consolidated JSON path
-        tk.Label(frm, text="Voicelines Consolidated JSON: ").grid(row=6, column=0, sticky=tk.W)
+        tk.Label(frm, text="Voicelines Consolidated JSON: ").grid(row=7, column=0, sticky=tk.W)
         self.voi_consolidated_entry = tk.Entry(frm, width=60)
-        self.voi_consolidated_entry.grid(row=6, column=1, padx=(4, 0), sticky=tk.W)
+        self.voi_consolidated_entry.grid(row=7, column=1, padx=(4, 0), sticky=tk.W)
         self.voi_consolidated_entry.insert(0, self.cfg.get("voicelines_consolidated_json", ""))
-        tk.Button(frm, text="Save As...", command=self.browse_voicelines_consolidated_json).grid(row=6, column=2, padx=6)
+        tk.Button(frm, text="Save As...", command=self.browse_voicelines_consolidated_json).grid(row=7, column=2, padx=6)
 
         # Voicelines custom vocabulary file
-        tk.Label(frm, text="Voicelines Custom Vocabulary: ").grid(row=7, column=0, sticky=tk.W)
+        tk.Label(frm, text="Voicelines Custom Vocabulary: ").grid(row=8, column=0, sticky=tk.W)
         self.voi_vocab_entry = tk.Entry(frm, width=60)
-        self.voi_vocab_entry.grid(row=7, column=1, padx=(4, 0), sticky=tk.W)
+        self.voi_vocab_entry.grid(row=8, column=1, padx=(4, 0), sticky=tk.W)
         self.voi_vocab_entry.insert(0, self.cfg.get("voicelines_custom_vocab", ""))
-        tk.Button(frm, text="Browse...", command=self.browse_voicelines_vocab).grid(row=7, column=2, padx=6)
+        tk.Button(frm, text="Browse...", command=self.browse_voicelines_vocab).grid(row=8, column=2, padx=6)
 
         # Retranscribe checkbox
         self.retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("retranscribe_on_status", True)))
-        tk.Checkbutton(frm, text="Re-transcribe when status present", variable=self.retranscribe_var).grid(row=8, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Re-transcribe when status present", variable=self.retranscribe_var).grid(row=9, column=0, columnspan=2, sticky=tk.W)
 
         # Voicelines retranscribe checkbox
         self.voi_retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("voicelines_retranscribe_on_status", True)))
-        tk.Checkbutton(frm, text="Re-transcribe voicelines when status present", variable=self.voi_retranscribe_var).grid(row=9, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Re-transcribe voicelines when status present", variable=self.voi_retranscribe_var).grid(row=10, column=0, columnspan=2, sticky=tk.W)
 
         # Delete JSON on VDF match checkbox
         self.delete_json_var = tk.BooleanVar(value=bool(self.cfg.get("delete_json_on_vdf_match", False)))
-        tk.Checkbutton(frm, text="Delete transcript JSON if VDF match found", variable=self.delete_json_var).grid(row=10, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Delete transcript JSON if VDF match found", variable=self.delete_json_var).grid(row=11, column=0, columnspan=2, sticky=tk.W)
 
         # Include phantom lines checkbox
         self.include_phantom_var = tk.BooleanVar(value=bool(self.cfg.get("include_phantom_lines", True)))
-        tk.Checkbutton(frm, text="Include voicelines without audio (phantom)", variable=self.include_phantom_var).grid(row=11, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Include voicelines without audio (phantom)", variable=self.include_phantom_var).grid(row=12, column=0, columnspan=2, sticky=tk.W)
 
         btn_frm = tk.Frame(self)
         btn_frm.pack(padx=10, pady=(6, 6), fill=tk.X)
@@ -246,6 +416,12 @@ class BatchGUI(tk.Tk):
         if p:
             self.trans_entry.delete(0, tk.END)
             self.trans_entry.insert(0, p)
+
+    def browse_localizations_output_dir(self):
+        p = filedialog.askdirectory(title="Select localizations output directory")
+        if p:
+            self.loc_out_entry.delete(0, tk.END)
+            self.loc_out_entry.insert(0, p)
 
     def browse_convos_json(self):
         initial = self.convos_json_entry.get().strip() or os.getcwd()
@@ -380,12 +556,532 @@ class BatchGUI(tk.Tk):
             except Exception:
                 pass
 
+    def _extract_localization_language(self, filename):
+        base = os.path.basename(filename)
+        base_lower = base.lower()
+        if not base_lower.startswith(LOCALIZATION_FILE_PREFIX) or not base_lower.endswith(".txt"):
+            return None
+        language = base[len(LOCALIZATION_FILE_PREFIX):-4].strip().lower()
+        return language or None
+
+    def _extract_hero_name_language(self, filename):
+        base = os.path.basename(filename)
+        base_lower = base.lower()
+        if not base_lower.startswith(HERO_NAME_FILE_PREFIX) or not base_lower.endswith(".txt"):
+            return None
+        language = base[len(HERO_NAME_FILE_PREFIX):-4].strip().lower()
+        return language or None
+
+    def _country_code_to_flag(self, country_code):
+        if not country_code or len(country_code) != 2:
+            return None
+        code = country_code.upper()
+        if not (code[0].isalpha() and code[1].isalpha()):
+            return None
+        return chr(127397 + ord(code[0])) + chr(127397 + ord(code[1]))
+
+    def _flag_to_unicode_points(self, flag_emoji):
+        if not flag_emoji:
+            return None
+        return " ".join(f"U+{ord(ch):04X}" for ch in flag_emoji)
+
+    def _get_language_metadata(self, language):
+        language_key = (language or "").strip().lower()
+        base_meta = LOCALIZATION_LANGUAGE_META.get(language_key)
+        if base_meta is None:
+            raise LocalizationMetadataError(
+                f"Missing metadata entry for language '{language_key}'."
+            )
+
+        friendly_name = (base_meta.get("friendly_name") or "").strip()
+        native_name = (base_meta.get("native_name") or "").strip()
+        country_code = (base_meta.get("country_code") or "").strip().upper()
+        missing_fields = [
+            field for field, value in (
+                ("friendly_name", friendly_name),
+                ("native_name", native_name),
+                ("country_code", country_code),
+            ) if not value
+        ]
+        if missing_fields:
+            raise LocalizationMetadataError(
+                f"Language '{language_key}' is missing required fields: {', '.join(missing_fields)}."
+            )
+
+        flag_emoji = self._country_code_to_flag(country_code)
+        if not flag_emoji:
+            raise LocalizationMetadataError(
+                f"Language '{language_key}' has invalid country_code '{country_code}'."
+            )
+        flag_emoji_unicode = self._flag_to_unicode_points(flag_emoji)
+
+        return {
+            "friendly_name": friendly_name,
+            "native_name": native_name,
+            "country_code": country_code,
+            "flag_emoji": flag_emoji,
+            "flag_emoji_unicode": flag_emoji_unicode,
+        }
+
+    def _show_error_popup_threadsafe(self, title, message):
+        done = threading.Event()
+
+        def _show():
+            try:
+                messagebox.showerror(title, message)
+            finally:
+                done.set()
+
+        try:
+            if self.winfo_exists():
+                self.after(0, _show)
+                done.wait()
+        except Exception:
+            pass
+
+    def _parse_localization_tokens(self, file_path):
+        tokens = {}
+        waiting_for_tokens_block = False
+        in_tokens_block = False
+        tokens_depth = 0
+
+        with open(file_path, "r", encoding="utf-8-sig", errors="replace") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("//"):
+                    continue
+
+                if waiting_for_tokens_block:
+                    if line.startswith("{"):
+                        in_tokens_block = True
+                        tokens_depth = 1
+                        waiting_for_tokens_block = False
+                    continue
+
+                if in_tokens_block:
+                    if line.startswith("{"):
+                        tokens_depth += 1
+                        continue
+                    if line.startswith("}"):
+                        tokens_depth -= 1
+                        if tokens_depth <= 0:
+                            in_tokens_block = False
+                        continue
+                    parsed = parse_quoted_kv_line(line)
+                    if parsed:
+                        key, text = parsed
+                        key = key.strip().lower()
+                        text = text.strip()
+                        if key:
+                            tokens[key] = text
+                    continue
+
+                line_lower = line.lower()
+                if line_lower == '"tokens"':
+                    waiting_for_tokens_block = True
+                    continue
+                if line_lower.startswith('"tokens"') and "{" in line:
+                    in_tokens_block = True
+                    tokens_depth = 1
+                    continue
+
+        return tokens
+
+    def _parse_hero_name_tokens(self, file_path):
+        """
+        Parse hero-name localization file and return:
+          { "<hero_id>": "<localized_name>" }
+
+        Includes only base hero tokens:
+          hero_<id>:n
+        Excludes:
+          hero_<id>_search:n
+          hero_<id>_sort:n
+        """
+        tokens = self._parse_localization_tokens(file_path)
+        hero_names = {}
+        for key, text in tokens.items():
+            token_key = (key or "").strip().lower()
+            if not token_key.startswith("hero_"):
+                continue
+            if not token_key.endswith(":n"):
+                continue
+            if token_key.endswith("_search:n") or token_key.endswith("_sort:n"):
+                continue
+
+            hero_id = token_key[len("hero_"):-2].strip().lower()
+            if not hero_id:
+                continue
+            cleaned_text = self._strip_hash_markup(text)
+            if not cleaned_text:
+                continue
+            hero_names[hero_id] = cleaned_text
+        return hero_names
+
+    def _strip_hash_markup(self, text):
+        """
+        Remove inline hash-delimited tags like '#|f|#' from localized hero names.
+        """
+        if text is None:
+            return ""
+        cleaned = re.sub(r"#.*?#", "", str(text))
+        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+        return cleaned
+
+    def _load_character_mapping_indexes(self, character_mappings_path):
+        """
+        Build canonical and alias indexes from Assets/character_mappings.json.
+
+        Returns:
+          canonical_order: [canonical_key_in_json_order]
+          canonical_lookup: {normalized_canonical: canonical_original}
+          alias_lookup: {normalized_alias: canonical_original}
+          alias_collisions: [(alias, first_canonical, second_canonical), ...]
+        """
+        with open(character_mappings_path, "r", encoding="utf-8") as f:
+            mappings = json.load(f)
+
+        if not isinstance(mappings, dict):
+            raise ValueError(f"Character mappings file is not a JSON object: {character_mappings_path}")
+
+        canonical_order = []
+        canonical_lookup = {}
+        alias_lookup = {}
+        alias_collisions = []
+
+        for canonical_raw, aliases in mappings.items():
+            canonical_original = str(canonical_raw).strip()
+            canonical_norm = canonical_original.lower()
+            if not canonical_original:
+                continue
+
+            canonical_order.append(canonical_original)
+            canonical_lookup.setdefault(canonical_norm, canonical_original)
+
+            if isinstance(aliases, list):
+                for alias in aliases:
+                    alias_norm = str(alias).strip().lower()
+                    if not alias_norm:
+                        continue
+                    existing = alias_lookup.get(alias_norm)
+                    if existing is None:
+                        alias_lookup[alias_norm] = canonical_original
+                    elif existing != canonical_original:
+                        alias_collisions.append((alias_norm, existing, canonical_original))
+
+        return canonical_order, canonical_lookup, alias_lookup, alias_collisions
+
+    def _build_hero_name_localization_index(self, hero_names_by_language, ordered_languages, canonical_order, canonical_lookup, alias_lookup):
+        """
+        Build hero-name localization index:
+          { "<character_key>": [[language, localized_name], ...] }
+        """
+        index = {}
+        unmatched_tokens = 0
+        duplicate_language_hits = 0
+
+        for language in ordered_languages:
+            lang_map = hero_names_by_language.get(language, {})
+            for hero_id, localized_name in lang_map.items():
+                token_id = str(hero_id).strip().lower()
+                canonical_key = canonical_lookup.get(token_id)
+                if canonical_key is None:
+                    canonical_key = alias_lookup.get(token_id)
+                if canonical_key is None:
+                    unmatched_tokens += 1
+                    continue
+
+                row = index.setdefault(canonical_key, [])
+                if any(item[0] == language for item in row):
+                    duplicate_language_hits += 1
+                    continue
+                row.append([language, localized_name])
+
+        ordered_index = {}
+        for canonical_key in canonical_order:
+            rows = index.get(canonical_key)
+            if rows:
+                ordered_index[canonical_key] = rows
+
+        stats = {
+            "unmatched_tokens": unmatched_tokens,
+            "duplicate_language_hits": duplicate_language_hits,
+            "emitted_keys": len(ordered_index),
+        }
+        return ordered_index, stats
+
+    def _write_hero_name_localization_index(self, localization_output_dir, index):
+        out_path = os.path.join(localization_output_dir, HERO_NAME_OUTPUT_FILE)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(index, f, indent=2, ensure_ascii=False)
+        self.log_write(
+            f"[Hero Names] Wrote hero name localization index with {len(index)} keys to {out_path}\n"
+        )
+
+    def _export_hero_name_localizations_from_game_files(self, hero_name_source_dir, localization_output_dir):
+        if not localization_output_dir:
+            self.log_write("[Hero Names] Output directory not set. Skipping hero-name localization export.\n")
+            return
+
+        if not hero_name_source_dir or not os.path.isdir(hero_name_source_dir):
+            self.log_write(f"[Hero Names] Source directory not found: {hero_name_source_dir}\n")
+            return
+
+        try:
+            os.makedirs(localization_output_dir, exist_ok=True)
+        except Exception as e:
+            self.log_write(f"[Hero Names] Failed to create output directory: {e}\n")
+            return
+
+        source_files = []
+        for name in sorted(os.listdir(hero_name_source_dir)):
+            if self._extract_hero_name_language(name):
+                source_files.append(name)
+
+        if not source_files:
+            self.log_write(f"[Hero Names] No hero-name localization files found in: {hero_name_source_dir}\n")
+            return
+
+        character_mappings_path = os.path.abspath(
+            os.path.join(CONFIG_DIR, "..", "Assets", "character_mappings.json")
+        )
+        if not os.path.isfile(character_mappings_path):
+            raise FileNotFoundError(f"Character mappings file not found: {character_mappings_path}")
+
+        canonical_order, canonical_lookup, alias_lookup, alias_collisions = self._load_character_mapping_indexes(
+            character_mappings_path
+        )
+        if alias_collisions:
+            self.log_write(
+                f"[Hero Names] Alias collisions in character mappings: {len(alias_collisions)} "
+                f"(using first canonical key encountered)\n"
+            )
+
+        hero_names_by_language = {}
+        ordered_languages = []
+
+        for file_name in source_files:
+            language = self._extract_hero_name_language(file_name)
+            if not language:
+                continue
+            try:
+                self._get_language_metadata(language)
+            except LocalizationMetadataError as e:
+                raise LocalizationMetadataError(
+                    f"Hero-name localization file '{file_name}' is missing supporting info: {e}"
+                ) from e
+
+            source_path = os.path.join(hero_name_source_dir, file_name)
+            try:
+                hero_names = self._parse_hero_name_tokens(source_path)
+            except Exception as e:
+                self.log_write(f"[Hero Names] Failed to parse {file_name}: {e}\n")
+                continue
+
+            hero_names_by_language[language] = hero_names
+            ordered_languages.append(language)
+            self.log_write(
+                f"[Hero Names] Parsed {len(hero_names)} base hero-name tokens from {file_name}\n"
+            )
+
+        index, stats = self._build_hero_name_localization_index(
+            hero_names_by_language,
+            ordered_languages,
+            canonical_order,
+            canonical_lookup,
+            alias_lookup,
+        )
+        self._write_hero_name_localization_index(localization_output_dir, index)
+        self.log_write(
+            f"[Hero Names] Export complete. Keys: {stats['emitted_keys']}, "
+            f"unmatched tokens: {stats['unmatched_tokens']}, "
+            f"duplicate language hits: {stats['duplicate_language_hits']}\n"
+        )
+
+    def _build_voiceline_localization_index(self, lines_by_language, ordered_languages):
+        """
+        Build a lookup keyed by filename:
+          { "<voiceline_id>": ["<language>", ...] }
+        """
+        index = {}
+        for language in ordered_languages:
+            language_lines = lines_by_language.get(language, {})
+            for voiceline_id in language_lines.keys():
+                key = voiceline_id[:-4] if voiceline_id.lower().endswith(".mp3") else voiceline_id
+                row = index.setdefault(key, [])
+                row.append(language)
+
+        # Keep language arrays deterministic and deduplicated.
+        order_map = {lang: idx for idx, lang in enumerate(ordered_languages)}
+        for filename in list(index.keys()):
+            index[filename] = sorted(set(index[filename]), key=lambda lang: order_map.get(lang, 10**9))
+        return index
+
+    def _write_voiceline_localization_index(self, localization_output_dir, manifest, lines_by_language):
+        ordered_languages = [entry["language"] for entry in manifest.get("languages", [])]
+        index = self._build_voiceline_localization_index(lines_by_language, ordered_languages)
+
+        out_path = os.path.join(localization_output_dir, "voiceline_localizations.json")
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(index, f, indent=2, ensure_ascii=False)
+
+        self.log_write(
+            f"[Localization] Wrote filename localization lookup with {len(index)} entries to {out_path}\n"
+        )
+
+    def _normalize_localization_lines(self, tokens):
+        lines = {}
+        source_kind = {}
+        collisions = 0
+        exact_overrides = 0
+
+        for key, text in tokens.items():
+            canonical_key = key
+            incoming_kind = "exact"
+            for suffix in ORDERED_KNOWN_SUFFIXES:
+                if key.endswith(suffix):
+                    stripped = key[:-len(suffix)]
+                    if stripped:
+                        canonical_key = stripped
+                        incoming_kind = "suffix"
+                    break
+
+            existing_kind = source_kind.get(canonical_key)
+            if existing_kind is None:
+                lines[canonical_key] = text
+                source_kind[canonical_key] = incoming_kind
+                continue
+
+            if existing_kind == "suffix" and incoming_kind == "exact":
+                lines[canonical_key] = text
+                source_kind[canonical_key] = "exact"
+                exact_overrides += 1
+            else:
+                collisions += 1
+
+        return lines, collisions, exact_overrides
+
+    def _export_localizations_from_game_files(self, localization_source_dir, localization_output_dir):
+        if not localization_output_dir:
+            self.log_write("[Localization] Output directory not set. Skipping localization export.\n")
+            return
+
+        if not localization_source_dir or not os.path.isdir(localization_source_dir):
+            self.log_write(f"[Localization] Source directory not found: {localization_source_dir}\n")
+            return
+
+        try:
+            os.makedirs(localization_output_dir, exist_ok=True)
+        except Exception as e:
+            self.log_write(f"[Localization] Failed to create output directory: {e}\n")
+            return
+
+        source_files = []
+        for name in sorted(os.listdir(localization_source_dir)):
+            if self._extract_localization_language(name):
+                source_files.append(name)
+
+        if not source_files:
+            self.log_write(f"[Localization] No localization files found in: {localization_source_dir}\n")
+            return
+
+        manifest = {
+            "generated_at": datetime.now().isoformat(),
+            "source_directory": os.path.abspath(localization_source_dir),
+            "languages": [],
+        }
+        lines_by_language = {}
+
+        written = 0
+        for file_name in source_files:
+            language = self._extract_localization_language(file_name)
+            if not language:
+                continue
+            try:
+                language_meta = self._get_language_metadata(language)
+            except LocalizationMetadataError as e:
+                raise LocalizationMetadataError(
+                    f"Localization file '{file_name}' is missing supporting info: {e}"
+                ) from e
+
+            source_path = os.path.join(localization_source_dir, file_name)
+            try:
+                tokens = self._parse_localization_tokens(source_path)
+                lines, collisions, exact_overrides = self._normalize_localization_lines(tokens)
+            except Exception as e:
+                self.log_write(f"[Localization] Failed to parse {file_name}: {e}\n")
+                continue
+
+            payload = {
+                "meta": {
+                    "language": language,
+                    "friendly_name": language_meta["friendly_name"],
+                    "native_name": language_meta["native_name"],
+                    "country_code": language_meta["country_code"],
+                    "flag_emoji": language_meta["flag_emoji"],
+                    "flag_emoji_unicode": language_meta["flag_emoji_unicode"],
+                    "source_file": file_name,
+                    "generated_at": datetime.now().isoformat(),
+                    "entry_count": len(lines),
+                    "collision_count": collisions,
+                    "exact_override_count": exact_overrides,
+                },
+                "lines": lines,
+            }
+
+            output_file = f"{language}.json"
+            output_path = os.path.join(localization_output_dir, output_file)
+            try:
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(payload, f, indent=2, ensure_ascii=False)
+            except Exception as e:
+                self.log_write(f"[Localization] Failed to write {output_file}: {e}\n")
+                continue
+
+            manifest["languages"].append({
+                "language": language,
+                "friendly_name": language_meta["friendly_name"],
+                "native_name": language_meta["native_name"],
+                "country_code": language_meta["country_code"],
+                "flag_emoji": language_meta["flag_emoji"],
+                "flag_emoji_unicode": language_meta["flag_emoji_unicode"],
+                "output_file": output_file,
+                "source_file": file_name,
+                "entry_count": len(lines),
+                "collision_count": collisions,
+                "exact_override_count": exact_overrides,
+            })
+            lines_by_language[language] = lines
+            written += 1
+            self.log_write(
+                f"[Localization] Wrote {output_file} with {len(lines)} lines "
+                f"(collisions: {collisions}, exact overrides: {exact_overrides})\n"
+            )
+
+        manifest_path = os.path.join(localization_output_dir, "manifest.json")
+        try:
+            with open(manifest_path, "w", encoding="utf-8") as f:
+                json.dump(manifest, f, indent=2, ensure_ascii=False)
+            self.log_write(
+                f"[Localization] Wrote manifest with {len(manifest['languages'])} languages to {manifest_path}\n"
+            )
+        except Exception as e:
+            self.log_write(f"[Localization] Failed to write manifest: {e}\n")
+
+        try:
+            self._write_voiceline_localization_index(localization_output_dir, manifest, lines_by_language)
+        except Exception as e:
+            self.log_write(f"[Localization] Failed to write voiceline localization index: {e}\n")
+
+        self.log_write(f"[Localization] Export complete. Language files written: {written}\n")
+
     def on_save_config(self):
         self.cfg["source2viewer_binary"] = self.bin_entry.get().strip()
         self.cfg["vpk_path"] = self.vpk_entry.get().strip()
         self.cfg["file_filter"] = self.filter_entry.get().strip()
         self.cfg["status_dir"] = self.status_entry.get().strip()
         self.cfg["transcriptions_dir"] = self.trans_entry.get().strip()
+        self.cfg["localizations_output_dir"] = self.loc_out_entry.get().strip()
         self.cfg["retranscribe_on_status"] = bool(self.retranscribe_var.get())
         self.cfg["conversations_export_json"] = self.convos_json_entry.get().strip()
         self.cfg["voicelines_consolidated_json"] = self.voi_consolidated_entry.get().strip()
@@ -421,10 +1117,20 @@ class BatchGUI(tk.Tk):
             messagebox.showerror("Temp dir", f"Failed to create temp folder: {e}")
             return
 
+        localization_output_dir = self.loc_out_entry.get().strip() if hasattr(self, "loc_out_entry") else self.cfg.get("localizations_output_dir", "")
+
         # Copy citadel_generated_vo from game files to temp folder
         game_base = self.cfg.get("game_base_path", "")
+        localization_source_dir = ""
+        hero_name_source_dir = ""
         if game_base:
-            vo_localization_path = os.path.join(game_base, "game", "citadel", "resource", "localization", "citadel_generated_vo", "citadel_generated_vo_english.txt")
+            localization_source_dir = os.path.join(
+                game_base, "game", "citadel", "resource", "localization", "citadel_generated_vo"
+            )
+            hero_name_source_dir = os.path.join(
+                game_base, "game", "citadel", "resource", "localization", "citadel_gc_hero_names"
+            )
+            vo_localization_path = os.path.join(localization_source_dir, "citadel_generated_vo_english.txt")
             if os.path.isfile(vo_localization_path):
                 try:
                     dest_path = os.path.join(self.tempdir, "citadel_generated_vo.txt")
@@ -434,6 +1140,10 @@ class BatchGUI(tk.Tk):
                     self.log_write(f"[Pre-run] Failed to copy citadel_generated_vo.txt: {e}\n")
             else:
                 self.log_write(f"[Pre-run] citadel_generated_vo.txt not found at {vo_localization_path}\n")
+            if not os.path.isdir(hero_name_source_dir):
+                self.log_write(f"[Pre-run] hero-name localization directory not found at {hero_name_source_dir}\n")
+        else:
+            self.log_write("[Pre-run] game_base_path is not configured; localization export will be skipped.\n")
 
         cmd = [binary, "-i", vpk, "-o", self.tempdir, "-f", ffilter, "-d"]
 
@@ -467,6 +1177,21 @@ class BatchGUI(tk.Tk):
                     self.log_write(line)
             else:
                 self.log_write("Process completed successfully.\n")
+                try:
+                    self._export_localizations_from_game_files(localization_source_dir, localization_output_dir)
+                    self._export_hero_name_localizations_from_game_files(hero_name_source_dir, localization_output_dir)
+                except LocalizationMetadataError as e:
+                    error_msg = f"[Localization] {e}"
+                    self.log_write(f"{error_msg}\n")
+                    self.log_write("[Localization] Stopping post-run pipeline.\n")
+                    self._show_error_popup_threadsafe("Localization Metadata Missing", str(e))
+                    self.log_write(f"Process exited with code {rc}\n")
+                    self.process = None
+                    self.run_btn.configure(state=tk.NORMAL)
+                    self.stop_btn.configure(state=tk.DISABLED)
+                    return
+                except Exception as e:
+                    self.log_write(f"[Localization] Export step failed: {e}\n")
 
                 # Trigger conversations export after successful extraction
                 try:

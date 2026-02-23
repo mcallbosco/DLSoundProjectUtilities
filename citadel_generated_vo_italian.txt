@@ -1,0 +1,8 @@
+﻿"lang"
+{
+	"Language"		"italian"
+	"Tokens"
+	{
+		"patron_female_tutorial_stamina_reminder_announcer_tutorial"		"Hai esaurito la stamina, ma non preoccuparti, col tempo si ricaricherà."
+		}
+}

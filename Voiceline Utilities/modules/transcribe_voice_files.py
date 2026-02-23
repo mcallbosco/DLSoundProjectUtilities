@@ -12,10 +12,18 @@ import threading
 
 try:
     from .voice_line_organizer import VoiceLineOrganizer
+    from .vdf_kv_common import (
+        find_vdf_match_for_filename,
+        load_vdf_key_text_map,
+    )
 except ImportError:
     # Fallback for standalone execution if needed, though likely running as module
     try:
         from voice_line_organizer import VoiceLineOrganizer
+        from vdf_kv_common import (
+            find_vdf_match_for_filename,
+            load_vdf_key_text_map,
+        )
     except ImportError:
         VoiceLineOrganizer = None
 
@@ -25,20 +33,7 @@ class HeadlessOrganizer(VoiceLineOrganizer):
         self.source_folder_path = type('MockVar', (), {'get': lambda: ""})()
         self.disregarded_heroes = set()
 
-# Common VDF key suffixes to check during matching
 thread_local = threading.local()
-
-# Common VDF key suffixes to check during matching
-KNOWN_SUFFIXES = [
-    "_announcer",
-    "_hero_3d",
-    "_ability_3d",
-    "_ult_3d",
-    "_hero_announcer",
-    "_ping_2d",
-    "_idol"
-    "_shopkeeper" # Added for robustness based on common patterns
-]
 
 # Filename patterns to skip Whisper transcription for (non-verbal sounds)
 # These will get empty transcriptions unless a VDF entry exists
@@ -90,20 +85,8 @@ def load_vdf(vdf_path):
     if not vdf_path or not os.path.exists(vdf_path):
         return None
     
-    vdf_data = {}
     try:
-        with open(vdf_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                # Simple parsing: "key" "value"
-                # Use .* for value to handle escaped quotes like \"
-                import re
-                m = re.match(r'^"([^"]+)"\s+"(.*)"$', line)
-                if m:
-                    key, text = m.groups()
-                    # Unescape \" to "
-                    text = text.replace('\\"', '"')
-                    vdf_data[key.lower()] = text # Key is case-insensitive usually
+        vdf_data = load_vdf_key_text_map(vdf_path)
     except Exception as e:
         print(f"Error loading VDF: {e}")
         return None
@@ -111,22 +94,7 @@ def load_vdf(vdf_path):
 
 def find_vdf_match(filename, vdf_data):
     """Find a matching VDF entry for a filename"""
-    if not vdf_data:
-        return None, None
-
-    stem = os.path.splitext(filename)[0].lower()
-    
-    # 1. Exact match
-    if stem in vdf_data:
-        return stem, vdf_data[stem]
-    
-    # 2. Check stem + known suffixes
-    for suffix in KNOWN_SUFFIXES:
-        candidate = f"{stem}{suffix}"
-        if candidate in vdf_data:
-            return candidate, vdf_data[candidate]
-            
-    return None, None
+    return find_vdf_match_for_filename(filename, vdf_data)
 
 def load_custom_vocabulary(vocab_file=None):
     """Load custom vocabulary from a JSON file if provided"""
