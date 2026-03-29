@@ -961,6 +961,107 @@ class BatchGUI(tk.Tk):
 
         return lines, collisions, exact_overrides
 
+    def _extract_hero_icons_for_language(self, binary, vpk_path, language, localization_output_dir):
+        """
+        Extract panorama/images/heroes/hero_names from vpk_path and place
+        the decompiled files into <localization_output_dir>/icons/<language>/.
+        Returns the number of files copied, or -1 on hard failure.
+        """
+        icons_out_dir = os.path.join(localization_output_dir, "icons", language)
+        try:
+            os.makedirs(icons_out_dir, exist_ok=True)
+        except Exception as e:
+            self.log_write(f"[Hero Icons] [{language}] Failed to create output directory: {e}\n")
+            return -1
+
+        icons_tmp = tempfile.mkdtemp(prefix="s2v_icons_", dir=os.getcwd())
+        try:
+            icon_filter = "panorama/images/heroes/hero_names"
+            cmd = [binary, "-i", vpk_path, "-o", icons_tmp, "-f", icon_filter, "-d"]
+            try:
+                proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            except Exception as e:
+                self.log_write(f"[Hero Icons] [{language}] Failed to run Source2Viewer: {e}\n")
+                return -1
+
+            if proc.returncode != 0:
+                self.log_write(f"[Hero Icons] [{language}] Source2Viewer failed (exit {proc.returncode}):\n{proc.stdout}\n")
+                return -1
+
+            all_files = []
+            for root, _, files in os.walk(icons_tmp):
+                for name in files:
+                    all_files.append(os.path.join(root, name))
+
+            if not all_files:
+                self.log_write(f"[Hero Icons] [{language}] No files extracted.\n")
+                return 0
+
+            copied = 0
+            for src in all_files:
+                dst = os.path.join(icons_out_dir, os.path.basename(src))
+                try:
+                    shutil.copy2(src, dst)
+                    copied += 1
+                except Exception as e:
+                    self.log_write(f"[Hero Icons] [{language}] Failed to copy {os.path.basename(src)}: {e}\n")
+
+            return copied
+        finally:
+            try:
+                shutil.rmtree(icons_tmp, ignore_errors=True)
+            except Exception:
+                pass
+
+    def _extract_all_hero_icons(self, binary, main_vpk, game_base, localization_output_dir):
+        """
+        Extract hero name icons for all languages:
+          - English: from the main citadel pak01_dir.vpk → icons/english/
+          - Per-language: from game/<citadel_{lang}>/pak01_dir.vpk → icons/{lang}/
+        """
+        if not localization_output_dir:
+            self.log_write("[Hero Icons] Localization output directory not set. Skipping.\n")
+            return
+
+        total_copied = 0
+        languages_done = []
+
+        # English — from the main VPK
+        self.log_write("[Hero Icons] Extracting english from main VPK...\n")
+        n = self._extract_hero_icons_for_language(binary, main_vpk, "english", localization_output_dir)
+        if n >= 0:
+            total_copied += n
+            languages_done.append(f"english ({n})")
+
+        # Localization VPKs — discover citadel_{lang} folders under game_base/game/
+        if not game_base:
+            self.log_write("[Hero Icons] game_base_path not configured; skipping localization icon extraction.\n")
+        else:
+            game_dir = os.path.join(game_base, "game")
+            try:
+                entries = sorted(os.listdir(game_dir))
+            except Exception as e:
+                self.log_write(f"[Hero Icons] Cannot list game directory: {e}\n")
+                entries = []
+
+            for entry in entries:
+                if not entry.startswith("citadel_"):
+                    continue
+                language = entry[len("citadel_"):]
+                vpk_path = os.path.join(game_dir, entry, "pak01_dir.vpk")
+                if not os.path.isfile(vpk_path):
+                    self.log_write(f"[Hero Icons] [{language}] No pak01_dir.vpk found, skipping.\n")
+                    continue
+                n = self._extract_hero_icons_for_language(binary, vpk_path, language, localization_output_dir)
+                if n >= 0:
+                    total_copied += n
+                    languages_done.append(f"{language} ({n})")
+
+        self.log_write(
+            f"[Hero Icons] Done. Total files copied: {total_copied} across {len(languages_done)} language(s).\n"
+        )
+        self.log_write(f"[Hero Icons] Languages: {', '.join(languages_done)}\n")
+
     def _export_localizations_from_game_files(self, localization_source_dir, localization_output_dir):
         if not localization_output_dir:
             self.log_write("[Localization] Output directory not set. Skipping localization export.\n")
@@ -1192,6 +1293,12 @@ class BatchGUI(tk.Tk):
                     return
                 except Exception as e:
                     self.log_write(f"[Localization] Export step failed: {e}\n")
+
+                # Extract hero icon assets for all languages
+                try:
+                    self._extract_all_hero_icons(binary, vpk, game_base, localization_output_dir)
+                except Exception as e:
+                    self.log_write(f"[Hero Icons] Export step failed: {e}\n")
 
                 # Trigger conversations export after successful extraction
                 try:
