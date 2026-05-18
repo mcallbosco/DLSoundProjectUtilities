@@ -1013,9 +1013,83 @@ class BatchGUI(tk.Tk):
             except Exception:
                 pass
 
+    def _find_patron_logo_extracted_file(self, tmp_root, team_prefix):
+        """
+        team_prefix: 'team1_patron_logo' or 'team2_patron_logo' (matches decompiled output basename).
+        Returns one path or None.
+        """
+        needle = team_prefix.lower()
+        matches = []
+        for root, _, files in os.walk(tmp_root):
+            for name in files:
+                if needle in name.lower():
+                    matches.append(os.path.join(root, name))
+        if not matches:
+            return None
+        matches.sort()
+        return matches[0]
+
+    def _extract_patron_logos_for_language(self, binary, vpk_path, language, localization_output_dir):
+        """
+        Extract panorama HUD objective patron logos (team1 / team2) from vpk_path and write
+        team1.png and team2.png next to hero name icons under icons/<language>/.
+        Returns 2 if both written, 1 if one, 0 if none (or VPK empty for these assets), -1 on tool failure.
+        """
+        icons_out_dir = os.path.join(localization_output_dir, "icons", language)
+        try:
+            os.makedirs(icons_out_dir, exist_ok=True)
+        except Exception as e:
+            self.log_write(f"[Patron logos] [{language}] Failed to create output directory: {e}\n")
+            return -1
+
+        written = 0
+        for team_prefix, out_name, vpk_filter in (
+            ("team1_patron_logo", "team1.png", "panorama/images/hud/objectives/team1_patron_logo_psd"),
+            ("team2_patron_logo", "team2.png", "panorama/images/hud/objectives/team2_patron_logo_psd"),
+        ):
+            logos_tmp = tempfile.mkdtemp(prefix="s2v_patron_", dir=os.getcwd())
+            try:
+                cmd = [binary, "-i", vpk_path, "-o", logos_tmp, "-f", vpk_filter, "-d"]
+                try:
+                    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                except Exception as e:
+                    self.log_write(f"[Patron logos] [{language}] Failed to run Source2Viewer: {e}\n")
+                    return -1 if written == 0 else written
+
+                if proc.returncode != 0:
+                    self.log_write(
+                        f"[Patron logos] [{language}] Source2Viewer failed (exit {proc.returncode}) "
+                        f"for filter {vpk_filter!r}:\n{proc.stdout}\n"
+                    )
+                    return -1 if written == 0 else written
+
+                src = self._find_patron_logo_extracted_file(logos_tmp, team_prefix)
+                dst = os.path.join(icons_out_dir, out_name)
+                if not src:
+                    self.log_write(
+                        f"[Patron logos] [{language}] No extracted file matching '{team_prefix}' "
+                        f"for filter {vpk_filter!r}.\n"
+                    )
+                    continue
+                try:
+                    shutil.copy2(src, dst)
+                    written += 1
+                except Exception as e:
+                    self.log_write(f"[Patron logos] [{language}] Failed to copy {out_name} from {src}: {e}\n")
+            finally:
+                try:
+                    shutil.rmtree(logos_tmp, ignore_errors=True)
+                except Exception:
+                    pass
+
+        if written == 0:
+            self.log_write(f"[Patron logos] [{language}] No patron logo files written.\n")
+
+        return written
+
     def _extract_all_hero_icons(self, binary, main_vpk, game_base, localization_output_dir):
         """
-        Extract hero name icons for all languages:
+        Extract hero name icons and patron team logos for all languages:
           - English: from the main citadel pak01_dir.vpk → icons/english/
           - Per-language: from game/<citadel_{lang}>/pak01_dir.vpk → icons/{lang}/
         """
@@ -1032,6 +1106,10 @@ class BatchGUI(tk.Tk):
         if n >= 0:
             total_copied += n
             languages_done.append(f"english ({n})")
+        p = self._extract_patron_logos_for_language(binary, main_vpk, "english", localization_output_dir)
+        if p >= 0:
+            total_copied += p
+            self.log_write(f"[Patron logos] english: wrote {p}/2 files (team1.png, team2.png).\n")
 
         # Localization VPKs — discover citadel_{lang} folders under game_base/game/
         if not game_base:
@@ -1056,6 +1134,10 @@ class BatchGUI(tk.Tk):
                 if n >= 0:
                     total_copied += n
                     languages_done.append(f"{language} ({n})")
+                p = self._extract_patron_logos_for_language(binary, vpk_path, language, localization_output_dir)
+                if p >= 0:
+                    total_copied += p
+                    self.log_write(f"[Patron logos] {language}: wrote {p}/2 files (team1.png, team2.png).\n")
 
         self.log_write(
             f"[Hero Icons] Done. Total files copied: {total_copied} across {len(languages_done)} language(s).\n"
