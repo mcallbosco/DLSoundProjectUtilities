@@ -47,7 +47,7 @@ class APIKeyDialog(tk.Toplevel):
         # Information text with increased wraplength
         info_text = (
             "Your API key will be saved in a file named '.open_ai_key' in your home directory.\n"
-            "This key is used to access the OpenAI Whisper API for transcription.\n"
+            "This key is used to access the OpenAI transcription API for transcription.\n"
             "Your key is never sent anywhere except directly to OpenAI's API.\n"
             "OpenAI API keys are typically around 51 characters long and start with 'sk-'."
         )

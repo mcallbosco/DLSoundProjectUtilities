@@ -1436,7 +1436,7 @@ class ConversationPlayer:
         self.root.destroy()
     
     def transcribe_conversation(self):
-        """Transcribe the selected conversation using OpenAI's Whisper API"""
+        """Transcribe the selected conversation using OpenAI's transcription API"""
         # Check for API key
         if not OPENAI_API_KEY:
             if not self.set_api_key():
@@ -1597,7 +1597,7 @@ class ConversationPlayer:
             self.root.after(0, lambda: self.status_var.set("Transcription complete"))
     
     def _transcribe_file(self, file_path):
-        """Transcribe a single audio file using OpenAI's Whisper API"""
+        """Transcribe a single audio file using OpenAI's transcription API"""
         try:
             stem = os.path.splitext(os.path.basename(file_path))[0].lower()
             # Use snapshot captured on UI thread to avoid Tk access from background thread
@@ -1617,30 +1617,32 @@ class ConversationPlayer:
             
             # Open the audio file
             with open(file_path, 'rb') as audio_file:
-                # Call Whisper API with the updated client
+                # Call the gpt-4o-transcribe model with the updated client.
+                # gpt-4o-transcribe only supports json/text output (no verbose_json
+                # or segment timestamps), so we no longer request timestamp_granularities.
                 client = openai.OpenAI(api_key=OPENAI_API_KEY)
                 response = client.audio.transcriptions.create(
-                    model="whisper-1",
+                    model="gpt-4o-transcribe",
                     file=audio_file,
-                    response_format="verbose_json",
-                    timestamp_granularities=["segment"],
+                    response_format="json",
                     language="en"
                 )
-                
+
                 # Convert response to dictionary if it's not already
                 if not isinstance(response, dict):
                     response = response.model_dump()
-                
-                # Process response to extract segments
+
+                # gpt-4o-transcribe returns a single "text" field with no per-segment
+                # timestamps, so we store the full transcription as one segment.
                 segments = []
-                
-                for segment in response.get('segments', []):
+                full_text = response.get('text', '').strip()
+                if full_text:
                     segments.append({
-                        'start': segment.get('start', 0),
-                        'end': segment.get('end', 0),
-                        'text': segment.get('text', '').strip()
+                        'start': 0,
+                        'end': 0,
+                        'text': full_text
                     })
-                
+
                 # Build result without a top-level "text" field; consumers should derive from segments
                 result = {
                     'file': os.path.basename(file_path),

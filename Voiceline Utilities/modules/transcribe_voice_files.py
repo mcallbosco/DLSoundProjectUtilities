@@ -342,13 +342,14 @@ def process_file(args):
         
         # Transcribe the audio using OpenAI API
         with open(full_path, "rb") as audio_file:
-            # Call Whisper API with the thread-local client
+            # Call the gpt-4o-transcribe model with the thread-local client.
+            # gpt-4o-transcribe only supports json/text output (no verbose_json
+            # or segment timestamps), so we no longer request timestamp_granularities.
             # Add the custom vocabulary prompt if available
             transcription_args = {
-                "model": "whisper-1",
+                "model": "gpt-4o-transcribe",
                 "file": audio_file,
-                "response_format": "verbose_json",
-                "timestamp_granularities": ["segment"],
+                "response_format": "json",
                 "language": "en"
             }
             
@@ -372,13 +373,15 @@ def process_file(args):
             "segments": []
         }
         
-        # Add segments with simplified structure
-        for idx, segment in enumerate(response.get("segments", [])):
+        # gpt-4o-transcribe returns a single "text" field with no per-segment
+        # timestamps, so we store the full transcription as one segment.
+        full_text = response.get("text", "")
+        if full_text:
             output_data["segments"].append({
-                "start": segment.get("start", 0),
-                "end": segment.get("end", 0),
-                "text": segment.get("text", ""),
-                "part": idx + 1
+                "start": 0,
+                "end": 0,
+                "text": full_text,
+                "part": 1
             })
         
         # Save the transcription to a JSON file
@@ -412,7 +415,7 @@ def process_file(args):
 
 def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None, reprocess_statuses=None, reprocess_status_map=None, vdf_path=None, include_phantom=False, delete_json_on_vdf_match=False, alias_path=None, topic_alias_path=None):
     """
-    Transcribe all MP3 files mentioned in the JSON file using OpenAI Whisper API.
+    Transcribe all MP3 files mentioned in the JSON file using the OpenAI transcription API.
     Creates a JSON file for each MP3 with the transcription results in the specified format.
     
     Args:
@@ -723,7 +726,7 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
     return stats
 
 def main():
-    parser = argparse.ArgumentParser(description='Transcribe voice files using OpenAI Whisper API')
+    parser = argparse.ArgumentParser(description='Transcribe voice files using the OpenAI transcription API')
     parser.add_argument('--input-json', required=True, help='Path to the input JSON file')
     parser.add_argument('--source-folder', required=True, help='Path to the source folder containing the MP3 files')
     parser.add_argument('--output-folder', help='Path to the output folder for transcription JSON files')
