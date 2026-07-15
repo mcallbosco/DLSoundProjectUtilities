@@ -82,7 +82,7 @@ class VoiceLineOrganizer:
             "tower_got_denied", "idol_drop",
             "ally_delivered_many_urns", "ally_urn_movement", "ally_urn_delivered", 
             "enemy_delivered_many_urns", "enemy_urn_delivered", "enemy_urn_movement", 
-            "urn_delivered", "urn_dropped", "urn_moving", "urn_waiting", 
+            "urn_delivered", "urn_dropped", "urn_moving", "urn_waiting", "holder_stalls",
             "idol_delivered", "idol_dropped", "idol_landed", "idol_moving", "idol_waiting", 
             "rejuv_spawn", "rejuvinator_expired", "ally_rejuvinator_almost_expired", 
             "ally_steal_rejuv", "enemy_steal_rejuv", "mid_spawn", 
@@ -551,14 +551,29 @@ class VoiceLineOrganizer:
             if filename_without_ext.startswith("spirit_jar_"):
                 speaker = "spirit_jar"
                 # Everything after "spirit_jar_"
-                subject_raw = filename_without_ext[len("spirit_jar_"):]
+                base = filename_without_ext[len("spirit_jar_"):]
                 # Remove trailing _alt_<number> or _<number>
-                subject_raw = re.sub(r'_alt_\d+$', '', subject_raw)
-                subject_raw = re.sub(r'_(\d+)$', '', subject_raw)
-                # Replace underscores with spaces and capitalize first letter
-                subject = subject_raw.replace("_", " ").capitalize()
-                topic_proper = subject
+                base_clean = re.sub(r'_alt_\d+$', '', base)
+                base_clean = re.sub(r'_(\d+)$', '', base_clean)
                 rel_path = os.path.relpath(file_path, self.source_folder_path.get())
+
+                # Character-addressed urn lines use the form
+                # spirit_jar_holder_stalls_<character>_<variation>.
+                holder_stalls_prefix = "holder_stalls_"
+                if base_clean.startswith(holder_stalls_prefix):
+                    subject_alias = base_clean[len(holder_stalls_prefix):]
+                    if subject_alias.lower() in valid_speakers:
+                        subject = self._get_proper_name(subject_alias, alias_data)
+                        topic_proper = "Holder stalls"
+                        self.processing_debug_log.append(
+                            f"Processed (spirit_jar holder stalls): {filename} -> "
+                            f"{speaker}/{subject}/{topic_proper}"
+                        )
+                        return (speaker, subject, topic_proper, None, rel_path, False)
+
+                # Replace underscores with spaces and capitalize first letter
+                subject = base_clean.replace("_", " ").capitalize()
+                topic_proper = subject
                 self.processing_debug_log.append(f"Processed (spirit_jar): {filename} -> {speaker}/self/{topic_proper}")
                 return (speaker, "self", topic_proper, None, rel_path, False)
 

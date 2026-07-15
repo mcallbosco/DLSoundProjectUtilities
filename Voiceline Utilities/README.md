@@ -236,8 +236,8 @@ The application supports various filename patterns, including:
 
 - Filenames starting with `spirit_jar_` (e.g., `spirit_jar_idol_delivered_01.mp3`, `spirit_jar_idol_waiting_in_street_02_alt_01.mp3`) are handled with custom logic:
   - The speaker is always `"spirit_jar"`.
-  - All lines are grouped under the `"self"` key.
-  - The subject/topic is everything after `spirit_jar_`, with underscores replaced by spaces and the first letter capitalized (e.g., `spirit_jar_idol_waiting_in_street_02_alt_01.mp3` → `"Idol waiting in street"`).
+  - Character-addressed `spirit_jar_holder_stalls_{character}_...` lines are grouped under the referenced character with the topic `"Holder stalls"` (e.g., `spirit_jar_holder_stalls_astro_04.mp3` → subject `"holliday"`, topic `"Holder stalls"`).
+  - Other lines are grouped under the `"self"` key. Their topic is everything after `spirit_jar_`, with underscores replaced by spaces and the first letter capitalized (e.g., `spirit_jar_idol_waiting_in_street_02_alt_01.mp3` → `"Idol waiting in street"`).
   - Trailing `_alt_<number>` and `_<number>` suffixes are stripped from the subject/topic.
 
 ### Special NPCs: newscaster
