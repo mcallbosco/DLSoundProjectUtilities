@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "vlviewer-content-cdn",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-15",
+  "workers_dev": false,
+  "cache": {
+    "enabled": true
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "r2_buckets": [
+    {
+      "binding": "CONTENT_BUCKET",
+      "bucket_name": "vlviewer-content"
+    }
+  ]
+}

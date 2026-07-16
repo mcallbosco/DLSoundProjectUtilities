@@ -1,0 +1,15 @@
+{
+  "name": "vlviewer-content-cdn-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "wrangler dev --local --persist-to .wrangler/state",
+    "seed:local": "node scripts/seed-local.mjs",
+    "smoke:local": "node scripts/smoke-local.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.72.0"
+  }
+}

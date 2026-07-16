@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "game": "deadlock",
+  "latestVersion": "deadlock-local",
+  "versions": [
+    {
+      "id": "deadlock-local",
+      "label": "Local development",
+      "publishedAt": "2026-07-15T00:00:00Z",
+      "updatedAt": "2026-07-15T00:00:00Z",
+      "contentRevision": 1,
+      "hidden": false,
+      "conversationUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/conversations.json",
+      "voiceLineUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/voicelines.json",
+      "audioBaseUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/audio/",
+      "localizationManifestUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/localization/manifest.json",
+      "fanLocalizationManifestUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/fan-localization/manifest.json",
+      "coverageUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/coverage.json",
+      "iconOverridesUrl": "http://127.0.0.1:8787/deadlock/versions/deadlock-local/icons/default/manifest.json"
+    }
+  ]
+}

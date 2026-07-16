@@ -1,0 +1,13 @@
+{
+  "source_dir": "D:/path/to/convowebsite/public/Games/Deadlock/DeadlockJan2026",
+  "game": "deadlock",
+  "version": "deadlock-2026-07-14",
+  "label": "July 14, 2026",
+  "bucket": "vlviewer-content",
+  "endpoint_url": "https://ACCOUNT_ID.r2.cloudflarestorage.com",
+  "cdn_base_url": "https://cdn.vlviewer.com",
+  "zone_id": "",
+  "concurrency": 12,
+  "promote_to_latest": true,
+  "hidden": false
+}

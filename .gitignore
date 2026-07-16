@@ -6,3 +6,8 @@ video_generator_README.md
 *.pyc
 /VideoGen
 /.venv
+s2v_tmp_*/
+AllInOne/s2v_tmp_*/
+/ContentPublisher/config.json
+/ContentPublisher/credentials.dpapi*
+/ContentPublisher/.state/
