@@ -266,6 +266,7 @@ class PublisherGUI(tk.Tk):
             ("Test R2 connection", self._test_connection),
             ("Compare / dry run", self._dry_run),
             ("Publish", self._publish),
+            ("Publish game categories", self._publish_game_categories),
             ("Manage versions...", self._manage_versions),
         ]
         for index, (label, command) in enumerate(actions):
@@ -648,6 +649,34 @@ class PublisherGUI(tk.Tk):
 
         self._run_background("Publishing content...", action)
 
+    def _publish_game_categories(self) -> None:
+        try:
+            settings = self._settings(require_cloud=True)
+        except PublisherError as exc:
+            messagebox.showerror("Publisher error", str(exc))
+            return
+        categories_path = settings.source_dir / "categories.json"
+        if not messagebox.askyesno(
+            "Confirm game category default",
+            f"Publish {categories_path} as the inherited category default for "
+            f"game {settings.game!r}?\n\nThis does not publish or modify a content version.",
+            icon=messagebox.WARNING,
+        ):
+            return
+
+        def action() -> None:
+            publisher = R2Publisher(settings, self._append_log)
+            publisher.publish_game_default_categories()
+            self.after(
+                0,
+                lambda: messagebox.showinfo(
+                    "Game categories published",
+                    f"Published the inherited category default for {settings.game}.",
+                ),
+            )
+
+        self._run_background("Publishing game category default...", action)
+
     def _manage_versions(self) -> None:
         try:
             settings = self._settings(require_cloud=True)
@@ -728,6 +757,7 @@ class VersionManagerDialog(tk.Toplevel):
             ("Toggle hidden", self._toggle_hidden),
             ("Make latest", self._make_latest),
             ("Save changes", self._save),
+            ("Refresh character routes", self._refresh_character_routes),
             ("Close", self._close),
         ]
         for index, (label, command) in enumerate(actions):
@@ -874,12 +904,9 @@ class VersionManagerDialog(tk.Toplevel):
         selected = self._selected()
         if not selected:
             return
-        index, version = selected
+        _index, version = selected
         version_id = str(version.get("id"))
         version["hidden"] = False
-        versions = self.manifest["versions"]
-        if index != 0:
-            versions.insert(0, versions.pop(index))
         self.manifest["latestVersion"] = version_id
         self.dirty = True
         self._populate(version_id)
@@ -905,6 +932,33 @@ class VersionManagerDialog(tk.Toplevel):
 
         self._run_background(
             "Saving public version manifest...",
+            lambda: self.publisher.save_game_manifest(payload),
+            done,
+        )
+
+    def _refresh_character_routes(self) -> None:
+        if self.dirty:
+            messagebox.showinfo(
+                "Unsaved changes",
+                "Save or discard the version catalog changes before refreshing character routes.",
+                parent=self,
+            )
+            return
+        if not messagebox.askyesno(
+            "Refresh character routes?",
+            "Rebuild the all-version character page list from the published versions?",
+            parent=self,
+        ):
+            return
+        payload = json.loads(json.dumps(self.manifest))
+
+        def done(manifest: dict) -> None:
+            self.manifest = manifest
+            self._populate()
+            self.parent._append_log("Refreshed the all-version character page list.")
+
+        self._run_background(
+            "Refreshing all-version character routes...",
             lambda: self.publisher.save_game_manifest(payload),
             done,
         )

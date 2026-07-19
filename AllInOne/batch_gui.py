@@ -204,6 +204,10 @@ def load_config():
         "conversations_export_json": "",
         "voicelines_consolidated_json": "",
         "voicelines_custom_vocab": "",
+        "voiceline_groups_file": os.path.abspath(
+            os.path.join(CONFIG_DIR, "..", "Assets", "voiceline_groups.json")
+        ),
+        "generate_transcriptions": True,
         "voicelines_retranscribe_on_status": True,
         "delete_json_on_vdf_match": False,
         
@@ -345,21 +349,38 @@ class BatchGUI(tk.Tk):
         self.voi_vocab_entry.insert(0, self.cfg.get("voicelines_custom_vocab", ""))
         tk.Button(frm, text="Browse...", command=self.browse_voicelines_vocab).grid(row=8, column=2, padx=6)
 
+        # Voiceline display groups file
+        tk.Label(frm, text="Voiceline Groups JSON:").grid(row=9, column=0, sticky=tk.W)
+        self.voi_groups_entry = tk.Entry(frm, width=60)
+        self.voi_groups_entry.grid(row=9, column=1, padx=(4, 0), sticky=tk.W)
+        self.voi_groups_entry.insert(0, self.cfg.get("voiceline_groups_file", ""))
+        tk.Button(frm, text="Browse...", command=self.browse_voiceline_groups).grid(row=9, column=2, padx=6)
+
+        # Generated transcription checkbox
+        self.generate_transcriptions_var = tk.BooleanVar(
+            value=bool(self.cfg.get("generate_transcriptions", True))
+        )
+        tk.Checkbutton(
+            frm,
+            text="Generate AI transcriptions (disable for historical exports)",
+            variable=self.generate_transcriptions_var,
+        ).grid(row=10, column=0, columnspan=2, sticky=tk.W)
+
         # Retranscribe checkbox
         self.retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("retranscribe_on_status", True)))
-        tk.Checkbutton(frm, text="Re-transcribe when status present", variable=self.retranscribe_var).grid(row=9, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Re-transcribe when status present", variable=self.retranscribe_var).grid(row=11, column=0, columnspan=2, sticky=tk.W)
 
         # Voicelines retranscribe checkbox
         self.voi_retranscribe_var = tk.BooleanVar(value=bool(self.cfg.get("voicelines_retranscribe_on_status", True)))
-        tk.Checkbutton(frm, text="Re-transcribe voicelines when status present", variable=self.voi_retranscribe_var).grid(row=10, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Re-transcribe voicelines when status present", variable=self.voi_retranscribe_var).grid(row=12, column=0, columnspan=2, sticky=tk.W)
 
         # Delete JSON on VDF match checkbox
         self.delete_json_var = tk.BooleanVar(value=bool(self.cfg.get("delete_json_on_vdf_match", False)))
-        tk.Checkbutton(frm, text="Delete transcript JSON if VDF match found", variable=self.delete_json_var).grid(row=11, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Delete transcript JSON if VDF match found", variable=self.delete_json_var).grid(row=13, column=0, columnspan=2, sticky=tk.W)
 
         # Include phantom lines checkbox
         self.include_phantom_var = tk.BooleanVar(value=bool(self.cfg.get("include_phantom_lines", True)))
-        tk.Checkbutton(frm, text="Include voicelines without audio (phantom)", variable=self.include_phantom_var).grid(row=12, column=0, columnspan=2, sticky=tk.W)
+        tk.Checkbutton(frm, text="Include voicelines without audio (phantom)", variable=self.include_phantom_var).grid(row=14, column=0, columnspan=2, sticky=tk.W)
 
         btn_frm = tk.Frame(self)
         btn_frm.pack(padx=10, pady=(6, 6), fill=tk.X)
@@ -442,6 +463,15 @@ class BatchGUI(tk.Tk):
         if p:
             self.voi_vocab_entry.delete(0, tk.END)
             self.voi_vocab_entry.insert(0, p)
+
+    def browse_voiceline_groups(self):
+        p = filedialog.askopenfilename(
+            title="Select voiceline groups JSON",
+            filetypes=[("JSON Files", "*.json"), ("All Files", "*.*")],
+        )
+        if p:
+            self.voi_groups_entry.delete(0, tk.END)
+            self.voi_groups_entry.insert(0, p)
 
     def log_write(self, s):
         try:
@@ -818,7 +848,12 @@ class BatchGUI(tk.Tk):
             f"[Hero Names] Wrote hero name localization index with {len(index)} keys to {out_path}\n"
         )
 
-    def _export_hero_name_localizations_from_game_files(self, hero_name_source_dir, localization_output_dir):
+    def _export_hero_name_localizations_from_game_files(
+        self,
+        hero_name_source_dir,
+        localization_output_dir,
+        character_mappings_path=None,
+    ):
         if not localization_output_dir:
             self.log_write("[Hero Names] Output directory not set. Skipping hero-name localization export.\n")
             return
@@ -842,7 +877,7 @@ class BatchGUI(tk.Tk):
             self.log_write(f"[Hero Names] No hero-name localization files found in: {hero_name_source_dir}\n")
             return
 
-        character_mappings_path = os.path.abspath(
+        character_mappings_path = character_mappings_path or os.path.abspath(
             os.path.join(CONFIG_DIR, "..", "Assets", "character_mappings.json")
         )
         if not os.path.isfile(character_mappings_path):
@@ -1269,6 +1304,8 @@ class BatchGUI(tk.Tk):
         self.cfg["conversations_export_json"] = self.convos_json_entry.get().strip()
         self.cfg["voicelines_consolidated_json"] = self.voi_consolidated_entry.get().strip()
         self.cfg["voicelines_custom_vocab"] = self.voi_vocab_entry.get().strip()
+        self.cfg["voiceline_groups_file"] = self.voi_groups_entry.get().strip()
+        self.cfg["generate_transcriptions"] = bool(self.generate_transcriptions_var.get())
         self.cfg["voicelines_retranscribe_on_status"] = bool(self.voi_retranscribe_var.get())
         self.cfg["delete_json_on_vdf_match"] = bool(self.delete_json_var.get())
         self.cfg["include_phantom_lines"] = bool(self.include_phantom_var.get())
@@ -1465,6 +1502,7 @@ class BatchGUI(tk.Tk):
         trans_dir = self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else self.cfg.get("transcriptions_dir", "")
         status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
         retranscribe_flag = bool(self.retranscribe_var.get()) if hasattr(self, 'retranscribe_var') else True
+        generate_transcriptions_flag = bool(self.generate_transcriptions_var.get()) if hasattr(self, 'generate_transcriptions_var') else True
         include_phantom_flag = bool(self.include_phantom_var.get()) if hasattr(self, 'include_phantom_var') else True
 
         # Capture VDF path
@@ -1517,6 +1555,7 @@ class BatchGUI(tk.Tk):
 
                     # Use captured flags
                     player._retranscribe_on_status_snapshot = retranscribe_flag
+                    player._generate_transcriptions_snapshot = generate_transcriptions_flag
                     player.include_phantom = include_phantom_flag
 
                     # Parse files and export
@@ -1570,8 +1609,16 @@ class BatchGUI(tk.Tk):
         consolidated_out = (self.voi_consolidated_entry.get().strip() if hasattr(self, 'voi_consolidated_entry') else "") or self.cfg.get("voicelines_consolidated_json", "")
         trans_dir = (self.trans_entry.get().strip() if hasattr(self, 'trans_entry') else "") or self.cfg.get("transcriptions_dir", "")
         custom_vocab = (self.voi_vocab_entry.get().strip() if hasattr(self, 'voi_vocab_entry') else "") or self.cfg.get("voicelines_custom_vocab", "")
+        group_config_path = (
+            (self.voi_groups_entry.get().strip() if hasattr(self, "voi_groups_entry") else "")
+            or self.cfg.get("voiceline_groups_file", "")
+            or os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "Assets", "voiceline_groups.json")
+            )
+        )
         status_dir = self.status_entry.get().strip() if hasattr(self, 'status_entry') else self.cfg.get("status_dir", "")
         voi_retranscribe_flag = bool(self.voi_retranscribe_var.get()) if hasattr(self, 'voi_retranscribe_var') else True
+        generate_transcriptions_flag = bool(self.generate_transcriptions_var.get()) if hasattr(self, 'generate_transcriptions_var') else True
         delete_json_flag = bool(self.delete_json_var.get()) if hasattr(self, 'delete_json_var') else False
         include_phantom_flag = bool(self.include_phantom_var.get()) if hasattr(self, 'include_phantom_var') else True
         tempdir_snapshot = self.tempdir
@@ -1602,7 +1649,7 @@ class BatchGUI(tk.Tk):
                 flat_json = os.path.join(voi_tmp_dir, "flat.json")
                 copy_dir = os.path.join(voi_tmp_dir, "copy")
 
-                if not trans_dir:
+                if not trans_dir and generate_transcriptions_flag:
                     self.log_write("[Voicelines] Transcriptions Dir not set. Skipping voicelines pipeline.\n")
                     return
                 # Use captured value or default to temp location
@@ -1627,6 +1674,12 @@ class BatchGUI(tk.Tk):
                     VoiceLineOrganizer = _voi_mod.VoiceLineOrganizer
                 except Exception as e:
                     self.log_write(f"[Organizer] Import error: {e}\n")
+                    return
+
+                try:
+                    _voi_mod.load_group_config(group_config_path)
+                except Exception as e:
+                    self.log_write(f"[Organizer] Voiceline groups error: {e}\n")
                     return
 
                 temp_root = tk.Tk()
@@ -1670,12 +1723,16 @@ class BatchGUI(tk.Tk):
                     # Remove per-file progress logging wrapper to avoid overhead
                     organizer.alias_json_path.set(alias_path)
                     organizer.topic_alias_json_path.set(topic_alias_path)
+                    organizer.groups_json_path.set(group_config_path)
                     organizer.source_folder_path.set(audio_dir)
                     organizer.output_json_path.set(organized_json)
                     if vdf_path:
                         organizer.vdf_path.set(vdf_path)
                     self.log_write("[Organizer] Starting...\n")
                     organizer.process_voice_lines()
+                    if not os.path.isfile(organized_json):
+                        self.log_write("[Organizer] Failed: no organized JSON was created.\n")
+                        return
                     self.log_write(f"[Organizer] Done. Output: {organized_json}\n")
                 finally:
                     try:
@@ -1778,16 +1835,16 @@ class BatchGUI(tk.Tk):
 
                 # Only set reprocess_statuses if flag is enabled (controls re-transcription)
                 reprocess_statuses = None
-                if voi_retranscribe_flag:
+                if generate_transcriptions_flag and voi_retranscribe_flag:
                     if status_map_sets:
                         reprocess_statuses = sorted({s for sset in status_map_sets.values() for s in sset})
                         self.log_write(f"[Transcribe] Status filtering enabled. Statuses: {', '.join(reprocess_statuses)}\n")
-                else:
+                elif generate_transcriptions_flag:
                     self.log_write("[Transcribe] Status filtering disabled. Existing JSONs will be reused; only new files will be transcribed.\n")
 
                 # Pre-create expected JSON filenames to avoid accidental reprocess when legacy names exist (e.g., name.json vs name.mp3.json)
                 try:
-                    if os.path.isdir(trans_dir) and os.path.isfile(flat_json):
+                    if generate_transcriptions_flag and os.path.isdir(trans_dir) and os.path.isfile(flat_json):
                         with open(flat_json, 'r', encoding='utf-8') as f:
                             flat_data = json.load(f)
 
@@ -1859,7 +1916,10 @@ class BatchGUI(tk.Tk):
                     except Exception:
                         pass
 
-                self.log_write("[Transcribe] Starting...\n")
+                if generate_transcriptions_flag:
+                    self.log_write("[Transcribe] Starting...\n")
+                else:
+                    self.log_write("[Transcribe] AI generation disabled; exporting official subtitles and blank transcript fields.\n")
                 if vdf_path:
                     self.log_write(f"[Transcribe] Using VDF: {vdf_path}\n")
                 _trans.transcribe_voice_files(
@@ -1876,7 +1936,8 @@ class BatchGUI(tk.Tk):
                     include_phantom=include_phantom_flag,
                     delete_json_on_vdf_match=delete_json_flag,
                     alias_path=alias_path,
-                    topic_alias_path=topic_alias_path
+                    topic_alias_path=topic_alias_path,
+                    generate_transcriptions=generate_transcriptions_flag
                 )
                 self.log_write(f"[Transcribe] Consolidated JSON -> {final_consolidated_out}\n")
 

@@ -11,3 +11,6 @@ AllInOne/s2v_tmp_*/
 /ContentPublisher/config.json
 /ContentPublisher/credentials.dpapi*
 /ContentPublisher/.state/
+/HistoricalContent/config.json
+/HistoricalContent/credentials.dpapi*
+/DeadlockTranscripts/

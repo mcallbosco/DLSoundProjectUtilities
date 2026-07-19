@@ -2,6 +2,10 @@
   "schemaVersion": 1,
   "game": "deadlock",
   "latestVersion": "deadlock-local",
+  "defaultCategoriesUrl": "http://127.0.0.1:8787/deadlock/categories.json",
+  "charactersUrl": "http://127.0.0.1:8787/deadlock/characters.json",
+  "characterNamesUrl": "http://127.0.0.1:8787/deadlock/character-names.json",
+  "sharedAudioBaseUrl": "http://127.0.0.1:8787/deadlock/audio/",
   "versions": [
     {
       "id": "deadlock-local",

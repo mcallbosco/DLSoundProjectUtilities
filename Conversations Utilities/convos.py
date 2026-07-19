@@ -1895,6 +1895,9 @@ Summary (maximum 7 words):"""
                         has_transcription = True
                     else:
                         # Get transcription if available or generate if requested
+                        generated_transcriptions_enabled = bool(
+                            getattr(self, '_generate_transcriptions_snapshot', True)
+                        )
                         # Use base filename including extension for cache file
                         base_with_ext = os.path.basename(filename)
                         cache_file = os.path.join(self.transcriptions_dir, f"{base_with_ext}.json")
@@ -1905,7 +1908,7 @@ Summary (maximum 7 words):"""
                             bool(getattr(self, '_retranscribe_on_status_snapshot', True)) and
                             stem in self.file_status_map and bool(self.file_status_map[stem])
                         )
-                        if os.path.exists(cache_file) and not force_retranscribe:
+                        if generated_transcriptions_enabled and os.path.exists(cache_file) and not force_retranscribe:
                             # Use existing transcription, deriving text from segments
                             try:
                                 with open(cache_file, 'r', encoding='utf-8') as f:
@@ -1922,7 +1925,7 @@ Summary (maximum 7 words):"""
                                     has_transcription = bool(transcription)
                             except:
                                 transcription = "[Transcription not available]"
-                        else:
+                        elif generated_transcriptions_enabled:
                             # Generate new transcription if no cached transcription exists, 
                             # or if transcribe_all or force_retranscribe is enabled
                             file_path = os.path.join(self.audio_dir, filename)

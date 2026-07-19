@@ -6,7 +6,9 @@
   "scripts": {
     "test": "node --test",
     "dev": "wrangler dev --local --persist-to .wrangler/state",
+    "dev:preview": "wrangler dev --local --persist-to .wrangler/preview-state",
     "seed:local": "node scripts/seed-local.mjs",
+    "seed:preview": "node scripts/seed-local.mjs --persist-to .wrangler/preview-state --reset",
     "smoke:local": "node scripts/smoke-local.mjs"
   },
   "devDependencies": {

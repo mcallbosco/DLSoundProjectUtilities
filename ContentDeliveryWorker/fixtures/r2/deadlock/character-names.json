@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "game": "deadlock",
+  "names": {
+    "abrams": "Abrams",
+    "atlas": "Abrams",
+    "mcginnis": "McGinnis",
+    "forge": "McGinnis"
+  }
+}

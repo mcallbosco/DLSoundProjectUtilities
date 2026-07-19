@@ -1,1 +1,0 @@
-Both value leading by example, not delegation.

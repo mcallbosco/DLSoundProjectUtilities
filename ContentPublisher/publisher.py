@@ -25,7 +25,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Iterable
 
 
-INVENTORY_SCHEMA_VERSION = 1
+INVENTORY_SCHEMA_VERSION = 2
 MANIFEST_SCHEMA_VERSION = 1
 IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable"
 MUTABLE_JSON_CACHE_CONTROL = "public, max-age=0, must-revalidate"
@@ -43,6 +43,8 @@ class PublisherError(RuntimeError):
 class SourceFile:
     local_path: Path
     relative_path: str
+    scope: str = "version"
+    published_path: str | None = None
 
     @property
     def mutable(self) -> bool:
@@ -88,6 +90,8 @@ class InventoryRecord:
     sha256: str
     content_type: str
     mutable: bool
+    scope: str = "version"
+    published_path: str | None = None
     present_in_source: bool = True
 
     def to_json(self) -> dict[str, Any]:
@@ -99,6 +103,10 @@ class InventoryRecord:
         }
         if not self.present_in_source:
             result["presentInSource"] = False
+        if self.scope != "version":
+            result["scope"] = self.scope
+        if self.published_path:
+            result["publishedPath"] = self.published_path
         return result
 
 
@@ -175,6 +183,18 @@ class PublisherSettings:
     def game_manifest_key(self) -> str:
         return f"{self.game}/manifest.json"
 
+    @property
+    def game_default_categories_key(self) -> str:
+        return f"{self.game}/categories.json"
+
+    @property
+    def game_characters_key(self) -> str:
+        return f"{self.game}/characters.json"
+
+    @property
+    def game_character_names_key(self) -> str:
+        return f"{self.game}/character-names.json"
+
     def public_url(self, key: str) -> str:
         return f"{self.cdn_base_url}/{key}"
 
@@ -188,11 +208,88 @@ def _read_json(path: Path) -> Any:
         return json.load(handle)
 
 
+def _sorted_character_names(values: Iterable[Any]) -> list[str]:
+    names: dict[str, str] = {}
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        name = value.strip()
+        if not name or name.casefold() == "self":
+            continue
+        names.setdefault(name.casefold(), name)
+    return sorted(names.values(), key=lambda item: (item.casefold(), item))
+
+
+def collect_content_characters(
+    conversations: Any,
+    voicelines: Any,
+) -> list[str]:
+    """Collect every character route referenced by one content version."""
+    names: list[Any] = []
+    if isinstance(voicelines, dict):
+        for speaker, targets in voicelines.items():
+            names.append(speaker)
+            if isinstance(targets, dict):
+                names.extend(
+                    target
+                    for target, target_data in targets.items()
+                    if isinstance(target_data, dict)
+                )
+
+    conversation_list = (
+        conversations.get("conversations", [])
+        if isinstance(conversations, dict)
+        else []
+    )
+    if isinstance(conversation_list, list):
+        for conversation in conversation_list:
+            if not isinstance(conversation, dict):
+                continue
+            names.extend((conversation.get("character1"), conversation.get("character2")))
+            speakers = conversation.get("speakers", [])
+            if isinstance(speakers, list):
+                names.extend(speakers)
+            lines = conversation.get("lines", [])
+            if isinstance(lines, list):
+                names.extend(
+                    line.get("speaker")
+                    for line in lines
+                    if isinstance(line, dict)
+                )
+    return _sorted_character_names(names)
+
+
+def game_characters_payload(
+    game: str,
+    version_characters: dict[str, Iterable[Any]],
+    version_order: Iterable[str],
+) -> dict[str, Any]:
+    """Build the small mutable route manifest consumed by static website builds."""
+    ordered_versions: dict[str, list[str]] = {}
+    all_names: list[str] = []
+    for version_id in version_order:
+        if not isinstance(version_id, str) or not version_id:
+            continue
+        characters = _sorted_character_names(version_characters.get(version_id, []))
+        ordered_versions[version_id] = characters
+        all_names.extend(characters)
+    return {
+        "schemaVersion": 1,
+        "game": game,
+        "updatedAt": _utc_now(),
+        "characters": _sorted_character_names(all_names),
+        "versions": ordered_versions,
+    }
+
+
 def _add_tree(
     files: dict[str, SourceFile],
     source_dir: Path,
     remote_dir: str,
     errors: list[str],
+    *,
+    scope: str = "version",
+    published_dir: str | None = None,
 ) -> None:
     if not source_dir.is_dir():
         return
@@ -204,7 +301,17 @@ def _add_tree(
         if relative_path in files:
             errors.append(f"Two source files map to the same published path: {relative_path}")
             continue
-        files[relative_path] = SourceFile(local_path, relative_path)
+        published_path = (
+            str(PurePosixPath(published_dir, relative_suffix))
+            if published_dir is not None
+            else None
+        )
+        files[relative_path] = SourceFile(
+            local_path,
+            relative_path,
+            scope=scope,
+            published_path=published_path,
+        )
 
 
 def discover_version_files(source_dir: Path) -> tuple[list[SourceFile], list[str], list[str]]:
@@ -226,11 +333,29 @@ def discover_version_files(source_dir: Path) -> tuple[list[SourceFile], list[str
             continue
         files[relative_path] = SourceFile(local_path, relative_path)
 
-    audio_dir = source_dir / "Audio"
-    if not audio_dir.is_dir():
-        errors.append("Required audio directory is missing: Audio")
+    categories_path = source_dir / "categories.json"
+    if categories_path.is_file():
+        files["categories.json"] = SourceFile(categories_path, "categories.json")
     else:
+        warnings.append(
+            "Version categories.json is missing; this version will inherit the game's default categories."
+        )
+
+    audio_dir = source_dir / "Audio"
+    shared_audio_dir = source_dir / "SharedAudio"
+    if audio_dir.is_dir():
         _add_tree(files, audio_dir, "audio", errors)
+    if shared_audio_dir.is_dir():
+        _add_tree(
+            files,
+            shared_audio_dir,
+            "shared-audio",
+            errors,
+            scope="game",
+            published_dir="audio",
+        )
+    if not audio_dir.is_dir() and not shared_audio_dir.is_dir():
+        errors.append("Required audio directory is missing: Audio or SharedAudio")
 
     localization_dir = source_dir / "Localization"
     if localization_dir.is_dir():
@@ -253,16 +378,28 @@ def discover_version_files(source_dir: Path) -> tuple[list[SourceFile], list[str
     return sorted(files.values(), key=lambda item: item.relative_path), errors, warnings
 
 
-def _collect_audio_references(value: Any, output: set[str]) -> None:
+def _collect_audio_references(
+    value: Any,
+    legacy_output: set[str],
+    shared_output: set[str],
+) -> None:
     if isinstance(value, dict):
         filename = value.get("filename")
         if isinstance(filename, str) and filename.strip().lower().endswith(".mp3"):
-            output.add(PurePosixPath(filename.replace("\\", "/")).name)
+            audio_key = value.get("audioKey")
+            if isinstance(audio_key, str) and audio_key.strip():
+                shared_output.add(
+                    PurePosixPath(audio_key.strip().replace("\\", "/")).as_posix()
+                )
+            else:
+                legacy_output.add(
+                    PurePosixPath(filename.strip().replace("\\", "/")).as_posix()
+                )
         for child in value.values():
-            _collect_audio_references(child, output)
+            _collect_audio_references(child, legacy_output, shared_output)
     elif isinstance(value, list):
         for child in value:
-            _collect_audio_references(child, output)
+            _collect_audio_references(child, legacy_output, shared_output)
 
 
 def _validate_icon_manifest(source_dir: Path, report: ValidationReport) -> None:
@@ -295,6 +432,102 @@ def _validate_icon_manifest(source_dir: Path, report: ValidationReport) -> None:
         report.errors.append(
             f"Default icon manifest references {len(missing)} missing image(s): {sample}"
         )
+
+
+def _validate_categories_manifest(value: Any, report: ValidationReport) -> None:
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        report.errors.append("categories.json must contain a JSON object")
+        return
+    if value.get("schemaVersion") != 1:
+        report.errors.append("categories.json schemaVersion must be 1")
+    default_category = value.get("defaultCategory")
+    categories = value.get("categories")
+    if not isinstance(default_category, str) or not default_category.strip():
+        report.errors.append("categories.json must contain a non-empty defaultCategory")
+    if not isinstance(categories, list):
+        report.errors.append("categories.json must contain a categories array")
+        return
+
+    names: set[str] = set()
+    assigned: set[str] = set()
+    default_visible = False
+    for index, category in enumerate(categories):
+        if not isinstance(category, dict):
+            report.errors.append(f"categories.json categories[{index}] must be an object")
+            continue
+        name = category.get("name")
+        characters = category.get("characters")
+        if not isinstance(name, str) or not name.strip():
+            report.errors.append(f"categories.json categories[{index}] needs a non-empty name")
+            continue
+        normalized_name = name.strip().casefold()
+        if normalized_name in names:
+            report.errors.append(f"categories.json contains duplicate category name: {name}")
+        names.add(normalized_name)
+        if (
+            isinstance(default_category, str)
+            and name.strip().casefold() == default_category.strip().casefold()
+            and category.get("hidden") is not True
+        ):
+            default_visible = True
+        if not isinstance(characters, list) or any(
+            not isinstance(character, str) or not character.strip() for character in characters
+        ):
+            report.errors.append(
+                f"categories.json category {name!r} must contain a characters string array"
+            )
+            continue
+        for character in characters:
+            normalized_character = character.strip().casefold()
+            if normalized_character in assigned:
+                report.errors.append(
+                    f"categories.json assigns character more than once: {character}"
+                )
+            assigned.add(normalized_character)
+    if isinstance(default_category, str) and default_category.strip() and not default_visible:
+        report.errors.append(
+            "categories.json defaultCategory must name a visible category in categories"
+        )
+
+
+def _validate_character_names_manifest(
+    value: Any,
+    report: ValidationReport,
+    expected_game: str | None = None,
+) -> None:
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        report.errors.append("character-names.json must contain a JSON object")
+        return
+    if value.get("schemaVersion") != 1:
+        report.errors.append("character-names.json schemaVersion must be 1")
+    game = value.get("game")
+    if not isinstance(game, str) or not game.strip():
+        report.errors.append("character-names.json must contain a non-empty game")
+    elif expected_game and game.strip().casefold() != expected_game.casefold():
+        report.errors.append(
+            f"character-names.json game must be {expected_game!r}, received {game!r}"
+        )
+    names = value.get("names")
+    if not isinstance(names, dict) or not names:
+        report.errors.append("character-names.json must contain a non-empty names object")
+        return
+    seen: set[str] = set()
+    for key, display_name in names.items():
+        if not isinstance(key, str) or not key.strip():
+            report.errors.append("character-names.json contains an empty character key")
+            continue
+        normalized = " ".join(key.strip().casefold().split())
+        if normalized in seen:
+            report.errors.append(f"character-names.json contains a duplicate key: {key}")
+        seen.add(normalized)
+        if not isinstance(display_name, str) or not display_name.strip():
+            report.errors.append(
+                f"character-names.json display name for {key!r} must be a non-empty string"
+            )
 
 
 def validate_version_source(source_dir: Path) -> ValidationReport:
@@ -338,22 +571,61 @@ def validate_version_source(source_dir: Path) -> ValidationReport:
     if coverage_data is not None and not isinstance(coverage_data, dict):
         report.errors.append("coverage.json must contain a JSON object")
 
+    _validate_categories_manifest(parsed_json.get("categories.json"), report)
+
+    character_names_path = source_dir / "character-names.json"
+    if character_names_path.is_file():
+        try:
+            character_names = _read_json(character_names_path)
+        except Exception as exc:
+            report.errors.append(f"Invalid JSON in character-names.json: {exc}")
+        else:
+            _validate_character_names_manifest(character_names, report)
+
     referenced_audio: set[str] = set()
+    referenced_shared_audio: set[str] = set()
     if conversation_data is not None:
-        _collect_audio_references(conversation_data, referenced_audio)
+        _collect_audio_references(
+            conversation_data, referenced_audio, referenced_shared_audio
+        )
     if voice_line_data is not None:
-        _collect_audio_references(voice_line_data, referenced_audio)
+        _collect_audio_references(
+            voice_line_data, referenced_audio, referenced_shared_audio
+        )
 
     audio_names = {
-        PurePosixPath(item.relative_path).name
+        PurePosixPath(item.relative_path).relative_to("audio").as_posix()
         for item in files
-        if item.relative_path.lower().startswith("audio/")
+        if item.scope == "version"
+        and item.relative_path.lower().startswith("audio/")
         and item.relative_path.lower().endswith(".mp3")
     }
-    report.referenced_audio_count = len(referenced_audio)
-    report.audio_file_count = len(audio_names)
-    report.orphan_audio_count = len(audio_names - referenced_audio)
+    shared_audio_names = {
+        PurePosixPath(item.published_path or "").relative_to("audio").as_posix()
+        for item in files
+        if item.scope == "game"
+        and isinstance(item.published_path, str)
+        and item.published_path.lower().startswith("audio/")
+        and item.published_path.lower().endswith(".mp3")
+    }
+    invalid_shared_keys = sorted(
+        key for key in referenced_shared_audio
+        if not re.fullmatch(r"sha256/[0-9a-f]{2}/[0-9a-f]{64}\.mp3", key)
+    )
+    if invalid_shared_keys:
+        report.errors.append(
+            "JSON contains invalid shared audioKey value(s): "
+            + ", ".join(invalid_shared_keys[:10])
+        )
+    report.referenced_audio_count = len(referenced_audio) + len(referenced_shared_audio)
+    report.audio_file_count = len(audio_names) + len(shared_audio_names)
+    report.orphan_audio_count = (
+        len(audio_names - referenced_audio)
+        + len(shared_audio_names - referenced_shared_audio)
+    )
     missing_audio = sorted(referenced_audio - audio_names)
+    missing_shared_audio = sorted(referenced_shared_audio - shared_audio_names)
+    missing_audio.extend(missing_shared_audio)
     if missing_audio:
         sample = ", ".join(missing_audio[:10])
         report.errors.append(
@@ -455,9 +727,19 @@ def _hash_files(
     records: dict[str, InventoryRecord] = {}
     pending: list[SourceFile] = []
 
+    def validate_shared_path(item: SourceFile, sha256: str) -> None:
+        if item.scope != "game" or not item.published_path:
+            return
+        expected_hash = PurePosixPath(item.published_path).stem.casefold()
+        if expected_hash != sha256.casefold():
+            raise PublisherError(
+                f"Shared audio path hash does not match its bytes: {item.relative_path}"
+            )
+
     for item in report.files:
         cached_hash = cache.get(item)
         if cached_hash:
+            validate_shared_path(item, cached_hash)
             stat = item.local_path.stat()
             records[item.relative_path] = InventoryRecord(
                 relative_path=item.relative_path,
@@ -466,6 +748,8 @@ def _hash_files(
                 sha256=cached_hash,
                 content_type=item.content_type,
                 mutable=item.mutable,
+                scope=item.scope,
+                published_path=item.published_path,
             )
         else:
             pending.append(item)
@@ -485,6 +769,7 @@ def _hash_files(
                 stat = item.local_path.stat()
             except Exception as exc:
                 raise PublisherError(f"Failed to hash {item.local_path}: {exc}") from exc
+            validate_shared_path(item, sha256)
             cache.put(item, sha256)
             records[item.relative_path] = InventoryRecord(
                 relative_path=item.relative_path,
@@ -493,6 +778,8 @@ def _hash_files(
                 sha256=sha256,
                 content_type=item.content_type,
                 mutable=item.mutable,
+                scope=item.scope,
+                published_path=item.published_path,
             )
             completed += 1
             if progress and (completed % 1000 == 0 or completed == len(pending)):
@@ -579,11 +866,12 @@ def version_manifest_entry(
     settings: PublisherSettings,
     content_revision: int,
     existing: dict[str, Any] | None = None,
+    has_categories: bool = False,
 ) -> dict[str, Any]:
     existing = existing or {}
     base = f"{settings.cdn_base_url}/{settings.version_prefix}"
     now = _utc_now()
-    return {
+    entry = {
         "id": settings.version,
         "label": settings.label,
         "publishedAt": existing.get("publishedAt") or now,
@@ -598,6 +886,9 @@ def version_manifest_entry(
         "coverageUrl": f"{base}/coverage.json",
         "iconOverridesUrl": f"{base}/icons/default/manifest.json",
     }
+    if has_categories:
+        entry["categoriesUrl"] = f"{base}/categories.json"
+    return entry
 
 
 class R2Publisher:
@@ -702,6 +993,77 @@ class R2Publisher:
             seen.add(version_id)
         return manifest
 
+    def _local_version_characters(self) -> list[str]:
+        try:
+            conversations = _read_json(self.settings.source_dir / "all_conversations.json")
+            voicelines = _read_json(self.settings.source_dir / "all_voicelines.json")
+        except Exception as exc:
+            raise PublisherError(f"Could not build the character route list: {exc}") from exc
+        return collect_content_characters(conversations, voicelines)
+
+    def _local_game_character_names(self) -> dict[str, Any] | None:
+        path = self.settings.source_dir / "character-names.json"
+        if not path.is_file():
+            return None
+        try:
+            payload = _read_json(path)
+        except Exception as exc:
+            raise PublisherError(f"Invalid character-names.json: {exc}") from exc
+        report = ValidationReport(source_dir=self.settings.source_dir)
+        _validate_character_names_manifest(payload, report, self.settings.game)
+        if report.errors:
+            raise PublisherError(
+                "Invalid character-names.json: " + "; ".join(report.errors)
+            )
+        assert isinstance(payload, dict)
+        return payload
+
+    def _remote_version_characters(self, version_id: str) -> list[str]:
+        prefix = f"{self.settings.game}/versions/{version_id}"
+        conversations = self._get_remote_json(f"{prefix}/conversations.json")
+        voicelines = self._get_remote_json(f"{prefix}/voicelines.json")
+        if conversations is None or voicelines is None:
+            raise PublisherError(
+                f"Cannot bootstrap characters.json because version {version_id!r} "
+                "is missing conversations.json or voicelines.json."
+            )
+        return collect_content_characters(conversations, voicelines)
+
+    def _build_game_characters(self, manifest: dict[str, Any]) -> dict[str, Any]:
+        versions = manifest.get("versions")
+        if not isinstance(versions, list):
+            raise PublisherError("Game manifest versions must be a list.")
+        version_order = [
+            item["id"]
+            for item in versions
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        ]
+
+        existing = self._get_remote_json(self.settings.game_characters_key) or {}
+        existing_versions = existing.get("versions", {})
+        if not isinstance(existing_versions, dict):
+            existing_versions = {}
+        by_version: dict[str, Iterable[Any]] = {
+            version_id: characters
+            for version_id, characters in existing_versions.items()
+            if isinstance(version_id, str) and isinstance(characters, list)
+        }
+
+        for version_id in version_order:
+            if version_id == self.settings.version:
+                by_version[version_id] = self._local_version_characters()
+            elif version_id not in by_version:
+                self._log(
+                    f"Bootstrapping character routes from published version {version_id!r}..."
+                )
+                by_version[version_id] = self._remote_version_characters(version_id)
+
+        return game_characters_payload(
+            self.settings.game,
+            by_version,
+            version_order,
+        )
+
     def save_game_manifest(self, manifest: dict[str, Any]) -> dict[str, Any]:
         """Persist visibility/order/latest changes without uploading version content."""
         versions = manifest.get("versions")
@@ -735,14 +1097,210 @@ class R2Publisher:
                 "updatedAt": _utc_now(),
             }
         )
+        characters = self._build_game_characters(manifest)
+        manifest["charactersUrl"] = self.settings.public_url(
+            self.settings.game_characters_key
+        )
+        character_names = self._local_game_character_names()
+        if character_names is not None:
+            manifest["characterNamesUrl"] = self.settings.public_url(
+                self.settings.game_character_names_key
+            )
+        # Write the route index first. The manifest must never advertise an
+        # object that is not available yet.
+        self._put_json(self.settings.game_characters_key, characters)
+        if character_names is not None:
+            self._put_json(self.settings.game_character_names_key, character_names)
         self._put_json(self.settings.game_manifest_key, manifest)
         try:
-            self._purge_urls([self.settings.public_url(self.settings.game_manifest_key)])
+            self._purge_urls(
+                self.settings.public_url(key)
+                for key in (
+                    self.settings.game_characters_key,
+                    *(
+                        [self.settings.game_character_names_key]
+                        if character_names is not None
+                        else []
+                    ),
+                    self.settings.game_manifest_key,
+                )
+            )
         except PublisherError as exc:
             self._log(
                 "Warning: version catalog was saved, but CDN purging failed: " + str(exc)
             )
-        self._log("Saved version visibility, order, and latest-version selection.")
+        self._log("Saved the version catalog and all-version character routes.")
+        return manifest
+
+    def publish_game_default_categories(
+        self,
+        categories_path: Path | None = None,
+    ) -> dict[str, Any]:
+        """Publish categories.json as this game's inherited default only."""
+        if not GAME_KEY_PATTERN.fullmatch(self.settings.game):
+            raise PublisherError(
+                "Game key must begin with a letter or number and contain only lowercase letters, numbers, or hyphens."
+            )
+        categories_path = (
+            Path(categories_path).expanduser().resolve()
+            if categories_path is not None
+            else self.settings.source_dir / "categories.json"
+        )
+        if not categories_path.is_file():
+            raise PublisherError(
+                f"Game default categories file is missing: {categories_path}"
+            )
+        try:
+            categories = _read_json(categories_path)
+        except Exception as exc:
+            raise PublisherError(f"Invalid categories.json: {exc}") from exc
+        report = ValidationReport(source_dir=self.settings.source_dir)
+        _validate_categories_manifest(categories, report)
+        if report.errors:
+            raise PublisherError("Invalid categories.json: " + "; ".join(report.errors))
+        assert isinstance(categories, dict)
+
+        manifest = self.load_game_manifest()
+        manifest.update(
+            {
+                "schemaVersion": MANIFEST_SCHEMA_VERSION,
+                "game": self.settings.game,
+                "defaultCategoriesUrl": self.settings.public_url(
+                    self.settings.game_default_categories_key
+                ),
+                "updatedAt": _utc_now(),
+            }
+        )
+        self._log(f"Updating the default categories for game {self.settings.game!r}...")
+        self._put_json(self.settings.game_default_categories_key, categories)
+        self._log("Updating the public game manifest last...")
+        self._put_json(self.settings.game_manifest_key, manifest)
+        try:
+            self._purge_urls(
+                self.settings.public_url(key)
+                for key in (
+                    self.settings.game_default_categories_key,
+                    self.settings.game_manifest_key,
+                )
+            )
+        except PublisherError as exc:
+            self._log(
+                "Warning: default categories were published, but CDN purging failed: "
+                + str(exc)
+            )
+        self._log(f"Published the inherited category default for game {self.settings.game!r}.")
+        return manifest
+
+    def list_game_content(self) -> list[dict[str, Any]]:
+        """List every object in this game's namespace."""
+        client = self._get_client()
+        prefix = f"{self.settings.game}/"
+        objects: list[dict[str, Any]] = []
+        continuation: str | None = None
+        while True:
+            request: dict[str, Any] = {
+                "Bucket": self.settings.bucket,
+                "Prefix": prefix,
+                "MaxKeys": 1000,
+            }
+            if continuation:
+                request["ContinuationToken"] = continuation
+            response = client.list_objects_v2(**request)
+            for item in response.get("Contents", []):
+                if isinstance(item, dict) and isinstance(item.get("Key"), str):
+                    objects.append(item)
+            if not response.get("IsTruncated"):
+                return objects
+            continuation = response.get("NextContinuationToken")
+            if not isinstance(continuation, str) or not continuation:
+                raise PublisherError(
+                    "R2 game-content listing was truncated without a continuation token."
+                )
+
+    def clear_game_content(self) -> dict[str, int]:
+        """Delete only this game's R2 namespace and verify that it is empty."""
+        objects = self.list_game_content()
+        total_bytes = sum(int(item.get("Size", 0)) for item in objects)
+        if not objects:
+            self._log(f"No objects exist below {self.settings.game}/.")
+            return {"deleted": 0, "bytes": 0}
+
+        client = self._get_client()
+        self._log(
+            f"Deleting {len(objects):,} object(s) below {self.settings.game}/ "
+            f"from R2 bucket {self.settings.bucket!r}..."
+        )
+        deleted = 0
+        for index in range(0, len(objects), 1000):
+            batch = objects[index : index + 1000]
+            response = client.delete_objects(
+                Bucket=self.settings.bucket,
+                Delete={
+                    "Objects": [{"Key": item["Key"]} for item in batch],
+                    "Quiet": True,
+                },
+            )
+            errors = response.get("Errors", [])
+            if errors:
+                first = errors[0] if isinstance(errors[0], dict) else errors[0]
+                raise PublisherError(f"R2 rejected one or more deletions: {first}")
+            deleted += len(batch)
+            self._log(f"Deleted {deleted:,}/{len(objects):,} object(s).")
+
+        remaining = self.list_game_content()
+        if remaining:
+            raise PublisherError(
+                f"R2 reset verification failed: {len(remaining):,} object(s) remain below "
+                f"{self.settings.game}/."
+            )
+        self._log(
+            f"Cleared and verified the R2 namespace {self.settings.game}/ "
+            f"({deleted:,} object(s), {format_bytes(total_bytes)})."
+        )
+        return {"deleted": deleted, "bytes": total_bytes}
+
+    def publish_game_character_names(self) -> dict[str, Any]:
+        """Publish the per-game character display-name mapping only."""
+        if not GAME_KEY_PATTERN.fullmatch(self.settings.game):
+            raise PublisherError(
+                "Game key must begin with a letter or number and contain only lowercase letters, numbers, or hyphens."
+            )
+        character_names = self._local_game_character_names()
+        if character_names is None:
+            raise PublisherError(
+                "Game character-name mapping is missing: "
+                f"{self.settings.source_dir / 'character-names.json'}"
+            )
+
+        manifest = self.load_game_manifest()
+        manifest.update(
+            {
+                "schemaVersion": MANIFEST_SCHEMA_VERSION,
+                "game": self.settings.game,
+                "characterNamesUrl": self.settings.public_url(
+                    self.settings.game_character_names_key
+                ),
+                "updatedAt": _utc_now(),
+            }
+        )
+        self._log(f"Updating character display names for game {self.settings.game!r}...")
+        self._put_json(self.settings.game_character_names_key, character_names)
+        self._log("Updating the public game manifest last...")
+        self._put_json(self.settings.game_manifest_key, manifest)
+        try:
+            self._purge_urls(
+                self.settings.public_url(key)
+                for key in (
+                    self.settings.game_character_names_key,
+                    self.settings.game_manifest_key,
+                )
+            )
+        except PublisherError as exc:
+            self._log(
+                "Warning: character names were published, but CDN purging failed: "
+                + str(exc)
+            )
+        self._log(f"Published character display names for game {self.settings.game!r}.")
         return manifest
 
     def create_plan(self) -> PublishPlan:
@@ -764,13 +1322,80 @@ class R2Publisher:
             self._log(
                 f"Remote inventory revision: {remote_inventory.get('contentRevision', 0)}."
             )
-        return build_publish_plan(self.settings, remote_inventory, self.progress)
+        plan = build_publish_plan(self.settings, remote_inventory, self.progress)
+        shared_records = [
+            record for record in plan.local_records.values() if record.scope == "game"
+        ]
+        if shared_records:
+            self._log("Checking the game-level shared audio index...")
+            existing_keys = self._list_game_shared_audio_keys()
+            reused = [
+                record for record in plan.upload_new
+                if record.scope == "game"
+                if self._object_key(record) in existing_keys
+            ]
+            if reused:
+                reused_ids = {id(record) for record in reused}
+                plan.upload_new = [
+                    record for record in plan.upload_new
+                    if id(record) not in reused_ids
+                ]
+                plan.unchanged.extend(reused)
+                self._log(
+                    f"Reusing {len(reused):,} shared audio object(s) already in R2."
+                )
+            missing = [
+                record for record in plan.unchanged
+                if record.scope == "game"
+                and self._object_key(record) not in existing_keys
+            ]
+            if missing:
+                missing_ids = {id(record) for record in missing}
+                plan.unchanged = [
+                    record for record in plan.unchanged
+                    if id(record) not in missing_ids
+                ]
+                plan.upload_new.extend(missing)
+                self._log(
+                    f"Repairing {len(missing):,} shared audio object(s) missing from R2."
+                )
+        return plan
+
+    def _object_key(self, record: InventoryRecord) -> str:
+        if record.scope == "game":
+            published_path = record.published_path or record.relative_path
+            return f"{self.settings.game}/{published_path}"
+        return f"{self.settings.version_prefix}/{record.relative_path}"
+
+    def _list_game_shared_audio_keys(self) -> set[str]:
+        client = self._get_client()
+        prefix = f"{self.settings.game}/audio/sha256/"
+        keys: set[str] = set()
+        continuation: str | None = None
+        while True:
+            request: dict[str, Any] = {
+                "Bucket": self.settings.bucket,
+                "Prefix": prefix,
+                "MaxKeys": 1000,
+            }
+            if continuation:
+                request["ContinuationToken"] = continuation
+            response = client.list_objects_v2(**request)
+            for item in response.get("Contents", []):
+                key = item.get("Key") if isinstance(item, dict) else None
+                if isinstance(key, str):
+                    keys.add(key)
+            if not response.get("IsTruncated"):
+                return keys
+            continuation = response.get("NextContinuationToken")
+            if not isinstance(continuation, str) or not continuation:
+                raise PublisherError("R2 shared audio listing was truncated without a continuation token.")
 
     def _upload_file(self, record: InventoryRecord) -> str:
         if not record.local_path:
             raise PublisherError(f"No local source path for {record.relative_path}")
         client = self._get_client()
-        key = f"{self.settings.version_prefix}/{record.relative_path}"
+        key = self._object_key(record)
         if not record.mutable:
             try:
                 existing = client.head_object(Bucket=self.settings.bucket, Key=key)
@@ -827,6 +1452,8 @@ class R2Publisher:
     def _build_game_manifest(
         self,
         content_revision: int,
+        has_categories: bool | None = None,
+        has_shared_audio: bool = False,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         manifest = self.load_game_manifest()
         versions = manifest.get("versions")
@@ -840,7 +1467,14 @@ class R2Publisher:
             None,
         )
         existing = versions[existing_index] if existing_index is not None else None
-        entry = version_manifest_entry(self.settings, content_revision, existing)
+        if has_categories is None:
+            has_categories = (self.settings.source_dir / "categories.json").is_file()
+        entry = version_manifest_entry(
+            self.settings,
+            content_revision,
+            existing,
+            has_categories=has_categories,
+        )
         new_versions = list(versions)
         if existing_index is None:
             new_versions.insert(0, entry)
@@ -854,6 +1488,10 @@ class R2Publisher:
                 "versions": new_versions,
             }
         )
+        if has_shared_audio:
+            manifest["sharedAudioBaseUrl"] = self.settings.public_url(
+                f"{self.settings.game}/audio/"
+            )
         if self.settings.promote_to_latest:
             if self.settings.hidden:
                 raise PublisherError("A hidden version cannot be promoted to latest.")
@@ -958,8 +1596,14 @@ class R2Publisher:
                         )
 
         revision = self._next_revision(plan)
-        manifest, entry = self._build_game_manifest(revision)
         inventory = inventory_payload(self.settings, plan, revision)
+        manifest, entry = self._build_game_manifest(
+            revision,
+            has_categories="categories.json" in inventory["files"],
+            has_shared_audio=any(
+                record.scope == "game" for record in plan.local_records.values()
+            ),
+        )
         release = {
             "schemaVersion": MANIFEST_SCHEMA_VERSION,
             **entry,
@@ -968,21 +1612,41 @@ class R2Publisher:
                 int(item.get("size", 0)) for item in inventory["files"].values()
             ),
         }
+        characters = self._build_game_characters(manifest)
+        manifest["charactersUrl"] = self.settings.public_url(
+            self.settings.game_characters_key
+        )
+        character_names = self._local_game_character_names()
+        if character_names is not None:
+            manifest["characterNamesUrl"] = self.settings.public_url(
+                self.settings.game_character_names_key
+            )
 
         self._log("Writing the version release record and publish inventory...")
         self._put_json(self.settings.release_key, release)
         self._put_json(self.settings.inventory_key, inventory)
+        self._log("Updating the all-version character route list...")
+        self._put_json(self.settings.game_characters_key, characters)
+        if character_names is not None:
+            self._log("Updating the game character display names...")
+            self._put_json(self.settings.game_character_names_key, character_names)
         self._log("Updating the public game manifest last...")
         self._put_json(self.settings.game_manifest_key, manifest)
 
         purge_keys = [
-            f"{self.settings.version_prefix}/{path}"
+            self._object_key(plan.local_records[path])
             for path in plan.changed_json_paths
         ]
         purge_keys.extend(
             [
                 self.settings.release_key,
                 self.settings.inventory_key,
+                self.settings.game_characters_key,
+                *(
+                    [self.settings.game_character_names_key]
+                    if character_names is not None
+                    else []
+                ),
                 self.settings.game_manifest_key,
             ]
         )

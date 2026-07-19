@@ -5,13 +5,31 @@ There are two types of outputs: **Voicelines** and **Conversations**. While conv
 
 The tools expect all of the VO files as .mp3s within a single folder. This is super easy to do with S2Viewer.
 
+## Historical content and local website preview
+
+Launch the single Historical Content utility:
+
+```powershell
+HistoricalContent\run_historical_content_gui.bat
+```
+
+Select one VPK in this application. It controls Source2Viewer, persistent audio
+extraction, voiceline and conversation parsing, transcript generation, editable
+configuration, the SQLite index, generated website content, and the isolated
+local-R2 preview. See
+[HistoricalContent/README.md](HistoricalContent/README.md).
+
+The remaining integrated production-publication work is in
+[HistoricalContent/VPK_TO_PUBLISH_PIPELINE_PLAN.md](HistoricalContent/VPK_TO_PUBLISH_PIPELINE_PLAN.md).
+
 ---
 
-## Quick Start
+## Legacy utilities
 
-### Running the Batch GUI
+### Running the old Batch GUI
 
-To launch the Batch GUI application (This will extract the game files and run the voiceline and conversation utility together), simply run:
+The old Batch GUI remains available for rollback and parity testing. It is not
+part of the Historical Content operator process.
 
 ```bash
 source .venv/bin/activate

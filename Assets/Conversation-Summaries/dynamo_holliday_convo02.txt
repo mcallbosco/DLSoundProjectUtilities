@@ -1,1 +1,0 @@
-Dynamo requests help correcting black hole calculations.

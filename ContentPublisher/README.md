@@ -13,18 +13,117 @@ the CDN layout without making another multi-gigabyte copy:
 | `all_conversations.json` | `conversations.json` |
 | `all_voicelines.json` | `voicelines.json` |
 | `coverage.json` | `coverage.json` |
-| `Audio/` | `audio/` |
+| `categories.json` (optional) | `categories.json` |
+| `character-names.json` (optional, per-game) | `<game>/character-names.json` |
+| `SharedAudio/sha256/<prefix>/<hash>.mp3` | `<game>/audio/sha256/<prefix>/<hash>.mp3` |
+| `Audio/` (legacy input) | `<game>/versions/<version>/audio/` |
 | `Localization/` | `localization/` |
 | `FanLocalization/` | `fan-localization/` |
 | `IconPacks/default/` | `icons/default/` |
 
+New Historical Content output uses `SharedAudio` and adds an `audioKey` to each
+line. The publisher uploads each SHA-256 object at game scope and reuses an
+object already uploaded by another version. The game manifest advertises
+`sharedAudioBaseUrl`; readable `filename` values remain unchanged. Legacy
+sources containing `Audio/` still publish below the version path and continue
+to use the version's `audioBaseUrl`.
+
 Other icon packs, event audio, website configuration, and redirects are not
 part of the initial runtime-versioned content scope.
+
+`categories.json` is an optional per-version overlay. The website always loads
+the game-level default advertised by that game's manifest first, then applies
+the version document on top of it. Existing categories keep their game-level
+order, listed characters are added or reassigned, and new categories are
+appended. An empty version category does not erase the game-level category. If
+the version document is absent, the game-level categories are used unchanged. The
+GUI's **Publish game categories** action publishes the selected folder's
+`categories.json` to `<game>/categories.json` and updates that game's
+`defaultCategoriesUrl` without publishing or modifying a content version. This
+is scoped independently for each game.
+
+The category document contract is intentionally small:
+
+```json
+{
+  "schemaVersion": 1,
+  "defaultCategory": "Characters",
+  "categories": [
+    { "name": "Characters", "characters": [] },
+    { "name": "NPCs", "characters": ["shopkeeper"] }
+  ]
+}
+```
+
+Category array order is display order. Characters omitted from every explicit
+list go into `defaultCategory`; `hidden: true` hides an entire category.
+
+## Per-game character display names
+
+`character-names.json` maps canonical internal names and aliases to the names
+shown by the website. It is mutable per-game control data, not a version-scoped
+asset:
+
+```json
+{
+  "schemaVersion": 1,
+  "game": "deadlock",
+  "names": {
+    "forge": "McGinnis",
+    "mcginnis": "McGinnis"
+  }
+}
+```
+
+When the source contains this file, normal publication uploads it to
+`<game>/character-names.json` before updating the game manifest's
+`characterNamesUrl`. **Publish game display names** performs the same update
+without uploading or changing a content version. Publish this document before
+the first website build that depends on it.
+
+## All-version character route index
+
+Each successful version publication also updates the small per-game document
+at `<game>/characters.json`. The game manifest advertises this URL through
+`charactersUrl`. The static website build uses its `characters` union to export
+a route for every character that occurs in any published version, including a
+hidden version.
+
+```json
+{
+  "schemaVersion": 1,
+  "game": "deadlock",
+  "updatedAt": "2026-07-18T12:00:00+00:00",
+  "characters": ["abrams", "butcher"],
+  "versions": {
+    "deadlock-base": ["butcher"],
+    "deadlock-current": ["abrams"]
+  }
+}
+```
+
+The publisher replaces the list for the version being published, retains lists
+for the other versions in the manifest, and recomputes the union. On the first
+publication after this feature is installed, it can initialize missing lists
+from the already-published conversation and voiceline JSON. The index is not a
+visibility or access-control list; hidden versions are included so that their
+explicit URLs work.
+
+Use **Refresh character routes** in the version manager to initialize or repair
+this document without re-uploading version assets. On an initial repair, the
+publisher reads the already-published conversation and voiceline JSON for each
+catalog version, writes `characters.json`, and advertises it from the game
+manifest only after the route list is available.
+
+Transcript and category corrections do not require a website deployment. A
+website rebuild is required only when the union gains a character whose static
+route was not in the previous export.
 
 ## Safety and caching rules
 
 - JSON is mutable and can be corrected under an existing version ID.
 - Binary content is immutable at a published object path.
+- Shared audio is content-addressed and is never deleted automatically.
 - New binary files can be added to an existing version.
 - A binary whose bytes differ from an existing object is reported as a conflict
   and blocks publication.
@@ -39,8 +138,14 @@ part of the initial runtime-versioned content scope.
 - The manifest's `versions` array is the display order. The GUI's version
   manager can move entries, toggle visibility, and make any existing visible
   version latest without moving or re-uploading its content.
-- Making a version latest through the manager automatically unhides it and moves
-  it to the first display position.
+- Making a version latest through the manager automatically unhides it but does
+  not change its chronological/display position.
+- The Historical Content publication dialog can select and publish multiple
+  generated versions. It validates the full selection before uploading and
+  processes the batch oldest-to-newest so shared audio is reused efficiently.
+- **Clear game content...** is a guarded format-reset action. It deletes and
+  verifies only the selected game's `<game>/` prefix, never the entire shared
+  bucket.
 
 ## Setup
 

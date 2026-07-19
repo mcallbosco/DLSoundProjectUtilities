@@ -48,8 +48,8 @@ Each file entry in the JSON whose filename matches a line in the .txt will recei
 ### Ping Subcategories (May 2025)
 
 - Pings now support special subcategories, similar to how "subjects" have special categories.
-- The `VoiceLineOrganizer` class defines a `special_ping_categories` dictionary mapping subcategory names to lists of topic keywords.
-- When a ping's topic matches a keyword in `special_ping_categories`, it is grouped under that subcategory in the output JSON.
+- `Assets/voiceline_groups.json` defines all normal and ping groups.
+- When a ping topic matches a configured exact topic or prefix, it is grouped under that subcategory in the output JSON.
 - Example structure:
   ```json
   {
@@ -76,15 +76,29 @@ Each file entry in the JSON whose filename matches a line in the .txt will recei
   ```
 - If a ping topic does not match any special category, it is stored as a regular topic under "Pings".
 
+### Data-driven groups
+
+All voiceline display groups are defined in `Assets/voiceline_groups.json`.
+The JSON file controls group names, display order, exact topics, prefixes,
+prefix exclusions, subgroups, ping groups, and filename overrides. Editing this
+file does not require a Python code change.
+
+The organizer validates the complete file before it processes audio. Duplicate
+topic or prefix assignments are rejected.
+
+Relationship suffixes are part of the group lookup key. Therefore, a topic can
+have independent ally and enemy routes. `start` and `start_match` are also
+independent topics. Character subject parsing uses the longest known alias, so
+names such as `grey_talon` and `the_boss` remain one subject. Recognized legacy
+ping names discard the `_old` marker after the subject is found.
+
 ### Class and Method Explanations
 
 #### `VoiceLineOrganizer`
 Main class for organizing and categorizing voicelines via a Tkinter GUI.
 
-- **special_categories**: Dict of special voiceline categories and their keywords.
-- **special_ping_categories**: Dict of special ping subcategories and their keywords.
 - **__init__**: Initializes the GUI, file paths, and options.
-- **process_voice_lines**: Loads data, processes all mp3 files, and outputs categorized results. Handles grouping of pings into subcategories if their topic matches a special ping category.
+- **process_voice_lines**: Loads data, validates the selected group JSON, processes all MP3 files, and outputs grouped results.
 - **_process_file**: Core logic for parsing filenames and extracting speaker, subject, topic, and relationship.
   - Handles special cases (spirit_jar, newscaster, shopkeeper_hotdog).
   - For ping voicelines, checks all trailing segments for a valid hero name and groups pings by subcategory if applicable.
@@ -100,7 +114,7 @@ Main class for organizing and categorizing voicelines via a Tkinter GUI.
 - Checks all possible trailing segments for a valid hero name (using alias.json).
 - If a match is found, assigns it as the subject and the rest as the topic.
 - If no match, defaults subject to "self" and uses the whole string as the topic.
-- After parsing, if the topic matches a keyword in `special_ping_categories`, the ping is grouped under that subcategory in the output JSON.
+- After parsing, the generic group engine applies the selected JSON rules.
 
 A utility for organizing voice lines from game files by character, subject, and topic.
 
@@ -124,9 +138,9 @@ This application helps you organize voice line files (MP3) by parsing their file
    ```
 
 2. Select the required JSON configuration files:
-   - **Logic JSON**: Defines patterns for parsing filenames
    - **Alias JSON**: Maps character aliases to their proper names
    - **Topic Alias JSON**: Maps topic aliases to their proper names
+   - **Voiceline Groups JSON**: Defines all normal and ping display groups
 
 3. Select the source folder containing the MP3 files.
 

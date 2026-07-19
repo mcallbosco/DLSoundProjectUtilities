@@ -129,7 +129,7 @@ def load_custom_vocabulary(vocab_file=None):
 
 def process_file(args):
     """Process a single file for transcription - designed for parallel execution"""
-    filename, source_folder, output_folder, force_reprocess, reprocess_statuses, reprocess_status_map, file_index, total_files, progress_callback, custom_vocab_prompt, file_metadata, vdf_data, delete_json_on_vdf_match = args
+    filename, source_folder, output_folder, force_reprocess, reprocess_statuses, reprocess_status_map, file_index, total_files, progress_callback, custom_vocab_prompt, file_metadata, vdf_data, delete_json_on_vdf_match, generate_transcriptions = args
     
     # Extract metadata
     speaker = file_metadata.get("speaker")
@@ -253,6 +253,23 @@ def process_file(args):
             },
             "metadata": file_metadata,
             "vdf_used": vdf_key
+        }
+
+    # Historical exports intentionally leave generated text blank so the
+    # HistoricalContent utility can own transcription and correction history.
+    # Official VDF and phantom text is handled above and remains populated.
+    if not generate_transcriptions:
+        filename_without_ext = os.path.splitext(filename)[0]
+        return {
+            "status": "skipped",
+            "filename": filename,
+            "transcription_data": {
+                "date": file_date,
+                "voiceline_id": filename_without_ext,
+                "transcription": ""
+            },
+            "metadata": file_metadata,
+            "generated_transcription_disabled": True
         }
 
     # If no VDF match but file should skip Whisper, return empty transcription
@@ -413,7 +430,7 @@ def process_file(args):
             "metadata": file_metadata
         }
 
-def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None, reprocess_statuses=None, reprocess_status_map=None, vdf_path=None, include_phantom=False, delete_json_on_vdf_match=False, alias_path=None, topic_alias_path=None):
+def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False, progress_callback=None, output_folder=None, consolidated_json_path=None, max_workers=5, custom_vocab_file=None, reprocess_statuses=None, reprocess_status_map=None, vdf_path=None, include_phantom=False, delete_json_on_vdf_match=False, alias_path=None, topic_alias_path=None, generate_transcriptions=True):
     """
     Transcribe all MP3 files mentioned in the JSON file using the OpenAI transcription API.
     Creates a JSON file for each MP3 with the transcription results in the specified format.
@@ -432,13 +449,16 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
         delete_json_on_vdf_match (bool, optional): Whether to delete individual JSON transcript files if VDF match is found
         alias_path (str, optional): Path to character alias JSON file for categorization
         topic_alias_path (str, optional): Path to topic alias JSON file for categorization
+        generate_transcriptions (bool): Generate or reuse AI transcripts. When false,
+            only official VDF/phantom subtitles are populated.
     
     Returns:
         dict: Statistics about the transcription process
     """
     try:
-        # Validate API key first
-        api_key = load_api_key()
+        # Historical metadata-only exports do not require an OpenAI API key.
+        if generate_transcriptions:
+            load_api_key()
     except Exception as e:
         # If we have VDF, we might proceed even without API key for those matches?
         # But we still need API key for non-VDF files.
@@ -467,7 +487,7 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             print(msg)
 
     # Load custom vocabulary if provided
-    custom_vocab_prompt = load_custom_vocabulary(custom_vocab_file)
+    custom_vocab_prompt = load_custom_vocabulary(custom_vocab_file) if generate_transcriptions else None
     if custom_vocab_prompt and progress_callback:
         progress_callback(status=f"Loaded custom vocabulary prompt: {custom_vocab_prompt[:100]}...")
     elif custom_vocab_prompt:
@@ -546,7 +566,8 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             )
     
     total_files = len(mp3_files_with_metadata)
-    status_msg = f"Found {total_files} unique MP3 files to transcribe"
+    action = "transcribe" if generate_transcriptions else "export without generated transcripts"
+    status_msg = f"Found {total_files} unique MP3 files to {action}"
     if progress_callback:
         progress_callback(status=status_msg, total=total_files)
     else:
@@ -558,7 +579,11 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
     skipped = 0
     
     # Create a thread pool for parallel processing
-    status_msg = f"Starting transcription with {max_workers} parallel workers"
+    status_msg = (
+        f"Starting transcription with {max_workers} parallel workers"
+        if generate_transcriptions
+        else "Generated transcription is disabled; retaining only official subtitle text"
+    )
     if progress_callback:
         progress_callback(status=status_msg)
     else:
@@ -579,7 +604,8 @@ def transcribe_voice_files(input_json_path, source_folder, force_reprocess=False
             custom_vocab_prompt,
             file_info["metadata"],
             vdf_data,
-            delete_json_on_vdf_match
+            delete_json_on_vdf_match,
+            generate_transcriptions
         )
         for i, file_info in enumerate(mp3_files_with_metadata)
     ]

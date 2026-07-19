@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import io
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,8 @@ from ContentPublisher.publisher import (
     PublisherSettings,
     R2Publisher,
     build_publish_plan,
+    collect_content_characters,
+    game_characters_payload,
     inventory_payload,
     validate_version_source,
     version_manifest_entry,
@@ -49,6 +52,28 @@ class FakeR2Client:
         body = kwargs.get("Body", b"")
         self.objects[Key] = body if isinstance(body, bytes) else body.read()
 
+    def list_objects_v2(self, *, Bucket: str, Prefix: str, MaxKeys: int, **kwargs) -> dict:
+        keys = sorted(
+            key for key in set(self.metadata) | set(self.objects)
+            if key.startswith(Prefix)
+        )
+        return {
+            "KeyCount": len(keys[:MaxKeys]),
+            "Contents": [
+                {"Key": key, "Size": len(self.objects.get(key, b""))}
+                for key in keys[:MaxKeys]
+            ],
+            "IsTruncated": False,
+        }
+
+    def delete_objects(self, *, Bucket: str, Delete: dict) -> dict:
+        for item in Delete.get("Objects", []):
+            key = item["Key"]
+            self.events.append(("delete", key))
+            self.metadata.pop(key, None)
+            self.objects.pop(key, None)
+        return {"Deleted": Delete.get("Objects", [])}
+
 
 class PublisherCoreTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -72,6 +97,14 @@ class PublisherCoreTests(unittest.TestCase):
         )
         (self.root / "coverage.json").write_text(
             json.dumps({"summary": {"matched_files": 1, "total_files": 1}}),
+            encoding="utf-8",
+        )
+        (self.root / "character-names.json").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "game": "deadlock",
+                "names": {"hero": "Hero", "internal_hero": "Hero"},
+            }),
             encoding="utf-8",
         )
         (self.root / "Localization").mkdir()
@@ -103,6 +136,32 @@ class PublisherCoreTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
 
+    def use_shared_audio(self) -> tuple[str, str]:
+        audio_bytes = (self.root / "Audio" / "line_01.mp3").read_bytes()
+        digest = hashlib.sha256(audio_bytes).hexdigest()
+        audio_key = f"sha256/{digest[:2]}/{digest}.mp3"
+        for filename in ("all_conversations.json", "all_voicelines.json"):
+            path = self.root / filename
+            payload = json.loads(path.read_text(encoding="utf-8"))
+
+            def apply(value):
+                if isinstance(value, dict):
+                    result = {key: apply(child) for key, child in value.items()}
+                    if result.get("filename") == "line_01.mp3":
+                        result["audioKey"] = audio_key
+                    return result
+                if isinstance(value, list):
+                    return [apply(child) for child in value]
+                return value
+
+            path.write_text(json.dumps(apply(payload)), encoding="utf-8")
+        shared_path = self.root / "SharedAudio" / Path(*audio_key.split("/"))
+        shared_path.parent.mkdir(parents=True)
+        shared_path.write_bytes(audio_bytes)
+        (self.root / "Audio" / "line_01.mp3").unlink()
+        (self.root / "Audio").rmdir()
+        return digest, audio_key
+
     def test_validation_and_legacy_path_mapping(self) -> None:
         report = validate_version_source(self.root)
         self.assertTrue(report.valid, report.errors)
@@ -114,11 +173,109 @@ class PublisherCoreTests(unittest.TestCase):
         self.assertIn("icons/default/manifest.json", paths)
         self.assertEqual(report.referenced_audio_count, 1)
 
+    def test_shared_audio_validates_and_maps_to_game_scope(self) -> None:
+        digest, audio_key = self.use_shared_audio()
+        report = validate_version_source(self.root)
+        self.assertTrue(report.valid, report.errors)
+        shared = next(item for item in report.files if item.scope == "game")
+        self.assertEqual(shared.relative_path, f"shared-audio/{audio_key}")
+        self.assertEqual(shared.published_path, f"audio/{audio_key}")
+
+        plan = build_publish_plan(self.settings)
+        record = plan.local_records[f"shared-audio/{audio_key}"]
+        self.assertEqual(record.sha256, digest)
+        self.assertEqual(record.scope, "game")
+
+    def test_shared_audio_is_uploaded_once_and_advertised(self) -> None:
+        digest, audio_key = self.use_shared_audio()
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-shared",
+            label="Shared version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+            state_dir=self.root / ".state",
+        )
+        plan = build_publish_plan(settings)
+        client = FakeR2Client()
+        publisher = R2Publisher(settings)
+        publisher._client = client
+        result = publisher.publish(plan)
+        shared_object = f"deadlock/audio/{audio_key}"
+        self.assertIn(("upload", shared_object), client.events)
+        self.assertEqual(client.metadata[shared_object]["sha256"], digest)
+        self.assertEqual(
+            result["manifest"]["sharedAudioBaseUrl"],
+            "https://cdn.vlviewer.com/deadlock/audio/",
+        )
+
+    def test_new_version_reuses_existing_shared_audio_object(self) -> None:
+        digest, audio_key = self.use_shared_audio()
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-second",
+            label="Second version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+            state_dir=self.root / ".state",
+        )
+        shared_object = f"deadlock/audio/{audio_key}"
+        client = FakeR2Client()
+        client.metadata[shared_object] = {"sha256": digest}
+        publisher = R2Publisher(settings)
+        publisher._client = client
+
+        plan = publisher.create_plan()
+
+        self.assertNotIn(
+            f"shared-audio/{audio_key}",
+            {record.relative_path for record in plan.upload_new},
+        )
+        self.assertIn(
+            f"shared-audio/{audio_key}",
+            {record.relative_path for record in plan.unchanged},
+        )
+
     def test_missing_referenced_audio_is_an_error(self) -> None:
         (self.root / "Audio" / "line_01.mp3").unlink()
         report = validate_version_source(self.root)
         self.assertFalse(report.valid)
         self.assertTrue(any("missing audio" in item for item in report.errors))
+
+    def test_nested_audio_keys_distinguish_duplicate_basenames(self) -> None:
+        (self.root / "Audio" / "chrono").mkdir()
+        (self.root / "Audio" / "paradox").mkdir()
+        (self.root / "Audio" / "chrono" / "paradox_select_01.mp3").write_bytes(b"chrono")
+        (self.root / "Audio" / "paradox" / "paradox_select_01.mp3").write_bytes(b"paradox")
+        (self.root / "all_voicelines.json").write_text(
+            json.dumps({
+                "hero": {
+                    "lines": [
+                        {"filename": "line_01.mp3"},
+                        {"filename": "chrono/paradox_select_01.mp3"},
+                        {"filename": "paradox/paradox_select_01.mp3"},
+                    ]
+                }
+            }),
+            encoding="utf-8",
+        )
+
+        report = validate_version_source(self.root)
+        self.assertTrue(report.valid, report.errors)
+        self.assertEqual(report.audio_file_count, 3)
+        self.assertEqual(report.referenced_audio_count, 3)
+        paths = {item.relative_path for item in report.files}
+        self.assertIn("audio/chrono/paradox_select_01.mp3", paths)
+        self.assertIn("audio/paradox/paradox_select_01.mp3", paths)
+
+        (self.root / "Audio" / "paradox" / "paradox_select_01.mp3").unlink()
+        report = validate_version_source(self.root)
+        self.assertFalse(report.valid)
+        self.assertTrue(any(
+            "paradox/paradox_select_01.mp3" in error for error in report.errors
+        ))
 
     def test_json_changes_are_mutable_and_binary_changes_conflict(self) -> None:
         initial = build_publish_plan(self.settings)
@@ -165,6 +322,74 @@ class PublisherCoreTests(unittest.TestCase):
         self.assertEqual(entry["contentRevision"], 7)
         self.assertTrue(entry["audioBaseUrl"].endswith("/deadlock/versions/deadlock-test/audio/"))
         self.assertFalse(entry["hidden"])
+        self.assertNotIn("categoriesUrl", entry)
+
+    def test_character_routes_include_speakers_targets_and_conversations(self) -> None:
+        characters = collect_content_characters(
+            {
+                "conversations": [{
+                    "speakers": ["Abrams", "Paradox"],
+                    "lines": [{"speaker": "PARADOX"}],
+                }]
+            },
+            {
+                "abrams": {"Self": {}, "Butcher": {}},
+                "Haze": {"self": {}},
+            },
+        )
+        self.assertEqual(characters, ["abrams", "Butcher", "Haze", "Paradox"])
+
+    def test_game_character_routes_union_all_versions_in_catalog_order(self) -> None:
+        payload = game_characters_payload(
+            "deadlock",
+            {
+                "new": ["Abrams", "Haze"],
+                "hidden-old": ["butcher", "ABRAMS"],
+                "removed": ["not-published"],
+            },
+            ["new", "hidden-old"],
+        )
+        self.assertEqual(payload["characters"], ["Abrams", "butcher", "Haze"])
+        self.assertEqual(list(payload["versions"]), ["new", "hidden-old"])
+        self.assertNotIn("removed", payload["versions"])
+
+    def test_optional_version_categories_are_validated_and_advertised(self) -> None:
+        (self.root / "categories.json").write_text(
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "defaultCategory": "Characters",
+                    "categories": [
+                        {"name": "Characters", "characters": []},
+                        {"name": "NPCs", "characters": ["shopkeeper"]},
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        report = validate_version_source(self.root)
+        self.assertTrue(report.valid, report.errors)
+        self.assertIn("categories.json", {item.relative_path for item in report.files})
+        entry = version_manifest_entry(self.settings, content_revision=2, has_categories=True)
+        self.assertTrue(entry["categoriesUrl"].endswith("/categories.json"))
+
+    def test_duplicate_character_category_assignment_is_rejected(self) -> None:
+        (self.root / "categories.json").write_text(
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "defaultCategory": "Characters",
+                    "categories": [
+                        {"name": "Characters", "characters": ["hero"]},
+                        {"name": "Other", "characters": ["HERO"]},
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        report = validate_version_source(self.root)
+        self.assertFalse(report.valid)
+        self.assertTrue(any("assigns character more than once" in error for error in report.errors))
 
     def test_hidden_version_cannot_be_promoted_during_publish(self) -> None:
         settings = PublisherSettings(
@@ -211,6 +436,34 @@ class PublisherCoreTests(unittest.TestCase):
         self.assertTrue(entry["hidden"])
         self.assertEqual(entry["label"], "Updated test label")
 
+    def test_version_without_categories_keeps_per_game_default(self) -> None:
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-test",
+            label="Test version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+        )
+        client = FakeR2Client()
+        client.objects["deadlock/manifest.json"] = json.dumps(
+            {
+                "schemaVersion": 1,
+                "game": "deadlock",
+                "latestVersion": "deadlock-test",
+                "defaultCategoriesUrl": "https://cdn.vlviewer.com/deadlock/categories.json",
+                "versions": [{"id": "deadlock-test", "label": "Old", "hidden": False}],
+            }
+        ).encode("utf-8")
+        publisher = R2Publisher(settings)
+        publisher._client = client
+        manifest, entry = publisher._build_game_manifest(content_revision=2)
+        self.assertEqual(
+            manifest["defaultCategoriesUrl"],
+            "https://cdn.vlviewer.com/deadlock/categories.json",
+        )
+        self.assertNotIn("categoriesUrl", entry)
+
     def test_catalog_can_promote_an_older_unhidden_version_in_new_order(self) -> None:
         settings = PublisherSettings(
             source_dir=self.root,
@@ -230,9 +483,27 @@ class PublisherCoreTests(unittest.TestCase):
                 {"id": "deadlock-new", "label": "New", "hidden": False},
             ],
         }
+        for version_id, hero in (
+            ("deadlock-old", "old hero"),
+            ("deadlock-new", "new hero"),
+        ):
+            prefix = f"deadlock/versions/{version_id}"
+            client.objects[f"{prefix}/conversations.json"] = json.dumps(
+                {"conversations": []}
+            ).encode("utf-8")
+            client.objects[f"{prefix}/voicelines.json"] = json.dumps(
+                {hero: {"Self": {}}}
+            ).encode("utf-8")
         saved = publisher.save_game_manifest(manifest)
         self.assertEqual(saved["latestVersion"], "deadlock-old")
         self.assertEqual(saved["versions"][0]["id"], "deadlock-old")
+        self.assertEqual(
+            saved["charactersUrl"],
+            "https://cdn.vlviewer.com/deadlock/characters.json",
+        )
+        characters = json.loads(client.objects["deadlock/characters.json"])
+        self.assertEqual(characters["characters"], ["new hero", "old hero"])
+        self.assertEqual(client.events[-1], ("put", "deadlock/manifest.json"))
         stored = json.loads(client.objects["deadlock/manifest.json"])
         self.assertEqual(stored["latestVersion"], "deadlock-old")
 
@@ -281,7 +552,144 @@ class PublisherCoreTests(unittest.TestCase):
         ]
         self.assertLess(max(binary_indexes), min(mutable_indexes))
         self.assertEqual(client.events[-1], ("put", "deadlock/manifest.json"))
+        characters = json.loads(client.objects["deadlock/characters.json"])
+        self.assertEqual(characters["characters"], ["hero"])
+        manifest = json.loads(client.objects["deadlock/manifest.json"])
+        self.assertEqual(
+            manifest["charactersUrl"],
+            "https://cdn.vlviewer.com/deadlock/characters.json",
+        )
+        self.assertEqual(
+            manifest["characterNamesUrl"],
+            "https://cdn.vlviewer.com/deadlock/character-names.json",
+        )
+        character_names = json.loads(client.objects["deadlock/character-names.json"])
+        self.assertEqual(character_names["names"]["internal_hero"], "Hero")
         self.assertEqual(result["contentRevision"], 1)
+
+    def test_publish_can_set_per_game_default_categories(self) -> None:
+        categories = {
+            "schemaVersion": 1,
+            "defaultCategory": "Characters",
+            "categories": [{"name": "Characters", "characters": []}],
+        }
+        (self.root / "categories.json").write_text(json.dumps(categories), encoding="utf-8")
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-test",
+            label="Test version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+        )
+        client = FakeR2Client()
+        client.objects["deadlock/manifest.json"] = json.dumps(
+            {
+                "schemaVersion": 1,
+                "game": "deadlock",
+                "latestVersion": "existing",
+                "versions": [{"id": "existing", "label": "Existing", "hidden": False}],
+            }
+        ).encode("utf-8")
+        publisher = R2Publisher(settings)
+        publisher._client = client
+        manifest = publisher.publish_game_default_categories()
+        self.assertEqual(json.loads(client.objects["deadlock/categories.json"]), categories)
+        self.assertEqual(
+            manifest["defaultCategoriesUrl"],
+            "https://cdn.vlviewer.com/deadlock/categories.json",
+        )
+        self.assertEqual(manifest["latestVersion"], "existing")
+        self.assertEqual([item["id"] for item in manifest["versions"]], ["existing"])
+        self.assertEqual(client.events[-1], ("put", "deadlock/manifest.json"))
+
+    def test_publish_can_use_explicit_game_categories_path(self) -> None:
+        version_categories = {
+            "schemaVersion": 1,
+            "defaultCategory": "Characters",
+            "categories": [{"name": "Characters", "characters": ["version-only"]}],
+        }
+        game_categories = {
+            "schemaVersion": 1,
+            "defaultCategory": "Characters",
+            "categories": [{"name": "Characters", "characters": ["global"]}],
+        }
+        (self.root / "categories.json").write_text(
+            json.dumps(version_categories), encoding="utf-8"
+        )
+        game_path = self.root / "game-categories.json"
+        game_path.write_text(json.dumps(game_categories), encoding="utf-8")
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-test",
+            label="Test version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+        )
+        client = FakeR2Client()
+        publisher = R2Publisher(settings)
+        publisher._client = client
+
+        publisher.publish_game_default_categories(game_path)
+
+        self.assertEqual(
+            json.loads(client.objects["deadlock/categories.json"]), game_categories
+        )
+
+    def test_clear_game_content_preserves_other_game_namespaces(self) -> None:
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-test",
+            label="Test version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+        )
+        client = FakeR2Client()
+        client.objects.update({
+            "deadlock/manifest.json": b"deadlock-manifest",
+            "deadlock/versions/base/voicelines.json": b"deadlock-version",
+            "overwatch/manifest.json": b"overwatch-manifest",
+        })
+        publisher = R2Publisher(settings)
+        publisher._client = client
+
+        result = publisher.clear_game_content()
+
+        self.assertEqual(result["deleted"], 2)
+        self.assertNotIn("deadlock/manifest.json", client.objects)
+        self.assertNotIn("deadlock/versions/base/voicelines.json", client.objects)
+        self.assertIn("overwatch/manifest.json", client.objects)
+
+    def test_publish_can_update_game_character_names_without_a_version(self) -> None:
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-test",
+            label="Test version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+        )
+        client = FakeR2Client()
+        client.objects["deadlock/manifest.json"] = json.dumps({
+            "schemaVersion": 1,
+            "game": "deadlock",
+            "latestVersion": "existing",
+            "versions": [{"id": "existing", "label": "Existing", "hidden": False}],
+        }).encode("utf-8")
+        publisher = R2Publisher(settings)
+        publisher._client = client
+
+        manifest = publisher.publish_game_character_names()
+
+        self.assertEqual(
+            manifest["characterNamesUrl"],
+            "https://cdn.vlviewer.com/deadlock/character-names.json",
+        )
+        stored = json.loads(client.objects["deadlock/character-names.json"])
+        self.assertEqual(stored["names"]["hero"], "Hero")
+        self.assertEqual(client.events[-1], ("put", "deadlock/manifest.json"))
 
 
 if __name__ == "__main__":

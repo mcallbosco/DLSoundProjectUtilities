@@ -89,6 +89,45 @@ test("JSON is mutable and binary content is immutable", async () => {
   assert.equal(binary.headers.get("Cache-Control"), "public, max-age=31536000, immutable");
 });
 
+test("all-version character route JSON is served as mutable game metadata", async () => {
+  const payload = JSON.stringify({
+    schemaVersion: 1,
+    game: "deadlock",
+    characters: ["abrams", "butcher"],
+    versions: { latest: ["abrams"], historical: ["butcher"] },
+  });
+  const env = environment(new Map([
+    ["deadlock/characters.json", fakeObject(payload, { contentType: "application/json" })],
+  ]));
+
+  const response = await handleRequest(
+    new Request("http://localhost/deadlock/characters.json"),
+    env,
+  );
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Cache-Control"), "public, max-age=0, must-revalidate");
+  assert.deepEqual((await response.json()).characters, ["abrams", "butcher"]);
+});
+
+test("character-name mapping JSON is served as mutable game metadata", async () => {
+  const payload = JSON.stringify({
+    schemaVersion: 1,
+    game: "deadlock",
+    names: { forge: "McGinnis", mcginnis: "McGinnis" },
+  });
+  const env = environment(new Map([
+    ["deadlock/character-names.json", fakeObject(payload, { contentType: "application/json" })],
+  ]));
+
+  const response = await handleRequest(
+    new Request("http://localhost/deadlock/character-names.json"),
+    env,
+  );
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Cache-Control"), "public, max-age=0, must-revalidate");
+  assert.equal((await response.json()).names.forge, "McGinnis");
+});
+
 test("HEAD and byte ranges expose the expected metadata", async () => {
   const key = "deadlock/versions/test/audio/test.mp3";
   const env = environment(new Map([[key, fakeObject("0123456789")]]));

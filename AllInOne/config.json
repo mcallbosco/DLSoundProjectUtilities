@@ -11,6 +11,8 @@
   "conversations_export_json": "D:/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockJan2026/all_conversations.json",
   "voicelines_consolidated_json": "D:/Projects/DLSoundProject/ConvoWebsite/convowebsite/public/Games/Deadlock/DeadlockJan2026/all_voicelines.json",
   "voicelines_custom_vocab": "D:/Projects/DLSoundProject/DLSoundProjectUtilities/Assets/deadlock_vocabulary.json",
+  "voiceline_groups_file": "D:/Projects/DLSoundProject/DLSoundProjectUtilities/Assets/voiceline_groups.json",
+  "generate_transcriptions": false,
   "voicelines_retranscribe_on_status": false,
   "delete_json_on_vdf_match": false,
   "include_phantom_lines": false,

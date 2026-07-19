@@ -8,6 +8,11 @@ from pathlib import Path
 
 # Import our utilities
 from modules.voice_line_organizer import VoiceLineOrganizer
+from modules.voiceline_groups import (
+    classify_topic,
+    configured_group_labels,
+    load_group_config,
+)
 from modules import copy_voice_files
 from modules import transcribe_voice_files
 
@@ -827,12 +832,12 @@ class VoiceLineUtilitiesGUI:
             messagebox.showerror("Error", f"Failed to save updated JSON: {str(e)}")
 
 
-def export_category_tree(input_json_path=None, output_path=None):
+def export_category_tree(input_json_path=None, output_path=None, group_config_path=None):
     """
     Export a text-based tree file showing all categories from the processed voicelines output JSON.
     
-    This helps identify topics/categories that appear in the data but may not be in
-    the predefined special_categories, allowing you to find uncategorized topics.
+    This helps identify topics/groups that appear in the data but may not be in
+    voiceline_groups.json, allowing you to find unassigned topics.
     
     Args:
         input_json_path: Path to the organized voicelines JSON output. If None, prompts user.
@@ -854,6 +859,7 @@ def export_category_tree(input_json_path=None, output_path=None):
         # Load the organized voicelines JSON
         with open(input_json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
+        group_config = load_group_config(group_config_path) if group_config_path else load_group_config()
         
         # Build the tree content
         lines = []
@@ -865,8 +871,8 @@ def export_category_tree(input_json_path=None, output_path=None):
         
         # Collect all unique topics/categories at different levels
         all_topics = set()
-        special_cat_names = set(VoiceLineOrganizer.special_categories.keys())
-        ping_cat_names = set(VoiceLineOrganizer.special_ping_categories.keys())
+        special_cat_names = set(configured_group_labels(group_config, "voice"))
+        ping_cat_names = set(configured_group_labels(group_config, "ping"))
         
         topics_in_special = set()
         topics_not_in_special = set()
@@ -900,11 +906,9 @@ def export_category_tree(input_json_path=None, output_path=None):
                     else:
                         # Check if it's a known topic inside special categories
                         topic_key = topic.replace(" ", "_").lower()
-                        found_in_special = False
-                        for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
-                            if topic_key in keywords:
-                                found_in_special = True
-                                break
+                        found_in_special = classify_topic(
+                            group_config, "voice", topic_key
+                        ) is not None
                         if not found_in_special:
                             marker = " [UNCATEGORIZED]"
                             topics_not_in_special.add(topic)
@@ -929,11 +933,9 @@ def export_category_tree(input_json_path=None, output_path=None):
                                     sub_marker = " [PING-CAT]"
                                 else:
                                     # Check if in ping keywords
-                                    found_in_ping = False
-                                    for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
-                                        if sub_key in keywords:
-                                            found_in_ping = True
-                                            break
+                                    found_in_ping = classify_topic(
+                                        group_config, "ping", sub_key
+                                    ) is not None
                                     if not found_in_ping and subtopic not in ping_cat_names:
                                         sub_marker = " [UNCATEGORIZED-PING]"
                             
@@ -953,7 +955,7 @@ def export_category_tree(input_json_path=None, output_path=None):
         lines.append("")
         
         if topics_not_in_special:
-            lines.append("UNCATEGORIZED TOPICS (consider adding to special_categories):")
+            lines.append("UNASSIGNED TOPICS (consider adding to voiceline_groups.json):")
             lines.append("-" * 40)
             for topic in sorted(topics_not_in_special):
                 topic_key = topic.replace(" ", "_").lower()

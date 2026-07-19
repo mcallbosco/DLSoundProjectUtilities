@@ -19,346 +19,23 @@ except ImportError:
         load_vdf_key_text_map,
     )
 
+try:
+    from .voiceline_groups import (
+        DEFAULT_GROUP_CONFIG_PATH,
+        classify_topic,
+        load_group_config,
+        sort_subject_topics,
+    )
+except ImportError:
+    from voiceline_groups import (
+        DEFAULT_GROUP_CONFIG_PATH,
+        classify_topic,
+        load_group_config,
+        sort_subject_topics,
+    )
+
 class VoiceLineOrganizer:
-    # Define multiple special categories as a dict: {category_name: [keywords]}
-    special_categories = {
-        "Hero Selection": ["select","hs_select", "unselect"],
-        "Killstreaks": ["killstreak_high","killstreak_mid","killstreak_start", "killing_streak_high", "killing_streak_low", "killing_streak_medium","killing_streak", "killing_streak_generic_high", "killing_streak_generic_low", "killing_streak_generic_medium", "killstreak_count", "killstreak_title", "asleep_killstreak_high", "asleep_killstreak_mid", "asleep_killstreak_start"],
-        "Movement": ["leave_base", "leaving_area", "boost_past_on_zipline"],
-        # TEMPORARY: include bespoke_ability_line under Use Power until structure stabilizes
-        "Use Power": ["use_power1", "use_power2", "use_power3", "use_power4", "bespoke_ability_line", "use_power4_01-imported", "use_power4_as_enemy", "use_power4_end", "use_power4_seasonal", "use_power4_start", "use_power5", "power2_resurface", "power4", "asleep_use_power1", "asleep_use_power3", "asleep_use_power4","use_power6" ],
-        "Desperation Use Power" : ["desperation_power1", "desperation_power2", "desperation_power3", "desperation_power4", "desperation_power5", "desperation_power6"],
-        "Upgrade Power": ["upgrade_power1", "upgrade_power2", "upgrade_power3", "upgrade_power4", "upgrade_power5", "upgrade_power6", "asleep_upgrade_power1", "asleep_upgrade_power2", "asleep_upgrade_power3", "asleep_upgrade_power4"],
-        
-        "Character-Specific Abilities": [
-            "bad_dome_alone", "bad_dome_rejuvinator", "big_kelvin", "big_healing",
-            "big_healing_by_forge_alt_01__duplicate_id", "big_healing_by_forge_alt_02__duplicate_id",
-            "catch_team_blackhole", "dome_enemy_core", "dome_own_core",
-            "heal_grenade", "hook_gig_mid_ult", "kill_team_blackhole",
-            "nano_kills_turrets", "no_allies_help_blackhole", "sticky_bomb_invis",
-            "ult_interrupted", "ult_last_alive", "ult_total_miss",
-            "use_power2_on_ally", "use_power2_on_others", "use_power2_on_self",
-            "storm_cloud_1_survives", "storm_cloud_kelvin_survives",
-            "storm_cloud_last_standing", "storm_cloud_team_wipe",
-            "uppercut_to_t1", "uppercut_to_t2", "uppercut_to_titan"
-
-        ],
-        "Pick Up": ["see_money","pick_up_gold", "pick_up_rejuv"],
-        "Emotions": ["angry", "concerned", "happy", "sad", "congrats","praise", "asleep_congrats"],
-        "Combat": ["parry", "near_miss", "melee_kill", "revenge_kill", "last_one_standing", "close_call", "interrupt", "hunt", "kill_anyhero","low_health_warning","outnumbered", "solo_lasso_kill", "be_careful", "ap_reminder", "kill_high_networth", "end_streak", "kill", "catch", "dash_effort", "efforts", "melee_efforts", "multi_dash", "hook", "hook_lands", "help_out", "kill_fat_ghost_(enemy)", "kill_in_lift_(ally)", "kill_mid_laser_(enemy)", "kill_on_ice_path_(enemy)", "kill_post_swap_(enemy)", "kill_when_invisible_(enemy)", "killed_in_lane_(ally)", "killed_in_lane_01-imported_(ally)", "killed_mid_air_(enemy)", "killed_mid_ult_(enemy)", "mid_air_kill_(enemy)", "asleep_kill_anyhereo", "asleep_kill_anyhero"],
-        
-        "Ally Actions": [
-            "allies_lasso_kill", "allies_no_attack", "ally_urn_runner", "big_blackhole_(ally)",
-            "big_stun_(ally)", "big_ult_(ally)", "bounce_pad_(ally)", "burns_down_objective_(ally)",
-            "clutch_cube_(ally)", "clutch_heal_(ally)", "far_hook_(ally)", "far_shot_(ally)",
-            "far_snipe_(ally)", "grab_mid_enemy_ult_(ally)", "kill_in_lift_(ally)",
-            "killed_in_lane_(ally)", "killed_in_lane_01-imported_(ally)", "kills_with_hook_(ally)",
-            "lasso_victim_(ally)", "missile_stops_ult_(ally)", "multi_kill_ult_(ally)",
-            "multikill_(ally)", "see_big_swap_(ally)", "see_massive_stomp_(ally)",
-            "steals_rejuv_(ally)", "swap_to_boss_(ally)", "take_objective_with_teather_(ally)",
-            "unkillable_(ally)", "uppercut_towards_boss_(ally)", "wall_stun_kill_(ally)",
-            
-        ],
-        
-        # New special category for use_* non-ping topics (items, shards, etc.)
-        "Item Purchase": [
-            "t4", "t4_01", "t4_buys_carpet", "t4_slork"
-        ],
-        # Shop system reminders
-        "Shop System": ["t1_shop_reminder", "t2_shop_reminder", "t3_shop_reminder", "t4_shop_reminder","choose_item", "close_shop","open_gun", "open_spirit", "call_out"],
-         
-        
-        
-        "Match Status": [
-            "win", "win_early", "win_late", "match_win", "win_with_bebop", "match_start", "introduction", 
-            "lose", "lose_early", "lose_late","ally_comeback", "enemy_comeback", "ally_team_wipe", "enemy_team_wipe", 
-            "ally_troopers_are_stronger", "enemy_troopers_are_stronger", 
-            "networth_update_ahead", "networth_update_behind", "avatar_is_destroyed",
-            "lose_objective_while_ahead", "post_game", "update_up_on_money_down_on_obj",
-            "high_max_health", "enemy_gets_rejuv"
-        ],
-
-        "Global Objectives": [
-            "tower_got_denied", "idol_drop",
-            "ally_delivered_many_urns", "ally_urn_movement", "ally_urn_delivered", 
-            "enemy_delivered_many_urns", "enemy_urn_delivered", "enemy_urn_movement", 
-            "urn_delivered", "urn_dropped", "urn_moving", "urn_waiting", "holder_stalls",
-            "idol_delivered", "idol_dropped", "idol_landed", "idol_moving", "idol_waiting", 
-            "rejuv_spawn", "rejuvinator_expired", "ally_rejuvinator_almost_expired", 
-            "ally_steal_rejuv", "enemy_steal_rejuv", "mid_spawn", 
-            "vanguard_ally_capture", "vanguard_ally_capture_attempt", "vanguard_available", 
-            "vanguard_enemy_capture", "vanguard_enemy_capture_attempt", 
-            "ally_vanguard_defeated", "enemy_vanguard_defeated", "push_objectives_for_flex_slots",
-            "stolen_by_the_boss"
-        ],
-
-        "Ally Structures": [
-            "ally_blue_guardian_attack", "ally_blue_guardian_destroyed", 
-            "ally_blue_walker_attack", "ally_blue_walker_destroyed", 
-            "ally_core_attack", "ally_core_critical", "ally_core_exposed", "ally_core_reminder", 
-            "ally_first_generator_destroyed", "ally_generator_attack", 
-            "ally_green_guardian_attack", "ally_green_guardian_destroyed", 
-            "ally_green_walker_attack", "ally_green_walker_destroyed", 
-            "ally_guardian_destroyed", 
-            "ally_orange_guardian_attack", "ally_orange_guardian_destroyed", 
-            "ally_orange_walker_attack", "ally_orange_walker_destroyed", 
-            "ally_purple_guardian_attack", "ally_purple_guardian_destroyed", 
-            "ally_purple_walker_attack", "ally_purple_walker_destroyed", 
-            "ally_titan_attack", "ally_titan_destroyed", "ally_titan_exposed", "ally_titan_reminder", 
-            "ally_walker_destroyed", 
-            "ally_yellow_guardian_attack", "ally_yellow_guardian_destroyed", 
-            "ally_yellow_walker_attack", "ally_yellow_walker_destroyed", 
-            "base_breached", "base_defended", "base_guardians_under_attack"
-        ],
-
-        "Enemy Structures": [
-            "enemy_blue_guardian", "enemy_blue_walker", 
-            "enemy_core", "enemy_core_exposed", "enemy_core_healing", 
-            "enemy_first_generator_destroyed", 
-            "enemy_guardian_destroyed", 
-            "enemy_orange_guardian", "enemy_orange_walker", 
-            "enemy_purple_guardian", "enemy_purple_walker", 
-            "enemy_titan", "enemy_titan_exposed", 
-            "enemy_walker_destroyed", 
-            "enemy_yellow_guardian", "enemy_yellow_walker", 
-            "titan_destroyed"
-        ],
-
-        "Enemy Observations": ["see_enemy_metal_skin", "see_enemy_use_metal_skin"],
-        
-        "Enemy Actions": [
-            "blocked_by_wall_(enemy)", "bounce_escape_(enemy)", "charges_(enemy)",
-            "damaged_by_snipe_(enemy)", "destroy_turrets_(enemy)", "enemy_urn_runner",
-            "flies_away_(enemy)", "grabbed_(enemy)", "hide_from_ult_(enemy)",
-            "hooked_(enemy)", "lassoed_(enemy)",
-            "lifts_(enemy)", "ping__with_swap_(enemy)",
-            "see_missile_(enemy)", "see_ult_(enemy)", "starts_ult_(enemy)",
-            "steals_rejuv_(enemy)", "unkillable_(enemy)"
-        ],
-
-        "Boons": [
-            "grant_boon_armor", "grant_boon_armor_10", "grant_boon_general", 
-            "grant_boon_magic", "grant_boon_weapon"
-        ],
-
-        "Map Alerts": [
-            "broadway_attacked", "orchard_attacked", "park_attacked", "york_attacked"
-        ],
-
-        "Patron Specific": [
-            "saphire_flame_lines"
-        ],
-
-        "Tutorial": [
-            "tutorial_1_tasks_left", "tutorial_2_tasks_left", "tutorial_2nd_ap_earned", 
-            "tutorial_3_tasks_left", "tutorial_4_tasks_left", "tutorial_boons", 
-            "tutorial_buy_mod_reminder", "tutorial_collect_souls", 
-            "tutorial_combat_1st_kill_on_atlas", "tutorial_combat_1st_kill_on_dynamo", 
-            "tutorial_combat_1st_kill_on_haze", "tutorial_combat_1st_kill_on_inferno", 
-            "tutorial_combat_1st_kill_on_kali", "tutorial_combat_1st_kill_on_lash", 
-            "tutorial_combat_1st_kill_on_nano", "tutorial_combat_1st_kill_on_orion", 
-            "tutorial_combat_companion_dies", "tutorial_combat_companion_need_help", 
-            "tutorial_combat_death_info", "tutorial_combat_disarm_info", 
-            "tutorial_combat_enemy_atlas_info", "tutorial_combat_enemy_dynamo_info", 
-            "tutorial_combat_enemy_haze_info", "tutorial_combat_enemy_lash_info", 
-            "tutorial_combat_enemy_orion_info", "tutorial_combat_immobilze_info", 
-            "tutorial_combat_melee", "tutorial_combat_melee_short", 
-            "tutorial_combat_neutrals_info", "tutorial_combat_out_of_range", 
-            "tutorial_combat_parry", "tutorial_combat_silence_info", 
-            "tutorial_combat_stun_info", "tutorial_combat_zoom_reminder", 
-            "tutorial_congrats_t1_killed", "tutorial_congrats_t2_killed", 
-            "tutorial_deny_enemy", "tutorial_destroy_t1", "tutorial_destroy_t2", 
-            "tutorial_destroy_titan", "tutorial_dont_fight_t2_yet", "tutorial_fall_back", 
-            "tutorial_farm_info", "tutorial_farm_info_alt2", "tutorial_farm_info_short", 
-            "tutorial_farm_reminder", "tutorial_final_push", "tutorial_first_shop_short_edit", 
-            "tutorial_go_forth_my_child", "tutorial_gold_orb_reminder", "tutorial_heal_reminder_short", 
-            "tutorial_healing_info", "tutorial_idol_info", "tutorial_lane_info", 
-            "tutorial_level_up", "tutorial_level_up_info", "tutorial_level_up_info_short", 
-            "tutorial_lower_shields", "tutorial_mid_info", "tutorial_push_lane", 
-            "tutorial_red_orb_reminder", "tutorial_safe_info", "tutorial_shop_ap_only", 
-            "tutorial_shop_ap_reminder", "tutorial_shop_info", "tutorial_shop_reminder", 
-            "tutorial_single_lane_report_card_bronze", "tutorial_single_lane_report_card_gold", 
-            "tutorial_single_lane_report_card_intro", "tutorial_single_lane_report_card_silver", 
-            "tutorial_single_lane_walker_down", "tutorial_single_lane_walker_intro", 
-            "tutorial_stamina_reminder", "tutorial_starting_ability", "tutorial_t1_shield_is_up", 
-            "tutorial_tasks_complete", "tutorial_total_cred_reminder", 
-            "tutorial_unlock_power_reminder", "tutorial_use_ap_reminder", "tutorial_welcome", 
-            "tutorial_zipline_info", "tutorial_zipline_info_short", "tutorial_zipline_reminder",
-            "tutorial_attacked", "tutorial_complete_tasks_to_fight", "greenwich_attacked"
-        ],
-        
-        "Street Brawl Mode": [
-            "street_brawl_draw", "street_brawl_loss", "street_brawl_round_complete",
-            "street_brawl_round_lose", "street_brawl_round_win", "street_brawl_victory"
-        ]
-    }
-    # Define special categories for pings
-    special_ping_categories = {
-        "Objective Commands": [
-        "attack_enemy",
-        "clear_troopers",
-        "defend_base",
-        "defend_blue",
-        "defend_green",
-        "defend_purple",
-        "defend_yellow",
-        "help_with_idol",
-        "lets_go_blue",
-        "lets_go_blue_alt",
-        "lets_go_green",
-        "lets_go_green_alt",
-        "lets_go_purple",
-        "lets_go_purple_alt",
-        "lets_go_yellow",
-        "lets_go_yellow_alt",
-        "push_blue",
-        "push_green",
-        "push_purple",
-        "push_yellow",
-        "take_mid",
-        "take_shrine"
-    ],
-    "Ability Status/Usage": [
-        "ability1_almost_ready",
-        "ability1_not_ready",
-        "ability2_almost_ready",
-        "ability2_not_ready",
-        "ability3_almost_ready",
-        "ability3_not_ready",
-        "ability4_almost_ready",
-        "ability4_not_ready",
-        "use_ability1",
-        "use_ability2",
-        "use_ability3",
-        "use_ability4"
-    ],
-    "Item Status/Usage": [
-        "can_heal", # Moved
-        "glitch_almost_ready",
-        "glitch_not_ready",
-        "heal_ready", # Moved
-        "health_nova_almost_ready",
-        "health_nova_not_ready",
-        "item_almost_ready",
-        "item_not_ready",
-        "kncokdown_almost_ready", # Moved (Original typo)
-        "knockdown_almost_ready", # Moved (Corrected version)
-        "kncokdown_not_ready",    # Moved (Original typo)
-        "knockdown_not_ready",    # Moved (Corrected version)
-        "refresher_almost_ready",
-        "refresher_not_ready",
-        "silence_almost_ready", # Moved
-        "silence_not_ready", # Moved
-        "stim_pack_almost_ready",
-        "stim_pack_not_ready",
-        "warp_stone_almost_ready",
-        "warp_stone_not_ready",
-        "use_glitch",
-        "use_health_nova",
-        "use_item",
-        "use_kncokdown", # Moved (Original typo)
-        "use_knockdown", # Moved (Corrected version)
-        "use_refresher",
-        "use_rupture", # Moved
-        "use_silence", # Moved
-        "use_stim_pack",
-        "use_warp_stone"
-    ],
-    "Movement and Positioning": [
-        "be_back_soon",
-        "flank",
-        "going_in",
-        "going_shop",
-        "headed_blue",
-        "headed_green",
-        "headed_purple",
-        "headed_this_way",
-        "headed_yellow",
-        "leaving_area",
-        "lets_hide",
-        "meet_here",
-        "on_way",
-        "request_follow",
-        "retreat",
-        "returning_to_base",
-        "right_back",
-        "stay_together",
-        "wait"
-    ],
-    "Enemy Information and Location": [
-        "danger_area",
-        "in_mid",
-        "missing",
-        "missing_blue",
-        "missing_green",
-        "missing_purple",
-        "missing_yellow",
-        "on_top_of_garage",
-        "on_top_of_mid",
-        "saw",
-        "saw_them",
-        "see",
-        "see_enemy",
-        "see_on_bridge",
-        "see_on_roof",
-        "theyre_in_mid",
-        "theyre_on_top_of_garage",
-        "theyre_on_top_of_mid",
-        "theyre_under_garage",
-        "they_were_here",
-        "under_garage",
-        "was_here"
-    ],
-    "Requests and Alerts": [
-        "almost_respawn",
-        "avatar_under_attack",
-        "blue_help",
-        "dead",
-        "green_help",
-        "need_cover",
-        "need_heal",
-        "need_help_blue",
-        "need_help_blue_alt",
-        "need_help_green",
-        "need_help_green_alt",
-        "need_help_purple",
-        "need_help_purple_alt",
-        "need_help_yellow",
-        "need_help_yellow_alt",
-        "purple_help",
-        "t1_under_attack",
-        "t2_under_attack",
-        "yellow_help"
-    ],
-    "Tactical Communication": [
-        "attack",
-        "careful",
-        "gank",
-        "ignore",
-        "need_plan",
-        "no_teamfight",
-        "press_advantage",
-        "stun"
-    ],
-    "General Communication / Social": [
-        "affermative",
-        "good_game",
-        "good_job",
-        "negative",
-        "nice_work",
-        "sorry",
-        "thanks",
-        "thank_you",
-        "welcome",
-        "well_played",
-        "with"
-    ],
-    "Miscellaneous Status": [
-        "check_items",
-        "jar_call",
-        "rejuv_drop"
-    ]
-}
+    """Organize parsed voice lines with data-driven display groups."""
     def __init__(self, parent):
         self.parent = parent
         
@@ -377,13 +54,16 @@ class VoiceLineOrganizer:
         # Variables to store file paths
         self.alias_json_path = tk.StringVar()
         self.topic_alias_json_path = tk.StringVar()
+        self.groups_json_path = tk.StringVar()
         self.source_folder_path = tk.StringVar()
         self.output_json_path = tk.StringVar()
         self.vdf_path = tk.StringVar() # Path to VDF file for phantom lines
 
         # Set default values for debugging
-        self.alias_json_path.set(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "character_mappings.json")))
-        self.topic_alias_json_path.set(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Assets", "topic_mappings.json")))
+        assets_root = Path(__file__).resolve().parents[2] / "Assets"
+        self.alias_json_path.set(str(assets_root / "character_mappings.json"))
+        self.topic_alias_json_path.set(str(assets_root / "topic_mappings.json"))
+        self.groups_json_path.set(str(DEFAULT_GROUP_CONFIG_PATH))
         
         
         self.source_folder_path.set("C:/Users/mcall/Proton Drive/mcallbosco/My files/Projects/Deadlock/Sound Extraction/2025/May/sounds/vo")
@@ -423,16 +103,21 @@ class VoiceLineOrganizer:
         ttk.Label(file_frame, text="Topic Alias JSON:").grid(row=1, column=0, sticky=tk.W, pady=5)
         ttk.Entry(file_frame, textvariable=self.topic_alias_json_path, width=50).grid(row=1, column=1, padx=5, pady=5)
         ttk.Button(file_frame, text="Browse", command=self.browse_topic_alias_json).grid(row=1, column=2, padx=5, pady=5)
+
+        # Voiceline groups JSON selection
+        ttk.Label(file_frame, text="Voiceline Groups JSON:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(file_frame, textvariable=self.groups_json_path, width=50).grid(row=2, column=1, padx=5, pady=5)
+        ttk.Button(file_frame, text="Browse", command=self.browse_groups_json).grid(row=2, column=2, padx=5, pady=5)
         
         # Source folder selection
-        ttk.Label(file_frame, text="Source Folder:").grid(row=2, column=0, sticky=tk.W, pady=5)
-        ttk.Entry(file_frame, textvariable=self.source_folder_path, width=50).grid(row=2, column=1, padx=5, pady=5)
-        ttk.Button(file_frame, text="Browse", command=self.browse_source_folder).grid(row=2, column=2, padx=5, pady=5)
+        ttk.Label(file_frame, text="Source Folder:").grid(row=3, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(file_frame, textvariable=self.source_folder_path, width=50).grid(row=3, column=1, padx=5, pady=5)
+        ttk.Button(file_frame, text="Browse", command=self.browse_source_folder).grid(row=3, column=2, padx=5, pady=5)
         
         # Output JSON selection
-        ttk.Label(file_frame, text="Output JSON:").grid(row=3, column=0, sticky=tk.W, pady=5)
-        ttk.Entry(file_frame, textvariable=self.output_json_path, width=50).grid(row=3, column=1, padx=5, pady=5)
-        ttk.Button(file_frame, text="Browse", command=self.browse_output_json).grid(row=3, column=2, padx=5, pady=5)
+        ttk.Label(file_frame, text="Output JSON:").grid(row=4, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(file_frame, textvariable=self.output_json_path, width=50).grid(row=4, column=1, padx=5, pady=5)
+        ttk.Button(file_frame, text="Browse", command=self.browse_output_json).grid(row=4, column=2, padx=5, pady=5)
     
     def create_options_section(self, parent):
         options_frame = ttk.LabelFrame(parent, text="Options", padding="10")
@@ -490,6 +175,15 @@ class VoiceLineOrganizer:
         if filename:
             self.topic_alias_json_path.set(filename)
             self.log(f"Topic Alias JSON file selected: {filename}")
+
+    def browse_groups_json(self):
+        filename = filedialog.askopenfilename(
+            title="Select Voiceline Groups JSON",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+        if filename:
+            self.groups_json_path.set(filename)
+            self.log(f"Voiceline groups JSON selected: {filename}")
     
     def browse_source_folder(self):
         folder = filedialog.askdirectory(title="Select Source Folder")
@@ -527,6 +221,10 @@ class VoiceLineOrganizer:
         
         if not self.topic_alias_json_path.get():
             messagebox.showwarning("Missing Input", "Please select a Topic Alias JSON file.")
+            return False
+
+        if not self.groups_json_path.get():
+            messagebox.showwarning("Missing Input", "Please select a Voiceline Groups JSON file.")
             return False
         
         if not self.source_folder_path.get():
@@ -673,12 +371,16 @@ class VoiceLineOrganizer:
                 parts = base_clean.split("_")
                 rel_path = os.path.relpath(file_path, self.source_folder_path.get())
 
-                # Character-based patterns: {topic}_by_{character}
-                if len(parts) >= 3 and parts[-2] == "by":
-                    # patron_female_big_healing_by_astro, patron_female_stolen_by_abrams, patron_female_many_assists_by_astro
-                    subject = self._get_proper_name(parts[-1], alias_data)
-                    topic_proper = " ".join(parts[:-2]).replace("_", " ").capitalize()
-                    return (speaker, subject, topic_proper, None, rel_path, False)
+                # Character-based patterns: {topic}_by_{character}. Match the
+                # longest suffix so multi-part aliases such as the_boss and
+                # grey_talon remain one subject.
+                if "by" in parts[1:]:
+                    by_index = len(parts) - 1 - parts[::-1].index("by")
+                    subject_alias = "_".join(parts[by_index + 1:])
+                    if subject_alias.lower() in valid_speakers:
+                        subject = self._get_proper_name(subject_alias, alias_data)
+                        topic_proper = " ".join(parts[:by_index]).replace("_", " ").capitalize()
+                        return (speaker, subject, topic_proper, None, rel_path, False)
 
                 # help_out_{character}
                 if len(parts) >= 3 and parts[0] == "help" and parts[1] == "out":
@@ -688,7 +390,8 @@ class VoiceLineOrganizer:
 
                 # praise_{character}
                 if len(parts) >= 2 and parts[0] == "praise":
-                    subject = self._get_proper_name(parts[1], alias_data)
+                    subject_alias = "_".join(parts[1:])
+                    subject = self._get_proper_name(subject_alias, alias_data)
                     topic_proper = "Praise"
                     return (speaker, subject, topic_proper, None, rel_path, False)
 
@@ -830,7 +533,16 @@ class VoiceLineOrganizer:
                 # Silver things
                 "howl",
                 "snarl",
-                "vote"
+                "vote",
+                # Historical self topics that otherwise resemble the generic
+                # speaker_topic_subject grammar.
+                "emote_pain_small", "emote_pain_big", "emote_pain_death",
+                "idol_grab", "idol_score", "sell_upgrade", "upgrade_power",
+                "monster_idol_drop", "monster_kill_anyhero", "monster_killstreak",
+                "monster_power1", "monster_power2", "monster_power3",
+                "die_mid_storm_cloud", "die_trade_in_storm_cloud",
+                "max_knives", "lots_of_turrets", "out_of_stamina",
+                "empty_heal", "low_networth"
 
 
             ]
@@ -877,6 +589,20 @@ class VoiceLineOrganizer:
                 relationship = None
                 rest = joined
                 is_self = True
+            # Subject-at-end historical patterns. Keep these explicit instead
+            # of treating every unknown remainder as a Self topic.
+            elif joined.startswith(("killed_by_", "assisted_by_")):
+                event = "killed_by" if joined.startswith("killed_by_") else "assisted_by"
+                subject_alias = joined[len(event) + 1:]
+                subject_alias = re.sub(r'_alt_\d+$', '', subject_alias)
+                subject_alias = re.sub(r'_(\d+)_alt$', '', subject_alias)
+                subject_alias = re.sub(r'_(\d+)$', '', subject_alias)
+                if subject_alias.lower() in valid_speakers:
+                    relationship = None
+                    rest = f"{subject_alias}_{event}"
+                else:
+                    relationship = None
+                    rest = joined
             # Prefix-based self voiceline detection
             elif len(parts_initial) > 1 and (
                 joined.startswith("use_") or joined.startswith("effort_") or joined.startswith("pain_")
@@ -1083,14 +809,24 @@ class VoiceLineOrganizer:
                 # Ping: [topic][_subject]
                 ping_parts = rest_without_variation.split('_')
                 self.processing_debug_log.append(f"DEBUG: ping_parts for '{filename}': {ping_parts}")
-                # Special handling for "see" pings: see_<hero>_<rest>
+                # Special handling for "see" pings: see_<hero>_<rest>.
+                # Resolve a longest multi-part hero such as grey_talon.
                 found_subject = False
-                if len(ping_parts) >= 3 and ping_parts[0] == "see" and ping_parts[1].lower() in valid_speakers:
-                    subject = ping_parts[1]
-                    topic_raw = "see_" + "_".join(ping_parts[2:])
-                    self.processing_debug_log.append(f"DEBUG: Special SEE pattern: subject='{subject}', topic_raw='{topic_raw}' for '{filename}'")
-                    found_subject = True
-                else:
+                if len(ping_parts) >= 2 and ping_parts[0] == "see":
+                    for subject_end in range(len(ping_parts), 1, -1):
+                        candidate = "_".join(ping_parts[1:subject_end])
+                        candidate_clean = re.sub(r'_old$', '', candidate, flags=re.IGNORECASE)
+                        if candidate_clean.lower() in valid_speakers:
+                            subject = candidate_clean
+                            suffix = "_".join(ping_parts[subject_end:])
+                            topic_raw = "see" + (f"_{suffix}" if suffix else "")
+                            self.processing_debug_log.append(
+                                f"DEBUG: Special SEE pattern: subject='{subject}', "
+                                f"topic_raw='{topic_raw}' for '{filename}'"
+                            )
+                            found_subject = True
+                            break
+                if not found_subject:
                     # Check all possible leading substrings for a valid hero alias
                     for i in range(len(ping_parts), 0, -1):
                         candidate = "_".join(ping_parts[:i])
@@ -1099,6 +835,7 @@ class VoiceLineOrganizer:
                         candidate_clean = re.sub(r'_alt\d+$', '', candidate_clean)
                         candidate_clean = re.sub(r'_(\d+)_alt$', '', candidate_clean)
                         candidate_clean = re.sub(r'_(\d+)$', '', candidate_clean)
+                        candidate_clean = re.sub(r'_old$', '', candidate_clean, flags=re.IGNORECASE)
                         self.processing_debug_log.append(f"DEBUG: Checking candidate '{candidate}' (cleaned: '{candidate_clean}') against valid_speakers for '{filename}' (leading)")
                         if candidate_clean.lower() in valid_speakers:
                             self.processing_debug_log.append(f"DEBUG: MATCHED candidate '{candidate}' as subject for '{filename}' (leading)")
@@ -1116,6 +853,7 @@ class VoiceLineOrganizer:
                             candidate_clean = re.sub(r'_alt\d+$', '', candidate_clean)
                             candidate_clean = re.sub(r'_(\d+)_alt$', '', candidate_clean)
                             candidate_clean = re.sub(r'_(\d+)$', '', candidate_clean)
+                            candidate_clean = re.sub(r'_old$', '', candidate_clean, flags=re.IGNORECASE)
                             self.processing_debug_log.append(f"DEBUG: Checking candidate '{candidate}' (cleaned: '{candidate_clean}') against valid_speakers for '{filename}' (trailing)")
                             if candidate_clean.lower() in valid_speakers:
                                 self.processing_debug_log.append(f"DEBUG: MATCHED candidate '{candidate}' as subject for '{filename}' (trailing)")
@@ -1161,13 +899,20 @@ class VoiceLineOrganizer:
                 subject = "self"
             else:
                 if not locals().get("fallback_used", False):
-                    # The first part before underscore is the subject
-                    subject_parts = rest_without_variation.split('_', 1)
-                    if len(subject_parts) < 2:
+                    # Resolve the longest known leading subject. This keeps
+                    # multi-part aliases such as grey_talon and the_boss intact.
+                    subject_tokens = rest_without_variation.split('_')
+                    subject = None
+                    topic_candidate = None
+                    for index in range(len(subject_tokens) - 1, 0, -1):
+                        candidate = "_".join(subject_tokens[:index])
+                        if candidate.lower() in valid_speakers:
+                            subject = candidate
+                            topic_candidate = "_".join(subject_tokens[index:])
+                            break
+                    if subject is None or not topic_candidate:
                         self.processing_debug_log.append(f"Could not parse subject in: {filename}")
                         return None
-                    subject = subject_parts[0]
-                    topic_candidate = subject_parts[1]
                     # Strip _alt, _altXX, _XX_alt, _XX from topic for enemy/ally/fallback
                     while True:
                         alt_match = re.search(r'_alt_\d+$', topic_candidate)
@@ -1252,113 +997,64 @@ class VoiceLineOrganizer:
             return None
         return find_vdf_key_for_filename(filename, vdf_data)
 
+    @staticmethod
+    def _item_filename(item):
+        if isinstance(item, dict):
+            return str(item.get("filename") or "")
+        return os.path.basename(str(item))
+
+    @staticmethod
+    def _append_grouped(container, path, topic, item):
+        target = container
+        for label in path:
+            target = target.setdefault(label, {})
+        target.setdefault(topic, []).append(item)
+
+    def _place_topic(self, container, scope, topic_key, topic, item):
+        path = classify_topic(
+            self.group_config,
+            scope,
+            topic_key,
+            self._item_filename(item),
+        )
+        if path:
+            self._append_grouped(container, path, topic, item)
+        else:
+            container.setdefault(topic, []).append(item)
+
     def _place_in_result(self, result_data, result, item):
         speaker, subject, topic, relationship, rel_path, is_ping = result
-        
-        # Initialize speaker if not exists
+
         if speaker not in result_data:
             result_data[speaker] = {}
-        
-        # Capitalize 'self' key for consistency
+
         subject_key = subject.capitalize() if subject.lower() == "self" else subject
         if subject_key not in result_data[speaker]:
             result_data[speaker][subject_key] = {}
-        
-        # Handle special case for pings
+
         if is_ping:
-            # Store under "Pings" key
-            if "Pings" not in result_data[speaker][subject_key]:
-                result_data[speaker][subject_key]["Pings"] = {}
-            # Check for special ping categories
+            ping_root = self.group_config["pingRoot"]
             topic_key = topic.replace(" ", "_").lower()
-            placed_in_ping_category = False
-            for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
-                if topic_key in keywords:
-                    if cat_name not in result_data[speaker][subject_key]["Pings"]:
-                        result_data[speaker][subject_key]["Pings"][cat_name] = {}
-                    if topic not in result_data[speaker][subject_key]["Pings"][cat_name]:
-                        result_data[speaker][subject_key]["Pings"][cat_name][topic] = []
-                    result_data[speaker][subject_key]["Pings"][cat_name][topic].append(item)
-                    placed_in_ping_category = True
-                    break
-            if not placed_in_ping_category:
-                if topic not in result_data[speaker][subject_key]["Pings"]:
-                    result_data[speaker][subject_key]["Pings"][topic] = []
-                result_data[speaker][subject_key]["Pings"][topic].append(item)
-            # Also store as self ping if subject is not already "Self" and subject == speaker
-            if subject_key.lower() != "self" and (subject_key.lower() == speaker.lower()):
-                if "Self" not in result_data[speaker]:
-                    result_data[speaker]["Self"] = {}
-                if "Pings" not in result_data[speaker]["Self"]:
-                    result_data[speaker]["Self"]["Pings"] = {}
-                # Repeat special ping category logic for self pings
-                placed_in_ping_category_self = False
-                for cat_name, keywords in VoiceLineOrganizer.special_ping_categories.items():
-                    if topic_key in keywords:
-                        if cat_name not in result_data[speaker]["Self"]["Pings"]:
-                            result_data[speaker]["Self"]["Pings"][cat_name] = {}
-                        if topic not in result_data[speaker]["Self"]["Pings"][cat_name]:
-                            result_data[speaker]["Self"]["Pings"][cat_name][topic] = []
-                        result_data[speaker]["Self"]["Pings"][cat_name][topic].append(item)
-                        placed_in_ping_category_self = True
-                        break
-                if not placed_in_ping_category_self:
-                    if topic not in result_data[speaker]["Self"]["Pings"]:
-                        result_data[speaker]["Self"]["Pings"][topic] = []
-                    result_data[speaker]["Self"]["Pings"][topic].append(item)
-        else:
-            # For all voicelines (not just self), check if topic is in any special category
-            # Use the base topic (without relationship) for category matching
-            if relationship in ("ally", "enemy") and topic.endswith(f"({relationship})"):
-                base_topic = topic[:-(len(f" ({relationship})"))].strip()
-                topic_key_for_category = base_topic.replace(" ", "_").lower()
-            else:
-                base_topic = topic
-                topic_key_for_category = topic.replace(" ", "_").lower()
-            placed_in_category = False
-            # Route all non-power use_* topics under Item Usage
-            if topic_key_for_category.startswith("use_") and not topic_key_for_category.startswith("use_power"):
-                if "Item Usage" not in result_data[speaker][subject_key]:
-                    result_data[speaker][subject_key]["Item Usage"] = {}
-                if topic not in result_data[speaker][subject_key]["Item Usage"]:
-                    result_data[speaker][subject_key]["Item Usage"][topic] = []
-                result_data[speaker][subject_key]["Item Usage"][topic].append(item)
-                placed_in_category = True
+            pings = result_data[speaker][subject_key].setdefault(ping_root, {})
+            self._place_topic(pings, "ping", topic_key, topic, item)
 
-            # Route pain_* topics under Emotions -> Pain and effort_* under Emotions -> Effort
-            if not placed_in_category:
-                if topic_key_for_category == "pain" or topic_key_for_category.startswith("pain_"):
-                    if "Emotions" not in result_data[speaker][subject_key]:
-                        result_data[speaker][subject_key]["Emotions"] = {}
-                    if "Pain" not in result_data[speaker][subject_key]["Emotions"]:
-                        result_data[speaker][subject_key]["Emotions"]["Pain"] = {}
-                    if topic not in result_data[speaker][subject_key]["Emotions"]["Pain"]:
-                        result_data[speaker][subject_key]["Emotions"]["Pain"][topic] = []
-                    result_data[speaker][subject_key]["Emotions"]["Pain"][topic].append(item)
-                    placed_in_category = True
-                elif topic_key_for_category == "effort" or topic_key_for_category.startswith("effort_"):
-                    if "Emotions" not in result_data[speaker][subject_key]:
-                        result_data[speaker][subject_key]["Emotions"] = {}
-                    if "Effort" not in result_data[speaker][subject_key]["Emotions"]:
-                        result_data[speaker][subject_key]["Emotions"]["Effort"] = {}
-                    if topic not in result_data[speaker][subject_key]["Emotions"]["Effort"]:
-                        result_data[speaker][subject_key]["Emotions"]["Effort"][topic] = []
-                    result_data[speaker][subject_key]["Emotions"]["Effort"][topic].append(item)
-                    placed_in_category = True
+            # Duplicate a self-addressed ping under Self for compatibility.
+            if subject_key.lower() != "self" and subject_key.lower() == speaker.lower():
+                self_topics = result_data[speaker].setdefault("Self", {})
+                self_pings = self_topics.setdefault(ping_root, {})
+                self._place_topic(self_pings, "ping", topic_key, topic, item)
+            return
 
-            for cat_name, keywords in VoiceLineOrganizer.special_categories.items():
-                if topic_key_for_category in keywords:
-                    if cat_name not in result_data[speaker][subject_key]:
-                        result_data[speaker][subject_key][cat_name] = {}
-                    if topic not in result_data[speaker][subject_key][cat_name]:
-                        result_data[speaker][subject_key][cat_name][topic] = []
-                    result_data[speaker][subject_key][cat_name][topic].append(item)
-                    placed_in_category = True
-                    break
-            if not placed_in_category:
-                if topic not in result_data[speaker][subject_key]:
-                    result_data[speaker][subject_key][topic] = []
-                result_data[speaker][subject_key][topic].append(item)
+        # Relationship suffixes are part of the classification key. Ally and
+        # enemy reactions can intentionally route to separate display groups.
+        topic_key = topic.replace(" ", "_").lower()
+        self._place_topic(
+            result_data[speaker][subject_key],
+            "voice",
+            topic_key,
+            topic,
+            item,
+        )
 
     def process_voice_lines(self):
         try:
@@ -1382,6 +1078,12 @@ class VoiceLineOrganizer:
             with open(self.topic_alias_json_path.get(), 'r') as f:
                 topic_alias_data = json.load(f)
             self.processing_debug_log.append("DEBUG: Loaded topic alias data successfully")
+
+            self.processing_debug_log.append(
+                f"DEBUG: Loading voiceline groups from {self.groups_json_path.get()}"
+            )
+            self.group_config = load_group_config(self.groups_json_path.get())
+            self.processing_debug_log.append("DEBUG: Loaded voiceline groups successfully")
             
             valid_speakers = set()
             for name, aliases in alias_data.items():
@@ -1462,29 +1164,12 @@ class VoiceLineOrganizer:
                         }
                         self._place_in_result(result_data, result, item)
             
-            # Custom sort
-            def custom_self_sort(topics, debug_log):
-                priority = ["Select", "Unselect", "Pre game", "Post game"]
-                def sort_key(k):
-                    try:
-                        idx = priority.index(k)
-                        return (idx, k)
-                    except ValueError:
-                        return (len(priority), k)
-                special_keys = list(VoiceLineOrganizer.special_categories.keys())
-                keys_to_remove = special_keys + ["Pings"]
-                topics_no_special = {k: v for k, v in topics.items() if k not in keys_to_remove}
-                sorted_topics = dict(sorted(topics_no_special.items(), key=lambda x: sort_key(x[0])))
-                for cat in special_keys:
-                    if cat in topics:
-                        sorted_topics[cat] = topics[cat]
-                if "Pings" in topics:
-                    sorted_topics["Pings"] = topics["Pings"]
-                return sorted_topics
-
             for speaker in result_data:
                 if "Self" in result_data[speaker]:
-                    result_data[speaker]["Self"] = custom_self_sort(result_data[speaker]["Self"], self.sort_debug_log)
+                    result_data[speaker]["Self"] = sort_subject_topics(
+                        self.group_config,
+                        result_data[speaker]["Self"],
+                    )
 
             # Save
             self.processing_debug_log.append(f"DEBUG: Saving result data to {self.output_json_path.get()}")
