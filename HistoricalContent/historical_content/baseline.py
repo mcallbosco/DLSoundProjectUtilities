@@ -19,6 +19,11 @@ from typing import Callable, Iterable
 
 from mutagen import File as MutagenFile, MutagenError
 
+from .predefined_transcripts import (
+    PredefinedTranscriptCatalog,
+    PredefinedTranscriptError,
+    load_predefined_transcripts,
+)
 from .transcription import DEFAULT_MODEL, transcribe_audio
 from .version_catalog import (
     rebuild_local_preview_manifest,
@@ -175,6 +180,7 @@ class BaselineSettings:
     model: str = DEFAULT_MODEL
     api_key: str | None = None
     transcription_vocabulary: Path | None = None
+    predefined_transcripts: Path | None = None
     transcribe_missing: bool = True
     workers: int = 4
     initialize_git: bool = True
@@ -876,6 +882,20 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     if not isinstance(voicelines, dict):
         raise BaselineError(f"Unsupported voicelines structure: {voiceline_path}")
 
+    predefined_catalog: PredefinedTranscriptCatalog | None = None
+    if settings.predefined_transcripts is not None:
+        try:
+            predefined_catalog = load_predefined_transcripts(
+                settings.predefined_transcripts
+            )
+        except PredefinedTranscriptError as exc:
+            raise BaselineError(str(exc)) from exc
+        progress(
+            f"Loaded {predefined_catalog.total_rows} predefined transcript rows; "
+            f"accepted {predefined_catalog.accepted_rows} safe official transcripts; "
+            f"skipped {predefined_catalog.skipped_conflicts} conflicting rows."
+        )
+
     repo = settings.transcript_repo.resolve()
     data_dir = settings.data_dir.resolve()
     if settings.initialize_git:
@@ -901,6 +921,8 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     ] = {}
     skipped_effort_keys: set[tuple[str, str | None]] = set()
     skipped_non_speech_keys: set[tuple[str, str | None]] = set()
+    predefined_matched_paths: set[str] = set()
+    predefined_applied_keys: set[tuple[str, str | None]] = set()
 
     def remember_audio(filename: str, path: Path | None) -> None:
         if path is None:
@@ -930,6 +952,13 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
             revision = _new_transcript_revision(entry, audio_hash)
             document["revisions"].append(revision)
         key = (filename.casefold(), audio_hash)
+        predefined_text = (
+            predefined_catalog.transcripts.get(filename.casefold())
+            if predefined_catalog is not None
+            else None
+        )
+        if predefined_text is not None:
+            predefined_matched_paths.add(filename.casefold())
         if _is_effort_recording(filename):
             source = revision.get("source")
             has_curated_text = source in {"manual", "official"} and bool(
@@ -950,6 +979,17 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                 revision["source"] = SKIPPED_NON_SPEECH_SOURCE
                 revision.pop("model", None)
                 skipped_non_speech_keys.add(key)
+        if (
+            predefined_text is not None
+            and not str(revision.get("text") or "").strip()
+            and revision.get("source") != "manual"
+        ):
+            revision["text"] = predefined_text
+            revision["source"] = "official"
+            revision.pop("model", None)
+            skipped_effort_keys.discard(key)
+            skipped_non_speech_keys.discard(key)
+            predefined_applied_keys.add(key)
         transcript_by_audio[key] = revision
         document_by_revision_id[id(revision)] = document
         current_transcript_keys.add(key)
@@ -1004,6 +1044,17 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
             conversation_records.append(
                 (str(source_line.get("speaker") or "unknown"), content_record, audio_path)
             )
+
+    if predefined_catalog is not None:
+        already_filled = len(predefined_matched_paths) - len(
+            {filename for filename, _audio_hash in predefined_applied_keys}
+        )
+        unmatched = predefined_catalog.accepted_rows - len(predefined_matched_paths)
+        progress(
+            f"Applied {len(predefined_applied_keys)} predefined official transcripts; "
+            f"{already_filled} matching recordings already had text; "
+            f"{unmatched} accepted entries did not occur in this version."
+        )
 
     if skipped_effort_keys:
         progress(

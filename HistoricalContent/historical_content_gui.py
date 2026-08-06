@@ -77,6 +77,7 @@ DEFAULTS = {
     "voicelineGroups": str(UTILITIES_DIR / "Assets" / "voiceline_groups.json"),
     "conversationOverrides": str(UTILITIES_DIR / "Assets" / "conversation_overrides.json"),
     "transcriptionVocabulary": str(UTILITIES_DIR / "Assets" / "deadlock_vocabulary.json"),
+    "predefinedTranscripts": "",
 }
 
 
@@ -133,6 +134,11 @@ class HistoricalContentGUI(tk.Tk):
             ("dataDir", "Persistent historical workspace", "directory"),
             ("workerDir", "Content Delivery Worker", "directory"),
             ("websiteDir", "Website project", "directory"),
+            (
+                "predefinedTranscripts",
+                "Predefined official transcripts CSV",
+                "csv",
+            ),
             ("versionId", "Version ID", None),
             ("label", "Display label", None),
             ("game", "Game ID", None),
@@ -281,6 +287,15 @@ class HistoricalContentGUI(tk.Tk):
                 title="Select Source2Viewer CLI",
                 filetypes=[("Executable", "*.exe"), ("All files", "*.*")],
             )
+        elif key == "predefinedTranscripts":
+            selected = filedialog.askopenfilename(
+                initialdir=str(initial),
+                title="Select predefined official transcript CSV",
+                filetypes=[
+                    ("Comma-separated values", "*.csv"),
+                    ("All files", "*.*"),
+                ],
+            )
         else:
             selected = filedialog.askdirectory(initialdir=str(initial))
         if selected:
@@ -352,6 +367,7 @@ class HistoricalContentGUI(tk.Tk):
         api_key: str | None,
         transcription_vocabulary: Path,
     ) -> BaselineSettings:
+        predefined_value = str(payload["predefinedTranscripts"]).strip()
         return BaselineSettings(
             source_dir=source_dir,
             transcript_repo=Path(str(payload["transcriptRepo"])),
@@ -362,6 +378,9 @@ class HistoricalContentGUI(tk.Tk):
             model=str(payload["model"]),
             api_key=api_key,
             transcription_vocabulary=transcription_vocabulary,
+            predefined_transcripts=(
+                Path(predefined_value) if predefined_value else None
+            ),
             transcribe_missing=bool(payload["transcribeMissing"]),
             workers=int(payload["workers"]),
             include_audio=bool(payload["includeAudio"]),

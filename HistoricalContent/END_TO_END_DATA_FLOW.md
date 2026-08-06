@@ -99,6 +99,11 @@ The version source has this structure:
 Historical Content reads official VDF subtitle text when the related archived
 game directory contains it. It marks this text as official.
 
+You can also select a **Predefined official transcripts CSV** in the same GUI.
+This source supplies official localization text for recordings shared with a
+newer game build. The selection is optional and is saved with the other local
+settings.
+
 Some old builds use `rr_test_<number>_<event>.mp3` names. These names do not
 contain a speaker. Historical Content uses the first folder below `sounds/vo`
 as the speaker alias. It applies `character-mappings.json` to that alias. If
@@ -124,36 +129,47 @@ The utility does these tasks:
 4. It indexes each referenced audio file.
 5. It calculates the SHA-256 value of each referenced audio file.
 6. It reads official and existing transcript text.
-7. It reuses text for identical audio.
+7. It applies safe exact-path matches from the optional predefined transcript
+   CSV to revisions that are still blank.
 8. It writes effort recordings with `source: "skippedeffort"` and known
    non-speech recordings with `source: "skippednonspeech"`. It does not send
    these recordings to the transcription model.
-9. It sends the remaining audio to the selected model. A blank model response
+9. It reuses text for identical audio.
+10. It sends the remaining audio to the selected model. A blank model response
    is stored as `skippednonspeech` and is not submitted again on later runs.
-10. It writes readable transcript JSON and category files.
-11. It writes the SQLite index.
-12. It makes the local preview tree and publisher source folder.
+11. It writes readable transcript JSON and category files.
+12. It writes the SQLite index.
+13. It makes the local preview tree and publisher source folder.
 
 The utility uses this transcript decision:
 
 ```mermaid
 flowchart TD
-    A["Read one line and its audio"] --> Z{"Is it an effort recording?"}
+    A["Read one line and its audio"] --> B{"Does this revision already have text?"}
+    B -- "Yes" --> C["Keep the existing transcript"]
+    B -- "No" --> D{"Does the predefined CSV have an exact safe match?"}
+    D -- "Yes" --> E["Use text with source official"]
+    D -- "No" --> Z{"Is it an effort recording?"}
     Z -- "Yes" --> Y["Write blank text with source skippedeffort"]
     Z -- "No" --> X{"Is it known non-speech audio?"}
     X -- "Yes" --> W["Write blank text with source skippednonspeech"]
-    X -- "No" --> B{"Does official text exist?"}
-    B -- "Yes" --> C["Use official text"]
-    B -- "No" --> D{"Does the same audio path and hash exist?"}
-    D -- "Yes" --> E["Keep the existing transcript"]
-    D -- "No" --> F{"Does identical audio have one known transcript?"}
+    X -- "No" --> F{"Does identical audio have one known transcript?"}
     F -- "Yes" --> G["Reuse the known transcript"]
     F -- "No" --> H["Send audio to the selected model"]
     C --> I["Write transcript JSON"]
     E --> I
+    Y --> I
+    W --> I
     G --> I
     H --> I
 ```
+
+For predefined transcript CSV input, the utility removes the `sounds/vo/`
+prefix, changes `.vsnd_c` to `.mp3`, normalizes path separators, and then
+matches the complete path case-insensitively. It accepts `single_match` and
+`multiple_keys_same_transcription`. It skips
+`multiple_conflicting_transcriptions`; it never writes joined alternatives
+such as `First text || Second text` into a transcript.
 
 The transcript key contains the relative audio path and the audio SHA-256
 value. The repository uses one small JSON file for each audio path. The file

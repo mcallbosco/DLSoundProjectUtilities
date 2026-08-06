@@ -113,12 +113,16 @@ function parseArgs(argv) {
   return options;
 }
 
-async function walk(directory) {
+async function walk(rootDirectory) {
   const files = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await walk(path));
-    else if (entry.isFile()) files.push(path);
+  const pending = [rootDirectory];
+  while (pending.length > 0) {
+    const directory = pending.pop();
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) pending.push(path);
+      else if (entry.isFile()) files.push(path);
+    }
   }
   return files;
 }

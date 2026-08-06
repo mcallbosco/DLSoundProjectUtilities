@@ -46,6 +46,11 @@ def parser() -> argparse.ArgumentParser:
         type=Path,
         default=UTILITIES_DIR / "Assets" / "deadlock_vocabulary.json",
     )
+    create.add_argument(
+        "--predefined-transcripts",
+        type=Path,
+        help="Optional CSV of official transcripts to apply before OpenAI.",
+    )
     create.add_argument("--workers", type=int, default=4)
     create.add_argument("--no-transcribe", action="store_true")
     create.add_argument("--no-audio", action="store_true", help="Skip audio in the preview tree.")
@@ -104,6 +109,7 @@ def main() -> int:
         model=args.model,
         api_key=api_key,
         transcription_vocabulary=args.transcription_vocabulary,
+        predefined_transcripts=args.predefined_transcripts,
         transcribe_missing=not args.no_transcribe,
         workers=args.workers,
         initialize_git=not args.no_git_init,

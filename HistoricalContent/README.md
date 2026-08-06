@@ -95,18 +95,20 @@ The launcher installs the OpenAI and R2 SDKs if they are missing. In the GUI:
 
 1. Select the main VPK and Source2Viewer CLI.
 2. Select the transcript repository and persistent workspace.
-3. Enter the version ID and display label.
-4. Click **Process VPK / regenerate content**.
+3. Optionally select a **Predefined official transcripts CSV**. Safe exact
+   matches fill missing text before any OpenAI requests.
+4. Enter the version ID and display label.
+5. Click **Process VPK / regenerate content**.
    Wait until the utility reports **Version ready**. The preview, category, and
    publication buttons stay disabled while this operation changes generated
    files.
-5. Open and edit the generated categories, voiceline groups, or character
+6. Open and edit the generated categories, voiceline groups, or character
    mappings in the transcript repository.
-6. Process the VPK again after a group or mapping change. Audio extraction is
+7. Process the VPK again after a group or mapping change. Audio extraction is
    reused.
-7. Click **Apply categories to preview** and refresh the browser. This updates
+8. Click **Apply categories to preview** and refresh the browser. This updates
    only category objects; it does not re-index audio or regenerate transcripts.
-8. Click **Seed and start website preview**.
+9. Click **Seed and start website preview**.
 
 The preview selector retains every version generated in the same data
 workspace. The current run becomes latest, and prior generated versions remain
@@ -203,6 +205,18 @@ from `Assets/deadlock_vocabulary.json` once, then treats the transcript
 repository copy as the editable source. The pipeline does not use a separate
 glossary file.
 
+The optional predefined transcript CSV imports official text that exists in a
+newer build but applies to path-stable historical recordings. The utility
+converts a CSV path such as
+`sounds/vo/astro/ping/astro_ping_01.vsnd_c` to the extracted audio key
+`astro/ping/astro_ping_01.mp3` and requires an exact, case-insensitive
+full-path match. It does not match by basename. Rows with `single_match` and
+`multiple_keys_same_transcription` are safe to import. Rows with
+`multiple_conflicting_transcriptions` are skipped and counted in the log.
+Imported text fills only blank revisions, is stored with `source: "official"`,
+and is available to both voicelines and conversation lines. Existing nonempty
+text is not replaced.
+
 `config/deadlock/character-names.json` is the editable per-game mapping from
 internal names and aliases to website display names. Baseline generation copies
 it to `<game>/character-names.json` in the preview tree and to
@@ -222,7 +236,9 @@ python HistoricalContent\baseline_cli.py create `
   --transcript-repo D:\Projects\DLSoundProject\DeadlockTranscripts `
   --data-dir D:\VLViewerHistoricalData `
   --version deadlock-base `
-  --label "Historical baseline"
+  --label "Historical baseline" `
+  --predefined-transcripts `
+    D:\Git\GameTracking-Deadlock\vo_shared_2025-02-25_to_2026-07-14_transcripts.csv
 ```
 
 Use `--no-transcribe` to generate a preview while leaving missing transcript

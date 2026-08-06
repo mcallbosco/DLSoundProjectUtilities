@@ -6,6 +6,7 @@ import sqlite3
 import tempfile
 import unittest
 from contextlib import closing
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -175,6 +176,153 @@ class BaselineTests(unittest.TestCase):
             public["abrams"]["Self"]["Test"][0]["transcription"],
             "Corrected manually.",
         )
+
+    def test_predefined_official_transcript_fills_missing_before_openai(self):
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"][0]["transcription"] = ""
+        write_json(self.source / "all_voicelines.json", payload)
+        predefined = self.root / "predefined.csv"
+        predefined.write_text(
+            '"file_path","vo_root","file_basename","transcription",'
+            '"localization_key","removed_localization_suffix","match_status"\n'
+            '"sounds/vo/abrams/abrams_test.vsnd_c","abrams","abrams_test",'
+            '"Official current line.","abrams_test_hero_3d","hero_3d",'
+            '"single_match"\n',
+            encoding="utf-8",
+        )
+        audio = self.source / "Audio"
+        (audio / "abrams").mkdir()
+        (audio / "abrams_test.mp3").replace(audio / "abrams" / "abrams_test.mp3")
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"][0]["filename"] = "abrams/abrams_test.mp3"
+        write_json(self.source / "all_voicelines.json", payload)
+        settings = BaselineSettings(
+            source_dir=self.source,
+            transcript_repo=self.repo,
+            data_dir=self.data,
+            api_key="test-key",
+            transcription_vocabulary=self.vocabulary,
+            predefined_transcripts=predefined,
+            transcribe_missing=True,
+            initialize_git=False,
+        )
+        progress_messages = []
+
+        with patch(
+            "HistoricalContent.historical_content.baseline.transcribe_audio"
+        ) as transcribe:
+            result = create_baseline(settings, progress=progress_messages.append)
+
+        transcribe.assert_not_called()
+        revision = self.transcript_revision("abrams/abrams_test.mp3")
+        self.assertEqual(revision["text"], "Official current line.")
+        self.assertEqual(revision["source"], "official")
+        self.assertNotIn("model", revision)
+        public = load_json(
+            result.preview_root / "deadlock" / "versions" /
+            "preview-deadlock-base" / "voicelines.json"
+        )
+        line = public["abrams"]["Self"]["Test"][0]
+        self.assertEqual(line["transcription"], "Official current line.")
+        self.assertTrue(line["officialtranscription"])
+        self.assertTrue(any(
+            "accepted 1 safe official transcripts" in message
+            for message in progress_messages
+        ))
+        self.assertTrue(any(
+            "Applied 1 predefined official transcripts" in message
+            for message in progress_messages
+        ))
+
+    def test_predefined_official_transcript_applies_to_conversation_line(self):
+        conversations = load_json(self.source / "all_conversations.json")
+        line = conversations["conversations"][0]["lines"][0]
+        line["transcription"] = ""
+        line["filename"] = (
+            "paradox/paradox_match_start_abrams_paradox_convo01_01.mp3"
+        )
+        write_json(self.source / "all_conversations.json", conversations)
+        audio = self.source / "Audio"
+        (audio / "paradox").mkdir()
+        original = audio / "paradox_match_start_abrams_paradox_convo01_01.mp3"
+        original.replace(audio / "paradox" / original.name)
+        predefined = self.root / "predefined.csv"
+        predefined.write_text(
+            '"file_path","vo_root","file_basename","transcription",'
+            '"localization_key","removed_localization_suffix","match_status"\n'
+            '"sounds/vo/paradox/'
+            'paradox_match_start_abrams_paradox_convo01_01.vsnd_c",'
+            '"paradox","paradox_match_start_abrams_paradox_convo01_01",'
+            '"Official conversation line.","conversation_key","hero_3d",'
+            '"single_match"\n',
+            encoding="utf-8",
+        )
+        settings = self.settings()
+        settings = replace(settings, predefined_transcripts=predefined)
+
+        result = create_baseline(settings, progress=lambda _message: None)
+
+        conversations = load_json(
+            result.preview_root / "deadlock" / "versions" /
+            "preview-deadlock-base" / "conversations.json"
+        )
+        line = conversations["conversations"][0]["lines"][0]
+        self.assertEqual(line["transcription"], "Official conversation line.")
+        self.assertTrue(line["officialtranscription"])
+
+    def test_predefined_transcript_does_not_replace_existing_text(self):
+        predefined = self.root / "predefined.csv"
+        predefined.write_text(
+            '"file_path","vo_root","file_basename","transcription",'
+            '"localization_key","removed_localization_suffix","match_status"\n'
+            '"sounds/vo/abrams/abrams_test.vsnd_c","abrams","abrams_test",'
+            '"Replacement text.","key","hero_3d","single_match"\n',
+            encoding="utf-8",
+        )
+        audio = self.source / "Audio"
+        (audio / "abrams").mkdir()
+        (audio / "abrams_test.mp3").replace(audio / "abrams" / "abrams_test.mp3")
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"][0]["filename"] = "abrams/abrams_test.mp3"
+        write_json(self.source / "all_voicelines.json", payload)
+        settings = self.settings()
+        settings = replace(settings, predefined_transcripts=predefined)
+
+        create_baseline(settings, progress=lambda _message: None)
+
+        revision = self.transcript_revision("abrams/abrams_test.mp3")
+        self.assertEqual(revision["text"], "Baseline line.")
+        self.assertEqual(revision["source"], "generated")
+
+    def test_predefined_official_transcript_overrides_effort_skip(self):
+        filename = "abrams/abrams_effort_special_01.mp3"
+        audio_path = self.source / "Audio" / Path(filename)
+        audio_path.parent.mkdir(parents=True)
+        audio_path.write_bytes(b"spoken-effort-audio")
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"].append({
+            "filename": filename,
+            "voiceline_id": "abrams_effort_special_01",
+            "transcription": "",
+        })
+        write_json(self.source / "all_voicelines.json", payload)
+        predefined = self.root / "predefined.csv"
+        predefined.write_text(
+            '"file_path","vo_root","file_basename","transcription",'
+            '"localization_key","removed_localization_suffix","match_status"\n'
+            '"sounds/vo/abrams/abrams_effort_special_01.vsnd_c","abrams",'
+            '"abrams_effort_special_01","Push through!","key","hero_3d",'
+            '"single_match"\n',
+            encoding="utf-8",
+        )
+        settings = self.settings()
+        settings = replace(settings, predefined_transcripts=predefined)
+
+        create_baseline(settings, progress=lambda _message: None)
+
+        revision = self.transcript_revision(filename)
+        self.assertEqual(revision["text"], "Push through!")
+        self.assertEqual(revision["source"], "official")
 
     def test_effort_recording_is_stored_but_not_transcribed(self):
         effort_filename = "abrams_effort_general_01.mp3"
