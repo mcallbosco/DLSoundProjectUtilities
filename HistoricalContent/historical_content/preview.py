@@ -96,6 +96,31 @@ def start_preview(
         raise RuntimeError(f"Wrangler is not installed. Run npm install in {worker_dir}")
     if not next_cli.is_file():
         raise RuntimeError(f"Next.js is not installed. Run npm install in {website_dir}")
+    environment = os.environ.copy()
+    environment["VLVIEWER_GAME"] = game
+    environment["NEXT_PUBLIC_VLVIEWER_GAME"] = game
+    environment["NEXT_PUBLIC_VLVIEWER_CONTENT_BASE_URL"] = "http://127.0.0.1:8787"
+    prepare_game = website_dir / "scripts" / "prepare-game-config.mjs"
+    if prepare_game.is_file():
+        progress(f"Preparing the {game} website configuration in {website_dir}...")
+        completed = subprocess.run(
+            [_executable("node"), str(prepare_game)],
+            cwd=website_dir,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            **_hidden_process_options(),
+        )
+        if completed.stdout.strip():
+            for line in completed.stdout.splitlines():
+                progress(line.rstrip())
+        if completed.returncode:
+            raise RuntimeError(
+                f"Website game configuration exited with status {completed.returncode}."
+            )
     progress("Starting local content Worker at http://127.0.0.1:8787...")
     worker = subprocess.Popen(
         [
@@ -105,9 +130,6 @@ def start_preview(
         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, text=True,
         **_hidden_process_options(),
     )
-    environment = os.environ.copy()
-    environment["NEXT_PUBLIC_VLVIEWER_CONTENT_BASE_URL"] = "http://127.0.0.1:8787"
-    environment["NEXT_PUBLIC_VLVIEWER_GAME"] = game
     progress("Starting the website with the local content origin...")
     website = subprocess.Popen(
         [_executable("node"), str(next_cli), "dev", "--turbopack"], cwd=website_dir,

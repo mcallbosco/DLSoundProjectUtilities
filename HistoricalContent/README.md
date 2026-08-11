@@ -77,7 +77,11 @@ official portrait variants directly from the VPK: `*_sm` for **Minimap**,
 is omitted. It also reads the same build's `scripts/heroes.vdata`. Thus, an
 internal hero such as `atlas` can use its actual historical `bull` portrait
 while the manifest also exposes the configured canonical name `abrams`. The
-generated override is written to:
+latest VPK's patron objective icons are also added to the Minimap variant:
+`patron_hiddenking` resolves through `patron_male`/`hidden king`, and
+`patron_archmother` resolves through `patron_female`/`archmother`. These use
+the same alias expansion and content-addressed filenames as hero portraits.
+The generated override is written to:
 
 ```text
 <workspace>/source/IconPacks/default/
@@ -340,10 +344,14 @@ transcripts only.
 The GUI bulk-seeds the generated tree into local R2 and launches:
 
 - the content Worker at `http://127.0.0.1:8787`; and
-- Next.js at `http://localhost:3000` with the local content-base override.
+- the VLViewer project at `D:/Projects/VLViewer` on
+  `http://localhost:3000` with the local content-base override.
 
-The website is started with its local Next.js CLI and `--turbopack`, bypassing
-its heavier `predev` asset generation.
+Existing configurations that still point to the former ConvoWebsite project
+are migrated to the VLViewer path automatically. Before starting its local
+Next.js CLI with `--turbopack`, Historical Content runs VLViewer's lightweight
+game-config preparation script for the selected game. It does not run the full
+asset refresh or production build.
 
 Large local seeds use bounded batches and can resume. If seeding stops because
 of a local process or network-stack error, click **Seed and start website

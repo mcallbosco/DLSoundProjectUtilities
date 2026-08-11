@@ -1,10 +1,18 @@
 from __future__ import annotations
 
 import tkinter as tk
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
-from HistoricalContent.historical_content_gui import HistoricalContentGUI
+from HistoricalContent.historical_content_gui import (
+    DEFAULT_WEBSITE_DIR,
+    HistoricalContentGUI,
+    LEGACY_WEBSITE_DIR,
+    load_config,
+)
 
 
 class _FakeButton:
@@ -16,6 +24,21 @@ class _FakeButton:
 
 
 class HistoricalContentGuiTests(unittest.TestCase):
+    def test_load_config_migrates_the_old_builtin_website_path(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            config_path = Path(temporary) / "config.json"
+            config_path.write_text(
+                json.dumps({"websiteDir": str(LEGACY_WEBSITE_DIR)}),
+                encoding="utf-8",
+            )
+            with patch(
+                "HistoricalContent.historical_content_gui.CONFIG_PATH",
+                config_path,
+            ):
+                config = load_config()
+
+        self.assertEqual(config["websiteDir"], str(DEFAULT_WEBSITE_DIR))
+
     def test_operations_are_mutually_exclusive(self):
         gui = object.__new__(HistoricalContentGUI)
         gui.active_operation = None

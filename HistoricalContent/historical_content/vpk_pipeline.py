@@ -32,7 +32,7 @@ HISTORICAL_ICON_RE = re.compile(
     r"^(?P<hero>.+)_(?P<variant>card_critical|card_gloat|card|sm)(?:_psd)?$",
     re.IGNORECASE,
 )
-HISTORICAL_ICON_FORMAT_VERSION = 4
+HISTORICAL_ICON_FORMAT_VERSION = 5
 HISTORICAL_ICON_VARIANTS = {
     "sm": "minimap",
     "card": "normal",
@@ -40,6 +40,10 @@ HISTORICAL_ICON_VARIANTS = {
     "card_critical": "critical",
 }
 HISTORICAL_HIGHLIGHT_VARIANTS = {"gloat", "critical"}
+HISTORICAL_PATRON_MINIMAP_ICONS = {
+    "patron_archmother_psd": "patron_female",
+    "patron_hiddenking_psd": "patron_male",
+}
 CHARACTER_NAME_IMAGE_FORMAT_VERSION = 1
 DEFAULT_NAME_IMAGE_MAX_HEIGHT = 512
 NAME_IMAGE_FILTERS = (
@@ -719,7 +723,7 @@ def _build_historical_icon_pack(
     *,
     include_highlight_variants: bool = True,
 ) -> int:
-    """Build the website's default icon override from old hero textures."""
+    """Build the website's default icon override from historical game textures."""
     enabled_variants = (
         set(HISTORICAL_ICON_VARIANTS.values())
         if include_highlight_variants
@@ -735,7 +739,12 @@ def _build_historical_icon_pack(
     for path in sorted(extracted_root.rglob("*")):
         if not path.is_file() or path.suffix.casefold() not in {".png", ".webp", ".jpg", ".jpeg"}:
             continue
-        match = HISTORICAL_ICON_RE.fullmatch(path.stem)
+        stem = path.stem.casefold()
+        patron = HISTORICAL_PATRON_MINIMAP_ICONS.get(stem)
+        if patron and "minimap" in enabled_variants:
+            found["minimap"].setdefault(patron, path)
+            continue
+        match = HISTORICAL_ICON_RE.fullmatch(stem)
         if not match:
             continue
         hero = match.group("hero").casefold()
@@ -789,7 +798,7 @@ def _build_historical_icon_pack(
         "id": "default",
         "label": "Historical game icons",
         "familyId": "official",
-        "description": "Hero portraits extracted from this historical Deadlock VPK.",
+        "description": "Hero and patron portraits extracted from this historical Deadlock VPK.",
         "hidden": False,
         "credits": [{"name": "Valve", "role": "Original assets"}],
         "license": "Valve game assets. Use is subject to Valve's applicable terms.",
@@ -847,6 +856,14 @@ def _export_historical_icons_from_vpk(
             source2viewer_binary,
             vpk_path,
             staging,
+            "panorama/images/npcs/patron",
+            extraction_threads,
+            progress,
+        )
+        _run_source2viewer(
+            source2viewer_binary,
+            vpk_path,
+            staging,
             "scripts/heroes",
             extraction_threads,
             progress,
@@ -861,7 +878,7 @@ def _export_historical_icons_from_vpk(
             raise VpkPipelineError(
                 "The VPK did not contain supported historical hero icons "
                 "(*_sm[_psd], *_card[_psd], *_card_gloat[_psd], or "
-                "*_card_critical[_psd])."
+                "*_card_critical[_psd]) or patron objective icons."
             )
         destination.parent.mkdir(parents=True, exist_ok=True)
         if destination.exists():

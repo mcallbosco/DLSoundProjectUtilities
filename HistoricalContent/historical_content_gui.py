@@ -59,13 +59,15 @@ APP_DIR = Path(__file__).resolve().parent
 UTILITIES_DIR = APP_DIR.parent
 CONFIG_PATH = APP_DIR / "config.json"
 CREDENTIAL_PATH = APP_DIR / "credentials.dpapi"
+LEGACY_WEBSITE_DIR = UTILITIES_DIR.parent / "ConvoWebsite" / "convowebsite"
+DEFAULT_WEBSITE_DIR = UTILITIES_DIR.parents[1] / "VLViewer"
 DEFAULTS = {
     "vpkPath": "",
     "source2viewerBinary": "",
     "transcriptRepo": str(UTILITIES_DIR / "DeadlockTranscripts"),
     "dataDir": "D:/VLViewerHistoricalData",
     "workerDir": str(UTILITIES_DIR / "ContentDeliveryWorker"),
-    "websiteDir": str(UTILITIES_DIR.parent / "ConvoWebsite" / "convowebsite"),
+    "websiteDir": str(DEFAULT_WEBSITE_DIR),
     "versionId": "deadlock-base",
     "label": "Historical baseline",
     "game": "deadlock",
@@ -98,6 +100,12 @@ def load_config() -> dict[str, object]:
                 result.update(payload)
         except Exception:
             pass
+    # Migrate the former built-in website path while preserving any custom
+    # project directory the operator selected explicitly.
+    configured_website = os.path.normcase(os.path.normpath(str(result.get("websiteDir", ""))))
+    legacy_website = os.path.normcase(os.path.normpath(str(LEGACY_WEBSITE_DIR)))
+    if configured_website == legacy_website:
+        result["websiteDir"] = str(DEFAULT_WEBSITE_DIR)
     # Import existing path choices once so the user does not have to find the
     # Source2Viewer executable again. The old GUI is not started or called.
     legacy_path = UTILITIES_DIR / "AllInOne" / "config.json"

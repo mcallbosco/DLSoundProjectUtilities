@@ -236,6 +236,11 @@ class VpkPipelineTests(unittest.TestCase):
         (extracted / "werewolf_card_psd.png").write_bytes(b"silver human")
         (extracted / "werewolf_wolf_card_psd.png").write_bytes(b"silver wolf")
         (extracted / "kali_mm_psd.png").write_bytes(b"unused raw map icon")
+        npcs = self.root / "extracted-icons" / "panorama" / "images" / "npcs"
+        npcs.mkdir(parents=True)
+        (npcs / "patron_archmother_psd.png").write_bytes(b"female patron minimap")
+        (npcs / "patron_hiddenking_psd.png").write_bytes(b"male patron minimap")
+        (npcs / "patron_psd.png").write_bytes(b"unused generic patron")
         scripts = self.root / "extracted-icons" / "scripts"
         scripts.mkdir(parents=True)
         (scripts / "heroes.vdata").write_text(
@@ -259,7 +264,7 @@ class VpkPipelineTests(unittest.TestCase):
             _validate_mapping(ASSETS / "character_mappings.json"),
         )
 
-        self.assertEqual(count, 9)
+        self.assertEqual(count, 11)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(
             manifest["icons"]["minimap"]["chrono"],
@@ -285,6 +290,21 @@ class VpkPipelineTests(unittest.TestCase):
             manifest["icons"]["normal"]["silver"],
             manifest["icons"]["normal"]["werewolf"],
         )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["patron_female"],
+            manifest["icons"]["minimap"]["archmother"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["patron_male"],
+            manifest["icons"]["minimap"]["hidden_king"],
+        )
+        self.assertTrue(
+            manifest["icons"]["minimap"]["patron_female"].startswith(
+                "minimap/patron_female."
+            )
+        )
+        self.assertNotIn("patron_female", manifest["icons"]["normal"])
+        self.assertNotIn("patron_male", manifest["icons"]["normal"])
         referenced_paths = {
             relative
             for entries in manifest["icons"].values()
@@ -297,6 +317,7 @@ class VpkPipelineTests(unittest.TestCase):
         }
         self.assertEqual(written_images, referenced_paths)
         self.assertFalse(any(path.name.startswith("kali_mm.") for path in destination.rglob("*")))
+        self.assertFalse(any(path.name.startswith("patron_psd.") for path in destination.rglob("*")))
 
     def test_historical_icon_pack_can_limit_backfill_to_minimap_and_normal(self):
         extracted = self.root / "limited-icons"
