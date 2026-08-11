@@ -1010,7 +1010,15 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         if not path:
             continue
         speaker = path[0]
-        filename = str(entry.get("filename") or "")
+        filename = _normalize_audio_key(str(entry.get("filename") or ""))
+        if not filename:
+            if entry.get("is_phantom") is True:
+                continue
+            identifier = str(entry.get("voiceline_id") or _line_id(entry) or "unknown")
+            raise BaselineError(
+                f"Voiceline {identifier!r} has no audio filename and is not marked "
+                "as a phantom line."
+            )
         audio_path = audio_index.resolve(filename)
         remember_audio(filename, audio_path)
         audio_hash = audio_index.hash(audio_path)
@@ -1034,7 +1042,16 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                     f"variation-{normalized_line.get('variation', 1)}-"
                     f"{normalized_line.get('speaker', 'unknown')}"
                 )
-            filename = str(normalized_line.get("filename") or "")
+            filename = _normalize_audio_key(
+                str(normalized_line.get("filename") or "")
+            )
+            if not filename:
+                if normalized_line.get("is_phantom") is True:
+                    continue
+                raise BaselineError(
+                    f"Conversation {conversation_id!r} has a line without an audio "
+                    "filename that is not marked as a phantom line."
+                )
             audio_path = audio_index.resolve(filename)
             remember_audio(filename, audio_path)
             audio_hash = audio_index.hash(audio_path)
@@ -1162,6 +1179,11 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         if isinstance(node, dict):
             if isinstance(node.get("filename"), str):
                 filename = _normalize_audio_key(node["filename"])
+                if not filename:
+                    result = dict(node)
+                    result.pop("audioKey", None)
+                    result.pop("duration", None)
+                    return result
                 audio_path = audio_index.resolve(filename)
                 audio_hash = audio_index.hash(audio_path)
                 key = (filename.casefold(), audio_hash)

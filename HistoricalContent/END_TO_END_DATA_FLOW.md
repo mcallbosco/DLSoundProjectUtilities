@@ -110,6 +110,12 @@ as the speaker alias. It applies `character-mappings.json` to that alias. If
 the current topic parser cannot read the old event name, the utility keeps the
 file as a `Self` topic. It does not discard the file.
 
+VDF-only phantom lines contain official text without audio. The utility keeps
+these lines in the generated content JSON, but it does not create per-audio
+transcript files, hashes, durations, asset rows, or recording-comparison state
+for them. Only records explicitly marked `is_phantom: true` can omit the
+filename.
+
 Historical Content also extracts the `*_mm` and `*_sm` hero images from the
 VPK. It reads `scripts/heroes.vdata` from the same build to connect each hero
 to the correct historical image. It writes the result as the version's

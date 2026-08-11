@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 from HistoricalContent.historical_content.baseline import (
     AudioIndex,
+    BaselineError,
     BaselineSettings,
     build_transcription_prompt,
     create_baseline,
@@ -156,6 +157,84 @@ class BaselineTests(unittest.TestCase):
             conversations["conversations"][0]["lines"][0]["duration"],
             1.234,
         )
+
+    def test_text_only_phantom_voiceline_is_preserved_without_transcript_file(self):
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"].append({
+            "filename": "",
+            "is_phantom": True,
+            "voiceline_id": "abrams_vdf_only_01_hero_3d",
+            "transcription": "Official text without audio.",
+            "officialtranscription": True,
+        })
+        write_json(self.source / "all_voicelines.json", payload)
+
+        result = create_baseline(self.settings(), progress=lambda _message: None)
+
+        self.assertEqual(result.voiceline_count, 1)
+        transcript_files = list((self.repo / "transcripts").rglob("*.json"))
+        self.assertEqual(len(transcript_files), 2)
+        public = load_json(
+            result.preview_root / "deadlock" / "versions" /
+            "preview-deadlock-base" / "voicelines.json"
+        )
+        phantom = public["abrams"]["Self"]["Test"][1]
+        self.assertEqual(phantom["filename"], "")
+        self.assertTrue(phantom["is_phantom"])
+        self.assertEqual(
+            phantom["transcription"],
+            "Official text without audio.",
+        )
+        self.assertTrue(phantom["officialtranscription"])
+        self.assertEqual(phantom["versionStatus"], {})
+        self.assertNotIn("audioKey", phantom)
+        self.assertNotIn("duration", phantom)
+
+    def test_text_only_phantom_conversation_line_is_preserved(self):
+        payload = load_json(self.source / "all_conversations.json")
+        payload["conversations"][0]["lines"].append({
+            "part": 2,
+            "variation": 1,
+            "speaker": "abrams",
+            "filename": "",
+            "is_phantom": True,
+            "transcription": "Official conversation text without audio.",
+            "officialtranscription": True,
+        })
+        write_json(self.source / "all_conversations.json", payload)
+
+        result = create_baseline(self.settings(), progress=lambda _message: None)
+
+        self.assertEqual(result.conversation_line_count, 1)
+        public = load_json(
+            result.preview_root / "deadlock" / "versions" /
+            "preview-deadlock-base" / "conversations.json"
+        )
+        phantom = public["conversations"][0]["lines"][1]
+        self.assertEqual(phantom["filename"], "")
+        self.assertTrue(phantom["is_phantom"])
+        self.assertEqual(
+            phantom["transcription"],
+            "Official conversation text without audio.",
+        )
+        self.assertTrue(phantom["officialtranscription"])
+        self.assertNotIn("audioKey", phantom)
+        self.assertNotIn("duration", phantom)
+
+    def test_empty_voiceline_filename_requires_phantom_marker(self):
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"].append({
+            "filename": "",
+            "voiceline_id": "broken_line",
+            "transcription": "Malformed line.",
+        })
+        write_json(self.source / "all_voicelines.json", payload)
+
+        with self.assertRaisesRegex(
+            BaselineError,
+            "Voiceline 'broken_line' has no audio filename and is not marked",
+        ):
+            create_baseline(self.settings(), progress=lambda _message: None)
 
     def test_manual_transcript_survives_regeneration(self):
         create_baseline(self.settings(), progress=lambda message: None)

@@ -193,6 +193,13 @@ The first run after this format change migrates the old per-speaker and
 per-conversation files. It removes those legacy JSON files only after it writes
 all per-audio files successfully.
 
+VDF-only phantom lines have official text but no audio file. They remain in
+generated voiceline or conversation JSON with `filename: ""` and
+`is_phantom: true`. Historical Content does not create transcript files, audio
+keys, durations, asset-index rows, or recording-comparison status for these
+text-only entries. An empty filename without the phantom marker is rejected as
+malformed content.
+
 The game category file is always the base for the baseline preview. The version
 category file is layered on top: it can add categories, add or reassign
 characters, and change category visibility without copying or erasing the

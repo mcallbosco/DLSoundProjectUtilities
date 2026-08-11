@@ -297,6 +297,8 @@ def recalculate_version_statuses(
         index: dict[str, str | None] = {}
         for line in _walk_lines(payload):
             filename = _normalized_filename(str(line["filename"]))
+            if not filename:
+                continue
             audio_hash = _line_audio_hash(line, root)
             previous = index.get(filename)
             if filename in index and previous != audio_hash:
@@ -320,6 +322,9 @@ def recalculate_version_statuses(
         newer_index = indexes.get(newer_id) if newer_id else None
         for line in _walk_lines(payload):
             filename = _normalized_filename(str(line["filename"]))
+            if not filename:
+                line["versionStatus"] = {}
+                continue
             status: dict[str, object] = {}
             if older_id and older_index is not None:
                 status["comparedTo"] = older_id
