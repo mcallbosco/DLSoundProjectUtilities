@@ -95,15 +95,6 @@ Icon extraction does not require loose localization files beside the VPK. It
 is cached with the VPK workspace and is copied into both local preview content
 and the publisher source by baseline generation.
 
-The one-time **Backfill historical icons...** action uses the VPK path already
-recorded in every registered workspace. It refreshes Minimap and Normal for all
-versions, adds Gloat and Critical only to the catalog's current latest version,
-and copies the result into the existing preview and generated publisher source.
-It does not parse audio, regenerate transcripts/localization, upload to R2, or
-change the version catalog. Missing workspaces or archived VPKs are reported
-and skipped; a failure in one version does not stop the rest. After it finishes,
-use **Publish / manage versions...** to republish the updated versions.
-
 When **Extract localized names** is enabled, the utility also looks for the
 localized hero-name images in the main VPK and every available official
 localization VPK. Team patron logos are included in the English asset set. A

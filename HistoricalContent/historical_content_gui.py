@@ -22,9 +22,6 @@ try:
         CredentialStoreError, delete_saved_api_key, load_saved_api_key,
         resolve_api_key, save_api_key,
     )
-    from .historical_content.icon_backfill import (
-        IconBackfillSettings, backfill_historical_icons,
-    )
     from .historical_content.preview import (
         PreviewProcesses, restart_preview_worker, seed_preview, start_preview,
     )
@@ -42,9 +39,6 @@ except ImportError:  # Direct execution from run_historical_content_gui.bat.
     from historical_content.credentials import (
         CredentialStoreError, delete_saved_api_key, load_saved_api_key,
         resolve_api_key, save_api_key,
-    )
-    from historical_content.icon_backfill import (
-        IconBackfillSettings, backfill_historical_icons,
     )
     from historical_content.preview import (
         PreviewProcesses, restart_preview_worker, seed_preview, start_preview,
@@ -250,12 +244,6 @@ class HistoricalContentGUI(tk.Tk):
             command=self._open_local_versions,
         )
         self.local_versions_button.pack(side=tk.LEFT, padx=5)
-        self.icon_backfill_button = ttk.Button(
-            primary_buttons,
-            text="Backfill historical icons...",
-            command=self._backfill_historical_icons,
-        )
-        self.icon_backfill_button.pack(side=tk.LEFT, padx=5)
         self.publish_button = ttk.Button(
             primary_buttons,
             text="Publish / manage versions...",
@@ -293,7 +281,6 @@ class HistoricalContentGUI(tk.Tk):
             self.preview_button,
             self.categories_button,
             self.local_versions_button,
-            self.icon_backfill_button,
             self.publish_button,
         ):
             button.configure(state=tk.DISABLED)
@@ -306,7 +293,6 @@ class HistoricalContentGUI(tk.Tk):
             self.preview_button,
             self.categories_button,
             self.local_versions_button,
-            self.icon_backfill_button,
             self.publish_button,
         ):
             button.configure(state=tk.NORMAL)
@@ -495,73 +481,6 @@ class HistoricalContentGUI(tk.Tk):
                 self.after(0, lambda: messagebox.showerror("VPK pipeline failed", error_message))
             finally:
                 self.after(0, self._finish_operation)
-        threading.Thread(target=work, daemon=True).start()
-
-    def _backfill_historical_icons(self) -> None:
-        try:
-            self._save(quiet=True)
-            payload = self._settings_payload()
-            game = str(payload["game"])
-            mappings = (
-                Path(str(payload["transcriptRepo"])).expanduser().resolve()
-                / "config" / game / "character-mappings.json"
-            )
-            if not mappings.is_file():
-                mappings = Path(str(payload["characterMappings"]))
-            settings = IconBackfillSettings(
-                data_dir=Path(str(payload["dataDir"])),
-                game=game,
-                source2viewer_binary=Path(str(payload["source2viewerBinary"])),
-                character_mappings=mappings,
-                extraction_threads=int(payload["extractionThreads"]),
-            )
-        except Exception as exc:
-            messagebox.showerror("Invalid settings", str(exc))
-            return
-        if not messagebox.askyesno(
-            "Backfill historical icons",
-            "Re-extract version-correct minimap and normal portraits for every "
-            "registered version?\n\nThe current latest version will also receive "
-            "gloat and critical portraits. Audio, transcripts, localization, and "
-            "production R2 will not be changed. Generated publisher sources and "
-            "local previews will be refreshed.\n\nThis can take several minutes.",
-        ):
-            return
-        if not self._begin_operation("historical icon backfill"):
-            return
-
-        def work() -> None:
-            try:
-                result = backfill_historical_icons(settings, self._log)
-                summary = (
-                    f"Updated {len(result.updated_versions)} version(s) with "
-                    f"{result.image_count:,} portrait files.\n"
-                    f"Skipped: {len(result.skipped_versions)}. "
-                    f"Failed: {len(result.failed_versions)}.\n\n"
-                    "Use Publish / manage versions to republish the updated versions."
-                )
-                self._log(summary)
-                if result.failed_versions:
-                    failed = ", ".join(result.failed_versions)
-                    self.after(0, lambda: messagebox.showwarning(
-                        "Icon backfill completed with errors",
-                        summary + f"\n\nFailed versions: {failed}",
-                    ))
-                else:
-                    self.after(0, lambda: messagebox.showinfo(
-                        "Icon backfill complete",
-                        summary,
-                    ))
-            except Exception as exc:
-                error_message = str(exc)
-                self._log(f"ERROR: {error_message}")
-                self.after(0, lambda: messagebox.showerror(
-                    "Icon backfill failed",
-                    error_message,
-                ))
-            finally:
-                self.after(0, self._finish_operation)
-
         threading.Thread(target=work, daemon=True).start()
 
     def _categories_path(self) -> Path:
