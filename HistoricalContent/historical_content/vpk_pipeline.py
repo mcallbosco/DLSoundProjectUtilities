@@ -29,10 +29,29 @@ VERSION_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 AUDIO_SUFFIXES = {".mp3", ".wav", ".ogg", ".m4a"}
 RR_TEST_RE = re.compile(r"^rr_test_\d+_(?P<line>.+)$", re.IGNORECASE)
 HISTORICAL_ICON_RE = re.compile(
-    r"^(?P<hero>.+)_(?P<variant>mm|sm)(?:_psd)?$",
+    r"^(?P<hero>.+)_(?P<variant>card_critical|card_gloat|card|sm)(?:_psd)?$",
     re.IGNORECASE,
 )
-HISTORICAL_ICON_FORMAT_VERSION = 2
+HISTORICAL_ICON_FORMAT_VERSION = 4
+HISTORICAL_ICON_VARIANTS = {
+    "sm": "minimap",
+    "card": "normal",
+    "card_gloat": "gloat",
+    "card_critical": "critical",
+}
+HISTORICAL_HIGHLIGHT_VARIANTS = {"gloat", "critical"}
+CHARACTER_NAME_IMAGE_FORMAT_VERSION = 1
+DEFAULT_NAME_IMAGE_MAX_HEIGHT = 512
+NAME_IMAGE_FILTERS = (
+    "panorama/images/heroes/hero_names",
+    "panorama/images/hud/objectives/team1_patron_logo_psd",
+    "panorama/images/hud/objectives/team2_patron_logo_psd",
+)
+NAME_IMAGE_CONVERTER = (
+    Path(__file__).resolve().parents[1]
+    / "scripts"
+    / "convert-character-name-images.mjs"
+)
 
 # These are deliberately exact folder fallbacks. Most voicelines must continue
 # to identify their speaker in the filename; only known historical layouts may
@@ -74,6 +93,8 @@ class VpkPipelineSettings:
     include_phantom: bool = True
     extract_localization: bool = True
     extract_icons: bool = True
+    extract_name_images: bool = True
+    name_image_max_height: int = DEFAULT_NAME_IMAGE_MAX_HEIGHT
     extraction_threads: int = 8
     force_reextract: bool = False
 
@@ -275,6 +296,8 @@ def _validate_settings(settings: VpkPipelineSettings) -> None:
         raise VpkPipelineError("Version ID must contain lowercase letters, numbers, dots, dashes, or underscores.")
     if settings.extraction_threads < 1 or settings.extraction_threads > 64:
         raise VpkPipelineError("Extraction threads must be between 1 and 64.")
+    if settings.name_image_max_height < 64 or settings.name_image_max_height > 4096:
+        raise VpkPipelineError("Character-name image height must be between 64 and 4096 pixels.")
 
 
 def _quick_vpk_fingerprint(path: Path) -> dict[str, object]:
@@ -422,6 +445,225 @@ def _export_localization(
         )
 
 
+def _vpk_name_image_filters(binary: Path, vpk: Path) -> tuple[str, ...]:
+    """Return only the supported asset filters present in one VPK."""
+    available: list[str] = []
+    for file_filter in NAME_IMAGE_FILTERS:
+        command = [
+            str(binary),
+            "-i", str(vpk),
+            "--vpk_list",
+            "-f", file_filter,
+        ]
+        try:
+            completed = subprocess.run(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+        except OSError as exc:
+            raise VpkPipelineError(f"Could not inspect character-name images in {vpk}: {exc}") from exc
+        if completed.returncode:
+            raise VpkPipelineError(
+                f"Source2Viewer exited with status {completed.returncode} while inspecting "
+                f"character-name images in {vpk}."
+            )
+        expected_marker = file_filter.rsplit("/", 1)[-1].casefold()
+        if expected_marker in completed.stdout.casefold():
+            available.append(file_filter)
+    return tuple(available)
+
+
+def _character_name_image_vpks(
+    settings: VpkPipelineSettings,
+    game_root: Path | None,
+) -> dict[str, Path]:
+    result = {"english": settings.vpk_path.resolve()}
+    if not game_root:
+        return result
+    game_dir = game_root / "game"
+    if not game_dir.is_dir():
+        return result
+    for directory in sorted(game_dir.glob("citadel_*"), key=lambda item: item.name.casefold()):
+        if not directory.is_dir():
+            continue
+        language = directory.name[len("citadel_"):].strip().casefold()
+        vpk = directory / "pak01_dir.vpk"
+        if language and vpk.is_file():
+            result[language] = vpk.resolve()
+    return result
+
+
+def _character_name_image_inputs(vpks: dict[str, Path]) -> dict[str, object]:
+    return {
+        language: {
+            "path": str(vpk),
+            "fingerprint": _quick_vpk_fingerprint(vpk),
+        }
+        for language, vpk in sorted(vpks.items())
+    }
+
+
+def _run_name_image_converter(
+    extracted: Path,
+    destination: Path,
+    max_height: int,
+) -> tuple[dict[str, dict[str, object]], list[str]]:
+    node = shutil.which("node")
+    if not node:
+        raise VpkPipelineError("Node.js is required to convert character-name images to WebP.")
+    if not NAME_IMAGE_CONVERTER.is_file():
+        raise VpkPipelineError(f"Character-name image converter is missing: {NAME_IMAGE_CONVERTER}")
+    command = [
+        node,
+        str(NAME_IMAGE_CONVERTER),
+        "--source", str(extracted),
+        "--output", str(destination),
+        "--max-height", str(max_height),
+    ]
+    completed = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if completed.returncode:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise VpkPipelineError(
+            "Character-name WebP conversion failed."
+            + (f"\n{detail}" if detail else "")
+        )
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        raise VpkPipelineError("Character-name converter returned invalid JSON.") from exc
+    images = payload.get("images") if isinstance(payload, dict) else None
+    if not isinstance(images, dict):
+        raise VpkPipelineError("Character-name converter did not return an image map.")
+    converted = {
+        str(key): value
+        for key, value in images.items()
+        if isinstance(key, str) and isinstance(value, dict)
+    }
+    raw_warnings = payload.get("warnings", []) if isinstance(payload, dict) else []
+    warnings: list[str] = []
+    if isinstance(raw_warnings, list):
+        for warning in raw_warnings:
+            if not isinstance(warning, dict):
+                continue
+            filename = warning.get("file")
+            detail = warning.get("error")
+            if isinstance(filename, str) and isinstance(detail, str):
+                warnings.append(f"{filename}: {detail}")
+    return converted, warnings
+
+
+def _export_character_name_images(
+    settings: VpkPipelineSettings,
+    source_dir: Path,
+    game_root: Path | None,
+    character_mappings: Path,
+    progress: Progress,
+) -> tuple[int, dict[str, object]]:
+    """Extract available localized wordmarks and package immutable WebPs."""
+    staging = source_dir.parent / "character-name-image-extraction"
+    destination = source_dir / "CharacterNameImages"
+    _safe_replace(staging, source_dir.parent)
+    _safe_replace(destination, source_dir)
+    mappings = _validate_mapping(character_mappings)
+    aliases = _alias_index(mappings)
+    vpks = _character_name_image_vpks(settings, game_root)
+    languages: dict[str, dict[str, dict[str, object]]] = {}
+    image_count = 0
+    try:
+        for language, vpk in sorted(vpks.items()):
+            available_filters = _vpk_name_image_filters(
+                settings.source2viewer_binary.resolve(),
+                vpk,
+            )
+            if not available_filters:
+                progress(f"Character-name images: [{language}] no supported assets found; skipping.")
+                continue
+            extracted = staging / language
+            _safe_replace(extracted, staging)
+            for file_filter in available_filters:
+                _run_source2viewer(
+                    settings.source2viewer_binary.resolve(),
+                    vpk,
+                    extracted,
+                    file_filter,
+                    settings.extraction_threads,
+                    progress,
+                )
+            converted, conversion_warnings = _run_name_image_converter(
+                extracted,
+                destination / language,
+                settings.name_image_max_height,
+            )
+            for warning in conversion_warnings:
+                progress(
+                    f"Character-name images: [{language}] skipped malformed asset: {warning}"
+                )
+            if not converted:
+                progress(f"Character-name images: [{language}] no supported assets found; skipping.")
+                shutil.rmtree(destination / language, ignore_errors=True)
+                continue
+
+            entries: dict[str, dict[str, object]] = {}
+            for source_key, value in sorted(converted.items()):
+                filename = value.get("file")
+                width = value.get("width")
+                height = value.get("height")
+                if (
+                    not isinstance(filename, str)
+                    or Path(filename).name != filename
+                    or not filename.casefold().endswith(".webp")
+                    or not isinstance(width, int)
+                    or not isinstance(height, int)
+                ):
+                    raise VpkPipelineError(
+                        f"Character-name converter returned invalid metadata for {language}/{source_key}."
+                    )
+                asset = {
+                    "path": f"{language}/{filename}",
+                    "width": width,
+                    "height": height,
+                }
+                for key in _icon_manifest_keys(source_key, mappings, aliases):
+                    entries.setdefault(key, asset)
+                image_count += 1
+            if entries:
+                languages[language] = entries
+                progress(
+                    f"Character-name images: [{language}] prepared {len(converted):,} WebP asset(s)."
+                )
+    finally:
+        if staging.is_dir():
+            shutil.rmtree(staging)
+
+    if not image_count:
+        shutil.rmtree(destination, ignore_errors=True)
+        progress("Character-name images were not present in the selected VPK set; continuing without them.")
+        return 0, {"available": False}
+
+    _write_json(destination / "manifest.json", {
+        "schemaVersion": 1,
+        "extractionFormatVersion": CHARACTER_NAME_IMAGE_FORMAT_VERSION,
+        "maxHeight": settings.name_image_max_height,
+        "languages": languages,
+    })
+    progress(
+        f"Character-name image set ready: {image_count:,} WebPs across "
+        f"{len(languages):,} language(s) at {destination}."
+    )
+    return image_count, {"available": True}
+
+
 def _icon_manifest_keys(
     hero: str,
     mappings: dict[str, list[str]],
@@ -441,32 +683,32 @@ def _icon_manifest_keys(
     return sorted(keys)
 
 
-def _historical_icon_owners(extracted_root: Path) -> dict[tuple[str, str], set[str]]:
+def _historical_icon_owners(extracted_root: Path) -> dict[str, set[str]]:
     """Read hero-to-portrait relationships from the selected build's heroes.vdata."""
     vdata = next(iter(sorted(extracted_root.rglob("heroes.vdata"))), None)
     if not vdata:
         return {}
     text = vdata.read_text(encoding="utf-8", errors="replace")
     entries = list(re.finditer(r"(?m)^\s*hero_([a-z0-9_]+)\s*=\s*$", text, re.IGNORECASE))
-    owners: dict[tuple[str, str], set[str]] = {}
-    field_patterns = {
-        "normal": re.compile(
+    owners: dict[str, set[str]] = {}
+    field_patterns = (
+        re.compile(
             r'm_strIconImageSmall\s*=.*?/heroes/([^/".]+?)(?:_sm)?\.psd',
             re.IGNORECASE,
         ),
-        "minimap": re.compile(
+        re.compile(
             r'm_strMinimapImage\s*=.*?/heroes/([^/".]+?)(?:_mm)?\.psd',
             re.IGNORECASE,
         ),
-    }
+    )
     for index, entry in enumerate(entries):
         hero = entry.group(1).casefold()
         end = entries[index + 1].start() if index + 1 < len(entries) else len(text)
         block = text[entry.end():end]
-        for variant, pattern in field_patterns.items():
+        for pattern in field_patterns:
             match = pattern.search(block)
             if match:
-                owners.setdefault((variant, match.group(1).casefold()), set()).add(hero)
+                owners.setdefault(match.group(1).casefold(), set()).add(hero)
     return owners
 
 
@@ -474,12 +716,22 @@ def _build_historical_icon_pack(
     extracted_root: Path,
     destination: Path,
     mappings: dict[str, list[str]],
+    *,
+    include_highlight_variants: bool = True,
 ) -> int:
     """Build the website's default icon override from old hero textures."""
-    variants = {"mm": "minimap", "sm": "normal"}
+    enabled_variants = (
+        set(HISTORICAL_ICON_VARIANTS.values())
+        if include_highlight_variants
+        else set(HISTORICAL_ICON_VARIANTS.values()) - HISTORICAL_HIGHLIGHT_VARIANTS
+    )
     aliases = _alias_index(mappings)
     owners = _historical_icon_owners(extracted_root)
-    found: dict[str, dict[str, Path]] = {"minimap": {}, "normal": {}}
+    found: dict[str, dict[str, Path]] = {
+        variant: {}
+        for variant in HISTORICAL_ICON_VARIANTS.values()
+        if variant in enabled_variants
+    }
     for path in sorted(extracted_root.rglob("*")):
         if not path.is_file() or path.suffix.casefold() not in {".png", ".webp", ".jpg", ".jpeg"}:
             continue
@@ -487,7 +739,9 @@ def _build_historical_icon_pack(
         if not match:
             continue
         hero = match.group("hero").casefold()
-        variant = variants[match.group("variant").casefold()]
+        variant = HISTORICAL_ICON_VARIANTS[match.group("variant").casefold()]
+        if variant not in enabled_variants:
+            continue
         found[variant].setdefault(hero, path)
 
     image_count = sum(len(images) for images in found.values())
@@ -501,15 +755,33 @@ def _build_historical_icon_pack(
             continue
         variant_dir = destination / variant
         variant_dir.mkdir(parents=True, exist_ok=True)
-        entries: dict[str, str] = {}
+        assets: dict[str, str] = {}
         for hero, source in sorted(images.items()):
-            filename = f"{hero}{source.suffix.casefold()}"
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            filename = f"{hero}.{digest}{source.suffix.casefold()}"
             shutil.copy2(source, variant_dir / filename)
-            relative = f"{variant}/{filename}"
-            icon_owners = {hero, *owners.get((variant, hero), set())}
+            assets[hero] = f"{variant}/{filename}"
+
+        entries: dict[str, str] = {}
+        # Preserve every raw Source 2 name before expanding aliases. Some
+        # characters intentionally have multiple assets in one canonical
+        # mapping (for example werewolf and werewolf_wolf). A direct raw key
+        # must always resolve to its own image instead of being overwritten by
+        # a later alias expansion.
+        for hero, relative in assets.items():
+            direct_key = hero.strip().casefold()
+            if direct_key:
+                entries[direct_key] = relative
+                entries[direct_key.replace(" ", "_")] = relative
+
+        # First-write-wins for canonical names and other aliases. Sorted raw
+        # names match the website's icon-manifest generator and make collisions
+        # deterministic while leaving the direct keys above untouched.
+        for hero, relative in assets.items():
+            icon_owners = {hero, *owners.get(hero, set())}
             for owner in sorted(icon_owners):
                 for key in _icon_manifest_keys(owner, mappings, aliases):
-                    entries[key] = relative
+                    entries.setdefault(key, relative)
         manifest_icons[variant] = entries
 
     _write_json(destination / "manifest.json", {
@@ -531,44 +803,79 @@ def _export_historical_icons(
     source_dir: Path,
     character_mappings: Path,
     progress: Progress,
+    *,
+    include_highlight_variants: bool = True,
 ) -> int:
-    """Extract and package old minimap/standard portraits directly from a VPK."""
+    """Extract and package version-correct hero portraits directly from a VPK."""
+    return _export_historical_icons_from_vpk(
+        source2viewer_binary=settings.source2viewer_binary.resolve(),
+        vpk_path=settings.vpk_path.resolve(),
+        source_dir=source_dir,
+        character_mappings=character_mappings,
+        extraction_threads=settings.extraction_threads,
+        include_highlight_variants=include_highlight_variants,
+        progress=progress,
+    )
+
+
+def _export_historical_icons_from_vpk(
+    *,
+    source2viewer_binary: Path,
+    vpk_path: Path,
+    source_dir: Path,
+    character_mappings: Path,
+    extraction_threads: int,
+    include_highlight_variants: bool,
+    progress: Progress,
+) -> int:
+    """Extract a historical icon pack without running any other VPK stages."""
     staging = source_dir.parent / "icon-extraction"
+    prepared = source_dir.parent / "icon-pack-prepared"
     destination = source_dir / "IconPacks" / "default"
     _safe_replace(staging, source_dir.parent)
-    _safe_replace(destination, source_dir)
+    _safe_replace(prepared, source_dir.parent)
     try:
         _run_source2viewer(
-            settings.source2viewer_binary.resolve(),
-            settings.vpk_path.resolve(),
+            source2viewer_binary,
+            vpk_path,
             staging,
             "panorama/images/heroes",
-            settings.extraction_threads,
+            extraction_threads,
             progress,
         )
         _run_source2viewer(
-            settings.source2viewer_binary.resolve(),
-            settings.vpk_path.resolve(),
+            source2viewer_binary,
+            vpk_path,
             staging,
             "scripts/heroes",
-            settings.extraction_threads,
+            extraction_threads,
             progress,
         )
         image_count = _build_historical_icon_pack(
             staging,
-            destination,
+            prepared,
             _validate_mapping(character_mappings),
+            include_highlight_variants=include_highlight_variants,
         )
         if not image_count:
             raise VpkPipelineError(
                 "The VPK did not contain supported historical hero icons "
-                "(*_mm[_psd] and *_sm[_psd])."
+                "(*_sm[_psd], *_card[_psd], *_card_gloat[_psd], or "
+                "*_card_critical[_psd])."
             )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if destination.exists():
+            if not destination.is_dir():
+                raise VpkPipelineError(f"Historical icon destination is not a directory: {destination}")
+            shutil.rmtree(destination)
+        os.replace(prepared, destination)
         progress(f"Historical icon pack ready: {image_count:,} portraits at {destination}.")
         return image_count
     finally:
         if staging.is_dir():
             shutil.rmtree(staging)
+        if prepared.is_dir():
+            shutil.rmtree(prepared)
 
 
 def _load_vdf(path: Path | None) -> dict[str, str]:
@@ -1047,6 +1354,57 @@ def prepare_vpk_export(
     elif settings.extract_localization:
         progress("VPK fingerprint is unchanged; reusing generated localization.")
 
+    name_image_output = source / "CharacterNameImages"
+    name_image_manifest_path = name_image_output / "manifest.json"
+    if settings.extract_name_images:
+        name_image_vpks = _character_name_image_vpks(settings, game_root)
+        name_image_inputs = _character_name_image_inputs(name_image_vpks)
+        saved_name_image_state = (
+            old_state.get("characterNameImages", {}) if isinstance(old_state, dict) else {}
+        )
+        name_image_available = (
+            isinstance(saved_name_image_state, dict)
+            and saved_name_image_state.get("available") is True
+        )
+        name_image_absent = (
+            isinstance(saved_name_image_state, dict)
+            and saved_name_image_state.get("available") is False
+        )
+        can_reuse_name_images = (
+            isinstance(saved_name_image_state, dict)
+            and saved_name_image_state.get("complete") is True
+            and saved_name_image_state.get("extractionFormatVersion")
+            == CHARACTER_NAME_IMAGE_FORMAT_VERSION
+            and saved_name_image_state.get("maxHeight") == settings.name_image_max_height
+            and saved_name_image_state.get("inputs") == name_image_inputs
+            and (
+                (name_image_available and name_image_manifest_path.is_file())
+                or (name_image_absent and not name_image_manifest_path.exists())
+            )
+        )
+        if not can_reuse_name_images:
+            image_count, availability = _export_character_name_images(
+                settings,
+                source,
+                game_root,
+                mappings,
+                progress,
+            )
+            old_state = dict(old_state) if isinstance(old_state, dict) else {}
+            old_state["characterNameImages"] = {
+                "complete": True,
+                "available": availability["available"],
+                "imageCount": image_count,
+                "extractionFormatVersion": CHARACTER_NAME_IMAGE_FORMAT_VERSION,
+                "maxHeight": settings.name_image_max_height,
+                "inputs": name_image_inputs,
+            }
+            _write_json(state_path, old_state)
+        else:
+            progress("Character-name image inputs are unchanged; reusing generated WebPs.")
+    elif name_image_output.is_dir():
+        shutil.rmtree(name_image_output)
+
     icon_output = source / "IconPacks" / "default"
     icon_manifest_path = icon_output / "manifest.json"
     icon_manifest = _read_json(icon_manifest_path) if icon_manifest_path.is_file() else {}
@@ -1061,9 +1419,22 @@ def prepare_vpk_export(
         and icons_ready
     )
     if settings.extract_icons and not can_reuse_icons:
-        _export_historical_icons(settings, source, mappings, progress)
+        icon_count = _export_historical_icons(settings, source, mappings, progress)
+        generated_icon_manifest = _read_json(icon_manifest_path)
+        generated_icon_variants = (
+            list(generated_icon_manifest.get("icons", {}).keys())
+            if isinstance(generated_icon_manifest, dict)
+            and isinstance(generated_icon_manifest.get("icons"), dict)
+            else []
+        )
         old_state = dict(old_state) if isinstance(old_state, dict) else {}
         old_state["iconsComplete"] = (icon_output / "manifest.json").is_file()
+        old_state["historicalIcons"] = {
+            "complete": old_state["iconsComplete"],
+            "extractionFormatVersion": HISTORICAL_ICON_FORMAT_VERSION,
+            "imageCount": icon_count,
+            "variants": generated_icon_variants,
+        }
         _write_json(state_path, old_state)
     elif settings.extract_icons:
         progress("VPK fingerprint is unchanged; reusing the historical icon pack.")

@@ -162,6 +162,28 @@ class PublisherCoreTests(unittest.TestCase):
         (self.root / "Audio").rmdir()
         return digest, audio_key
 
+    def add_character_name_images(self) -> None:
+        root = self.root / "CharacterNameImages"
+        (root / "english").mkdir(parents=True)
+        (root / "english" / "hero.hash.webp").write_bytes(b"webp-image")
+        (root / "manifest.json").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "extractionFormatVersion": 1,
+                "maxHeight": 512,
+                "languages": {
+                    "english": {
+                        "hero": {
+                            "path": "english/hero.hash.webp",
+                            "width": 640,
+                            "height": 512,
+                        }
+                    }
+                },
+            }),
+            encoding="utf-8",
+        )
+
     def test_validation_and_legacy_path_mapping(self) -> None:
         report = validate_version_source(self.root)
         self.assertTrue(report.valid, report.errors)
@@ -172,6 +194,44 @@ class PublisherCoreTests(unittest.TestCase):
         self.assertIn("localization/manifest.json", paths)
         self.assertIn("icons/default/manifest.json", paths)
         self.assertEqual(report.referenced_audio_count, 1)
+
+    def test_character_name_images_validate_map_and_advertise_webp(self) -> None:
+        self.add_character_name_images()
+        report = validate_version_source(self.root)
+        self.assertTrue(report.valid, report.errors)
+        records = {item.relative_path: item for item in report.files}
+        image_path = "character-name-images/english/hero.hash.webp"
+        self.assertIn("character-name-images/manifest.json", records)
+        self.assertEqual(records[image_path].content_type, "image/webp")
+
+        entry = version_manifest_entry(
+            self.settings,
+            content_revision=3,
+            has_character_name_images=True,
+        )
+        self.assertTrue(
+            entry["characterNameImagesUrl"].endswith(
+                "/character-name-images/manifest.json"
+            )
+        )
+
+    def test_missing_character_name_image_reference_is_an_error(self) -> None:
+        self.add_character_name_images()
+        (self.root / "CharacterNameImages" / "english" / "hero.hash.webp").unlink()
+        report = validate_version_source(self.root)
+        self.assertFalse(report.valid)
+        self.assertTrue(any("missing WebP" in error for error in report.errors))
+
+    def test_unsafe_character_name_image_url_is_an_error(self) -> None:
+        self.add_character_name_images()
+        manifest_path = self.root / "CharacterNameImages" / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["languages"]["english"]["hero"]["path"] = "https://example.com/hero.webp"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+        report = validate_version_source(self.root)
+        self.assertFalse(report.valid)
+        self.assertTrue(any("unsafe or non-WebP" in error for error in report.errors))
 
     def test_shared_audio_validates_and_maps_to_game_scope(self) -> None:
         digest, audio_key = self.use_shared_audio()

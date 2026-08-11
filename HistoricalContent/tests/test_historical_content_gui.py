@@ -23,6 +23,7 @@ class HistoricalContentGuiTests(unittest.TestCase):
         gui.preview_button = _FakeButton()
         gui.categories_button = _FakeButton()
         gui.local_versions_button = _FakeButton()
+        gui.icon_backfill_button = _FakeButton()
         gui.publish_button = _FakeButton()
 
         self.assertTrue(gui._begin_operation("content regeneration"))
@@ -34,6 +35,7 @@ class HistoricalContentGuiTests(unittest.TestCase):
                 gui.preview_button,
                 gui.categories_button,
                 gui.local_versions_button,
+                gui.icon_backfill_button,
                 gui.publish_button,
             )
         ))
@@ -54,6 +56,7 @@ class HistoricalContentGuiTests(unittest.TestCase):
                 gui.preview_button,
                 gui.categories_button,
                 gui.local_versions_button,
+                gui.icon_backfill_button,
                 gui.publish_button,
             )
         ))

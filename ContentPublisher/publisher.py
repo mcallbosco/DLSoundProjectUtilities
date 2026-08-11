@@ -54,6 +54,14 @@ class SourceFile:
     def content_type(self) -> str:
         if self.mutable:
             return "application/json; charset=utf-8"
+        explicit = {
+            ".webp": "image/webp",
+            ".png": "image/png",
+            ".svg": "image/svg+xml",
+            ".mp3": "audio/mpeg",
+        }.get(self.local_path.suffix.casefold())
+        if explicit:
+            return explicit
         guessed, _ = mimetypes.guess_type(self.relative_path)
         return guessed or "application/octet-stream"
 
@@ -375,6 +383,12 @@ def discover_version_files(source_dir: Path) -> tuple[list[SourceFile], list[str
     else:
         warnings.append("Default icon override directory is missing: IconPacks/default")
 
+    character_name_images_dir = source_dir / "CharacterNameImages"
+    if character_name_images_dir.is_dir():
+        _add_tree(files, character_name_images_dir, "character-name-images", errors)
+    else:
+        warnings.append("Character-name image directory is missing: CharacterNameImages")
+
     return sorted(files.values(), key=lambda item: item.relative_path), errors, warnings
 
 
@@ -431,6 +445,95 @@ def _validate_icon_manifest(source_dir: Path, report: ValidationReport) -> None:
         sample = ", ".join(sorted(missing)[:8])
         report.errors.append(
             f"Default icon manifest references {len(missing)} missing image(s): {sample}"
+        )
+
+
+def _validate_character_name_images_manifest(
+    source_dir: Path,
+    report: ValidationReport,
+) -> None:
+    root = source_dir / "CharacterNameImages"
+    manifest_path = root / "manifest.json"
+    if not root.is_dir():
+        return
+    if not manifest_path.is_file():
+        report.errors.append("CharacterNameImages is present but manifest.json is missing.")
+        return
+    try:
+        manifest = _read_json(manifest_path)
+    except Exception as exc:
+        report.errors.append(f"Invalid CharacterNameImages/manifest.json: {exc}")
+        return
+    if not isinstance(manifest, dict) or manifest.get("schemaVersion") != 1:
+        report.errors.append("CharacterNameImages/manifest.json must use schemaVersion 1.")
+        return
+    languages = manifest.get("languages")
+    if not isinstance(languages, dict):
+        report.errors.append("CharacterNameImages/manifest.json languages must be an object.")
+        return
+
+    referenced: set[str] = set()
+    for language, entries in languages.items():
+        if not isinstance(language, str) or not VERSION_ID_PATTERN.fullmatch(language):
+            report.errors.append(f"Character-name image language is invalid: {language!r}")
+            continue
+        if not isinstance(entries, dict):
+            report.errors.append(f"Character-name image language {language!r} must contain an object.")
+            continue
+        for character, asset in entries.items():
+            if not isinstance(character, str) or not character.strip() or not isinstance(asset, dict):
+                report.errors.append(
+                    f"Character-name image entry in {language!r} has an invalid character or asset."
+                )
+                continue
+            relative = asset.get("path")
+            width = asset.get("width")
+            height = asset.get("height")
+            if (
+                not isinstance(relative, str)
+                or "\\" in relative
+                or "%" in relative
+                or "?" in relative
+                or "#" in relative
+                or re.match(r"^[a-z][a-z0-9+.-]*:", relative, re.IGNORECASE)
+                or PurePosixPath(relative).is_absolute()
+                or any(part in ("", ".", "..") for part in PurePosixPath(relative).parts)
+                or not relative.casefold().endswith(".webp")
+            ):
+                report.errors.append(
+                    f"Character-name image {language}/{character} has an unsafe or non-WebP path."
+                )
+                continue
+            if (
+                not isinstance(width, int)
+                or isinstance(width, bool)
+                or width < 1
+                or not isinstance(height, int)
+                or isinstance(height, bool)
+                or height < 1
+            ):
+                report.errors.append(
+                    f"Character-name image {language}/{character} has invalid dimensions."
+                )
+                continue
+            referenced.add(PurePosixPath(relative).as_posix())
+
+    missing = sorted(path for path in referenced if not (root / Path(*path.split("/"))).is_file())
+    if missing:
+        report.errors.append(
+            f"Character-name image manifest references {len(missing)} missing WebP file(s): "
+            + ", ".join(missing[:10])
+        )
+    unexpected = sorted(
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file()
+        and path != manifest_path
+        and path.suffix.casefold() != ".webp"
+    )
+    if unexpected:
+        report.errors.append(
+            "CharacterNameImages contains non-WebP assets: " + ", ".join(unexpected[:10])
         )
 
 
@@ -641,6 +744,7 @@ def validate_version_source(source_dir: Path) -> ValidationReport:
             report.warnings.append(f"Published content will not include {required_manifest}")
 
     _validate_icon_manifest(source_dir, report)
+    _validate_character_name_images_manifest(source_dir, report)
     return report
 
 
@@ -867,6 +971,7 @@ def version_manifest_entry(
     content_revision: int,
     existing: dict[str, Any] | None = None,
     has_categories: bool = False,
+    has_character_name_images: bool = False,
 ) -> dict[str, Any]:
     existing = existing or {}
     base = f"{settings.cdn_base_url}/{settings.version_prefix}"
@@ -888,6 +993,8 @@ def version_manifest_entry(
     }
     if has_categories:
         entry["categoriesUrl"] = f"{base}/categories.json"
+    if has_character_name_images:
+        entry["characterNameImagesUrl"] = f"{base}/character-name-images/manifest.json"
     return entry
 
 
@@ -1454,6 +1561,7 @@ class R2Publisher:
         content_revision: int,
         has_categories: bool | None = None,
         has_shared_audio: bool = False,
+        has_character_name_images: bool | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         manifest = self.load_game_manifest()
         versions = manifest.get("versions")
@@ -1469,11 +1577,16 @@ class R2Publisher:
         existing = versions[existing_index] if existing_index is not None else None
         if has_categories is None:
             has_categories = (self.settings.source_dir / "categories.json").is_file()
+        if has_character_name_images is None:
+            has_character_name_images = (
+                self.settings.source_dir / "CharacterNameImages" / "manifest.json"
+            ).is_file()
         entry = version_manifest_entry(
             self.settings,
             content_revision,
             existing,
             has_categories=has_categories,
+            has_character_name_images=has_character_name_images,
         )
         new_versions = list(versions)
         if existing_index is None:
@@ -1600,6 +1713,9 @@ class R2Publisher:
         manifest, entry = self._build_game_manifest(
             revision,
             has_categories="categories.json" in inventory["files"],
+            has_character_name_images=(
+                "character-name-images/manifest.json" in inventory["files"]
+            ),
             has_shared_audio=any(
                 record.scope == "game" for record in plan.local_records.values()
             ),

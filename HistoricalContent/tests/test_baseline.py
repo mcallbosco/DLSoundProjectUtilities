@@ -88,6 +88,21 @@ class BaselineTests(unittest.TestCase):
         return payload["revisions"][index]
 
     def test_creates_transcripts_database_and_preview(self):
+        name_images = self.source / "CharacterNameImages"
+        (name_images / "english").mkdir(parents=True)
+        (name_images / "english" / "abrams.hash.webp").write_bytes(b"webp")
+        write_json(name_images / "manifest.json", {
+            "schemaVersion": 1,
+            "languages": {
+                "english": {
+                    "abrams": {
+                        "path": "english/abrams.hash.webp",
+                        "width": 640,
+                        "height": 512,
+                    }
+                }
+            },
+        })
         result = create_baseline(self.settings(), progress=lambda message: None)
         voice = load_json(self.transcript_path("abrams_test.mp3"))
         self.assertEqual(voice["filename"], "abrams_test.mp3")
@@ -113,6 +128,14 @@ class BaselineTests(unittest.TestCase):
         )
         self.assertEqual(character_names["names"]["abrams"], "Abrams")
         self.assertTrue((result.publish_source / "character-names.json").is_file())
+        self.assertTrue(
+            (result.publish_source / "CharacterNameImages" / "english" / "abrams.hash.webp").is_file()
+        )
+        self.assertEqual(
+            manifest["versions"][0]["characterNameImagesUrl"],
+            "http://127.0.0.1:8787/deadlock/versions/"
+            "preview-deadlock-base/character-name-images/manifest.json",
+        )
         characters = load_json(result.preview_root / "deadlock" / "characters.json")
         self.assertEqual(characters["characters"], ["abrams", "paradox"])
         self.assertEqual(

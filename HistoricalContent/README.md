@@ -70,20 +70,57 @@ resolve multi-part names such as `grey_talon`, remove legacy `_old` ping markers
 and normalize the historical orange-lane, `headed_to_*`, `idols_call`,
 `take_core`, `nevermind`, and `back` vocabulary.
 
-When **Extract icons** is enabled, the utility extracts the
-old `*_mm` minimap portraits and `*_sm` standard portraits directly from the
-VPK. It also reads the same build's `scripts/heroes.vdata`. Thus, an internal
-hero such as `atlas` can use its actual historical `bull` portrait while the
-manifest also exposes the configured canonical name `abrams`. The generated
-override is written to:
+When **Extract icons** is enabled, the utility extracts VLViewer's four
+official portrait variants directly from the VPK: `*_sm` for **Minimap**,
+`*_card` for **Normal**, `*_card_gloat` for **Gloat**, and
+`*_card_critical` for **Critical**. A variant that did not exist in that build
+is omitted. It also reads the same build's `scripts/heroes.vdata`. Thus, an
+internal hero such as `atlas` can use its actual historical `bull` portrait
+while the manifest also exposes the configured canonical name `abrams`. The
+generated override is written to:
 
 ```text
 <workspace>/source/IconPacks/default/
 ```
 
+Extracted portrait filenames include their SHA-256 hash. This lets a corrected
+backfill publish new immutable R2 objects while the updated JSON manifest moves
+clients away from the older object paths.
+
 Icon extraction does not require loose localization files beside the VPK. It
 is cached with the VPK workspace and is copied into both local preview content
 and the publisher source by baseline generation.
+
+The one-time **Backfill historical icons...** action uses the VPK path already
+recorded in every registered workspace. It refreshes Minimap and Normal for all
+versions, adds Gloat and Critical only to the catalog's current latest version,
+and copies the result into the existing preview and generated publisher source.
+It does not parse audio, regenerate transcripts/localization, upload to R2, or
+change the version catalog. Missing workspaces or archived VPKs are reported
+and skipped; a failure in one version does not stop the rest. After it finishes,
+use **Publish / manage versions...** to republish the updated versions.
+
+When **Extract localized names** is enabled, the utility also looks for the
+localized hero-name images in the main VPK and every available official
+localization VPK. Team patron logos are included in the English asset set. A
+language or individual image that did not exist in a build is skipped with a
+warning, so older VPKs remain processable and the website can render localized
+text in its place.
+
+The SVG sources are rasterized as grayscale-compatible WebP files while
+preserving their antialiased alpha channel. The converter tries exact lossless
+and high-quality near-lossless WebP and keeps the smaller result. Images are
+not enlarged and their maximum height defaults to 512 pixels; the value is
+configurable in the pipeline options. The generated manifest and hashed assets
+are written to:
+
+```text
+<workspace>/source/CharacterNameImages/
+```
+
+This extraction is cached using all relevant localization VPK fingerprints,
+the output format version, and the configured maximum height. Baseline
+generation carries the directory into both preview and publisher output.
 
 ## Launch the GUI
 
@@ -91,7 +128,8 @@ and the publisher source by baseline generation.
 HistoricalContent\run_historical_content_gui.bat
 ```
 
-The launcher installs the OpenAI and R2 SDKs if they are missing. In the GUI:
+The launcher installs the OpenAI and R2 SDKs and the local Sharp image
+dependency if they are missing. In the GUI:
 
 1. Select the main VPK and Source2Viewer CLI.
 2. Select the transcript repository and persistent workspace.
