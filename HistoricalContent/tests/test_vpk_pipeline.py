@@ -235,6 +235,8 @@ class VpkPipelineTests(unittest.TestCase):
         (extracted / "bull_card_psd.png").write_bytes(b"abrams normal")
         (extracted / "werewolf_card_psd.png").write_bytes(b"silver human")
         (extracted / "werewolf_wolf_card_psd.png").write_bytes(b"silver wolf")
+        (extracted / "hornet_sm_png.png").write_bytes(b"vindicta large icon")
+        (extracted / "hornet_sm_psd_d09ce06e.png").write_bytes(b"non-canonical duplicate")
         (extracted / "kali_mm_psd.png").write_bytes(b"unused raw map icon")
         npcs = self.root / "extracted-icons" / "panorama" / "images" / "npcs"
         npcs.mkdir(parents=True)
@@ -253,6 +255,11 @@ class VpkPipelineTests(unittest.TestCase):
             "{\n"
             '  m_strIconImageSmall = panorama:"file://{images}/heroes/chrono_sm.psd"\n'
             '  m_strMinimapImage = panorama:"file://{images}/heroes/chrono_mm.psd"\n'
+            "}\n"
+            "hero_hornet =\n"
+            "{\n"
+            '  m_strIconImageSmall = panorama:"file://{images}/heroes/hornet_sm.png"\n'
+            '  m_strMinimapImage = panorama:"file://{images}/heroes/hornet_mm.psd"\n'
             "}\n",
             encoding="utf-8",
         )
@@ -264,7 +271,7 @@ class VpkPipelineTests(unittest.TestCase):
             _validate_mapping(ASSETS / "character_mappings.json"),
         )
 
-        self.assertEqual(count, 11)
+        self.assertEqual(count, 12)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(
             manifest["icons"]["minimap"]["chrono"],
@@ -273,6 +280,14 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertEqual(
             manifest["icons"]["minimap"]["kali"],
             manifest["icons"]["minimap"]["vyper"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["hornet"],
+            manifest["icons"]["minimap"]["vindicta"],
+        )
+        self.assertEqual(
+            (destination / manifest["icons"]["minimap"]["vindicta"]).read_bytes(),
+            b"vindicta large icon",
         )
         self.assertEqual(
             manifest["icons"]["normal"]["atlas"],
