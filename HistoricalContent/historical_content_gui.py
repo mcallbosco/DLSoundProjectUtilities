@@ -53,13 +53,15 @@ APP_DIR = Path(__file__).resolve().parent
 UTILITIES_DIR = APP_DIR.parent
 CONFIG_PATH = APP_DIR / "config.json"
 CREDENTIAL_PATH = APP_DIR / "credentials.dpapi"
+LEGACY_WEBSITE_DIR = UTILITIES_DIR.parent / "ConvoWebsite" / "convowebsite"
+DEFAULT_WEBSITE_DIR = UTILITIES_DIR.parents[1] / "VLViewer"
 DEFAULTS = {
     "vpkPath": "",
     "source2viewerBinary": "",
     "transcriptRepo": str(UTILITIES_DIR / "DeadlockTranscripts"),
     "dataDir": "D:/VLViewerHistoricalData",
     "workerDir": str(UTILITIES_DIR / "ContentDeliveryWorker"),
-    "websiteDir": str(UTILITIES_DIR.parent / "ConvoWebsite" / "convowebsite"),
+    "websiteDir": str(DEFAULT_WEBSITE_DIR),
     "versionId": "deadlock-base",
     "label": "Historical baseline",
     "game": "deadlock",
@@ -70,6 +72,8 @@ DEFAULTS = {
     "includePhantom": True,
     "extractLocalization": True,
     "extractIcons": True,
+    "extractNameImages": True,
+    "nameImageMaxHeight": 512,
     "extractionThreads": 8,
     "forceReextract": False,
     "characterMappings": str(UTILITIES_DIR / "Assets" / "character_mappings.json"),
@@ -90,6 +94,12 @@ def load_config() -> dict[str, object]:
                 result.update(payload)
         except Exception:
             pass
+    # Migrate the former built-in website path while preserving any custom
+    # project directory the operator selected explicitly.
+    configured_website = os.path.normcase(os.path.normpath(str(result.get("websiteDir", ""))))
+    legacy_website = os.path.normcase(os.path.normpath(str(LEGACY_WEBSITE_DIR)))
+    if configured_website == legacy_website:
+        result["websiteDir"] = str(DEFAULT_WEBSITE_DIR)
     # Import existing path choices once so the user does not have to find the
     # Source2Viewer executable again. The old GUI is not started or called.
     legacy_path = UTILITIES_DIR / "AllInOne" / "config.json"
@@ -178,6 +188,21 @@ class HistoricalContentGUI(tk.Tk):
         ttk.Checkbutton(pipeline_options, text="Generate localization", variable=self.localization_var).pack(side=tk.LEFT, padx=14)
         self.icons_var = tk.BooleanVar(value=bool(self.config_data["extractIcons"]))
         ttk.Checkbutton(pipeline_options, text="Extract icons", variable=self.icons_var).pack(side=tk.LEFT)
+        self.name_images_var = tk.BooleanVar(value=bool(self.config_data["extractNameImages"]))
+        ttk.Checkbutton(
+            pipeline_options,
+            text="Extract localized names",
+            variable=self.name_images_var,
+        ).pack(side=tk.LEFT, padx=(14, 4))
+        ttk.Label(pipeline_options, text="Max height").pack(side=tk.LEFT)
+        self.name_image_height_var = tk.IntVar(value=int(self.config_data["nameImageMaxHeight"]))
+        ttk.Spinbox(
+            pipeline_options,
+            from_=64,
+            to=4096,
+            textvariable=self.name_image_height_var,
+            width=5,
+        ).pack(side=tk.LEFT, padx=(4, 0))
         self.force_extract_var = tk.BooleanVar(value=bool(self.config_data["forceReextract"]))
         ttk.Checkbutton(pipeline_options, text="Force audio re-extraction", variable=self.force_extract_var).pack(side=tk.LEFT, padx=14)
 
@@ -328,6 +353,8 @@ class HistoricalContentGUI(tk.Tk):
             "includePhantom": self.phantom_var.get(),
             "extractLocalization": self.localization_var.get(),
             "extractIcons": self.icons_var.get(),
+            "extractNameImages": self.name_images_var.get(),
+            "nameImageMaxHeight": int(self.name_image_height_var.get()),
             "forceReextract": self.force_extract_var.get(),
         }
 
@@ -403,6 +430,8 @@ class HistoricalContentGUI(tk.Tk):
             include_phantom=bool(payload["includePhantom"]),
             extract_localization=bool(payload["extractLocalization"]),
             extract_icons=bool(payload["extractIcons"]),
+            extract_name_images=bool(payload["extractNameImages"]),
+            name_image_max_height=int(payload["nameImageMaxHeight"]),
             extraction_threads=int(payload["extractionThreads"]),
             force_reextract=bool(payload["forceReextract"]),
         )

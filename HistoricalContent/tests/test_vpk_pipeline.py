@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,6 +10,8 @@ from unittest.mock import patch
 from HistoricalContent.historical_content.vpk_pipeline import (
     VpkPipelineSettings,
     _build_historical_icon_pack,
+    _export_character_name_images,
+    _vpk_name_image_filters,
     _validate_mapping,
     create_coverage,
     parse_conversations,
@@ -223,12 +226,23 @@ class VpkPipelineTests(unittest.TestCase):
     def test_historical_icon_pack_maps_internal_and_canonical_names(self):
         extracted = self.root / "extracted-icons" / "panorama" / "images" / "heroes"
         extracted.mkdir(parents=True)
-        (extracted / "chrono_mm_psd.png").write_bytes(b"chrono minimap")
-        (extracted / "chrono_sm_psd.png").write_bytes(b"chrono normal")
-        (extracted / "kali_mm_psd.png").write_bytes(b"kali minimap")
-        (extracted / "bull_mm_psd.png").write_bytes(b"abrams minimap")
-        (extracted / "bull_sm_psd.png").write_bytes(b"abrams normal")
-        (extracted / "kali_card_psd.png").write_bytes(b"ignored card")
+        (extracted / "chrono_sm_psd.png").write_bytes(b"chrono minimap")
+        (extracted / "chrono_card_psd.png").write_bytes(b"chrono normal")
+        (extracted / "chrono_card_gloat_psd.png").write_bytes(b"chrono gloat")
+        (extracted / "chrono_card_critical_psd.png").write_bytes(b"chrono critical")
+        (extracted / "kali_sm_psd.png").write_bytes(b"kali minimap")
+        (extracted / "bull_sm_psd.png").write_bytes(b"abrams minimap")
+        (extracted / "bull_card_psd.png").write_bytes(b"abrams normal")
+        (extracted / "werewolf_card_psd.png").write_bytes(b"silver human")
+        (extracted / "werewolf_wolf_card_psd.png").write_bytes(b"silver wolf")
+        (extracted / "hornet_sm_png.png").write_bytes(b"vindicta large icon")
+        (extracted / "hornet_sm_psd_d09ce06e.png").write_bytes(b"non-canonical duplicate")
+        (extracted / "kali_mm_psd.png").write_bytes(b"unused raw map icon")
+        npcs = self.root / "extracted-icons" / "panorama" / "images" / "npcs"
+        npcs.mkdir(parents=True)
+        (npcs / "patron_archmother_psd.png").write_bytes(b"female patron minimap")
+        (npcs / "patron_hiddenking_psd.png").write_bytes(b"male patron minimap")
+        (npcs / "patron_psd.png").write_bytes(b"unused generic patron")
         scripts = self.root / "extracted-icons" / "scripts"
         scripts.mkdir(parents=True)
         (scripts / "heroes.vdata").write_text(
@@ -241,6 +255,11 @@ class VpkPipelineTests(unittest.TestCase):
             "{\n"
             '  m_strIconImageSmall = panorama:"file://{images}/heroes/chrono_sm.psd"\n'
             '  m_strMinimapImage = panorama:"file://{images}/heroes/chrono_mm.psd"\n'
+            "}\n"
+            "hero_hornet =\n"
+            "{\n"
+            '  m_strIconImageSmall = panorama:"file://{images}/heroes/hornet_sm.png"\n'
+            '  m_strMinimapImage = panorama:"file://{images}/heroes/hornet_mm.psd"\n'
             "}\n",
             encoding="utf-8",
         )
@@ -252,17 +271,219 @@ class VpkPipelineTests(unittest.TestCase):
             _validate_mapping(ASSETS / "character_mappings.json"),
         )
 
-        self.assertEqual(count, 5)
+        self.assertEqual(count, 12)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
-        self.assertEqual(manifest["icons"]["minimap"]["chrono"], "minimap/chrono.png")
-        self.assertEqual(manifest["icons"]["minimap"]["paradox"], "minimap/chrono.png")
-        self.assertEqual(manifest["icons"]["minimap"]["kali"], "minimap/kali.png")
-        self.assertEqual(manifest["icons"]["minimap"]["vyper"], "minimap/kali.png")
-        self.assertEqual(manifest["icons"]["normal"]["paradox"], "normal/chrono.png")
-        self.assertEqual(manifest["icons"]["normal"]["atlas"], "normal/bull.png")
-        self.assertEqual(manifest["icons"]["normal"]["abrams"], "normal/bull.png")
-        self.assertTrue((destination / "normal" / "chrono.png").is_file())
-        self.assertFalse((destination / "normal" / "kali.png").exists())
+        self.assertEqual(
+            manifest["icons"]["minimap"]["chrono"],
+            manifest["icons"]["minimap"]["paradox"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["kali"],
+            manifest["icons"]["minimap"]["vyper"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["hornet"],
+            manifest["icons"]["minimap"]["vindicta"],
+        )
+        self.assertEqual(
+            (destination / manifest["icons"]["minimap"]["vindicta"]).read_bytes(),
+            b"vindicta large icon",
+        )
+        self.assertEqual(
+            manifest["icons"]["normal"]["atlas"],
+            manifest["icons"]["normal"]["abrams"],
+        )
+        self.assertTrue(manifest["icons"]["normal"]["paradox"].startswith("normal/chrono."))
+        self.assertTrue(manifest["icons"]["gloat"]["paradox"].startswith("gloat/chrono."))
+        self.assertTrue(manifest["icons"]["critical"]["paradox"].startswith("critical/chrono."))
+        self.assertTrue((destination / manifest["icons"]["normal"]["paradox"]).is_file())
+        self.assertNotEqual(
+            manifest["icons"]["normal"]["werewolf"],
+            manifest["icons"]["normal"]["werewolf_wolf"],
+        )
+        self.assertEqual(
+            manifest["icons"]["normal"]["silver"],
+            manifest["icons"]["normal"]["werewolf"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["patron_female"],
+            manifest["icons"]["minimap"]["archmother"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap"]["patron_male"],
+            manifest["icons"]["minimap"]["hidden_king"],
+        )
+        self.assertTrue(
+            manifest["icons"]["minimap"]["patron_female"].startswith(
+                "minimap/patron_female."
+            )
+        )
+        self.assertNotIn("patron_female", manifest["icons"]["normal"])
+        self.assertNotIn("patron_male", manifest["icons"]["normal"])
+        referenced_paths = {
+            relative
+            for entries in manifest["icons"].values()
+            for relative in entries.values()
+        }
+        written_images = {
+            path.relative_to(destination).as_posix()
+            for path in destination.rglob("*")
+            if path.is_file() and path.name != "manifest.json"
+        }
+        self.assertEqual(written_images, referenced_paths)
+        self.assertFalse(any(path.name.startswith("kali_mm.") for path in destination.rglob("*")))
+        self.assertFalse(any(path.name.startswith("patron_psd.") for path in destination.rglob("*")))
+
+    def test_historical_icon_pack_can_limit_backfill_to_minimap_and_normal(self):
+        extracted = self.root / "limited-icons"
+        extracted.mkdir()
+        (extracted / "chrono_sm_psd.png").write_bytes(b"minimap")
+        (extracted / "chrono_card_psd.png").write_bytes(b"normal")
+        (extracted / "chrono_card_gloat_psd.png").write_bytes(b"gloat")
+        (extracted / "chrono_card_critical_psd.png").write_bytes(b"critical")
+        destination = self.root / "limited-pack"
+
+        count = _build_historical_icon_pack(
+            extracted,
+            destination,
+            _validate_mapping(ASSETS / "character_mappings.json"),
+            include_highlight_variants=False,
+        )
+
+        self.assertEqual(count, 2)
+        manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(manifest["icons"]), {"minimap", "normal"})
+
+    def test_character_name_images_are_optional_and_manifest_maps_aliases(self):
+        binary = self.root / "Source2Viewer-CLI.exe"
+        main_vpk = self.root / "build" / "game" / "citadel" / "pak01_dir.vpk"
+        russian_vpk = self.root / "build" / "game" / "citadel_russian" / "pak01_dir.vpk"
+        for path in (binary, main_vpk, russian_vpk):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"fixture")
+        source = self.root / "workspace" / "source"
+        source.mkdir(parents=True)
+        settings = VpkPipelineSettings(
+            source2viewer_binary=binary,
+            vpk_path=main_vpk,
+            data_dir=self.root / "data",
+            transcript_repo=self.root / "transcripts",
+            version_id="test-version",
+            name_image_max_height=512,
+        )
+
+        def fake_convert(_extracted, destination, _height):
+            destination.mkdir(parents=True, exist_ok=True)
+            if destination.name == "english":
+                values = {
+                    "abrams": "abrams_localized.hash.webp",
+                    "patron_female": "team2.hash.webp",
+                }
+            else:
+                values = {"abrams": "abrams_localized.russian.webp"}
+            result = {}
+            for key, filename in values.items():
+                (destination / filename).write_bytes(b"webp")
+                result[key] = {"file": filename, "width": 640, "height": 512}
+            warnings = ["broken_localized.svg: invalid SVG"] if destination.name == "english" else []
+            return result, warnings
+
+        progress_messages: list[str] = []
+
+        with (
+            patch(
+                "HistoricalContent.historical_content.vpk_pipeline._vpk_name_image_filters",
+                return_value=("panorama/images/heroes/hero_names",),
+            ),
+            patch("HistoricalContent.historical_content.vpk_pipeline._run_source2viewer"),
+            patch(
+                "HistoricalContent.historical_content.vpk_pipeline._run_name_image_converter",
+                side_effect=fake_convert,
+            ),
+        ):
+            count, availability = _export_character_name_images(
+                settings,
+                source,
+                self.root / "build",
+                ASSETS / "character_mappings.json",
+                progress=progress_messages.append,
+            )
+
+        self.assertEqual(count, 3)
+        self.assertTrue(availability["available"])
+        self.assertTrue(any("skipped malformed asset" in item for item in progress_messages))
+        manifest = json.loads(
+            (source / "CharacterNameImages" / "manifest.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["maxHeight"], 512)
+        self.assertEqual(
+            manifest["languages"]["english"]["abrams"]["path"],
+            "english/abrams_localized.hash.webp",
+        )
+        self.assertEqual(
+            manifest["languages"]["english"]["archmother"]["path"],
+            "english/team2.hash.webp",
+        )
+        self.assertEqual(
+            manifest["languages"]["russian"]["abrams"]["path"],
+            "russian/abrams_localized.russian.webp",
+        )
+
+    def test_missing_character_name_images_do_not_fail_the_pipeline_stage(self):
+        binary = self.root / "Source2Viewer-CLI.exe"
+        vpk = self.root / "pak01_dir.vpk"
+        binary.write_bytes(b"fixture")
+        vpk.write_bytes(b"fixture")
+        source = self.root / "workspace" / "source"
+        source.mkdir(parents=True)
+        settings = VpkPipelineSettings(
+            source2viewer_binary=binary,
+            vpk_path=vpk,
+            data_dir=self.root / "data",
+            transcript_repo=self.root / "transcripts",
+            version_id="test-version",
+        )
+
+        with patch(
+            "HistoricalContent.historical_content.vpk_pipeline._vpk_name_image_filters",
+            return_value=(),
+        ):
+            count, availability = _export_character_name_images(
+                settings,
+                source,
+                None,
+                ASSETS / "character_mappings.json",
+                progress=lambda _message: None,
+            )
+
+        self.assertEqual(count, 0)
+        self.assertFalse(availability["available"])
+        self.assertFalse((source / "CharacterNameImages").exists())
+
+    def test_name_image_discovery_checks_each_source2viewer_filter(self):
+        outputs = [
+            "panorama/images/heroes/hero_names/abrams_localized.vsvg_c",
+            "No files matched.",
+            "panorama/images/hud/objectives/team2_patron_logo_psd.vtex_c",
+        ]
+        completed = [
+            subprocess.CompletedProcess([], 0, stdout=output)
+            for output in outputs
+        ]
+        with patch("subprocess.run", side_effect=completed) as run:
+            filters = _vpk_name_image_filters(
+                self.root / "Source2Viewer-CLI.exe",
+                self.root / "pak01_dir.vpk",
+            )
+
+        self.assertEqual(
+            filters,
+            (
+                "panorama/images/heroes/hero_names",
+                "panorama/images/hud/objectives/team2_patron_logo_psd",
+            ),
+        )
+        self.assertEqual(run.call_count, 3)
 
     def test_unchanged_vpk_reuses_persistent_extraction(self):
         binary = self.root / "Source2Viewer-CLI.exe"
@@ -277,6 +498,7 @@ class VpkPipelineTests(unittest.TestCase):
             version_id="test-version",
             extract_localization=False,
             extract_icons=False,
+            extract_name_images=False,
         )
 
         def fake_extract(_binary, _vpk, output, _filter, _threads, _progress):

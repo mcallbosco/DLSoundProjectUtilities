@@ -20,6 +20,7 @@ the CDN layout without making another multi-gigabyte copy:
 | `Localization/` | `localization/` |
 | `FanLocalization/` | `fan-localization/` |
 | `IconPacks/default/` | `icons/default/` |
+| `CharacterNameImages/` (optional) | `character-name-images/` |
 
 New Historical Content output uses `SharedAudio` and adds an `audioKey` to each
 line. The publisher uploads each SHA-256 object at game scope and reuses an
@@ -27,6 +28,13 @@ object already uploaded by another version. The game manifest advertises
 `sharedAudioBaseUrl`; readable `filename` values remain unchanged. Legacy
 sources containing `Audio/` still publish below the version path and continue
 to use the version's `audioBaseUrl`.
+
+`CharacterNameImages/manifest.json` maps each available official language and
+character alias to a hashed WebP asset. The publisher validates every manifest
+reference, uploads WebP with `image/webp`, and adds
+`characterNameImagesUrl` to the version catalog only when the optional folder
+exists. Missing localized assets are valid and are handled by the website's
+localized-text fallback.
 
 Other icon packs, event audio, website configuration, and redirects are not
 part of the initial runtime-versioned content scope.
