@@ -349,6 +349,13 @@ def discover_version_files(source_dir: Path) -> tuple[list[SourceFile], list[str
             "Version categories.json is missing; this version will inherit the game's default categories."
         )
 
+    character_names_overlay_path = source_dir / "character-names-overlay.json"
+    if character_names_overlay_path.is_file():
+        files["character-names.json"] = SourceFile(
+            character_names_overlay_path,
+            "character-names.json",
+        )
+
     audio_dir = source_dir / "Audio"
     shared_audio_dir = source_dir / "SharedAudio"
     if audio_dir.is_dir():
@@ -633,7 +640,10 @@ def _validate_character_names_manifest(
             )
 
 
-def validate_version_source(source_dir: Path) -> ValidationReport:
+def validate_version_source(
+    source_dir: Path,
+    expected_game: str | None = None,
+) -> ValidationReport:
     source_dir = Path(source_dir).expanduser().resolve()
     report = ValidationReport(source_dir=source_dir)
     if not source_dir.is_dir():
@@ -675,6 +685,14 @@ def validate_version_source(source_dir: Path) -> ValidationReport:
         report.errors.append("coverage.json must contain a JSON object")
 
     _validate_categories_manifest(parsed_json.get("categories.json"), report)
+
+    version_character_names = parsed_json.get("character-names.json")
+    if version_character_names is not None:
+        _validate_character_names_manifest(
+            version_character_names,
+            report,
+            expected_game,
+        )
 
     character_names_path = source_dir / "character-names.json"
     if character_names_path.is_file():
@@ -913,7 +931,7 @@ def build_publish_plan(
             "A version cannot be hidden and promoted to latest in the same publication."
         )
 
-    validation = validate_version_source(settings.source_dir)
+    validation = validate_version_source(settings.source_dir, settings.game)
     plan = PublishPlan(validation=validation, remote_inventory=remote_inventory)
     if not validation.valid:
         return plan
@@ -972,6 +990,7 @@ def version_manifest_entry(
     existing: dict[str, Any] | None = None,
     has_categories: bool = False,
     has_character_name_images: bool = False,
+    has_character_names: bool = False,
 ) -> dict[str, Any]:
     existing = existing or {}
     base = f"{settings.cdn_base_url}/{settings.version_prefix}"
@@ -995,6 +1014,8 @@ def version_manifest_entry(
         entry["categoriesUrl"] = f"{base}/categories.json"
     if has_character_name_images:
         entry["characterNameImagesUrl"] = f"{base}/character-name-images/manifest.json"
+    if has_character_names:
+        entry["characterNamesUrl"] = f"{base}/character-names.json"
     return entry
 
 
@@ -1121,6 +1142,25 @@ class R2Publisher:
         if report.errors:
             raise PublisherError(
                 "Invalid character-names.json: " + "; ".join(report.errors)
+            )
+        assert isinstance(payload, dict)
+        return payload
+
+    def _local_version_character_names(self) -> dict[str, Any] | None:
+        path = self.settings.source_dir / "character-names-overlay.json"
+        if not path.is_file():
+            return None
+        try:
+            payload = _read_json(path)
+        except Exception as exc:
+            raise PublisherError(
+                f"Invalid character-names-overlay.json: {exc}"
+            ) from exc
+        report = ValidationReport(source_dir=self.settings.source_dir)
+        _validate_character_names_manifest(payload, report, self.settings.game)
+        if report.errors:
+            raise PublisherError(
+                "Invalid character-names-overlay.json: " + "; ".join(report.errors)
             )
         assert isinstance(payload, dict)
         return payload
@@ -1410,6 +1450,136 @@ class R2Publisher:
         self._log(f"Published character display names for game {self.settings.game!r}.")
         return manifest
 
+    def publish_version_character_names(self) -> dict[str, Any]:
+        """Publish only this version's character-name overlay and metadata."""
+        if not GAME_KEY_PATTERN.fullmatch(self.settings.game):
+            raise PublisherError(
+                "Game key must begin with a letter or number and contain only lowercase letters, numbers, or hyphens."
+            )
+        if not VERSION_ID_PATTERN.fullmatch(self.settings.version):
+            raise PublisherError(
+                "Version ID must begin with a letter or number and contain only lowercase letters, numbers, dots, underscores, or hyphens."
+            )
+        character_names = self._local_version_character_names()
+        if character_names is None:
+            raise PublisherError(
+                "Version character-name overlay is missing: "
+                f"{self.settings.source_dir / 'character-names-overlay.json'}"
+            )
+
+        manifest = self.load_game_manifest()
+        versions = manifest.get("versions")
+        assert isinstance(versions, list)
+        version_index = next(
+            (
+                index
+                for index, item in enumerate(versions)
+                if item.get("id") == self.settings.version
+            ),
+            None,
+        )
+        if version_index is None:
+            raise PublisherError(
+                f"Version {self.settings.version!r} is not present in the game manifest."
+            )
+
+        inventory = self._get_remote_json(self.settings.inventory_key)
+        release = self._get_remote_json(self.settings.release_key)
+        if inventory is None or release is None:
+            raise PublisherError(
+                "The published version is missing its inventory or release record; "
+                "use a normal version publication instead."
+            )
+        files = inventory.get("files")
+        if not isinstance(files, dict):
+            raise PublisherError("The published version inventory has an invalid files object.")
+
+        body = json.dumps(character_names, indent=2, ensure_ascii=False).encode("utf-8")
+        digest = hashlib.sha256(body).hexdigest()
+        object_key = f"{self.settings.version_prefix}/character-names.json"
+        public_url = self.settings.public_url(object_key)
+        current_record = files.get("character-names.json")
+        current_entry = versions[version_index]
+        if (
+            isinstance(current_record, dict)
+            and current_record.get("sha256") == digest
+            and current_entry.get("characterNamesUrl") == public_url
+        ):
+            self._log(
+                f"Version character display names are already current for {self.settings.version!r}."
+            )
+            return manifest
+
+        try:
+            revision = int(inventory.get("contentRevision", 0)) + 1
+        except (TypeError, ValueError):
+            revision = 1
+        now = _utc_now()
+        files["character-names.json"] = {
+            "size": len(body),
+            "sha256": digest,
+            "contentType": "application/json; charset=utf-8",
+            "mutable": True,
+        }
+        inventory.update(
+            {
+                "contentRevision": revision,
+                "generatedAt": now,
+                "files": files,
+            }
+        )
+        total_bytes = sum(
+            int(item.get("size", 0))
+            for item in files.values()
+            if isinstance(item, dict)
+        )
+        release.update(
+            {
+                "updatedAt": now,
+                "contentRevision": revision,
+                "characterNamesUrl": public_url,
+                "fileCount": len(files),
+                "totalBytes": total_bytes,
+            }
+        )
+        updated_entry = {
+            **current_entry,
+            "updatedAt": now,
+            "contentRevision": revision,
+            "characterNamesUrl": public_url,
+        }
+        versions[version_index] = updated_entry
+        manifest.update({"updatedAt": now, "versions": versions})
+
+        self._log(
+            f"Publishing the character display-name overlay for {self.settings.version!r}..."
+        )
+        self._put_json(object_key, character_names)
+        self._put_json(self.settings.inventory_key, inventory)
+        self._put_json(self.settings.release_key, release)
+        self._log("Updating the public game manifest last...")
+        self._put_json(self.settings.game_manifest_key, manifest)
+        try:
+            self._purge_urls(
+                self.settings.public_url(key)
+                for key in (
+                    object_key,
+                    self.settings.inventory_key,
+                    self.settings.release_key,
+                    self.settings.game_manifest_key,
+                )
+            )
+        except PublisherError as exc:
+            self._log(
+                "Warning: version character names were published, but CDN purging failed: "
+                + str(exc)
+            )
+        self._log(
+            f"Published version character display names for {self.settings.version!r} "
+            f"at content revision {revision}."
+        )
+        return manifest
+
     def create_plan(self) -> PublishPlan:
         self._log("Loading the previously published inventory...")
         remote_inventory = self.load_remote_inventory()
@@ -1562,6 +1732,7 @@ class R2Publisher:
         has_categories: bool | None = None,
         has_shared_audio: bool = False,
         has_character_name_images: bool | None = None,
+        has_character_names: bool | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         manifest = self.load_game_manifest()
         versions = manifest.get("versions")
@@ -1581,12 +1752,17 @@ class R2Publisher:
             has_character_name_images = (
                 self.settings.source_dir / "CharacterNameImages" / "manifest.json"
             ).is_file()
+        if has_character_names is None:
+            has_character_names = (
+                self.settings.source_dir / "character-names-overlay.json"
+            ).is_file()
         entry = version_manifest_entry(
             self.settings,
             content_revision,
             existing,
             has_categories=has_categories,
             has_character_name_images=has_character_name_images,
+            has_character_names=has_character_names,
         )
         new_versions = list(versions)
         if existing_index is None:
@@ -1716,6 +1892,7 @@ class R2Publisher:
             has_character_name_images=(
                 "character-name-images/manifest.json" in inventory["files"]
             ),
+            has_character_names="character-names.json" in inventory["files"],
             has_shared_audio=any(
                 record.scope == "game" for record in plan.local_records.values()
             ),

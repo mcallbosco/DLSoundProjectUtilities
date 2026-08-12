@@ -181,6 +181,41 @@ class BaselineTests(unittest.TestCase):
             1.234,
         )
 
+    def test_version_character_names_are_copied_to_preview_and_publisher(self):
+        overlay = {
+            "schemaVersion": 1,
+            "game": "deadlock",
+            "names": {
+                "patron_female": "The Sapphire Flame",
+                "patron_male": "The Amber Hand",
+            },
+        }
+        write_json(
+            self.repo / "config" / "deadlock" / "versions"
+            / "deadlock-base" / "character-names.json",
+            overlay,
+        )
+
+        result = create_baseline(self.settings(), progress=lambda message: None)
+        manifest = load_json(result.preview_root / "deadlock" / "manifest.json")
+
+        self.assertEqual(
+            load_json(
+                result.preview_root / "deadlock" / "versions"
+                / "preview-deadlock-base" / "character-names.json"
+            ),
+            overlay,
+        )
+        self.assertEqual(
+            load_json(result.publish_source / "character-names-overlay.json"),
+            overlay,
+        )
+        self.assertEqual(
+            manifest["versions"][0]["characterNamesUrl"],
+            "http://127.0.0.1:8787/deadlock/versions/"
+            "preview-deadlock-base/character-names.json",
+        )
+
     def test_text_only_phantom_voiceline_is_preserved_without_transcript_file(self):
         payload = load_json(self.source / "all_voicelines.json")
         payload["abrams"]["Self"]["Test"].append({

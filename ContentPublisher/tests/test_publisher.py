@@ -433,6 +433,45 @@ class PublisherCoreTests(unittest.TestCase):
         entry = version_manifest_entry(self.settings, content_revision=2, has_categories=True)
         self.assertTrue(entry["categoriesUrl"].endswith("/categories.json"))
 
+    def test_optional_version_character_names_are_validated_and_advertised(self) -> None:
+        (self.root / "character-names-overlay.json").write_text(
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "game": "deadlock",
+                    "names": {
+                        "patron_female": "The Sapphire Flame",
+                        "patron_male": "The Amber Hand",
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        report = validate_version_source(self.root)
+        self.assertTrue(report.valid, report.errors)
+        self.assertIn("character-names.json", {item.relative_path for item in report.files})
+        entry = version_manifest_entry(
+            self.settings,
+            content_revision=2,
+            has_character_names=True,
+        )
+        self.assertTrue(entry["characterNamesUrl"].endswith("/character-names.json"))
+
+    def test_invalid_version_character_names_are_rejected(self) -> None:
+        (self.root / "character-names-overlay.json").write_text(
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "game": "other-game",
+                    "names": {"patron_female": "The Sapphire Flame"},
+                }
+            ),
+            encoding="utf-8",
+        )
+        report = validate_version_source(self.root, "deadlock")
+        self.assertFalse(report.valid)
+        self.assertTrue(any("game must be 'deadlock'" in error for error in report.errors))
+
     def test_duplicate_character_category_assignment_is_rejected(self) -> None:
         (self.root / "categories.json").write_text(
             json.dumps(
@@ -661,6 +700,84 @@ class PublisherCoreTests(unittest.TestCase):
         )
         self.assertEqual(manifest["latestVersion"], "existing")
         self.assertEqual([item["id"] for item in manifest["versions"]], ["existing"])
+        self.assertEqual(client.events[-1], ("put", "deadlock/manifest.json"))
+
+    def test_publish_can_update_only_version_character_names(self) -> None:
+        overlay = {
+            "schemaVersion": 1,
+            "game": "deadlock",
+            "names": {
+                "patron_female": "The Sapphire Flame",
+                "patron_male": "The Amber Hand",
+            },
+        }
+        (self.root / "character-names-overlay.json").write_text(
+            json.dumps(overlay),
+            encoding="utf-8",
+        )
+        settings = PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="deadlock-test",
+            label="Test version",
+            bucket="test-bucket",
+            endpoint_url="https://example.r2.cloudflarestorage.com",
+            promote_to_latest=False,
+        )
+        client = FakeR2Client()
+        prefix = "deadlock/versions/deadlock-test"
+        client.objects["deadlock/manifest.json"] = json.dumps(
+            {
+                "schemaVersion": 1,
+                "game": "deadlock",
+                "latestVersion": "deadlock-test",
+                "versions": [
+                    {
+                        "id": "deadlock-test",
+                        "label": "Test version",
+                        "hidden": False,
+                        "contentRevision": 2,
+                    }
+                ],
+            }
+        ).encode("utf-8")
+        client.objects[f"{prefix}/publish-inventory.json"] = json.dumps(
+            {
+                "schemaVersion": 2,
+                "contentRevision": 2,
+                "files": {
+                    "categories.json": {
+                        "size": 20,
+                        "sha256": "old",
+                        "contentType": "application/json; charset=utf-8",
+                        "mutable": True,
+                    }
+                },
+            }
+        ).encode("utf-8")
+        client.objects[f"{prefix}/release.json"] = json.dumps(
+            {
+                "schemaVersion": 1,
+                "id": "deadlock-test",
+                "contentRevision": 2,
+                "fileCount": 1,
+                "totalBytes": 20,
+            }
+        ).encode("utf-8")
+
+        publisher = R2Publisher(settings)
+        publisher._client = client
+        manifest = publisher.publish_version_character_names()
+
+        url = "https://cdn.vlviewer.com/deadlock/versions/deadlock-test/character-names.json"
+        self.assertEqual(json.loads(client.objects[f"{prefix}/character-names.json"]), overlay)
+        self.assertEqual(manifest["versions"][0]["characterNamesUrl"], url)
+        self.assertEqual(manifest["versions"][0]["contentRevision"], 3)
+        inventory = json.loads(client.objects[f"{prefix}/publish-inventory.json"])
+        self.assertIn("character-names.json", inventory["files"])
+        self.assertEqual(inventory["contentRevision"], 3)
+        release = json.loads(client.objects[f"{prefix}/release.json"])
+        self.assertEqual(release["characterNamesUrl"], url)
         self.assertEqual(client.events[-1], ("put", "deadlock/manifest.json"))
 
     def test_publish_can_use_explicit_game_categories_path(self) -> None:

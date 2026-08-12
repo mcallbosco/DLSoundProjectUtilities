@@ -68,7 +68,7 @@ def main() -> int:
     )
     try:
         if args.command == "validate":
-            report = validate_version_source(settings.source_dir)
+            report = validate_version_source(settings.source_dir, settings.game)
             print(
                 json.dumps(
                     {

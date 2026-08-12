@@ -15,6 +15,7 @@ the CDN layout without making another multi-gigabyte copy:
 | `coverage.json` | `coverage.json` |
 | `categories.json` (optional) | `categories.json` |
 | `character-names.json` (optional, per-game) | `<game>/character-names.json` |
+| `character-names-overlay.json` (optional, per-version) | `character-names.json` |
 | `SharedAudio/sha256/<prefix>/<hash>.mp3` | `<game>/audio/sha256/<prefix>/<hash>.mp3` |
 | `Audio/` (legacy input) | `<game>/versions/<version>/audio/` |
 | `Localization/` | `localization/` |
@@ -88,6 +89,32 @@ When the source contains this file, normal publication uploads it to
 `characterNamesUrl`. **Publish game display names** performs the same update
 without uploading or changing a content version. Publish this document before
 the first website build that depends on it.
+
+## Per-version character display names and aliases
+
+`character-names-overlay.json` uses the same schema as the per-game document,
+but it needs to contain only the keys that differ for this version. The
+publisher uploads it to `<game>/versions/<version>/character-names.json` and
+adds `characterNamesUrl` to that version's manifest entry. The website layers
+the document over the game-wide names.
+
+The Historical Content publisher also provides **Publish version display
+names** for updating this small overlay, its release/inventory metadata, and
+the game manifest without revalidating or republishing the version's audio.
+
+For example, versions before Old Gods, New Blood can retain the historical
+patron names without changing the current game defaults:
+
+```json
+{
+  "schemaVersion": 1,
+  "game": "deadlock",
+  "names": {
+    "patron_female": "The Sapphire Flame",
+    "patron_male": "The Amber Hand"
+  }
+}
+```
 
 ## All-version character route index
 

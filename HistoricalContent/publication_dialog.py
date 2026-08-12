@@ -375,6 +375,7 @@ class PublicationDialog(tk.Toplevel):
             ("Publish multiple...", self._publish_multiple),
             ("Publish game categories", self._publish_categories),
             ("Publish game display names", self._publish_character_names),
+            ("Publish version display names", self._publish_version_character_names),
             ("Manage versions...", self._manage_versions),
             ("Clear game content...", self._clear_game_content),
         ):
@@ -528,7 +529,12 @@ class PublicationDialog(tk.Toplevel):
         except Exception as exc:
             messagebox.showerror("Validation", str(exc), parent=self)
             return
-        self._background("Validating local content...", lambda: self._log_validation(validate_version_source(settings.source_dir)))
+        self._background(
+            "Validating local content...",
+            lambda: self._log_validation(
+                validate_version_source(settings.source_dir, settings.game)
+            ),
+        )
 
     def _test_connection(self) -> None:
         try:
@@ -659,7 +665,7 @@ class PublicationDialog(tk.Toplevel):
                     promote_to_latest=False,
                     hidden=True if hidden_for_review else item.get("hidden") is True,
                 )
-                report = validate_version_source(settings.source_dir)
+                report = validate_version_source(settings.source_dir, settings.game)
                 self._append_log(f"[{version_id}]")
                 self._log_validation(report)
                 if not report.valid:
@@ -824,6 +830,28 @@ class PublicationDialog(tk.Toplevel):
         self._background(
             "Publishing game display names...",
             lambda: R2Publisher(settings, self._append_log).publish_game_character_names(),
+        )
+
+    def _publish_version_character_names(self) -> None:
+        try:
+            settings = self._settings(True)
+        except Exception as exc:
+            messagebox.showerror("Publish version display names", str(exc), parent=self)
+            return
+        overlay_path = settings.source_dir / "character-names-overlay.json"
+        if not messagebox.askyesno(
+            "Publish version display names",
+            f"Publish {overlay_path.name} for version {settings.version!r}?",
+            icon=messagebox.WARNING,
+            parent=self,
+        ):
+            return
+        self._background(
+            "Publishing version display names...",
+            lambda: R2Publisher(
+                settings,
+                self._append_log,
+            ).publish_version_character_names(),
         )
 
     def _manage_versions(self) -> None:
