@@ -237,7 +237,8 @@ class VpkPipelineTests(unittest.TestCase):
         (extracted / "werewolf_wolf_card_psd.png").write_bytes(b"silver wolf")
         (extracted / "hornet_sm_png.png").write_bytes(b"vindicta large icon")
         (extracted / "hornet_sm_psd_d09ce06e.png").write_bytes(b"non-canonical duplicate")
-        (extracted / "kali_mm_psd.png").write_bytes(b"unused raw map icon")
+        (extracted / "kali_mm_psd.png").write_bytes(b"vyper low-res minimap")
+        (extracted / "hornet_mm_psd.png").write_bytes(b"vindicta low-res minimap")
         npcs = self.root / "extracted-icons" / "panorama" / "images" / "npcs"
         npcs.mkdir(parents=True)
         (npcs / "patron_archmother_psd.png").write_bytes(b"female patron minimap")
@@ -271,7 +272,7 @@ class VpkPipelineTests(unittest.TestCase):
             _validate_mapping(ASSETS / "character_mappings.json"),
         )
 
-        self.assertEqual(count, 12)
+        self.assertEqual(count, 14)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(
             manifest["icons"]["minimap"]["chrono"],
@@ -288,6 +289,18 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertEqual(
             (destination / manifest["icons"]["minimap"]["vindicta"]).read_bytes(),
             b"vindicta large icon",
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap-low-res"]["kali"],
+            manifest["icons"]["minimap-low-res"]["vyper"],
+        )
+        self.assertEqual(
+            manifest["icons"]["minimap-low-res"]["hornet"],
+            manifest["icons"]["minimap-low-res"]["vindicta"],
+        )
+        self.assertEqual(
+            (destination / manifest["icons"]["minimap-low-res"]["vindicta"]).read_bytes(),
+            b"vindicta low-res minimap",
         )
         self.assertEqual(
             manifest["icons"]["normal"]["atlas"],
@@ -331,13 +344,13 @@ class VpkPipelineTests(unittest.TestCase):
             if path.is_file() and path.name != "manifest.json"
         }
         self.assertEqual(written_images, referenced_paths)
-        self.assertFalse(any(path.name.startswith("kali_mm.") for path in destination.rglob("*")))
         self.assertFalse(any(path.name.startswith("patron_psd.") for path in destination.rglob("*")))
 
     def test_historical_icon_pack_can_limit_backfill_to_minimap_and_normal(self):
         extracted = self.root / "limited-icons"
         extracted.mkdir()
         (extracted / "chrono_sm_psd.png").write_bytes(b"minimap")
+        (extracted / "chrono_mm_psd.png").write_bytes(b"low-res minimap")
         (extracted / "chrono_card_psd.png").write_bytes(b"normal")
         (extracted / "chrono_card_gloat_psd.png").write_bytes(b"gloat")
         (extracted / "chrono_card_critical_psd.png").write_bytes(b"critical")
@@ -350,9 +363,12 @@ class VpkPipelineTests(unittest.TestCase):
             include_highlight_variants=False,
         )
 
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 3)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
-        self.assertEqual(set(manifest["icons"]), {"minimap", "normal"})
+        self.assertEqual(
+            set(manifest["icons"]),
+            {"minimap", "minimap-low-res", "normal"},
+        )
 
     def test_character_name_images_are_optional_and_manifest_maps_aliases(self):
         binary = self.root / "Source2Viewer-CLI.exe"

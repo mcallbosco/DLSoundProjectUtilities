@@ -70,12 +70,12 @@ resolve multi-part names such as `grey_talon`, remove legacy `_old` ping markers
 and normalize the historical orange-lane, `headed_to_*`, `idols_call`,
 `take_core`, `nevermind`, and `back` vocabulary.
 
-When **Extract icons** is enabled, the utility extracts VLViewer's four
+When **Extract icons** is enabled, the utility extracts VLViewer's five
 official portrait variants directly from the VPK: `*_sm` for **Minimap**,
-`*_card` for **Normal**, `*_card_gloat` for **Gloat**, and
-`*_card_critical` for **Critical**. A variant that did not exist in that build
-is omitted. It also reads the same build's `scripts/heroes.vdata`. Thus, an
-internal hero such as `atlas` can use its actual historical `bull` portrait
+`*_mm` for **Minimap (Low Res)**, `*_card` for **Normal**, `*_card_gloat` for
+**Gloat**, and `*_card_critical` for **Critical**. A variant that did not exist
+in that build is omitted. It also reads the same build's `scripts/heroes.vdata`.
+Thus, an internal hero such as `atlas` can use its actual historical `bull` portrait
 while the manifest also exposes the configured canonical name `abrams`. The
 latest VPK's patron objective icons are also added to the Minimap variant:
 `patron_hiddenking` resolves through `patron_male`/`hidden king`, and

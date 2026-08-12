@@ -29,12 +29,13 @@ VERSION_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 AUDIO_SUFFIXES = {".mp3", ".wav", ".ogg", ".m4a"}
 RR_TEST_RE = re.compile(r"^rr_test_\d+_(?P<line>.+)$", re.IGNORECASE)
 HISTORICAL_ICON_RE = re.compile(
-    r"^(?P<hero>.+)_(?P<variant>card_critical|card_gloat|card|sm)(?:_(?:png|psd))?$",
+    r"^(?P<hero>.+)_(?P<variant>card_critical|card_gloat|card|sm|mm)(?:_(?:png|psd))?$",
     re.IGNORECASE,
 )
-HISTORICAL_ICON_FORMAT_VERSION = 6
+HISTORICAL_ICON_FORMAT_VERSION = 7
 HISTORICAL_ICON_VARIANTS = {
     "sm": "minimap",
+    "mm": "minimap-low-res",
     "card": "normal",
     "card_gloat": "gloat",
     "card_critical": "critical",
@@ -701,7 +702,7 @@ def _historical_icon_owners(extracted_root: Path) -> dict[str, set[str]]:
             re.IGNORECASE,
         ),
         re.compile(
-            r'm_strMinimapImage\s*=.*?/heroes/([^/".]+?)(?:_mm)?\.psd',
+            r'm_strMinimapImage\s*=.*?/heroes/([^/".]+?)(?:_mm)?\.(?:png|psd)',
             re.IGNORECASE,
         ),
     )
@@ -877,7 +878,7 @@ def _export_historical_icons_from_vpk(
         if not image_count:
             raise VpkPipelineError(
                 "The VPK did not contain supported historical hero icons "
-                "(*_sm[_png|_psd], *_card[_psd], *_card_gloat[_psd], or "
+                "(*_sm[_png|_psd], *_mm[_png|_psd], *_card[_psd], *_card_gloat[_psd], or "
                 "*_card_critical[_psd]) or patron objective icons."
             )
         destination.parent.mkdir(parents=True, exist_ok=True)
