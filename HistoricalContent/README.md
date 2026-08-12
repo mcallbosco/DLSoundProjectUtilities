@@ -196,6 +196,7 @@ DeadlockTranscripts/
   config/deadlock/conversation-overrides.json
   config/deadlock/transcription-vocabulary.json
   config/deadlock/versions/deadlock-base/categories.json
+  config/deadlock/versions/deadlock-base/character-names.json
 ```
 
 The `transcripts` tree mirrors the relative audio tree. For example,
@@ -264,6 +265,13 @@ it to `<game>/character-names.json` in the preview tree and to
 edit it, then regenerate content. Normal version publication updates this
 game-level object before the game manifest. **Publish game display names** can
 update only this mapping without publishing a version.
+
+An optional `config/<game>/versions/<version>/character-names.json` contains
+only display-name or alias mappings that differ for that version. Generation
+copies it to the version preview and to `character-names-overlay.json` in the
+publisher source. Publication stores it at
+`<game>/versions/<version>/character-names.json` and advertises it through the
+version's `characterNamesUrl`. Versions without this file inherit the game map.
 
 ## Advanced baseline-only CLI
 

@@ -1229,6 +1229,22 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     if character_name_errors:
         raise BaselineError("Invalid character names: " + " ".join(character_name_errors))
 
+    version_character_names_path = (
+        config_root / "versions" / settings.version_id / "character-names.json"
+    )
+    version_character_names_payload: object | None = None
+    if version_character_names_path.is_file():
+        version_character_names_payload = load_json(version_character_names_path)
+        version_character_name_errors = validate_character_names(
+            version_character_names_payload,
+            settings.game,
+        )
+        if version_character_name_errors:
+            raise BaselineError(
+                "Invalid version character names: "
+                + " ".join(version_character_name_errors)
+            )
+
     default_categories = config_root / "categories.json"
     if not default_categories.is_file():
         write_json(default_categories, {
@@ -1261,6 +1277,11 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     write_json(game_root / "character-names.json", character_names_payload)
     route_characters = sorted(characters, key=lambda item: (item.casefold(), item))
     write_json(version_root / "categories.json", category_payload)
+    if version_character_names_payload is not None:
+        write_json(
+            version_root / "character-names.json",
+            version_character_names_payload,
+        )
     write_json(version_root / "conversations.json", generated_conversations)
     write_json(version_root / "voicelines.json", generated_voicelines)
 
@@ -1311,6 +1332,11 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     write_json(publish_source / "all_voicelines.json", generated_voicelines)
     write_json(publish_source / "categories.json", category_payload)
     write_json(publish_source / "character-names.json", character_names_payload)
+    if version_character_names_payload is not None:
+        write_json(
+            publish_source / "character-names-overlay.json",
+            version_character_names_payload,
+        )
     if coverage_source.is_file():
         _link_or_copy(coverage_source, publish_source / "coverage.json")
     else:
@@ -1345,6 +1371,11 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         "categoriesUrl": f"{base_url}/{settings.game}/versions/{preview_version_id}/categories.json",
     }
     optional_urls = (
+        (
+            version_root / "character-names.json",
+            "characterNamesUrl",
+            "character-names.json",
+        ),
         (version_root / "localization" / "manifest.json", "localizationManifestUrl", "localization/manifest.json"),
         (version_root / "fan-localization" / "manifest.json", "fanLocalizationManifestUrl", "fan-localization/manifest.json"),
         (version_root / "icons" / "default" / "manifest.json", "iconOverridesUrl", "icons/default/manifest.json"),

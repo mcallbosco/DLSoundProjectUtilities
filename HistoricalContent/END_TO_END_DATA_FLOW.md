@@ -221,7 +221,17 @@ config/deadlock/character-names.json
 4. Regenerate content.
 
 Generation copies the document to the local CDN preview and the publisher
-source. It is per-game data. It does not belong to a single version.
+source. It is the per-game default.
+
+A version may also contain a partial overlay:
+
+```text
+config/deadlock/versions/deadlock-base/character-names.json
+```
+
+Generation places this document in the version preview and publisher source.
+Publication uploads it below that version and adds `characterNamesUrl` to the
+version manifest entry. Omit it when the version uses the game-wide names.
 
 ### 5.6 Preview the version
 

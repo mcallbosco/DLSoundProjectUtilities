@@ -538,7 +538,7 @@ class PublisherGUI(tk.Tk):
 
         def action() -> None:
             self._append_log(f"Validating {settings.source_dir}...")
-            report = validate_version_source(settings.source_dir)
+            report = validate_version_source(settings.source_dir, settings.game)
             self._show_validation(report)
 
         self._run_background("Validating local content...", action)
