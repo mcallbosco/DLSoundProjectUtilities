@@ -12,6 +12,7 @@ from HistoricalContent.historical_content.vpk_pipeline import (
     _build_historical_icon_pack,
     _export_character_name_images,
     _load_audio_filename_overrides,
+    _normalize_shopkeeper_topics,
     _vpk_name_image_filters,
     _validate_mapping,
     create_coverage,
@@ -72,6 +73,34 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertEqual(parry["transcription"], "Nice parry.")
         self.assertTrue(parry["officialtranscription"])
 
+    def test_identical_vdf_siblings_do_not_create_duplicate_phantoms(self):
+        vdf = self.root / "citadel_generated_vo.txt"
+        vdf.write_text(
+            '"abrams_parry_01" "Nice parry."\n'
+            '"abrams_parry_01_hero" "Nice parry."\n'
+            '"abrams_parry_01_hero_3d" "A genuinely different missing variant."\n',
+            encoding="utf-8",
+        )
+
+        voices, unresolved = parse_voicelines(
+            self.audio,
+            ASSETS / "character_mappings.json",
+            ASSETS / "topic_mappings.json",
+            ASSETS / "voiceline_groups.json",
+            vdf,
+            include_phantom=True,
+            progress=lambda _message: None,
+        )
+
+        self.assertFalse(unresolved)
+        parries = voices["abrams"]["Self"]["Combat"]["Parry"]
+        self.assertEqual(len(parries), 2)
+        self.assertEqual(parries[0]["filename"], "abrams_parry_01.mp3")
+        self.assertEqual(parries[0]["transcription"], "Nice parry.")
+        phantom = next(line for line in parries if line.get("is_phantom"))
+        self.assertEqual(phantom["voiceline_id"], "abrams_parry_01_hero_3d")
+        self.assertEqual(phantom["transcription"], "A genuinely different missing variant.")
+
     def test_coverage_uses_audio_in_place(self):
         voices = {"abrams": {"Self": {"Parry": [{"filename": "abrams_parry_01.mp3"}]}}}
         conversations = {"conversations": []}
@@ -79,6 +108,40 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertEqual(coverage["summary"]["total_files"], 3)
         self.assertEqual(coverage["summary"]["matched_files"], 1)
         self.assertEqual(coverage["summary"]["unmatched_files"], 2)
+
+    def test_shopkeeper_topics_use_compact_ordered_hierarchy(self):
+        result = {
+            "shopkeeper_hotdog": {
+                "Self": {
+                    "Buy armor": ["armor"],
+                    "Buy early": ["early"],
+                    "Call out 10": ["call-out-ten"],
+                    "Guide controls aim": ["aim"],
+                    "Guide power shop": ["shop"],
+                    "Hero training controls": ["controls"],
+                    "Hero training intro alt": ["intro-alt"],
+                    "Seasonal buy gun": ["seasonal-gun"],
+                    "Shop System": {
+                        "Call out": ["call-out"],
+                        "Close shop": ["close"],
+                    },
+                    "Other": ["other"],
+                }
+            }
+        }
+
+        _normalize_shopkeeper_topics(result)
+
+        topics = result["shopkeeper_hotdog"]["Self"]
+        self.assertEqual(
+            list(topics),
+            ["Shop System", "Buy", "Guide", "Hero Training", "Seasonal", "Other"],
+        )
+        self.assertEqual(topics["Shop System"]["Call out"], ["call-out", "call-out-ten"])
+        self.assertEqual(topics["Buy"], {"Armor": ["armor"], "Early": ["early"]})
+        self.assertEqual(topics["Guide"], ["aim", "shop"])
+        self.assertEqual(topics["Hero Training"], ["controls", "intro-alt"])
+        self.assertEqual(topics["Seasonal"], {"Buy gun": ["seasonal-gun"]})
 
     def test_filename_overrides_change_parsing_but_preserve_public_filename(self):
         bad_conversation = "paradox_match_start_abrams_paradox_convo01_04.mp3"
@@ -228,6 +291,9 @@ class VpkPipelineTests(unittest.TestCase):
             "book/oathkeeper/vn_geist_scene01_02.mp3",
             "neutral_gremlin/neutral_gremlin_attack_01.mp3",
             "announcer/female_patron/guide_controls_aim.mp3",
+            "newscaster/guide_controls_abilities.mp3",
+            "newscaster/guide_the_map_welcome_alt.mp3",
+            "newscaster/news_reel_test.mp3",
             "atlas/abrams_ally_grey_talon_killed_in_lane_01.mp3",
             "krill/krill_killed_by_astro_01.mp3",
             "haze/emote/haze_emote_pain_small_01.mp3",
@@ -268,6 +334,20 @@ class VpkPipelineTests(unittest.TestCase):
             filenames[3],
         )
         self.assertIn("Guide controls aim", voices["patron_female"]["Self"])
+        self.assertEqual(
+            {
+                line["filename"]
+                for line in voices["newscaster"]["Self"]["Guide"]
+            },
+            {
+                "newscaster/guide_controls_abilities.mp3",
+                "newscaster/guide_the_map_welcome_alt.mp3",
+            },
+        )
+        self.assertEqual(
+            voices["newscaster"]["Self"]["News reel test"][0]["filename"],
+            "newscaster/news_reel_test.mp3",
+        )
         self.assertIn(
             "Killed in lane (ally)",
             voices["abrams"]["grey talon"]["Combat"],

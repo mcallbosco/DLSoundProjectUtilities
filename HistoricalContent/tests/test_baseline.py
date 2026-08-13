@@ -314,6 +314,42 @@ class BaselineTests(unittest.TestCase):
             "Corrected manually.",
         )
 
+    def test_blank_manual_transcript_survives_regeneration(self):
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"][0]["transcription"] = ""
+        write_json(self.source / "all_voicelines.json", payload)
+        create_baseline(self.settings(), progress=lambda _message: None)
+
+        path = self.transcript_path("abrams_test.mp3")
+        document = load_json(path)
+        document["revisions"][0].update({"text": "", "source": "manual"})
+        document["revisions"][0].pop("model", None)
+        write_json(path, document)
+        settings = replace(
+            self.settings(),
+            api_key="test-key",
+            transcribe_missing=True,
+        )
+
+        with patch(
+            "HistoricalContent.historical_content.baseline.transcribe_audio"
+        ) as transcribe:
+            result = create_baseline(settings, progress=lambda _message: None)
+
+        transcribe.assert_not_called()
+        revision = self.transcript_revision("abrams_test.mp3")
+        self.assertEqual(revision["text"], "")
+        self.assertEqual(revision["source"], "manual")
+        self.assertNotIn("model", revision)
+        public = load_json(
+            result.preview_root / "deadlock" / "versions" /
+            "preview-deadlock-base" / "voicelines.json"
+        )
+        self.assertEqual(
+            public["abrams"]["Self"]["Test"][0]["transcription"],
+            "",
+        )
+
     def test_predefined_official_transcript_fills_missing_before_openai(self):
         payload = load_json(self.source / "all_voicelines.json")
         payload["abrams"]["Self"]["Test"][0]["transcription"] = ""
@@ -370,6 +406,54 @@ class BaselineTests(unittest.TestCase):
             "Applied 1 predefined official transcripts" in message
             for message in progress_messages
         ))
+
+    def test_matched_vdf_text_promotes_generated_revision_to_official(self):
+        create_baseline(self.settings(), progress=lambda _message: None)
+        revision = self.transcript_revision("abrams_test.mp3")
+        self.assertEqual(revision["source"], "generated")
+
+        payload = load_json(self.source / "all_voicelines.json")
+        line = payload["abrams"]["Self"]["Test"][0]
+        line["transcription"] = "Official VDF line."
+        line["officialtranscription"] = True
+        write_json(self.source / "all_voicelines.json", payload)
+
+        result = create_baseline(self.settings(), progress=lambda _message: None)
+
+        revision = self.transcript_revision("abrams_test.mp3")
+        self.assertEqual(revision["text"], "Official VDF line.")
+        self.assertEqual(revision["source"], "official")
+        self.assertNotIn("model", revision)
+        public = load_json(
+            result.preview_root / "deadlock" / "versions" /
+            "preview-deadlock-base" / "voicelines.json"
+        )
+        public_line = public["abrams"]["Self"]["Test"][0]
+        self.assertEqual(public_line["transcription"], "Official VDF line.")
+        self.assertTrue(public_line["officialtranscription"])
+
+    def test_matched_vdf_text_replaces_manual_revision(self):
+        create_baseline(self.settings(), progress=lambda _message: None)
+        path = self.transcript_path("abrams_test.mp3")
+        document = load_json(path)
+        document["revisions"][0].update({
+            "text": "Manual correction.",
+            "source": "manual",
+        })
+        document["revisions"][0].pop("model", None)
+        write_json(path, document)
+        payload = load_json(self.source / "all_voicelines.json")
+        line = payload["abrams"]["Self"]["Test"][0]
+        line["transcription"] = "Official VDF line."
+        line["officialtranscription"] = True
+        write_json(self.source / "all_voicelines.json", payload)
+
+        create_baseline(self.settings(), progress=lambda _message: None)
+
+        revision = self.transcript_revision("abrams_test.mp3")
+        self.assertEqual(revision["text"], "Official VDF line.")
+        self.assertEqual(revision["source"], "official")
+        self.assertNotIn("model", revision)
 
     def test_predefined_official_transcript_applies_to_conversation_line(self):
         conversations = load_json(self.source / "all_conversations.json")
@@ -531,6 +615,15 @@ class BaselineTests(unittest.TestCase):
         create_baseline(settings, progress=lambda _message: None)
         revision = self.transcript_revision(effort_filename)
         self.assertEqual(revision["text"], "Hup!")
+        self.assertEqual(revision["source"], "manual")
+
+        # An intentionally blank manual effort revision is protected too.
+        document = load_json(self.transcript_path(effort_filename))
+        document["revisions"][0].update({"text": "", "source": "manual"})
+        write_json(self.transcript_path(effort_filename), document)
+        create_baseline(settings, progress=lambda _message: None)
+        revision = self.transcript_revision(effort_filename)
+        self.assertEqual(revision["text"], "")
         self.assertEqual(revision["source"], "manual")
 
     def test_known_non_speech_recordings_are_stored_but_not_transcribed(self):

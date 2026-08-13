@@ -157,3 +157,25 @@ test("write methods and directory-style paths are rejected", async () => {
   const directory = await handleRequest(new Request("http://localhost/deadlock/"), env);
   assert.equal(directory.status, 404);
 });
+
+test("internal control objects are never exposed", async () => {
+  const key = "deadlock/_internal/transcript-sync.json";
+  const env = environment(new Map([
+    [key, fakeObject(JSON.stringify({ lastSuccessfulCommit: "secret-state" }))],
+  ]));
+
+  for (const method of ["GET", "HEAD"]) {
+    const response = await handleRequest(
+      new Request(`http://localhost/${key}`, { method }),
+      env,
+    );
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found" });
+  }
+
+  const encoded = await handleRequest(
+    new Request("http://localhost/deadlock/%5Finternal/transcript-sync.json"),
+    env,
+  );
+  assert.equal(encoded.status, 404);
+});

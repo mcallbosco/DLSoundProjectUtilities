@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "vlviewer-content-cdn",
   "main": "src/index.js",
-  "compatibility_date": "2026-07-15",
+  "compatibility_date": "2026-08-12",
   "workers_dev": false,
   "cache": {
     "enabled": true

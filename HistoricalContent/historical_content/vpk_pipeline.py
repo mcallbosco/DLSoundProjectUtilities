@@ -326,6 +326,15 @@ def _specific_folder_voiceline_fallback(
     # use the same exact whitelist.
     if folder.startswith("sounds/vo/"):
         folder = folder[len("sounds/vo/"):]
+    if folder == "newscaster":
+        stem = relative_path.stem.casefold()
+        if stem.startswith("guide_"):
+            topic = "Guide"
+        elif stem == "news_reel_test":
+            topic = "News reel test"
+        else:
+            return None
+        return "newscaster", "self", topic, None, relative_path.as_posix(), False
     guardian_match = GUARDIAN_FOLDER_RE.fullmatch(folder)
     if guardian_match:
         speaker = guardian_match.group("speaker").casefold()
@@ -1026,6 +1035,56 @@ def _materialize_voicelines(
     return entry
 
 
+def _normalize_shopkeeper_topics(result: dict[str, object]) -> None:
+    """Build the compact display hierarchy used by the shopkeeper archive."""
+    speaker = result.get("shopkeeper_hotdog")
+    if not isinstance(speaker, dict):
+        return
+    topics = speaker.get("Self")
+    if not isinstance(topics, dict):
+        return
+
+    shop_system = topics.pop("Shop System", {})
+    if not isinstance(shop_system, dict):
+        shop_system = {}
+    call_out_ten = topics.pop("Call out 10", [])
+    if isinstance(call_out_ten, list):
+        shop_system.setdefault("Call out", []).extend(call_out_ten)
+
+    buy: dict[str, object] = {}
+    seasonal: dict[str, object] = {}
+    guide: list[object] = []
+    hero_training: list[object] = []
+    remaining: dict[str, object] = {}
+    for label, value in topics.items():
+        if label.startswith("Buy "):
+            buy[label[len("Buy "):].capitalize()] = value
+        elif label.startswith("Seasonal "):
+            seasonal[label[len("Seasonal "):].capitalize()] = value
+        elif label == "Guide" or label.startswith("Guide "):
+            if isinstance(value, list):
+                guide.extend(value)
+        elif label == "Hero training" or label.startswith("Hero training "):
+            if isinstance(value, list):
+                hero_training.extend(value)
+        else:
+            remaining[label] = value
+
+    ordered: dict[str, object] = {}
+    if shop_system:
+        ordered["Shop System"] = shop_system
+    if buy:
+        ordered["Buy"] = buy
+    if guide:
+        ordered["Guide"] = guide
+    if hero_training:
+        ordered["Hero Training"] = hero_training
+    if seasonal:
+        ordered["Seasonal"] = seasonal
+    ordered.update(remaining)
+    speaker["Self"] = ordered
+
+
 def parse_voicelines(
     audio_dir: Path,
     character_mappings: Path,
@@ -1128,7 +1187,17 @@ def parse_voicelines(
         if parsed and parsed != "disregarded":
             matched = organizer._find_vdf_match(effective_path.name, vdf)
             if matched:
-                used_vdf.add(matched)
+                matched_text = vdf[matched]
+                stem = effective_path.stem.casefold()
+                # A single audio resource can have several localization keys
+                # distinguished only by a playback-context suffix. Identical
+                # siblings describe the same recording and must not be emitted
+                # again as filename-less phantom lines. Different-text siblings
+                # remain unused so they can still represent genuinely missing
+                # variants.
+                for candidate in (stem, *(stem + suffix for suffix in ORDERED_KNOWN_SUFFIXES)):
+                    if vdf.get(candidate) == matched_text:
+                        used_vdf.add(candidate)
             if legacy_match and len(relative_path.parts) > 1:
                 legacy_count += 1
             # Parser overrides affect classification only. The public and
@@ -1150,10 +1219,13 @@ def parse_voicelines(
             suffix = next((item for item in ORDERED_KNOWN_SUFFIXES if key.endswith(item)), None)
             if not suffix:
                 continue
-            fake_path = key[:-len(suffix)] + ".mp3"
-            if _conversation_key_from_name(Path(fake_path).name, {}) is not None:
+            fake_name = key[:-len(suffix)] + ".mp3"
+            if _conversation_key_from_name(Path(fake_name).name, {}) is not None:
                 continue
-            parsed = organizer._process_file(fake_path, alias_data, topic_data, valid_speakers)
+            # Keep the synthetic path on the same root/drive as the parser's
+            # source directory; the legacy parser calculates a relative path.
+            fake_path = audio_dir / fake_name
+            parsed = organizer._process_file(str(fake_path), alias_data, topic_data, valid_speakers)
             if parsed and parsed != "disregarded":
                 organizer._place_in_result(result, parsed, {
                     "filename": "",
@@ -1166,6 +1238,7 @@ def parse_voicelines(
     for speaker_topics in result.values():
         if isinstance(speaker_topics, dict) and isinstance(speaker_topics.get("Self"), dict):
             speaker_topics["Self"] = sort_subject_topics(group_config, speaker_topics["Self"])
+    _normalize_shopkeeper_topics(result)
     materialized = _materialize_voicelines(result, audio_dir, vdf, filename_overrides)
     assert isinstance(materialized, dict)
     return materialized, set(organizer.disregarded_heroes)

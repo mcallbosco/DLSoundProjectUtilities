@@ -959,22 +959,35 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         )
         if predefined_text is not None:
             predefined_matched_paths.add(filename.casefold())
+        official_text = _text(entry).strip() if entry.get("officialtranscription") else ""
+        if official_text:
+            # VDF text is authoritative for a real matched recording. Promote
+            # any existing revision in place so the transcript repository and
+            # published line no longer disagree. This intentionally supersedes
+            # manual text once Valve supplies an official transcription.
+            revision["text"] = official_text
+            revision["source"] = "official"
+            revision.pop("model", None)
+            skipped_effort_keys.discard(key)
+            skipped_non_speech_keys.discard(key)
         if _is_effort_recording(filename):
             source = revision.get("source")
-            has_curated_text = source in {"manual", "official"} and bool(
-                str(revision.get("text") or "").strip()
+            has_curated_revision = source == "manual" or (
+                source == "official"
+                and bool(str(revision.get("text") or "").strip())
             )
-            if not has_curated_text:
+            if not has_curated_revision:
                 revision["text"] = ""
                 revision["source"] = SKIPPED_EFFORT_SOURCE
                 revision.pop("model", None)
                 skipped_effort_keys.add(key)
         elif _is_non_speech_recording(filename):
             source = revision.get("source")
-            has_curated_text = source in {"manual", "official"} and bool(
-                str(revision.get("text") or "").strip()
+            has_curated_revision = source == "manual" or (
+                source == "official"
+                and bool(str(revision.get("text") or "").strip())
             )
-            if not has_curated_text:
+            if not has_curated_revision:
                 revision["text"] = ""
                 revision["source"] = SKIPPED_NON_SPEECH_SOURCE
                 revision.pop("model", None)
@@ -996,6 +1009,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         if (
             not str(revision.get("text") or "").strip()
             and revision.get("source") not in TERMINAL_BLANK_SOURCES
+            and revision.get("source") != "manual"
             and audio_path is not None
         ):
             missing_by_audio[key] = (revision, audio_path)

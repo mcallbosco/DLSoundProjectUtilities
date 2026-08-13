@@ -51,6 +51,10 @@ NEXT_PUBLIC_VLVIEWER_CONTENT_BASE_URL=http://127.0.0.1:8787
 The Worker sends public read-only CORS headers, so localhost sites on any port
 can request the local or production content endpoint.
 
+Object keys below `<game>/_internal/**` are private publisher control state. The Worker
+returns `404` for both `GET` and `HEAD`, including percent-encoded attempts. Deploy this
+Worker restriction before initializing the transcript-sync cursor in R2.
+
 The fixture also includes the per-game category fallback at
 `deadlock/categories.json`. `deadlock/manifest.json` advertises it through
 `defaultCategoriesUrl`; individual versions only need `categoriesUrl` when they

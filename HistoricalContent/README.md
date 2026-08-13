@@ -223,14 +223,18 @@ required before testing.
 
 Effort recordings still get a per-audio transcript JSON file. The utility leaves
 their text blank, sets `source` to `skippedeffort`, and does not send them to the
-transcription API. A non-empty `manual` or `official` revision is preserved.
+transcription API. A `manual` revision is preserved even when its text is blank,
+unless matched VDF text promotes the revision to `official`; an `official`
+revision is preserved.
 
 Known non-speech recordings also get a transcript file with blank text and
 `source: "skippednonspeech"`. This includes pain/emote recordings and audio in
 explicit SFX paths. A blank response from the transcription model is stored with
 the same terminal source, so rerunning a version does not repeatedly submit that
 audio. The model name remains in the revision when the source came from a blank
-model response. Non-empty `manual` and `official` revisions are always preserved.
+model response. `manual` revisions are preserved even when their text is blank,
+unless matched VDF text promotes them to `official`; official revisions are
+preserved.
 
 The first run after this format change migrates the old per-speaker and
 per-conversation files. It removes those legacy JSON files only after it writes

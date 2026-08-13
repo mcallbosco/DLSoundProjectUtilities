@@ -38,6 +38,11 @@ function objectKeyFromUrl(url) {
   return key;
 }
 
+function isInternalObjectKey(key) {
+  const segments = key.split("/");
+  return segments.length > 1 && segments[1] === "_internal";
+}
+
 function setObjectHeaders(headers, object, key) {
   object.writeHttpMetadata(headers);
   headers.set("ETag", object.httpEtag);
@@ -110,7 +115,9 @@ export async function handleRequest(request, env) {
   }
 
   const key = objectKeyFromUrl(url);
-  if (!key) return jsonResponse({ error: "not_found" }, 404);
+  if (!key || isInternalObjectKey(key)) {
+    return jsonResponse({ error: "not_found" }, 404);
+  }
 
   if (request.method === "HEAD") {
     const object = await env.CONTENT_BUCKET.head(key);
