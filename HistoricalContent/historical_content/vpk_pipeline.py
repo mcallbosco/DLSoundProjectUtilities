@@ -15,7 +15,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Callable, Iterable
 
 
@@ -122,6 +122,7 @@ class VpkPipelineResult:
     topic_aliases: Path
     voiceline_groups: Path
     conversation_overrides: Path
+    audio_filename_overrides: Path
     transcription_vocabulary: Path
     audio_count: int
     voiceline_count: int
@@ -192,6 +193,79 @@ def ensure_game_configs(
         root / "transcription-vocabulary.json",
     )
     return mappings, aliases, groups, overrides, vocabulary
+
+
+def _ensure_version_audio_filename_overrides(settings: VpkPipelineSettings) -> Path:
+    path = (
+        settings.transcript_repo.expanduser().resolve()
+        / "config"
+        / settings.game
+        / "versions"
+        / settings.version_id
+        / "audio-filename-overrides.json"
+    )
+    if not path.is_file():
+        _write_json(path, {"schemaVersion": 1, "overrides": {}})
+    return path
+
+
+def _normalize_override_path(value: str, field: str, config_path: Path) -> str:
+    raw = value.strip().replace("\\", "/")
+    path = PurePosixPath(raw)
+    if (
+        not raw
+        or raw.startswith("/")
+        or any(part in {"", ".", ".."} for part in path.parts)
+        or any(":" in part for part in path.parts)
+        or path.suffix.casefold() != ".mp3"
+    ):
+        raise VpkPipelineError(
+            f"{field} must be a safe relative MP3 path in {config_path}: {value!r}"
+        )
+    return path.as_posix()
+
+
+def _load_audio_filename_overrides(path: Path) -> dict[str, str | None]:
+    """Load original-path to parser-path overrides without renaming source audio."""
+    payload = _read_json(path)
+    if not isinstance(payload, dict) or payload.get("schemaVersion") != 1:
+        raise VpkPipelineError(
+            f"Audio filename overrides must be a schemaVersion 1 object: {path}"
+        )
+    entries = payload.get("overrides")
+    if not isinstance(entries, dict):
+        raise VpkPipelineError(f"Audio filename overrides must contain an overrides object: {path}")
+    result: dict[str, str | None] = {}
+    for source, rule in entries.items():
+        if not isinstance(source, str) or not isinstance(rule, dict):
+            raise VpkPipelineError(
+                f"Audio filename overrides must map paths to rule objects: {path}"
+            )
+        normalized_source = _normalize_override_path(source, "Override source", path)
+        key = normalized_source.casefold()
+        if key in result:
+            raise VpkPipelineError(f"Duplicate audio filename override for {source!r} in {path}")
+        parse_as = rule.get("parseAs")
+        ignore = rule.get("ignore") is True
+        if ignore == isinstance(parse_as, str):
+            raise VpkPipelineError(
+                f"Override {source!r} must specify exactly one of parseAs or ignore: true in {path}"
+            )
+        result[key] = (
+            None
+            if ignore
+            else _normalize_override_path(str(parse_as), f"parseAs for {source!r}", path)
+        )
+    return result
+
+
+def _effective_audio_path(
+    relative_path: Path,
+    overrides: dict[str, str | None],
+) -> Path | None:
+    original = relative_path.as_posix()
+    replacement = overrides.get(original.casefold(), original)
+    return Path(*PurePosixPath(replacement).parts) if replacement is not None else None
 
 
 def _validate_mapping(path: Path) -> dict[str, list[str]]:
@@ -903,7 +977,12 @@ def _load_vdf(path: Path | None) -> dict[str, str]:
     return load_vdf_key_text_map(str(path)) if path else {}
 
 
-def _materialize_voicelines(node: object, audio_dir: Path, vdf: dict[str, str]) -> object:
+def _materialize_voicelines(
+    node: object,
+    audio_dir: Path,
+    vdf: dict[str, str],
+    audio_filename_overrides: dict[str, str | None],
+) -> object:
     from modules.vdf_kv_common import find_vdf_match_for_filename
 
     if isinstance(node, dict):
@@ -911,20 +990,28 @@ def _materialize_voicelines(node: object, audio_dir: Path, vdf: dict[str, str]) 
         # their transcript and ID strings as filesystem paths.
         if isinstance(node.get("filename"), str):
             return dict(node)
-        return {key: _materialize_voicelines(value, audio_dir, vdf) for key, value in node.items()}
+        return {
+            key: _materialize_voicelines(value, audio_dir, vdf, audio_filename_overrides)
+            for key, value in node.items()
+        }
     if isinstance(node, list):
-        return [_materialize_voicelines(value, audio_dir, vdf) for value in node]
+        return [
+            _materialize_voicelines(value, audio_dir, vdf, audio_filename_overrides)
+            for value in node
+        ]
     if not isinstance(node, str):
         return node
     relative = Path(node)
     audio_path = audio_dir.joinpath(*relative.parts)
     audio_key = relative.as_posix()
     filename = relative.name
+    effective = _effective_audio_path(relative, audio_filename_overrides)
+    parse_filename = effective.name if effective is not None else filename
     try:
         date = datetime.fromtimestamp(audio_path.stat().st_mtime).strftime("%Y-%m-%d")
     except OSError:
         date = None
-    _vdf_key, official_text = find_vdf_match_for_filename(filename, vdf)
+    _vdf_key, official_text = find_vdf_match_for_filename(parse_filename, vdf)
     entry: dict[str, object] = {
         # filename is the key relative to audioBaseUrl.  Folder components are
         # required because Source 2 can contain different recordings with the
@@ -947,6 +1034,7 @@ def parse_voicelines(
     vdf_path: Path | None,
     include_phantom: bool,
     progress: Progress,
+    audio_filename_overrides: dict[str, str | None] | None = None,
 ) -> tuple[dict[str, object], set[str]]:
     _ensure_voiceline_import_path()
     from modules.vdf_kv_common import ORDERED_KNOWN_SUFFIXES
@@ -964,6 +1052,7 @@ def parse_voicelines(
         for alias in aliases
     }
     alias_lookup = _alias_index(alias_data)
+    filename_overrides = audio_filename_overrides or {}
     organizer = VoiceLineOrganizer.__new__(VoiceLineOrganizer)
     organizer.processing_debug_log = _DiscardLog()
     organizer.sort_debug_log = _DiscardLog()
@@ -972,22 +1061,23 @@ def parse_voicelines(
     organizer.group_config = group_config
     organizer.log = lambda *_args, **_kwargs: None
 
-    audio_files = sorted(
-        path
-        for path in audio_dir.rglob("*")
-        if path.is_file()
-        and path.suffix.casefold() == ".mp3"
-        and _conversation_key_from_name(path.name, {}) is None
-    )
+    audio_files: list[tuple[Path, Path, Path]] = []
+    for path in sorted(audio_dir.rglob("*")):
+        if not path.is_file() or path.suffix.casefold() != ".mp3":
+            continue
+        relative_path = path.relative_to(audio_dir)
+        effective_path = _effective_audio_path(relative_path, filename_overrides)
+        if effective_path is None or _conversation_key_from_name(effective_path.name, {}) is not None:
+            continue
+        audio_files.append((path, relative_path, effective_path))
     result: dict[str, object] = {}
     vdf = _load_vdf(vdf_path)
     used_vdf: set[str] = set()
     legacy_count = 0
     folder_fallback_count = 0
-    for index, path in enumerate(audio_files, start=1):
-        parse_path = path
-        relative_path = path.relative_to(audio_dir)
-        legacy_match = RR_TEST_RE.fullmatch(path.stem)
+    for index, (path, relative_path, effective_path) in enumerate(audio_files, start=1):
+        parse_path = audio_dir.joinpath(*effective_path.parts)
+        legacy_match = RR_TEST_RE.fullmatch(effective_path.stem)
         legacy_speaker: str | None = None
         if legacy_match and len(relative_path.parts) > 1:
             # Very old builds used a numeric rr_test prefix instead of putting
@@ -1026,7 +1116,7 @@ def parse_voicelines(
             )
         if not parsed or parsed == "disregarded":
             folder_parsed = _specific_folder_voiceline_fallback(
-                relative_path,
+                effective_path,
                 organizer,
                 alias_lookup,
                 topic_data,
@@ -1036,12 +1126,14 @@ def parse_voicelines(
                 parsed = folder_parsed
                 folder_fallback_count += 1
         if parsed and parsed != "disregarded":
-            matched = organizer._find_vdf_match(path.name, vdf)
+            matched = organizer._find_vdf_match(effective_path.name, vdf)
             if matched:
                 used_vdf.add(matched)
             if legacy_match and len(relative_path.parts) > 1:
-                parsed = (*parsed[:4], relative_path.as_posix(), parsed[5])
                 legacy_count += 1
+            # Parser overrides affect classification only. The public and
+            # transcript identity always remains the extracted relative path.
+            parsed = (*parsed[:4], relative_path.as_posix(), parsed[5])
             organizer._place_in_result(result, parsed, parsed[4])
         if index % 1000 == 0:
             progress(f"Parsed {index:,}/{len(audio_files):,} voiceline audio files...")
@@ -1074,7 +1166,7 @@ def parse_voicelines(
     for speaker_topics in result.values():
         if isinstance(speaker_topics, dict) and isinstance(speaker_topics.get("Self"), dict):
             speaker_topics["Self"] = sort_subject_topics(group_config, speaker_topics["Self"])
-    materialized = _materialize_voicelines(result, audio_dir, vdf)
+    materialized = _materialize_voicelines(result, audio_dir, vdf, filename_overrides)
     assert isinstance(materialized, dict)
     return materialized, set(organizer.disregarded_heroes)
 
@@ -1155,22 +1247,29 @@ def parse_conversations(
     conversation_overrides: Path,
     vdf_path: Path | None,
     include_phantom: bool,
+    audio_filename_overrides: dict[str, str | None] | None = None,
 ) -> dict[str, object]:
     mappings = _validate_mapping(character_mappings)
     aliases = _alias_index(mappings)
+    filename_overrides = audio_filename_overrides or {}
     grouped: dict[tuple, list[dict[str, object]]] = {}
     for path in sorted(audio_dir.rglob("*.mp3")):
-        parsed = _conversation_key_from_name(path.name, aliases)
+        relative_path = path.relative_to(audio_dir)
+        effective_path = _effective_audio_path(relative_path, filename_overrides)
+        if effective_path is None:
+            continue
+        parsed = _conversation_key_from_name(effective_path.name, aliases)
         if not parsed:
             continue
         key, part, variation, starter = parsed
         pair = key[0]
         grouped.setdefault(key, []).append({
-            "filename": str(path.relative_to(audio_dir)),
+            "filename": relative_path.as_posix(),
             "part": part,
             "variation": variation,
             "characters": pair,
             "starter": starter,
+            "speaker": starter,
             "topic": key[2] if len(key) > 2 else None,
         })
 
@@ -1300,6 +1399,13 @@ def prepare_vpk_export(
     """Create or resume one VPK-to-baseline source workspace."""
     _validate_settings(settings)
     mappings, aliases, groups, overrides, vocabulary = ensure_game_configs(settings)
+    filename_overrides_path = _ensure_version_audio_filename_overrides(settings)
+    filename_overrides = _load_audio_filename_overrides(filename_overrides_path)
+    ignored_override_count = sum(value is None for value in filename_overrides.values())
+    progress(
+        f"Loaded {len(filename_overrides):,} version audio filename override(s) "
+        f"({ignored_override_count:,} ignored)."
+    )
 
     # Loading validates the selected group file before a large extraction starts.
     _ensure_voiceline_import_path()
@@ -1464,6 +1570,7 @@ def prepare_vpk_export(
         overrides,
         vdf_path,
         settings.include_phantom,
+        filename_overrides,
     )
     _write_json(source / "all_conversations.json", conversations)
 
@@ -1476,6 +1583,7 @@ def prepare_vpk_export(
         vdf_path,
         settings.include_phantom,
         progress,
+        filename_overrides,
     )
     if unresolved:
         progress(
@@ -1509,6 +1617,7 @@ def prepare_vpk_export(
         topic_aliases=aliases,
         voiceline_groups=groups,
         conversation_overrides=overrides,
+        audio_filename_overrides=filename_overrides_path,
         transcription_vocabulary=vocabulary,
         audio_count=audio_count,
         voiceline_count=voice_count,

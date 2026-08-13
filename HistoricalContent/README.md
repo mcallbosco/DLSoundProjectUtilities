@@ -197,6 +197,7 @@ DeadlockTranscripts/
   config/deadlock/transcription-vocabulary.json
   config/deadlock/versions/deadlock-base/categories.json
   config/deadlock/versions/deadlock-base/character-names.json
+  config/deadlock/versions/deadlock-base/audio-filename-overrides.json
 ```
 
 The `transcripts` tree mirrors the relative audio tree. For example,
@@ -204,6 +205,14 @@ The `transcripts` tree mirrors the relative audio tree. For example,
 `transcripts/forge/mcginnis_select_01.mp3.json`. Voicelines and individual
 conversation lines use the same tree and schema. Website locations, speakers,
 categories, and conversation membership are not stored in transcript files.
+
+`config/<game>/versions/<version>/audio-filename-overrides.json` corrects how malformed or
+misnumbered extracted MP3 names are interpreted without renaming the files.
+Each full audio-root-relative path maps either to `parseAs`, another relative
+MP3 path used only for conversation and voiceline parsing, or to `ignore: true`.
+Generated `filename` values, transcript paths, downloads, and diagnostics keep
+the original extracted filename. Edit the version-level file and process the VPK
+again; the persistent audio extraction is reused.
 
 Each file has a `revisions` array. The utility preserves one revision for each
 distinct audio SHA-256 value. To correct text, edit the matching revision's

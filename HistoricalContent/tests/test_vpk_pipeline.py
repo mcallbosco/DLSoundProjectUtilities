@@ -11,6 +11,7 @@ from HistoricalContent.historical_content.vpk_pipeline import (
     VpkPipelineSettings,
     _build_historical_icon_pack,
     _export_character_name_images,
+    _load_audio_filename_overrides,
     _vpk_name_image_filters,
     _validate_mapping,
     create_coverage,
@@ -78,6 +79,73 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertEqual(coverage["summary"]["total_files"], 3)
         self.assertEqual(coverage["summary"]["matched_files"], 1)
         self.assertEqual(coverage["summary"]["unmatched_files"], 2)
+
+    def test_filename_overrides_change_parsing_but_preserve_public_filename(self):
+        bad_conversation = "paradox_match_start_abrams_paradox_convo01_04.mp3"
+        corrected_conversation = "paradox_match_start_abrams_paradox_convo01_03.mp3"
+        bad_voice = "abrams_parry_broken.mp3"
+        ignored_voice = "abrams_parry_imported.mp3"
+        (self.audio / bad_conversation).write_bytes(b"three")
+        (self.audio / bad_voice).write_bytes(b"corrected voice")
+        (self.audio / ignored_voice).write_bytes(b"ignored voice")
+        overrides = {
+            bad_conversation.casefold(): corrected_conversation,
+            bad_voice.casefold(): "abrams_parry_02.mp3",
+            ignored_voice.casefold(): None,
+        }
+
+        conversations = parse_conversations(
+            self.audio,
+            ASSETS / "character_mappings.json",
+            ASSETS / "conversation_overrides.json",
+            None,
+            include_phantom=False,
+            audio_filename_overrides=overrides,
+        )
+        conversation = conversations["conversations"][0]
+        self.assertTrue(conversation["is_complete"])
+        self.assertEqual([line["part"] for line in conversation["lines"]], [1, 2, 3])
+        self.assertEqual(conversation["lines"][2]["filename"], bad_conversation)
+
+        voices, unresolved = parse_voicelines(
+            self.audio,
+            ASSETS / "character_mappings.json",
+            ASSETS / "topic_mappings.json",
+            ASSETS / "voiceline_groups.json",
+            None,
+            include_phantom=False,
+            progress=lambda _message: None,
+            audio_filename_overrides=overrides,
+        )
+        self.assertFalse(unresolved)
+        parry_names = {
+            line["filename"] for line in voices["abrams"]["Self"]["Combat"]["Parry"]
+        }
+        self.assertIn(bad_voice, parry_names)
+        self.assertNotIn(ignored_voice, parry_names)
+
+    def test_version_filename_override_config_loads_rules(self):
+        config = self.root / "audio-filename-overrides.json"
+        malformed = (
+            "gigawatt/"
+            "gigawatt_match_start_gigawatt_inferno_convo02_05"
+            "gigawatt_match_start_gigawatt_inferno_convo02_05.mp3"
+        )
+        config.write_text(json.dumps({
+            "schemaVersion": 1,
+            "overrides": {
+                malformed: {
+                    "parseAs": "gigawatt/gigawatt_match_start_gigawatt_inferno_convo02_05.mp3"
+                },
+                "vampirebat/vampirebat_use_power1_01-imported.mp3": {"ignore": True},
+            },
+        }), encoding="utf-8")
+        overrides = _load_audio_filename_overrides(config)
+        self.assertEqual(
+            overrides[malformed],
+            "gigawatt/gigawatt_match_start_gigawatt_inferno_convo02_05.mp3",
+        )
+        self.assertIsNone(overrides["vampirebat/vampirebat_use_power1_01-imported.mp3"])
 
     def test_voiceline_keys_keep_folders_when_basenames_collide(self):
         collision_root = self.root / "collision-audio"
@@ -536,6 +604,17 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertTrue((first.source_dir / "coverage.json").is_file())
         self.assertEqual(first.transcription_vocabulary.name, "transcription-vocabulary.json")
         self.assertTrue(first.transcription_vocabulary.is_file())
+        self.assertEqual(first.audio_filename_overrides.name, "audio-filename-overrides.json")
+        self.assertTrue(first.audio_filename_overrides.is_file())
+        self.assertEqual(
+            first.audio_filename_overrides,
+            settings.transcript_repo
+            / "config"
+            / "deadlock"
+            / "versions"
+            / "test-version"
+            / "audio-filename-overrides.json",
+        )
         extracted_audio = list((settings.data_dir / "workspaces").rglob("*.mp3"))
         self.assertEqual(len(extracted_audio), 1)
         self.assertTrue(first.source_dir / "Audio" in extracted_audio[0].parents)

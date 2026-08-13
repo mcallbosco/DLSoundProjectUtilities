@@ -58,7 +58,7 @@ DEFAULT_WEBSITE_DIR = UTILITIES_DIR.parents[1] / "VLViewer"
 DEFAULTS = {
     "vpkPath": "",
     "source2viewerBinary": "",
-    "transcriptRepo": str(UTILITIES_DIR / "DeadlockTranscripts"),
+    "transcriptRepo": str(UTILITIES_DIR.parents[1] / "Deadlock-Transcriptions"),
     "dataDir": "D:/VLViewerHistoricalData",
     "workerDir": str(UTILITIES_DIR / "ContentDeliveryWorker"),
     "websiteDir": str(DEFAULT_WEBSITE_DIR),
@@ -256,6 +256,7 @@ class HistoricalContentGUI(tk.Tk):
         ttk.Button(secondary_buttons, text="Open categories", command=self._open_categories).pack(side=tk.LEFT)
         ttk.Button(secondary_buttons, text="Open voiceline groups", command=self._open_groups).pack(side=tk.LEFT, padx=5)
         ttk.Button(secondary_buttons, text="Open character mappings", command=self._open_mappings).pack(side=tk.LEFT, padx=5)
+        ttk.Button(secondary_buttons, text="Open filename overrides", command=self._open_filename_overrides).pack(side=tk.LEFT, padx=5)
         ttk.Button(secondary_buttons, text="Open display names", command=self._open_character_names).pack(side=tk.LEFT, padx=5)
         ttk.Button(secondary_buttons, text="Open vocabulary", command=self._open_vocabulary).pack(side=tk.LEFT, padx=5)
         ttk.Button(secondary_buttons, text="Validate categories", command=self._validate_categories).pack(side=tk.LEFT, padx=5)
@@ -516,6 +517,20 @@ class HistoricalContentGUI(tk.Tk):
         path = self._game_config_path("character-mappings.json")
         if not path.is_file():
             messagebox.showwarning("Not generated", "Process the VPK once to create the editable mapping file.")
+            return
+        os.startfile(path)
+
+    def _open_filename_overrides(self) -> None:
+        path = (
+            self._game_config_path("versions")
+            / str(self.vars["versionId"].get()).strip()
+            / "audio-filename-overrides.json"
+        )
+        if not path.is_file():
+            messagebox.showwarning(
+                "Not generated",
+                "Process the VPK once to create the editable filename-override file.",
+            )
             return
         os.startfile(path)
 
