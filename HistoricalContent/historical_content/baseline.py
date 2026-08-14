@@ -10,6 +10,7 @@ import re
 import shutil
 import sqlite3
 import subprocess
+import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import closing
 from dataclasses import dataclass
@@ -35,7 +36,7 @@ from .version_catalog import (
 Progress = Callable[[str], None]
 VERSION_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-TRANSCRIPT_SCHEMA_VERSION = 2
+TRANSCRIPT_SCHEMA_VERSION = 3
 SKIPPED_EFFORT_SOURCE = "skippedeffort"
 SKIPPED_NON_SPEECH_SOURCE = "skippednonspeech"
 TERMINAL_BLANK_SOURCES = {SKIPPED_EFFORT_SOURCE, SKIPPED_NON_SPEECH_SOURCE}
@@ -49,8 +50,8 @@ TRANSCRIPT_SOURCE_PRIORITY = {
     SKIPPED_EFFORT_SOURCE: 0,
     SKIPPED_NON_SPEECH_SOURCE: 0,
     "generated": 1,
-    "official": 2,
-    "manual": 3,
+    "manual": 2,
+    "official": 3,
 }
 
 
@@ -379,12 +380,38 @@ def _transcript_path(repo: Path, filename: str) -> Path:
     return repo / "transcripts" / Path(*relative.parts)
 
 
-def _normalize_transcript_hash(value: object, origin: Path) -> str | None:
-    if value is None:
-        return None
-    if not isinstance(value, str) or not SHA256_RE.fullmatch(value.casefold()):
-        raise BaselineError(f"Transcript revision has an invalid SHA-256 value in {origin}.")
-    return value.casefold()
+def _normalize_transcript_hashes(value: object, origin: Path) -> list[str]:
+    if not isinstance(value, list):
+        raise BaselineError(f"Transcript revision SHA-256 value must be an array in {origin}.")
+    hashes: list[str] = []
+    seen: set[str] = set()
+    for candidate in value:
+        if not isinstance(candidate, str) or not SHA256_RE.fullmatch(candidate.casefold()):
+            raise BaselineError(f"Transcript revision has an invalid SHA-256 value in {origin}.")
+        digest = candidate.casefold()
+        if digest in seen:
+            raise BaselineError(f"Transcript revision has a duplicate SHA-256 value in {origin}.")
+        seen.add(digest)
+        hashes.append(digest)
+    return sorted(hashes)
+
+
+def _transcript_match_key(text: str) -> str:
+    """Return the deliberately broad key used to share equivalent subtitles."""
+    return "".join(
+        character
+        for character in text.casefold()
+        if not character.isspace()
+        and not unicodedata.category(character).startswith("P")
+    )
+
+
+def _transcript_group_key(revision: dict[str, object]) -> tuple[str, str]:
+    text = str(revision.get("text") or "")
+    source = str(revision.get("source") or "")
+    if not text.strip() and source in TERMINAL_BLANK_SOURCES:
+        return "terminal-blank", source
+    return "text", _transcript_match_key(text)
 
 
 def _normalize_transcript_revision(value: object, origin: Path) -> dict[str, object]:
@@ -400,7 +427,7 @@ def _normalize_transcript_revision(value: object, origin: Path) -> dict[str, obj
             f"{SKIPPED_EFFORT_SOURCE}, or {SKIPPED_NON_SPEECH_SOURCE} in {origin}."
         )
     revision: dict[str, object] = {
-        "sha256": _normalize_transcript_hash(value.get("sha256"), origin),
+        "sha256": _normalize_transcript_hashes(value.get("sha256"), origin),
         "text": text,
         "source": source,
     }
@@ -417,7 +444,12 @@ def _revision_for_hash(
     document: dict[str, object], audio_hash: str | None
 ) -> dict[str, object] | None:
     for revision in document["revisions"]:
-        if isinstance(revision, dict) and revision.get("sha256") == audio_hash:
+        if not isinstance(revision, dict):
+            continue
+        hashes = revision.get("sha256")
+        if audio_hash is None and hashes == []:
+            return revision
+        if isinstance(audio_hash, str) and isinstance(hashes, list) and audio_hash in hashes:
             return revision
     return None
 
@@ -429,17 +461,39 @@ def _merge_loaded_revision(
     origin: Path,
 ) -> None:
     """Merge legacy or already-migrated data without losing human corrections."""
-    existing = _revision_for_hash(document, candidate.get("sha256"))
+    candidate_hashes = candidate.get("sha256")
+    if not isinstance(candidate_hashes, list):
+        raise BaselineError(f"Transcript revision has invalid hashes in {origin}.")
+    matches = {
+        id(existing): existing
+        for digest in candidate_hashes or [None]
+        if (existing := _revision_for_hash(document, digest)) is not None
+    }
+    if len(matches) > 1:
+        raise BaselineError(
+            f"Transcript hashes resolve to multiple revisions for {document['filename']!r} in {origin}."
+        )
+    existing = next(iter(matches.values()), None)
     if existing is None:
         document["revisions"].append(candidate)
         return
+    existing_hashes = existing.get("sha256")
+    if not isinstance(existing_hashes, list):
+        raise BaselineError(f"Transcript revision has invalid hashes in {origin}.")
+    merged_hashes = sorted(set(existing_hashes) | set(candidate_hashes))
+    existing["sha256"] = merged_hashes
     existing_text = str(existing.get("text") or "").strip()
     candidate_text = str(candidate.get("text") or "").strip()
     if not existing_text and candidate_text:
         existing.clear()
         existing.update(candidate)
+        existing["sha256"] = merged_hashes
         return
-    if not candidate_text or existing_text == candidate_text:
+    if (
+        not candidate_text
+        or existing_text == candidate_text
+        or _transcript_match_key(existing_text) == _transcript_match_key(candidate_text)
+    ):
         if TRANSCRIPT_SOURCE_PRIORITY.get(
             str(candidate.get("source")), -1
         ) > TRANSCRIPT_SOURCE_PRIORITY.get(
@@ -447,6 +501,7 @@ def _merge_loaded_revision(
         ):
             existing.clear()
             existing.update(candidate)
+            existing["sha256"] = merged_hashes
         return
     existing_priority = TRANSCRIPT_SOURCE_PRIORITY.get(
         str(existing.get("source")), -1
@@ -457,6 +512,7 @@ def _merge_loaded_revision(
     if candidate_priority > existing_priority:
         existing.clear()
         existing.update(candidate)
+        existing["sha256"] = merged_hashes
     elif (
         candidate_priority
         == existing_priority
@@ -464,8 +520,63 @@ def _merge_loaded_revision(
     ):
         raise BaselineError(
             f"Conflicting manual transcripts exist for {document['filename']!r} "
-            f"and SHA-256 {candidate.get('sha256')!r}; conflict found in {origin}."
+            f"and SHA-256 {candidate_hashes!r}; conflict found in {origin}."
         )
+
+
+def _compact_transcript_document(document: dict[str, object]) -> dict[str, object]:
+    revisions = document.get("revisions")
+    if not isinstance(revisions, list):
+        raise BaselineError(f"Transcript has no revisions array: {document.get('filename')!r}.")
+    grouped: dict[tuple[str, str], list[dict[str, object]]] = {}
+    order: list[tuple[str, str]] = []
+    for revision in revisions:
+        if not isinstance(revision, dict):
+            raise BaselineError(f"Transcript revision must be an object: {document.get('filename')!r}.")
+        key = _transcript_group_key(revision)
+        if key not in grouped:
+            grouped[key] = []
+            order.append(key)
+        grouped[key].append(revision)
+
+    compacted: list[dict[str, object]] = []
+    for key in order:
+        members = grouped[key]
+        chosen_source = max(
+            (str(member.get("source") or "") for member in members),
+            key=lambda source: TRANSCRIPT_SOURCE_PRIORITY.get(source, -1),
+        )
+        candidates = [member for member in members if member.get("source") == chosen_source]
+        text_counts: dict[str, int] = {}
+        for member in candidates:
+            text = str(member.get("text") or "")
+            text_counts[text] = text_counts.get(text, 0) + 1
+        chosen_text = max(text_counts, key=lambda text: text_counts[text])
+        hashes = sorted(
+            {
+                digest
+                for member in members
+                for digest in member.get("sha256", [])
+                if isinstance(digest, str)
+            }
+        )
+        result: dict[str, object] = {
+            "sha256": hashes,
+            "text": chosen_text,
+            "source": chosen_source,
+        }
+        if chosen_source in {"generated", SKIPPED_NON_SPEECH_SOURCE}:
+            models = {
+                str(member["model"])
+                for member in candidates
+                if isinstance(member.get("model"), str) and member["model"]
+            }
+            if len(models) == 1:
+                result["model"] = next(iter(models))
+        compacted.append(result)
+    document["revisions"] = compacted
+    document["schemaVersion"] = TRANSCRIPT_SCHEMA_VERSION
+    return document
 
 
 def _get_transcript_document(
@@ -536,7 +647,7 @@ def _load_transcript_documents(
                     raise BaselineError(f"Legacy transcript line has no filename in {path}.")
                 source = line.get("source", "generated")
                 revision_value: dict[str, object] = {
-                    "sha256": line.get("audioSha256"),
+                    "sha256": [line["audioSha256"]] if line.get("audioSha256") else [],
                     "text": line.get("text", ""),
                     "source": source,
                 }
@@ -555,7 +666,7 @@ def _new_transcript_revision(
     entry: dict[str, object], audio_hash: str | None
 ) -> dict[str, object]:
     result: dict[str, object] = {
-        "sha256": audio_hash,
+        "sha256": [audio_hash] if audio_hash is not None else [],
         "text": _text(entry),
     }
     if entry.get("officialtranscription"):
@@ -582,6 +693,7 @@ def _write_transcript_documents(
     for document in sorted(
         documents.values(), key=lambda value: str(value["filename"]).casefold()
     ):
+        _compact_transcript_document(document)
         filename = str(document["filename"])
         if existing_serialized.get(filename.casefold()) == _serialize_json(document):
             continue
@@ -761,8 +873,8 @@ def _write_repo_support(repo: Path) -> None:
             "# Deadlock Transcripts\n\n"
             "Human-readable transcript and content configuration used to generate VLViewer data.\n\n"
             "Audio transcripts are stored below `transcripts/` at paths that mirror the audio files.\n"
-            "Each JSON file retains one revision for each distinct audio SHA-256 value.\n\n"
-            "Edit a revision's `text`, set `source` to `manual`, remove `model`, preview locally, then commit.\n",
+            "Each JSON file groups equivalent subtitle text and lists every matching audio SHA-256 value.\n\n"
+            "Edit a group's `text`, set `source` to `manual`, remove `model`, preview locally, then commit.\n",
             encoding="utf-8",
         )
     schema = {
@@ -782,10 +894,9 @@ def _write_repo_support(repo: Path) -> None:
                     "additionalProperties": False,
                     "properties": {
                         "sha256": {
-                            "oneOf": [
-                                {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-                                {"type": "null"},
-                            ]
+                            "type": "array",
+                            "uniqueItems": True,
+                            "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
                         },
                         "text": {"type": "string"},
                         "source": {
@@ -1103,18 +1214,22 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     conflicting_hashes: set[str] = set()
     for document in transcript_documents.values():
         for transcript in document["revisions"]:
-            digest = transcript.get("sha256")
             text_value = str(transcript.get("text") or "").strip()
-            if not isinstance(digest, str) or not text_value:
+            hashes = transcript.get("sha256")
+            if not isinstance(hashes, list) or not text_value:
                 continue
-            previous = known_by_hash.get(digest)
-            if previous and str(previous.get("text") or "").strip() != text_value:
-                conflicting_hashes.add(digest)
-            else:
-                known_by_hash[digest] = transcript
+            for digest in hashes:
+                if not isinstance(digest, str):
+                    continue
+                previous = known_by_hash.get(digest)
+                if previous and str(previous.get("text") or "").strip() != text_value:
+                    conflicting_hashes.add(digest)
+                else:
+                    known_by_hash[digest] = transcript
     unresolved: list[tuple[dict[str, object], Path]] = []
     for transcript, path in missing_by_audio.values():
-        digest = transcript.get("sha256")
+        hashes = transcript.get("sha256")
+        digest = hashes[0] if isinstance(hashes, list) and hashes else None
         reusable = known_by_hash.get(str(digest)) if digest not in conflicting_hashes else None
         if reusable:
             transcript["text"] = reusable.get("text", "")
@@ -1138,7 +1253,8 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         progress(f"Transcribing {len(missing)} missing recordings with {settings.model}.")
         unique: dict[str, tuple[Path, list[dict[str, object]]]] = {}
         for entry, path in missing:
-            digest = str(entry.get("sha256") or path.resolve())
+            hashes = entry.get("sha256")
+            digest = str(hashes[0] if isinstance(hashes, list) and hashes else path.resolve())
             unique.setdefault(digest, (path, []))[1].append(entry)
         with ThreadPoolExecutor(max_workers=max(1, settings.workers)) as executor:
             futures = {

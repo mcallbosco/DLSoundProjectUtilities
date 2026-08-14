@@ -214,10 +214,12 @@ Generated `filename` values, transcript paths, downloads, and diagnostics keep
 the original extracted filename. Edit the version-level file and process the VPK
 again; the persistent audio extraction is reused.
 
-Each file has a `revisions` array. The utility preserves one revision for each
-distinct audio SHA-256 value. To correct text, edit the matching revision's
-`text`, set `source` to `manual`, and remove `model`. Git history records text
-corrections; do not add another revision unless the audio hash changes.
+Each file has a `revisions` array. A revision lists every audio SHA-256 whose
+subtitle matches after case-folding and removal of punctuation and whitespace.
+The stored text is selected by source authority (`official`, then `manual`, then
+`generated`). To correct text, edit the matching revision's `text`, set `source`
+to `manual`, and remove `model`. Git history records text corrections. Split a
+hash into another revision only when that recording needs different text.
 Regenerating the preview reads the working tree directly, so a commit is not
 required before testing.
 
