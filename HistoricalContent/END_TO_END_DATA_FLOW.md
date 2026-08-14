@@ -178,8 +178,9 @@ matches the complete path case-insensitively. It accepts `single_match` and
 such as `First text || Second text` into a transcript.
 
 The transcript key contains the relative audio path and the audio SHA-256
-value. The repository uses one small JSON file for each audio path. The file
-keeps one revision for each distinct SHA-256 value. Voicelines and conversation
+value. The repository uses one small JSON file for each audio path. Each
+revision shares one subtitle across an array of matching SHA-256 values.
+Matching ignores case, punctuation, and whitespace. Voicelines and conversation
 lines use this same format. Website grouping data is not stored with transcript
 text.
 

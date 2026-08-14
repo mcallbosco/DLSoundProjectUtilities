@@ -901,6 +901,44 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(updated["revisions"][0]["text"], "Baseline line.")
         self.assertEqual(updated["revisions"][1]["text"], "Changed recording.")
 
+    def test_changed_audio_with_normalized_matching_text_joins_hash_group(self):
+        create_baseline(self.settings(), progress=lambda _message: None)
+        path = self.transcript_path("abrams_test.mp3")
+        original = load_json(path)
+        original_hash = original["revisions"][0]["sha256"][0]
+
+        (self.source / "Audio" / "abrams_test.mp3").write_bytes(b"changed-audio")
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"][0]["transcription"] = "BASELINE-line!"
+        write_json(self.source / "all_voicelines.json", payload)
+        create_baseline(self.settings(), progress=lambda _message: None)
+
+        updated = load_json(path)
+        self.assertEqual(len(updated["revisions"]), 1)
+        self.assertEqual(updated["revisions"][0]["text"], "Baseline line.")
+        self.assertIn(original_hash, updated["revisions"][0]["sha256"])
+        self.assertEqual(len(updated["revisions"][0]["sha256"]), 2)
+
+    def test_official_text_wins_when_normalized_groups_are_compacted(self):
+        create_baseline(self.settings(), progress=lambda _message: None)
+        path = self.transcript_path("abrams_test.mp3")
+
+        (self.source / "Audio" / "abrams_test.mp3").write_bytes(b"changed-audio")
+        payload = load_json(self.source / "all_voicelines.json")
+        payload["abrams"]["Self"]["Test"][0].update({
+            "transcription": "BASELINE LINE?",
+            "officialtranscription": True,
+        })
+        write_json(self.source / "all_voicelines.json", payload)
+        create_baseline(self.settings(), progress=lambda _message: None)
+
+        updated = load_json(path)
+        self.assertEqual(len(updated["revisions"]), 1)
+        self.assertEqual(updated["revisions"][0]["text"], "BASELINE LINE?")
+        self.assertEqual(updated["revisions"][0]["source"], "official")
+        self.assertNotIn("model", updated["revisions"][0])
+        self.assertEqual(len(updated["revisions"][0]["sha256"]), 2)
+
     def test_legacy_character_file_migrates_to_per_audio_json(self):
         legacy = self.repo / "voicelines" / "abrams.json"
         audio_hash = hashlib.sha256(b"fake-mp3-abrams").hexdigest()
@@ -920,7 +958,11 @@ class BaselineTests(unittest.TestCase):
         create_baseline(self.settings(), progress=lambda _message: None)
 
         migrated = load_json(self.transcript_path("abrams_test.mp3"))
-        revisions = {revision["sha256"]: revision for revision in migrated["revisions"]}
+        revisions = {
+            digest: revision
+            for revision in migrated["revisions"]
+            for digest in revision["sha256"]
+        }
         self.assertEqual(revisions[audio_hash]["text"], "Historical correction.")
         self.assertEqual(revisions[audio_hash]["source"], "manual")
         self.assertFalse(legacy.exists())
