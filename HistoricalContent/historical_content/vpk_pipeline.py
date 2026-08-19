@@ -18,6 +18,8 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Callable, Iterable
 
+from .image_dimensions import read_image_dimensions
+
 
 Progress = Callable[[str], None]
 UTILITIES_DIR = Path(__file__).resolve().parents[2]
@@ -32,7 +34,7 @@ HISTORICAL_ICON_RE = re.compile(
     r"^(?P<hero>.+)_(?P<variant>card_critical|card_gloat|card|sm|mm)(?:_(?:png|psd))?$",
     re.IGNORECASE,
 )
-HISTORICAL_ICON_FORMAT_VERSION = 7
+HISTORICAL_ICON_FORMAT_VERSION = 8
 HISTORICAL_ICON_VARIANTS = {
     "sm": "minimap",
     "mm": "minimap-low-res",
@@ -843,6 +845,7 @@ def _build_historical_icon_pack(
 
     destination.mkdir(parents=True, exist_ok=True)
     manifest_icons: dict[str, dict[str, str]] = {}
+    manifest_dimensions: dict[str, dict[str, int]] = {}
     for variant, images in found.items():
         if not images:
             continue
@@ -852,8 +855,11 @@ def _build_historical_icon_pack(
         for hero, source in sorted(images.items()):
             digest = hashlib.sha256(source.read_bytes()).hexdigest()
             filename = f"{hero}.{digest}{source.suffix.casefold()}"
+            relative = f"{variant}/{filename}"
+            width, height = read_image_dimensions(source)
             shutil.copy2(source, variant_dir / filename)
-            assets[hero] = f"{variant}/{filename}"
+            manifest_dimensions[relative] = {"width": width, "height": height}
+            assets[hero] = relative
 
         entries: dict[str, str] = {}
         # Preserve every raw Source 2 name before expanding aliases. Some
@@ -887,6 +893,7 @@ def _build_historical_icon_pack(
         "credits": [{"name": "Valve", "role": "Original assets"}],
         "license": "Valve game assets. Use is subject to Valve's applicable terms.",
         "icons": manifest_icons,
+        "iconDimensions": manifest_dimensions,
     })
     return image_count
 
