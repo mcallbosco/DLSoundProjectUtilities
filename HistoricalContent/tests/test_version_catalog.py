@@ -130,6 +130,45 @@ class LocalVersionCatalogTests(unittest.TestCase):
                 self.data, self.game, applied, progress=lambda _message: None
             )
 
+    def test_custom_version_is_excluded_from_chronology_and_cannot_be_latest(self):
+        self.add_version("base", [{"filename": "base.mp3", "audioKey": audio_key(b"base")}])
+        register_local_version(self.data, self.game, "base", "Base")
+        self.add_version("custom", [{"filename": "custom.mp3", "versionStatus": {"change": "new"}}])
+        register_local_version(
+            self.data,
+            self.game,
+            "custom",
+            "Custom",
+            metadata={
+                "kind": "custom",
+                "basedOnVersion": "base",
+                "defaultLocalizationLanguage": "russian",
+                "transcriptMode": "embedded",
+                "embeddedTranscriptLanguage": "russian",
+                "transcriptSource": {"path": "script.vdf", "sha256": "a" * 64},
+            },
+        )
+        self.add_version("new", [{"filename": "new.mp3", "audioKey": audio_key(b"new")}])
+        catalog = register_local_version(self.data, self.game, "new", "New")
+        recalculate_version_statuses(
+            self.data, self.game, catalog, progress=lambda _message: None
+        )
+
+        new_payload = load_json(self.data / "generated" / "new" / "all_voicelines.json")
+        new_line = new_payload["abrams"]["Self"]["Test"][0]
+        self.assertEqual(new_line["versionStatus"]["comparedTo"], "base")
+        custom_payload = load_json(
+            self.data / "generated" / "custom" / "all_voicelines.json"
+        )
+        custom_line = custom_payload["abrams"]["Self"]["Test"][0]
+        self.assertEqual(custom_line["versionStatus"], {})
+
+        catalog["latestVersion"] = "custom"
+        with self.assertRaisesRegex(ValueError, "cannot be custom"):
+            apply_local_catalog(
+                self.data, self.game, catalog, progress=lambda _message: None
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

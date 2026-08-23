@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Core validation, planning, and R2 publishing logic for VLViewer content.
 
-The publisher deliberately separates mutable JSON documents from immutable
-binary assets. Existing binary object keys may never be replaced with different
-bytes, while transcript and metadata JSON can be corrected under the same
-user-visible version ID.
+Official binary assets remain immutable. JSON documents and version-local
+custom-mod audio may be replaced under the same user-visible version ID; custom
+audio uses revalidation caching and targeted purge support.
 """
 
 from __future__ import annotations
@@ -29,6 +28,7 @@ INVENTORY_SCHEMA_VERSION = 2
 MANIFEST_SCHEMA_VERSION = 1
 IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable"
 MUTABLE_JSON_CACHE_CONTROL = "public, max-age=0, must-revalidate"
+CUSTOM_AUDIO_CACHE_CONTROL = "public, max-age=0, must-revalidate"
 VERSION_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 GAME_KEY_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
@@ -125,6 +125,7 @@ class PublishPlan:
     remote_inventory: dict[str, Any] | None = None
     upload_new: list[InventoryRecord] = field(default_factory=list)
     upload_changed_json: list[InventoryRecord] = field(default_factory=list)
+    upload_changed_custom_audio: list[InventoryRecord] = field(default_factory=list)
     unchanged: list[InventoryRecord] = field(default_factory=list)
     immutable_conflicts: list[tuple[InventoryRecord, dict[str, Any]]] = field(default_factory=list)
     remote_only_json: list[str] = field(default_factory=list)
@@ -136,11 +137,19 @@ class PublishPlan:
 
     @property
     def upload_records(self) -> list[InventoryRecord]:
-        return [*self.upload_new, *self.upload_changed_json]
+        return [
+            *self.upload_new,
+            *self.upload_changed_custom_audio,
+            *self.upload_changed_json,
+        ]
 
     @property
     def changed_json_paths(self) -> list[str]:
         return [item.relative_path for item in self.upload_changed_json]
+
+    @property
+    def changed_custom_audio_paths(self) -> list[str]:
+        return [item.relative_path for item in self.upload_changed_custom_audio]
 
     @property
     def has_content_changes(self) -> bool:
@@ -161,6 +170,12 @@ class PublisherSettings:
     zone_id: str = ""
     promote_to_latest: bool = True
     hidden: bool = False
+    kind: str = "official"
+    based_on_version: str = ""
+    default_localization_language: str = ""
+    transcript_mode: str = "localized"
+    embedded_transcript_language: str = ""
+    transcript_source: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.source_dir = Path(self.source_dir).expanduser().resolve()
@@ -174,6 +189,41 @@ class PublisherSettings:
         self.cdn_base_url = self.cdn_base_url.strip().rstrip("/")
         self.zone_id = self.zone_id.strip()
         self.concurrency = max(1, min(int(self.concurrency), 64))
+        metadata_path = self.source_dir / "custom-version.json"
+        if metadata_path.is_file():
+            try:
+                metadata = _read_json(metadata_path)
+            except Exception as exc:
+                raise PublisherError(f"Invalid custom-version.json: {exc}") from exc
+            if not isinstance(metadata, dict):
+                raise PublisherError("custom-version.json must contain an object.")
+            self.kind = str(metadata.get("kind") or self.kind)
+            self.based_on_version = str(
+                metadata.get("basedOnVersion") or self.based_on_version
+            )
+            self.default_localization_language = str(
+                metadata.get("defaultLocalizationLanguage")
+                or self.default_localization_language
+            )
+            self.transcript_mode = str(
+                metadata.get("transcriptMode") or self.transcript_mode
+            )
+            self.embedded_transcript_language = str(
+                metadata.get("embeddedTranscriptLanguage")
+                or self.embedded_transcript_language
+            )
+            source = metadata.get("transcriptSource")
+            if isinstance(source, dict):
+                self.transcript_source = dict(source)
+        self.kind = self.kind.strip().casefold() or "official"
+        self.based_on_version = self.based_on_version.strip().casefold()
+        self.default_localization_language = (
+            self.default_localization_language.strip().casefold()
+        )
+        self.transcript_mode = self.transcript_mode.strip().casefold() or "localized"
+        self.embedded_transcript_language = (
+            self.embedded_transcript_language.strip().casefold()
+        )
 
     @property
     def version_prefix(self) -> str:
@@ -871,6 +921,175 @@ def validate_version_source(
     return report
 
 
+def _walk_playable_records(value: Any) -> Iterable[dict[str, Any]]:
+    if isinstance(value, dict):
+        if isinstance(value.get("filename"), str):
+            yield value
+            return
+        for child in value.values():
+            yield from _walk_playable_records(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from _walk_playable_records(child)
+
+
+def _validate_custom_version_source(
+    settings: PublisherSettings,
+    report: ValidationReport,
+) -> None:
+    if settings.kind not in {"official", "custom"}:
+        report.errors.append(f"Unsupported version kind: {settings.kind!r}")
+        return
+    if settings.transcript_mode not in {"localized", "embedded"}:
+        report.errors.append(f"Unsupported transcript mode: {settings.transcript_mode!r}")
+        return
+    if settings.kind != "custom":
+        return
+
+    if settings.promote_to_latest:
+        report.errors.append("Custom content cannot be promoted to latest.")
+    if not settings.based_on_version or settings.based_on_version == settings.version:
+        report.errors.append(
+            "Custom content must declare a different existing basedOnVersion."
+        )
+    if settings.transcript_mode != "embedded":
+        report.errors.append("Custom content must use transcriptMode 'embedded'.")
+    if not settings.default_localization_language:
+        report.errors.append("Custom content needs a defaultLocalizationLanguage.")
+    if not settings.embedded_transcript_language:
+        report.errors.append("Custom content needs an embeddedTranscriptLanguage.")
+    if (settings.source_dir / "SharedAudio").exists():
+        report.errors.append("Custom content must use version-local Audio/, never SharedAudio/.")
+    if not (settings.source_dir / "Audio").is_dir():
+        report.errors.append("Custom content requires a version-local Audio/ directory.")
+
+    report.warnings = [
+        warning for warning in report.warnings
+        if "Fan localization directory is missing" not in warning
+    ]
+    import_report_path = settings.source_dir / "custom-import-report.json"
+    if not import_report_path.is_file():
+        report.errors.append("Custom content is missing custom-import-report.json.")
+    else:
+        try:
+            import_report = _read_json(import_report_path)
+        except Exception as exc:
+            report.errors.append(f"Invalid custom-import-report.json: {exc}")
+        else:
+            if not isinstance(import_report, dict):
+                report.errors.append("custom-import-report.json must contain an object.")
+            else:
+                if import_report.get("speechToTextUsed") is not False:
+                    report.errors.append(
+                        "Custom import report must explicitly confirm speechToTextUsed is false."
+                    )
+                warning_count = import_report.get("warningCount")
+                if import_report.get("publishable") is not True:
+                    report.errors.append(
+                        "Custom import report does not mark this source as publishable."
+                    )
+                if not isinstance(warning_count, int) or warning_count < 0:
+                    report.errors.append(
+                        "Custom import report has an invalid warningCount."
+                    )
+                elif warning_count:
+                    report.warnings.append(
+                        f"Custom import contains {warning_count} non-blocking warning(s); "
+                        "see custom-import-report.json."
+                    )
+
+    transcript_metadata_path = settings.source_dir / "transcript-source.json"
+    if not transcript_metadata_path.is_file():
+        report.errors.append("Custom content is missing transcript-source.json.")
+    else:
+        try:
+            transcript_metadata = _read_json(transcript_metadata_path)
+        except Exception as exc:
+            report.errors.append(f"Invalid transcript-source.json: {exc}")
+        else:
+            if not isinstance(transcript_metadata, dict):
+                report.errors.append("transcript-source.json must contain an object.")
+            else:
+                for field_name in ("repository", "revision", "repositoryPath", "parser"):
+                    if not str(transcript_metadata.get(field_name) or "").strip():
+                        report.errors.append(
+                            f"transcript-source.json is missing required {field_name}."
+                        )
+                if transcript_metadata.get("pinVerified") is not True:
+                    report.errors.append(
+                        "transcript-source.json must confirm pinVerified is true."
+                    )
+                attribution = transcript_metadata.get("attribution")
+                if not isinstance(attribution, dict) or not isinstance(
+                    attribution.get("credits"), list
+                ) or not attribution["credits"]:
+                    report.errors.append(
+                        "transcript-source.json must preserve non-empty source credits."
+                    )
+                expected_hash = str(transcript_metadata.get("sha256") or "").casefold()
+                source_name = str(transcript_metadata.get("path") or "")
+                try:
+                    safe_name = PurePosixPath(source_name.replace("\\", "/"))
+                    if (
+                        not source_name
+                        or safe_name.is_absolute()
+                        or any(part in {"", ".", ".."} for part in safe_name.parts)
+                    ):
+                        raise ValueError
+                    source_path = settings.source_dir / "TranscriptSource" / Path(*safe_name.parts)
+                except ValueError:
+                    report.errors.append("transcript-source.json contains an unsafe source path.")
+                else:
+                    if not source_path.is_file():
+                        report.errors.append(
+                            f"Pinned transcript source is missing: TranscriptSource/{source_name}"
+                        )
+                    elif not re.fullmatch(r"[0-9a-f]{64}", expected_hash):
+                        report.errors.append("transcript-source.json contains an invalid SHA-256.")
+                    elif _sha256_file(source_path).casefold() != expected_hash:
+                        report.errors.append(
+                            "Pinned transcript source SHA-256 does not match transcript-source.json."
+                        )
+                if not settings.transcript_source:
+                    report.errors.append(
+                        "custom-version.json must preserve transcriptSource metadata."
+                    )
+                elif settings.transcript_source != transcript_metadata:
+                    report.errors.append(
+                        "custom-version.json transcriptSource differs from transcript-source.json."
+                    )
+
+    for filename in ("all_voicelines.json", "all_conversations.json"):
+        path = settings.source_dir / filename
+        if not path.is_file():
+            continue
+        try:
+            payload = _read_json(path)
+        except Exception:
+            continue
+        for record in _walk_playable_records(payload):
+            record_name = str(record.get("filename") or "(unknown)")
+            if isinstance(record.get("audioKey"), str) and record.get("audioKey", "").strip():
+                report.errors.append(
+                    f"Custom record must not contain audioKey: {record_name}"
+                )
+            if isinstance(record.get("audioUrl"), str) and record.get("audioUrl", "").strip():
+                report.errors.append(
+                    f"Custom record must not contain audioUrl: {record_name}"
+                )
+            if not isinstance(record.get("transcription"), str):
+                report.errors.append(
+                    f"Custom record has no embedded transcription field: {record_name}"
+                )
+
+
+def validate_publisher_source(settings: PublisherSettings) -> ValidationReport:
+    """Validate a source with the publication metadata that controls its contract."""
+    report = validate_version_source(settings.source_dir, settings.game)
+    _validate_custom_version_source(settings, report)
+    return report
+
+
 class HashCache:
     def __init__(self, path: Path | None, source_dir: Path) -> None:
         self.path = path
@@ -1016,6 +1235,18 @@ def _hash_files(
     return records
 
 
+def _is_custom_audio_record(
+    settings: PublisherSettings,
+    record: InventoryRecord,
+) -> bool:
+    return (
+        settings.kind == "custom"
+        and record.scope == "version"
+        and record.relative_path.casefold().startswith("audio/")
+        and record.content_type.startswith("audio/")
+    )
+
+
 def build_publish_plan(
     settings: PublisherSettings,
     remote_inventory: dict[str, Any] | None = None,
@@ -1036,7 +1267,7 @@ def build_publish_plan(
             "A version cannot be hidden and promoted to latest in the same publication."
         )
 
-    validation = validate_version_source(settings.source_dir, settings.game)
+    validation = validate_publisher_source(settings)
     plan = PublishPlan(validation=validation, remote_inventory=remote_inventory)
     if not validation.valid:
         return plan
@@ -1054,6 +1285,8 @@ def build_publish_plan(
             plan.unchanged.append(local_record)
         elif local_record.mutable:
             plan.upload_changed_json.append(local_record)
+        elif _is_custom_audio_record(settings, local_record):
+            plan.upload_changed_custom_audio.append(local_record)
         else:
             plan.immutable_conflicts.append((local_record, remote_record))
 
@@ -1112,10 +1345,19 @@ def version_manifest_entry(
         "voiceLineUrl": f"{base}/voicelines.json",
         "audioBaseUrl": f"{base}/audio/",
         "localizationManifestUrl": f"{base}/localization/manifest.json",
-        "fanLocalizationManifestUrl": f"{base}/fan-localization/manifest.json",
         "coverageUrl": f"{base}/coverage.json",
         "iconOverridesUrl": f"{base}/icons/default/manifest.json",
     }
+    if settings.kind == "custom":
+        entry.update({
+            "kind": "custom",
+            "basedOnVersion": settings.based_on_version,
+            "defaultLocalizationLanguage": settings.default_localization_language,
+            "transcriptMode": settings.transcript_mode,
+            "embeddedTranscriptLanguage": settings.embedded_transcript_language,
+        })
+    else:
+        entry["fanLocalizationManifestUrl"] = f"{base}/fan-localization/manifest.json"
     if has_categories:
         entry["categoriesUrl"] = f"{base}/categories.json"
     if has_character_name_images:
@@ -1346,6 +1588,8 @@ class R2Publisher:
             raise PublisherError(
                 "The latest version cannot be hidden. Unhide it or promote another version first."
             )
+        if latest_entry and latest_entry.get("kind") == "custom":
+            raise PublisherError("Custom content cannot be the latest version.")
 
         manifest.update(
             {
@@ -1783,7 +2027,8 @@ class R2Publisher:
             raise PublisherError(f"No local source path for {record.relative_path}")
         client = self._get_client()
         key = self._object_key(record)
-        if not record.mutable:
+        replaceable_custom_audio = _is_custom_audio_record(self.settings, record)
+        if not record.mutable and not replaceable_custom_audio:
             try:
                 existing = client.head_object(Bucket=self.settings.bucket, Key=key)
             except Exception as exc:
@@ -1799,7 +2044,11 @@ class R2Publisher:
         extra_args = {
             "ContentType": record.content_type,
             "CacheControl": (
-                MUTABLE_JSON_CACHE_CONTROL if record.mutable else IMMUTABLE_CACHE_CONTROL
+                MUTABLE_JSON_CACHE_CONTROL
+                if record.mutable
+                else CUSTOM_AUDIO_CACHE_CONTROL
+                if replaceable_custom_audio
+                else IMMUTABLE_CACHE_CONTROL
             ),
             "Metadata": {"sha256": record.sha256},
         }
@@ -1857,6 +2106,28 @@ class R2Publisher:
             None,
         )
         existing = versions[existing_index] if existing_index is not None else None
+        if existing is not None:
+            existing_kind = str(existing.get("kind") or "official")
+            if existing_kind != self.settings.kind:
+                raise PublisherError(
+                    f"Published version kind is {existing_kind!r}, but the source declares "
+                    f"{self.settings.kind!r}."
+                )
+        if self.settings.kind == "custom":
+            base_entry = next(
+                (
+                    item for item in versions
+                    if isinstance(item, dict)
+                    and item.get("id") == self.settings.based_on_version
+                ),
+                None,
+            )
+            if base_entry is None:
+                raise PublisherError(
+                    f"Custom base version is not published: {self.settings.based_on_version!r}."
+                )
+            if str(base_entry.get("kind") or "official") == "custom":
+                raise PublisherError("A custom version must be based on official content.")
         if has_categories is None:
             has_categories = (self.settings.source_dir / "categories.json").is_file()
         if has_character_name_images is None:
@@ -1900,6 +2171,8 @@ class R2Publisher:
         if self.settings.promote_to_latest:
             if self.settings.hidden:
                 raise PublisherError("A hidden version cannot be promoted to latest.")
+            if self.settings.kind == "custom":
+                raise PublisherError("Custom content cannot be promoted to latest.")
             manifest["latestVersion"] = self.settings.version
         elif manifest.get("latestVersion") == self.settings.version and self.settings.hidden:
             manifest["latestVersion"] = next(
@@ -1908,10 +2181,15 @@ class R2Publisher:
                     for item in new_versions
                     if item.get("id") != self.settings.version
                     and item.get("hidden") is not True
+                    and item.get("kind") != "custom"
                 ),
                 "",
             )
-        elif not manifest.get("latestVersion") and not self.settings.hidden:
+        elif (
+            not manifest.get("latestVersion")
+            and not self.settings.hidden
+            and self.settings.kind != "custom"
+        ):
             manifest["latestVersion"] = self.settings.version
         return manifest, entry
 
@@ -1961,7 +2239,47 @@ class R2Publisher:
                 + paths
             )
 
-        binary_uploads = [item for item in plan.upload_new if not item.mutable]
+        # Build and validate every publication record before uploading content.
+        # In particular, a custom version's remote base must already exist and
+        # be official; discovering that after a large audio upload strands an
+        # untracked version prefix.
+        revision = self._next_revision(plan)
+        inventory = inventory_payload(self.settings, plan, revision)
+        manifest, entry = self._build_game_manifest(
+            revision,
+            has_categories="categories.json" in inventory["files"],
+            has_character_name_images=(
+                "character-name-images/manifest.json" in inventory["files"]
+            ),
+            has_character_names="character-names.json" in inventory["files"],
+            has_shared_audio=any(
+                record.scope == "game" for record in plan.local_records.values()
+            ),
+        )
+        release = {
+            "schemaVersion": MANIFEST_SCHEMA_VERSION,
+            **entry,
+            "fileCount": len(inventory["files"]),
+            "totalBytes": sum(
+                int(item.get("size", 0)) for item in inventory["files"].values()
+            ),
+        }
+        if self.settings.kind == "custom":
+            release["transcriptSource"] = dict(self.settings.transcript_source)
+        characters = self._build_game_characters(manifest)
+        manifest["charactersUrl"] = self.settings.public_url(
+            self.settings.game_characters_key
+        )
+        character_names = self._local_game_character_names()
+        if character_names is not None:
+            manifest["characterNamesUrl"] = self.settings.public_url(
+                self.settings.game_character_names_key
+            )
+
+        binary_uploads = [
+            *[item for item in plan.upload_new if not item.mutable],
+            *plan.upload_changed_custom_audio,
+        ]
         json_uploads = [
             item for item in [*plan.upload_new, *plan.upload_changed_json] if item.mutable
         ]
@@ -1972,7 +2290,7 @@ class R2Publisher:
         )
         uploaded_keys: list[str] = []
         for phase_label, phase_records in (
-            ("immutable binary", binary_uploads),
+            ("binary", binary_uploads),
             ("mutable JSON", json_uploads),
         ):
             if not phase_records:
@@ -2000,37 +2318,6 @@ class R2Publisher:
                             f"{phase_label} file(s)."
                         )
 
-        revision = self._next_revision(plan)
-        inventory = inventory_payload(self.settings, plan, revision)
-        manifest, entry = self._build_game_manifest(
-            revision,
-            has_categories="categories.json" in inventory["files"],
-            has_character_name_images=(
-                "character-name-images/manifest.json" in inventory["files"]
-            ),
-            has_character_names="character-names.json" in inventory["files"],
-            has_shared_audio=any(
-                record.scope == "game" for record in plan.local_records.values()
-            ),
-        )
-        release = {
-            "schemaVersion": MANIFEST_SCHEMA_VERSION,
-            **entry,
-            "fileCount": len(inventory["files"]),
-            "totalBytes": sum(
-                int(item.get("size", 0)) for item in inventory["files"].values()
-            ),
-        }
-        characters = self._build_game_characters(manifest)
-        manifest["charactersUrl"] = self.settings.public_url(
-            self.settings.game_characters_key
-        )
-        character_names = self._local_game_character_names()
-        if character_names is not None:
-            manifest["characterNamesUrl"] = self.settings.public_url(
-                self.settings.game_character_names_key
-            )
-
         self._log("Writing the version release record and publish inventory...")
         self._put_json(self.settings.release_key, release)
         self._put_json(self.settings.inventory_key, inventory)
@@ -2044,7 +2331,7 @@ class R2Publisher:
 
         purge_keys = [
             self._object_key(plan.local_records[path])
-            for path in plan.changed_json_paths
+            for path in [*plan.changed_json_paths, *plan.changed_custom_audio_paths]
         ]
         purge_keys.extend(
             [

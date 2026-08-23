@@ -14,7 +14,7 @@ try:
         R2Publisher,
         build_publish_plan,
         format_bytes,
-        validate_version_source,
+        validate_publisher_source,
     )
 except ImportError:
     from publisher import (
@@ -23,7 +23,7 @@ except ImportError:
         R2Publisher,
         build_publish_plan,
         format_bytes,
-        validate_version_source,
+        validate_publisher_source,
     )
 
 
@@ -68,7 +68,7 @@ def main() -> int:
     )
     try:
         if args.command == "validate":
-            report = validate_version_source(settings.source_dir, settings.game)
+            report = validate_publisher_source(settings)
             print(
                 json.dumps(
                     {
@@ -92,7 +92,9 @@ def main() -> int:
             publisher = R2Publisher(settings, print)
             plan = publisher.create_plan()
         print(
-            f"Plan: {len(plan.upload_new):,} new, {len(plan.upload_changed_json):,} changed JSON, "
+            f"Plan: {len(plan.upload_new):,} new, "
+            f"{len(plan.upload_changed_custom_audio):,} changed custom audio, "
+            f"{len(plan.upload_changed_json):,} changed JSON, "
             f"{len(plan.unchanged):,} unchanged, {len(plan.immutable_conflicts):,} binary conflicts "
             f"({format_bytes(sum(item.size for item in plan.upload_records))} to upload)."
         )

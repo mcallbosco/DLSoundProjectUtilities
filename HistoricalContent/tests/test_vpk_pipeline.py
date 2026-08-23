@@ -17,6 +17,7 @@ from HistoricalContent.historical_content.vpk_pipeline import (
     _vpk_name_image_filters,
     _validate_mapping,
     create_coverage,
+    extract_vpk_voice_audio,
     parse_conversations,
     parse_voicelines,
     prepare_vpk_export,
@@ -774,6 +775,44 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertTrue(
             (settings.transcript_repo / "config" / "deadlock" / "voiceline-groups.json").is_file()
         )
+
+    def test_custom_voice_vpk_extraction_is_isolated_and_reusable(self):
+        binary = self.root / "Source2Viewer-CLI.exe"
+        vpk = self.root / "russian_voice_dir.vpk"
+        workspace = self.root / "workspaces" / "deadlock" / "custom" / "custom-voice-mod-vpk"
+        binary.write_bytes(b"fake executable")
+        vpk.write_bytes(b"fake vpk")
+
+        def fake_extract(_binary, _vpk, output, file_filter, _threads, _progress):
+            self.assertEqual(file_filter, "sounds/vo")
+            destination = output / "sounds" / "vo" / "hero"
+            destination.mkdir(parents=True)
+            (destination / "line.mp3").write_bytes(b"russian voice")
+
+        with patch(
+            "HistoricalContent.historical_content.vpk_pipeline._run_source2viewer",
+            side_effect=fake_extract,
+        ) as extract:
+            first = extract_vpk_voice_audio(
+                source2viewer_binary=binary,
+                vpk_path=vpk,
+                workspace=workspace,
+                progress=lambda _message: None,
+            )
+            second = extract_vpk_voice_audio(
+                source2viewer_binary=binary,
+                vpk_path=vpk,
+                workspace=workspace,
+                progress=lambda _message: None,
+            )
+
+        extract.assert_called_once()
+        self.assertFalse(first.reused)
+        self.assertTrue(second.reused)
+        self.assertEqual(first.audio_dir, second.audio_dir)
+        self.assertEqual(first.audio_count, 1)
+        self.assertTrue(first.state_path.is_file())
+        self.assertTrue(first.workspace / "Audio" in (first.audio_dir / "hero" / "line.mp3").parents)
 
 
 if __name__ == "__main__":

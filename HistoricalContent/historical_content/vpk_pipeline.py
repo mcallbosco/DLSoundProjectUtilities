@@ -140,6 +140,18 @@ class VpkPipelineResult:
     conversation_count: int
 
 
+@dataclass(frozen=True)
+class VpkVoiceAudioResult:
+    """One isolated, reusable `sounds/vo` extraction from a VPK."""
+
+    audio_dir: Path
+    workspace: Path
+    state_path: Path
+    audio_count: int
+    vpk_fingerprint: dict[str, object]
+    reused: bool
+
+
 class _Value:
     """Small StringVar replacement used by the legacy voiceline parser core."""
 
@@ -484,6 +496,81 @@ def _find_audio_dir(audio_root: Path) -> Path:
     if candidates:
         return max(candidates, key=lambda item: item[0])[1]
     raise VpkPipelineError(f"Source2Viewer did not produce a voice-audio directory under {audio_root}.")
+
+
+def extract_vpk_voice_audio(
+    *,
+    source2viewer_binary: Path,
+    vpk_path: Path,
+    workspace: Path,
+    extraction_threads: int = 8,
+    force_reextract: bool = False,
+    progress: Progress = print,
+) -> VpkVoiceAudioResult:
+    """Decode `sounds/vo` from one VPK into an isolated persistent workspace."""
+    binary = source2viewer_binary.expanduser().resolve()
+    vpk = vpk_path.expanduser().resolve()
+    resolved_workspace = workspace.expanduser().resolve()
+    if not binary.is_file():
+        raise VpkPipelineError(f"Source2Viewer executable does not exist: {binary}")
+    if not vpk.is_file() or vpk.suffix.casefold() != ".vpk":
+        raise VpkPipelineError(f"Select a valid .vpk file: {vpk}")
+    if extraction_threads < 1 or extraction_threads > 64:
+        raise VpkPipelineError("Extraction threads must be between 1 and 64.")
+
+    resolved_workspace.mkdir(parents=True, exist_ok=True)
+    state_path = resolved_workspace / "vpk-audio-state.json"
+    audio_root = resolved_workspace / "Audio"
+    fingerprint = _quick_vpk_fingerprint(vpk)
+    old_state = _read_json(state_path) if state_path.is_file() else {}
+    same_source = (
+        isinstance(old_state, dict)
+        and old_state.get("vpkFingerprint") == fingerprint
+        and audio_root.is_dir()
+    )
+    reused = same_source and not force_reextract
+    if not reused:
+        try:
+            state_path.unlink()
+        except FileNotFoundError:
+            pass
+        _safe_replace(audio_root, resolved_workspace)
+        _run_source2viewer(
+            binary,
+            vpk,
+            audio_root,
+            "sounds/vo",
+            extraction_threads,
+            progress,
+        )
+        _write_json(state_path, {
+            "schemaVersion": 1,
+            "vpkPath": str(vpk),
+            "vpkFingerprint": fingerprint,
+            "extractionComplete": True,
+            "updatedAt": datetime.now().isoformat(),
+        })
+    else:
+        progress("VPK fingerprint is unchanged; reusing the isolated voice-audio extraction.")
+
+    audio_dir = _find_audio_dir(audio_root)
+    audio_count = sum(
+        path.is_file() and path.suffix.casefold() == ".mp3"
+        for path in audio_dir.rglob("*")
+    )
+    if not audio_count:
+        raise VpkPipelineError(
+            f"Source2Viewer did not decode any MP3 voice audio from {vpk}."
+        )
+    progress(f"VPK voice-audio inventory: {audio_count:,} MP3 files at {audio_dir}.")
+    return VpkVoiceAudioResult(
+        audio_dir=audio_dir,
+        workspace=resolved_workspace,
+        state_path=state_path,
+        audio_count=audio_count,
+        vpk_fingerprint=fingerprint,
+        reused=reused,
+    )
 
 
 def _find_game_root(vpk: Path) -> Path | None:

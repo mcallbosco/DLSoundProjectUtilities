@@ -30,7 +30,7 @@ try:
         R2Publisher,
         ValidationReport,
         format_bytes,
-        validate_version_source,
+        validate_publisher_source,
     )
     from ContentPublisher.publisher_gui import VersionManagerDialog
 except ImportError:
@@ -48,7 +48,7 @@ except ImportError:
         R2Publisher,
         ValidationReport,
         format_bytes,
-        validate_version_source,
+        validate_publisher_source,
     )
     from publisher_gui import VersionManagerDialog
 
@@ -108,6 +108,18 @@ def _local_publish_versions(source_dir: Path, game: str) -> tuple[list[dict[str,
                 "label": str(item.get("label") or version_id),
                 "hidden": item.get("hidden") is True,
                 "source": version_dir,
+                **{
+                    field: item[field]
+                    for field in (
+                        "kind",
+                        "basedOnVersion",
+                        "defaultLocalizationLanguage",
+                        "transcriptMode",
+                        "embeddedTranscriptLanguage",
+                        "transcriptSource",
+                    )
+                    if field in item
+                },
             })
             seen.add(version_id)
 
@@ -518,7 +530,9 @@ class PublicationDialog(tk.Toplevel):
         self._log_validation(plan.validation)
         upload_size = sum(item.size for item in plan.upload_records)
         self._append_log(
-            f"Plan: {len(plan.upload_new):,} new, {len(plan.upload_changed_json):,} changed JSON, "
+            f"Plan: {len(plan.upload_new):,} new, "
+            f"{len(plan.upload_changed_custom_audio):,} changed custom audio, "
+            f"{len(plan.upload_changed_json):,} changed JSON, "
             f"{len(plan.unchanged):,} unchanged, {format_bytes(upload_size)} to upload, "
             f"{len(plan.immutable_conflicts):,} immutable conflict(s)."
         )
@@ -532,7 +546,7 @@ class PublicationDialog(tk.Toplevel):
         self._background(
             "Validating local content...",
             lambda: self._log_validation(
-                validate_version_source(settings.source_dir, settings.game)
+                validate_publisher_source(settings)
             ),
         )
 
@@ -665,7 +679,7 @@ class PublicationDialog(tk.Toplevel):
                     promote_to_latest=False,
                     hidden=True if hidden_for_review else item.get("hidden") is True,
                 )
-                report = validate_version_source(settings.source_dir, settings.game)
+                report = validate_publisher_source(settings)
                 self._append_log(f"[{version_id}]")
                 self._log_validation(report)
                 if not report.valid:
@@ -736,7 +750,9 @@ class PublicationDialog(tk.Toplevel):
                     manifest["latestVersion"] = next(
                         (
                             str(item.get("id")) for item in manifest["versions"]
-                            if isinstance(item, dict) and item.get("hidden") is not True
+                            if isinstance(item, dict)
+                            and item.get("hidden") is not True
+                            and item.get("kind") != "custom"
                         ),
                         "",
                     )
@@ -750,7 +766,9 @@ class PublicationDialog(tk.Toplevel):
                     manifest["latestVersion"] = next(
                         (
                             str(item.get("id")) for item in manifest["versions"]
-                            if isinstance(item, dict) and item.get("hidden") is not True
+                            if isinstance(item, dict)
+                            and item.get("hidden") is not True
+                            and item.get("kind") != "custom"
                         ),
                         "",
                     )

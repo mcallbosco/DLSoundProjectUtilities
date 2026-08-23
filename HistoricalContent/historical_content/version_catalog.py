@@ -15,6 +15,8 @@ Progress = Callable[[str], None]
 CATALOG_SCHEMA_VERSION = 1
 PREVIEW_PREFIX = "preview-"
 SHA_AUDIO_KEY_RE = re.compile(r"^sha256/[0-9a-f]{2}/([0-9a-f]{64})\.mp3$")
+VERSION_KINDS = {"official", "custom"}
+TRANSCRIPT_MODES = {"localized", "embedded"}
 
 
 def _read_json(path: Path) -> object:
@@ -41,6 +43,75 @@ def _canonical_version_id(value: str) -> str:
 
 def _preview_version_id(value: str) -> str:
     return f"{PREVIEW_PREFIX}{_canonical_version_id(value)}"
+
+
+def _normalize_version_entry(raw: dict[str, object], version_id: str) -> dict[str, object]:
+    kind = str(raw.get("kind") or "official").strip().casefold()
+    transcript_mode = str(raw.get("transcriptMode") or "localized").strip().casefold()
+    entry: dict[str, object] = {
+        "id": version_id,
+        "label": str(raw.get("label") or version_id),
+        "hidden": raw.get("hidden") is True,
+        "kind": kind,
+        "transcriptMode": transcript_mode,
+    }
+    for field in (
+        "basedOnVersion",
+        "defaultLocalizationLanguage",
+        "embeddedTranscriptLanguage",
+    ):
+        value = str(raw.get(field) or "").strip()
+        if value:
+            entry[field] = _canonical_version_id(value) if field == "basedOnVersion" else value
+    transcript_source = raw.get("transcriptSource")
+    if isinstance(transcript_source, dict):
+        entry["transcriptSource"] = dict(transcript_source)
+    return entry
+
+
+def _validate_catalog_versions(versions: list[dict[str, object]], latest: str) -> None:
+    by_id = {str(value["id"]): value for value in versions}
+    for entry in versions:
+        version_id = str(entry["id"])
+        kind = str(entry.get("kind") or "official")
+        transcript_mode = str(entry.get("transcriptMode") or "localized")
+        if kind not in VERSION_KINDS:
+            raise ValueError(f"Unsupported version kind for {version_id!r}: {kind!r}.")
+        if transcript_mode not in TRANSCRIPT_MODES:
+            raise ValueError(
+                f"Unsupported transcript mode for {version_id!r}: {transcript_mode!r}."
+            )
+        if kind != "custom":
+            continue
+        based_on = str(entry.get("basedOnVersion") or "")
+        base_entry = by_id.get(based_on)
+        if not based_on or base_entry is None:
+            raise ValueError(
+                f"Custom version {version_id!r} must reference an existing basedOnVersion."
+            )
+        if base_entry.get("kind") == "custom":
+            raise ValueError(
+                f"Custom version {version_id!r} must be based on an official version."
+            )
+        if transcript_mode != "embedded":
+            raise ValueError(
+                f"Custom version {version_id!r} must use transcriptMode 'embedded'."
+            )
+        if not str(entry.get("defaultLocalizationLanguage") or "").strip():
+            raise ValueError(
+                f"Custom version {version_id!r} needs a defaultLocalizationLanguage."
+            )
+        if not str(entry.get("embeddedTranscriptLanguage") or "").strip():
+            raise ValueError(
+                f"Custom version {version_id!r} needs an embeddedTranscriptLanguage."
+            )
+        if not isinstance(entry.get("transcriptSource"), dict):
+            raise ValueError(
+                f"Custom version {version_id!r} needs immutable transcriptSource metadata."
+            )
+    latest_entry = by_id.get(latest) if latest else None
+    if latest_entry is not None and latest_entry.get("kind") == "custom":
+        raise ValueError("The local latest version cannot be custom content.")
 
 
 def _available_version_ids(data_dir: Path, game: str) -> set[str]:
@@ -71,11 +142,10 @@ def _catalog_from_preview_manifest(data_dir: Path, game: str) -> dict[str, objec
                     label = str(value.get("label") or value["id"])
                     if label.startswith("Preview: "):
                         label = label[len("Preview: "):]
-                    versions.append({
-                        "id": _canonical_version_id(str(value["id"])),
-                        "label": label,
-                        "hidden": value.get("hidden") is True,
-                    })
+                    versions.append(_normalize_version_entry(
+                        {**value, "label": label},
+                        _canonical_version_id(str(value["id"])),
+                    ))
     return {
         "schemaVersion": CATALOG_SCHEMA_VERSION,
         "game": game,
@@ -108,15 +178,15 @@ def load_local_catalog(
         if not include_missing and version_id not in available:
             continue
         seen.add(version_id)
-        versions.append({
-            "id": version_id,
-            "label": str(raw.get("label") or version_id),
-            "hidden": raw.get("hidden") is True,
-        })
+        versions.append(_normalize_version_entry(raw, version_id))
     for version_id in sorted(available - seen, reverse=True):
-        versions.insert(0, {"id": version_id, "label": version_id, "hidden": False})
+        versions.insert(0, _normalize_version_entry({}, version_id))
     latest = _canonical_version_id(str(payload.get("latestVersion") or ""))
-    visible_ids = [str(value["id"]) for value in versions if value.get("hidden") is not True]
+    visible_ids = [
+        str(value["id"])
+        for value in versions
+        if value.get("hidden") is not True and value.get("kind") != "custom"
+    ]
     if latest not in visible_ids:
         latest = visible_ids[0] if visible_ids else ""
     return {
@@ -145,12 +215,9 @@ def save_local_catalog(data_dir: Path, game: str, catalog: dict[str, object]) ->
         if not version_id or version_id in seen:
             raise ValueError("Local version IDs must be non-empty and unique.")
         seen.add(version_id)
-        normalized["versions"].append({
-            "id": version_id,
-            "label": str(value.get("label") or version_id),
-            "hidden": value.get("hidden") is True,
-        })
+        normalized["versions"].append(_normalize_version_entry(value, version_id))
     latest = str(normalized["latestVersion"])
+    _validate_catalog_versions(normalized["versions"], latest)
     latest_entry = next(
         (value for value in normalized["versions"] if value["id"] == latest),
         None,
@@ -168,17 +235,26 @@ def register_local_version(
     game: str,
     version_id: str,
     label: str,
+    *,
+    metadata: dict[str, object] | None = None,
 ) -> dict[str, object]:
     catalog = load_local_catalog(data_dir, game)
     versions = catalog["versions"]
     assert isinstance(versions, list)
     existing = next((value for value in versions if value.get("id") == version_id), None)
     if existing is None:
-        versions.insert(0, {"id": version_id, "label": label, "hidden": False})
+        versions.insert(0, _normalize_version_entry(
+            {"label": label, "hidden": False, **(metadata or {})},
+            version_id,
+        ))
     else:
         existing["label"] = label
+        if metadata:
+            existing.update(_normalize_version_entry({**existing, **metadata}, version_id))
     if not catalog.get("latestVersion"):
-        catalog["latestVersion"] = version_id
+        candidate = next(value for value in versions if value.get("id") == version_id)
+        if candidate.get("kind") != "custom":
+            catalog["latestVersion"] = version_id
     return save_local_catalog(data_dir, game, catalog)
 
 
@@ -215,6 +291,23 @@ def rebuild_local_preview_manifest(
             "label": f"Preview: {value['label']}",
             "hidden": value.get("hidden") is True,
         })
+        for field in (
+            "kind",
+            "basedOnVersion",
+            "defaultLocalizationLanguage",
+            "transcriptMode",
+            "embeddedTranscriptLanguage",
+            "transcriptSource",
+        ):
+            if field not in value:
+                entry.pop(field, None)
+                continue
+            field_value = value[field]
+            entry[field] = (
+                _preview_version_id(str(field_value))
+                if field == "basedOnVersion"
+                else field_value
+            )
         entries.append(entry)
     manifest["versions"] = entries
     latest = str(catalog.get("latestVersion") or "")
@@ -283,7 +376,14 @@ def recalculate_version_statuses(
     """Annotate all local voiceline JSON using adjacent catalog versions."""
     data_dir = data_dir.expanduser().resolve()
     catalog = catalog or load_local_catalog(data_dir, game)
-    ordered_ids = [str(value["id"]) for value in catalog["versions"]]
+    entries = [value for value in catalog["versions"] if isinstance(value, dict)]
+    ordered_ids = [str(value["id"]) for value in entries]
+    custom_ids = {
+        str(value["id"])
+        for value in entries
+        if value.get("kind") == "custom"
+    }
+    official_ids = [version_id for version_id in ordered_ids if version_id not in custom_ids]
     payloads: dict[str, object] = {}
     indexes: dict[str, dict[str, str | None]] = {}
     destinations: dict[str, list[Path]] = {}
@@ -311,19 +411,26 @@ def recalculate_version_statuses(
         destinations[version_id] = [path for path in (generated, preview) if path is not None]
 
     changed_files = 0
-    for position, version_id in enumerate(ordered_ids):
+    for version_id in ordered_ids:
         payload = payloads.get(version_id)
         if payload is None:
             continue
-        older_id = ordered_ids[position + 1] if position + 1 < len(ordered_ids) else None
-        newer_id = ordered_ids[position - 1] if position > 0 else None
+        if version_id in custom_ids:
+            older_id = None
+            newer_id = None
+        else:
+            position = official_ids.index(version_id)
+            older_id = official_ids[position + 1] if position + 1 < len(official_ids) else None
+            newer_id = official_ids[position - 1] if position > 0 else None
         current_index = indexes[version_id]
         older_index = indexes.get(older_id) if older_id else None
         newer_index = indexes.get(newer_id) if newer_id else None
         for line in _walk_lines(payload):
             filename = _normalized_filename(str(line["filename"]))
-            if not filename:
+            if version_id in custom_ids or not filename:
                 line["versionStatus"] = {}
+                if version_id in custom_ids:
+                    line.pop("status", None)
                 continue
             status: dict[str, object] = {}
             if older_id and older_index is not None:

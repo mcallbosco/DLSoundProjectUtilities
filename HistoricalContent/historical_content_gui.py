@@ -12,6 +12,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, scrolledtext, ttk
 
 try:
+    from .custom_voice_mod_dialog import CustomVoiceModDialog
     from .local_version_dialog import LocalVersionManagerDialog
     from .publication_dialog import PublicationDialog
     from .historical_content.baseline import (
@@ -22,6 +23,9 @@ try:
         CredentialStoreError, delete_saved_api_key, load_saved_api_key,
         resolve_api_key, save_api_key,
     )
+    from .historical_content.custom_voice_mod import (
+        CustomVoiceModSettings, build_custom_voice_mod,
+    )
     from .historical_content.preview import (
         PreviewProcesses, restart_preview_worker, seed_preview, start_preview,
     )
@@ -30,6 +34,7 @@ try:
         VpkPipelineResult, VpkPipelineSettings, prepare_vpk_export,
     )
 except ImportError:  # Direct execution from run_historical_content_gui.bat.
+    from custom_voice_mod_dialog import CustomVoiceModDialog
     from local_version_dialog import LocalVersionManagerDialog
     from publication_dialog import PublicationDialog
     from historical_content.baseline import (
@@ -39,6 +44,9 @@ except ImportError:  # Direct execution from run_historical_content_gui.bat.
     from historical_content.credentials import (
         CredentialStoreError, delete_saved_api_key, load_saved_api_key,
         resolve_api_key, save_api_key,
+    )
+    from historical_content.custom_voice_mod import (
+        CustomVoiceModSettings, build_custom_voice_mod,
     )
     from historical_content.preview import (
         PreviewProcesses, restart_preview_worker, seed_preview, start_preview,
@@ -244,6 +252,12 @@ class HistoricalContentGUI(tk.Tk):
             command=self._open_local_versions,
         )
         self.local_versions_button.pack(side=tk.LEFT, padx=5)
+        self.custom_mod_button = ttk.Button(
+            primary_buttons,
+            text="Import custom voice mod...",
+            command=self._open_custom_voice_mod,
+        )
+        self.custom_mod_button.pack(side=tk.LEFT, padx=5)
         self.publish_button = ttk.Button(
             primary_buttons,
             text="Publish / manage versions...",
@@ -277,26 +291,24 @@ class HistoricalContentGUI(tk.Tk):
             )
             return False
         self.active_operation = label
-        for button in (
-            self.create_button,
-            self.preview_button,
-            self.categories_button,
-            self.local_versions_button,
-            self.publish_button,
+        for name in (
+            "create_button", "preview_button", "categories_button",
+            "local_versions_button", "custom_mod_button", "publish_button",
         ):
-            button.configure(state=tk.DISABLED)
+            button = self.__dict__.get(name)
+            if button is not None:
+                button.configure(state=tk.DISABLED)
         return True
 
     def _finish_operation(self) -> None:
         self.active_operation = None
-        for button in (
-            self.create_button,
-            self.preview_button,
-            self.categories_button,
-            self.local_versions_button,
-            self.publish_button,
+        for name in (
+            "create_button", "preview_button", "categories_button",
+            "local_versions_button", "custom_mod_button", "publish_button",
         ):
-            button.configure(state=tk.NORMAL)
+            button = self.__dict__.get(name)
+            if button is not None:
+                button.configure(state=tk.NORMAL)
 
     def _browse(self, key: str) -> None:
         current = Path(str(self.vars[key].get() or APP_DIR)).expanduser()
@@ -660,6 +672,78 @@ class HistoricalContentGUI(tk.Tk):
                 )
             finally:
                 self.after(0, self._finish_operation)
+        threading.Thread(target=work, daemon=True).start()
+
+    def _open_custom_voice_mod(self) -> None:
+        if self.active_operation:
+            messagebox.showwarning(
+                "Operation still running",
+                f"Wait for {self.active_operation} to finish before importing a custom mod.",
+            )
+            return
+        CustomVoiceModDialog(
+            self,
+            data_dir=Path(str(self.vars["dataDir"].get())),
+            game=str(self.vars["game"].get()).strip(),
+            suggested_version=str(self.vars["versionId"].get()).strip(),
+            source2viewer_binary=Path(str(self.vars["source2viewerBinary"].get())),
+            extraction_threads=int(self.extraction_threads_var.get()),
+            on_import=self._run_custom_voice_mod_import,
+        )
+
+    def _run_custom_voice_mod_import(self, settings: CustomVoiceModSettings) -> None:
+        if not self._begin_operation("the custom voice-mod import"):
+            return
+        self.vars["versionId"].set(settings.version_id)
+        self.vars["label"].set(settings.label)
+
+        def work() -> None:
+            try:
+                result = build_custom_voice_mod(settings, self._log)
+                if result.warnings:
+                    warning_lines = [
+                        (
+                            f"{warning['audioPath']} [{warning['stage']}]: "
+                            f"{warning['reason']}"
+                        )
+                        for warning in result.warnings[:12]
+                    ]
+                    if len(result.warnings) > len(warning_lines):
+                        warning_lines.append(
+                            f"...and {len(result.warnings) - len(warning_lines)} more warning(s)."
+                        )
+                    report_path = result.output_dir / "custom-import-report.json"
+                    detail = (
+                        "The custom version is ready and publication remains available. Missing "
+                        "transcripts were embedded as blank strings; recordings without a safe "
+                        "base match were excluded. Speech-to-text was not used.\n\n"
+                        + "\n".join(warning_lines)
+                        + f"\n\nFull report:\n{report_path}"
+                    )
+                    self.after(0, lambda message=detail: messagebox.showwarning(
+                        "Custom import ready with warnings", message,
+                    ))
+                else:
+                    detail = (
+                        f"Custom version ready:\n{result.output_dir}\n\n"
+                        f"VPK extraction workspace: {result.extraction_workspace}\n"
+                        f"Matched mod audio: {result.audio_files}\n"
+                        f"Voice-line records: {result.voiceline_records}\n"
+                        f"Conversation records: {result.conversation_records}\n\n"
+                        "All transcripts came from the pinned file; speech-to-text was not used."
+                    )
+                    self.after(0, lambda message=detail: messagebox.showinfo(
+                        "Custom voice mod ready", message,
+                    ))
+            except Exception as exc:
+                error_message = str(exc)
+                self._log(f"ERROR: {error_message}")
+                self.after(0, lambda message=error_message: messagebox.showerror(
+                    "Custom voice-mod import failed", message,
+                ))
+            finally:
+                self.after(0, self._finish_operation)
+
         threading.Thread(target=work, daemon=True).start()
 
     def _open_publication(self) -> None:
