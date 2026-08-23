@@ -339,6 +339,7 @@ class CustomVoiceModTests(unittest.TestCase):
         conversation = payload["conversations"][0]
         conversation["is_complete"] = True
         conversation["missing_parts"] = []
+        conversation["speakers"] = ["hero", "other"]
         conversation["lines"].append({
             "part": 2,
             "speaker": "other",
@@ -356,6 +357,7 @@ class CustomVoiceModTests(unittest.TestCase):
         )["conversations"][0]
         self.assertFalse(output["is_complete"])
         self.assertEqual(output["missing_parts"], [2])
+        self.assertEqual(output["speakers"], ["hero", "other"])
 
     def test_all_unmatched_audio_is_a_fatal_import_error(self) -> None:
         (self.mod_audio / "hero" / "line.mp3").unlink()

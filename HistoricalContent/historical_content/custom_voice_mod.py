@@ -484,11 +484,19 @@ def _filter_conversations(
             and not missing_parts
             and len(lines) == len(raw["lines"])
         )
-        speakers = []
-        for line in lines:
-            speaker = line.get("speaker") if isinstance(line, dict) else None
-            if isinstance(speaker, str) and speaker not in speakers:
-                speakers.append(speaker)
+        # The official generator derives the full participant pair from the
+        # conversation filename. Preserve that base metadata even when this
+        # mod contains audio for only one side of the conversation.
+        speakers = [
+            speaker
+            for speaker in raw.get("speakers", [])
+            if isinstance(speaker, str) and speaker.strip()
+        ] if isinstance(raw.get("speakers"), list) else []
+        if not speakers:
+            for line in lines:
+                speaker = line.get("speaker") if isinstance(line, dict) else None
+                if isinstance(speaker, str) and speaker not in speakers:
+                    speakers.append(speaker)
         conversation["speakers"] = speakers
         conversations.append(conversation)
         line_count += len(lines)
