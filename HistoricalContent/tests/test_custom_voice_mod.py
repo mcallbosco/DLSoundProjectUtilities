@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -462,6 +463,49 @@ class CustomVoiceModTests(unittest.TestCase):
                 ),
                 progress=lambda _message: None,
             )
+
+    def test_rejects_an_uncataloged_base_before_vpk_extraction(self) -> None:
+        self.transcript.write_text('"line" "Текст"\n', encoding="utf-8")
+        shutil.copytree(self.base, self.data / "generated" / "uncataloged")
+        settings = CustomVoiceModSettings(
+            **{
+                **self.settings("uncataloged-custom").__dict__,
+                "based_on_version": "uncataloged",
+            }
+        )
+
+        with patch(
+            "HistoricalContent.historical_content.custom_voice_mod.extract_vpk_voice_audio"
+        ) as extract:
+            with self.assertRaisesRegex(CustomVoiceModError, "not cataloged locally"):
+                build_custom_voice_mod(settings, progress=lambda _message: None)
+
+        extract.assert_not_called()
+
+    def test_rejects_a_custom_base_before_vpk_extraction(self) -> None:
+        self.transcript.write_text('"line" "Текст"\n', encoding="utf-8")
+        shutil.copytree(self.base, self.data / "generated" / "custom-base")
+        write_json(self.data / "catalogs" / "deadlock.json", {
+            "latestVersion": "ognb",
+            "versions": [
+                {"id": "ognb", "label": "OGNB", "kind": "official"},
+                {"id": "custom-base", "label": "Custom", "kind": "custom"},
+            ],
+        })
+        settings = CustomVoiceModSettings(
+            **{
+                **self.settings("nested-custom").__dict__,
+                "based_on_version": "custom-base",
+            }
+        )
+
+        with patch(
+            "HistoricalContent.historical_content.custom_voice_mod.extract_vpk_voice_audio"
+        ) as extract:
+            with self.assertRaisesRegex(CustomVoiceModError, "based on official content"):
+                build_custom_voice_mod(settings, progress=lambda _message: None)
+
+        extract.assert_not_called()
 
     def test_rejects_unsafe_version_ids_before_creating_output(self) -> None:
         self.transcript.write_text('"line" "Текст"', encoding="utf-8")

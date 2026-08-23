@@ -154,6 +154,26 @@ def _catalog_from_preview_manifest(data_dir: Path, game: str) -> dict[str, objec
     }
 
 
+def load_cataloged_local_versions(data_dir: Path, game: str) -> list[dict[str, object]]:
+    """Load only versions explicitly recorded in the catalog or preview manifest."""
+    data_dir = data_dir.expanduser().resolve()
+    path = catalog_path(data_dir, game)
+    payload = _read_json(path) if path.is_file() else _catalog_from_preview_manifest(data_dir, game)
+    if not isinstance(payload, dict) or not isinstance(payload.get("versions"), list):
+        raise ValueError(f"Invalid local version catalog: {path}")
+    versions: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for raw in payload["versions"]:
+        if not isinstance(raw, dict):
+            continue
+        version_id = _canonical_version_id(str(raw.get("id") or "").strip())
+        if not version_id or version_id in seen:
+            continue
+        seen.add(version_id)
+        versions.append(_normalize_version_entry(raw, version_id))
+    return versions
+
+
 def load_local_catalog(
     data_dir: Path,
     game: str,

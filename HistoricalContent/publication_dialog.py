@@ -137,6 +137,51 @@ def _local_publish_versions(source_dir: Path, game: str) -> tuple[list[dict[str,
     return result, latest
 
 
+def _bulk_publish_order(
+    selected: list[dict[str, object]],
+    settings_by_id: dict[str, PublisherSettings],
+    remote_manifest: dict[str, object],
+) -> list[dict[str, object]]:
+    """Order a validated batch so every selected custom base is published first."""
+    remote_versions = remote_manifest.get("versions", [])
+    if not isinstance(remote_versions, list):
+        raise PublisherError("The published manifest has an invalid versions list.")
+    remote_by_id = {
+        str(item.get("id")): item
+        for item in remote_versions
+        if isinstance(item, dict) and item.get("id")
+    }
+    selected_ids = {str(item["id"]) for item in selected}
+    preferred_order = list(reversed(selected))
+    official: list[dict[str, object]] = []
+    custom: list[dict[str, object]] = []
+    for item in preferred_order:
+        version_id = str(item["id"])
+        settings = settings_by_id[version_id]
+        if settings.kind != "custom":
+            official.append(item)
+            continue
+        base_id = settings.based_on_version
+        if base_id in selected_ids:
+            base_settings = settings_by_id[base_id]
+            if base_settings.kind != "official":
+                raise PublisherError(
+                    f"Custom version {version_id!r} must be based on official content."
+                )
+        else:
+            remote_base = remote_by_id.get(base_id)
+            if remote_base is None:
+                raise PublisherError(
+                    f"Custom base version is neither selected nor published: {base_id!r}."
+                )
+            if remote_base.get("kind", "official") != "official":
+                raise PublisherError(
+                    f"Custom version {version_id!r} must be based on official content."
+                )
+        custom.append(item)
+    return [*official, *custom]
+
+
 class BulkVersionSelectionDialog(tk.Toplevel):
     def __init__(self, parent: tk.Misc, versions: list[dict[str, object]], latest: str) -> None:
         super().__init__(parent)
@@ -688,10 +733,20 @@ class PublicationDialog(tk.Toplevel):
                     )
                 settings_by_id[version_id] = settings
 
+            catalog_publisher = R2Publisher(
+                settings_by_id[str(selected[0]["id"])], self._append_log
+            )
+            publish_order = _bulk_publish_order(
+                selected,
+                settings_by_id,
+                catalog_publisher.load_game_manifest(),
+            )
+
             # New versions are inserted at the beginning by the single-version
-            # publisher. Uploading oldest-to-newest naturally creates catalog order.
+            # publisher. Official versions retain oldest-to-newest order, while
+            # custom versions are held until their selected official bases exist.
             totals = {"uploaded": 0, "skipped": 0}
-            for index, item in enumerate(reversed(selected), start=1):
+            for index, item in enumerate(publish_order, start=1):
                 version_id = str(item["id"])
                 self._append_log(
                     f"Bulk publish {index}/{len(selected)}: {self.game}/{version_id}"
@@ -705,9 +760,6 @@ class PublicationDialog(tk.Toplevel):
                 totals["uploaded"] += int(result["uploaded"])
                 totals["skipped"] += int(result["skipped"])
 
-            catalog_publisher = R2Publisher(
-                settings_by_id[str(selected[0]["id"])], self._append_log
-            )
             if self.game_categories_path and self.game_categories_path.is_file():
                 catalog_publisher.publish_game_default_categories(self.game_categories_path)
 

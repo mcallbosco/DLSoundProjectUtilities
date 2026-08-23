@@ -21,6 +21,7 @@ from typing import Callable, Iterable
 from urllib.parse import urlsplit, urlunsplit
 
 from .version_catalog import (
+    load_cataloged_local_versions,
     rebuild_local_preview_manifest,
     recalculate_version_statuses,
     register_local_version,
@@ -630,6 +631,23 @@ def build_custom_voice_mod(
         raise CustomVoiceModError("The custom version ID must differ from based_on_version.")
     if not base_source.is_dir():
         raise CustomVoiceModError(f"Base generated version does not exist: {base_source}")
+    try:
+        cataloged_versions = load_cataloged_local_versions(data_dir, settings.game)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise CustomVoiceModError(f"Could not validate the local version catalog: {exc}") from exc
+    base_entry = next(
+        (
+            entry for entry in cataloged_versions
+            if entry.get("id") == settings.based_on_version
+        ),
+        None,
+    )
+    if base_entry is None:
+        raise CustomVoiceModError(
+            f"Custom base version is not cataloged locally: {settings.based_on_version!r}."
+        )
+    if base_entry.get("kind") != "official":
+        raise CustomVoiceModError("A custom voice mod must be based on official content.")
     if not mod_vpk_path.is_file() or mod_vpk_path.suffix.casefold() != ".vpk":
         raise CustomVoiceModError(f"Select a valid mod .vpk file: {mod_vpk_path}")
     if not transcript_path.is_file():

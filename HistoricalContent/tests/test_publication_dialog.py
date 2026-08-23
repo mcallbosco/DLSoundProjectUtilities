@@ -4,8 +4,10 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
-from HistoricalContent.publication_dialog import _local_publish_versions
+from ContentPublisher.publisher import PublisherError
+from HistoricalContent.publication_dialog import _bulk_publish_order, _local_publish_versions
 
 
 class BulkPublicationDiscoveryTests(unittest.TestCase):
@@ -33,6 +35,27 @@ class BulkPublicationDiscoveryTests(unittest.TestCase):
             self.assertEqual([item["id"] for item in versions], ["new", "old", "draft"])
             self.assertEqual([item["hidden"] for item in versions], [False, True, True])
             self.assertEqual(latest, "new")
+
+    def test_orders_selected_custom_versions_after_their_official_bases(self) -> None:
+        base = {"id": "base"}
+        custom = {"id": "custom"}
+        settings = {
+            "base": SimpleNamespace(kind="official", based_on_version=""),
+            "custom": SimpleNamespace(kind="custom", based_on_version="base"),
+        }
+
+        ordered = _bulk_publish_order([base, custom], settings, {"versions": []})
+
+        self.assertEqual([item["id"] for item in ordered], ["base", "custom"])
+
+    def test_rejects_a_custom_batch_when_its_base_is_unavailable(self) -> None:
+        custom = {"id": "custom"}
+        settings = {
+            "custom": SimpleNamespace(kind="custom", based_on_version="missing"),
+        }
+
+        with self.assertRaisesRegex(PublisherError, "neither selected nor published"):
+            _bulk_publish_order([custom], settings, {"versions": []})
 
 
 if __name__ == "__main__":

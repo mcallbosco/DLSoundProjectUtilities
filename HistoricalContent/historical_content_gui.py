@@ -694,8 +694,6 @@ class HistoricalContentGUI(tk.Tk):
     def _run_custom_voice_mod_import(self, settings: CustomVoiceModSettings) -> None:
         if not self._begin_operation("the custom voice-mod import"):
             return
-        self.vars["versionId"].set(settings.version_id)
-        self.vars["label"].set(settings.label)
 
         def work() -> None:
             try:
