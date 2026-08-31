@@ -169,6 +169,46 @@ class LocalVersionCatalogTests(unittest.TestCase):
                 self.data, self.game, catalog, progress=lambda _message: None
             )
 
+    def test_generated_custom_metadata_repairs_a_stale_official_catalog_entry(self):
+        self.add_version("base", [{"filename": "base.mp3", "audioKey": audio_key(b"base")}])
+        register_local_version(self.data, self.game, "base", "Base")
+        self.add_version("custom", [{
+            "filename": "custom.mp3",
+            "versionStatus": {"change": "new"},
+        }])
+        register_local_version(self.data, self.game, "custom", "Custom")
+        write_json(self.data / "generated" / "custom" / "custom-version.json", {
+            "schemaVersion": 1,
+            "kind": "custom",
+            "hidden": True,
+            "basedOnVersion": "base",
+            "defaultLocalizationLanguage": "russian",
+            "transcriptMode": "embedded",
+            "embeddedTranscriptLanguage": "russian",
+            "transcriptSource": {"path": "script.vdf", "sha256": "a" * 64},
+        })
+
+        catalog = load_local_catalog(self.data, self.game)
+        custom_entry = next(value for value in catalog["versions"] if value["id"] == "custom")
+        self.assertEqual(custom_entry["kind"], "custom")
+        self.assertEqual(custom_entry["basedOnVersion"], "base")
+
+        recalculate_version_statuses(
+            self.data, self.game, catalog, progress=lambda _message: None
+        )
+        base_payload = load_json(self.data / "generated" / "base" / "all_voicelines.json")
+        self.assertEqual(
+            base_payload["abrams"]["Self"]["Test"][0]["versionStatus"],
+            {},
+        )
+        custom_payload = load_json(
+            self.data / "generated" / "custom" / "all_voicelines.json"
+        )
+        self.assertEqual(
+            custom_payload["abrams"]["Self"]["Test"][0]["versionStatus"],
+            {},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

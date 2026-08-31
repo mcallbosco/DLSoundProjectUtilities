@@ -69,6 +69,33 @@ def _normalize_version_entry(raw: dict[str, object], version_id: str) -> dict[st
     return entry
 
 
+def _generated_version_metadata(data_dir: Path, version_id: str) -> dict[str, object]:
+    """Return authoritative custom metadata stored beside a generated version."""
+    metadata_path = data_dir / "generated" / version_id / "custom-version.json"
+    if not metadata_path.is_file():
+        return {}
+    try:
+        metadata = _read_json(metadata_path)
+    except Exception as exc:
+        raise ValueError(
+            f"Invalid generated custom metadata for {version_id!r}: {metadata_path}"
+        ) from exc
+    if not isinstance(metadata, dict) or metadata.get("kind") != "custom":
+        raise ValueError(
+            f"Generated custom metadata for {version_id!r} must declare kind 'custom'."
+        )
+    return metadata
+
+
+def _normalize_catalog_entry(
+    data_dir: Path,
+    raw: dict[str, object],
+    version_id: str,
+) -> dict[str, object]:
+    metadata = _generated_version_metadata(data_dir, version_id)
+    return _normalize_version_entry({**raw, **metadata}, version_id)
+
+
 def _validate_catalog_versions(versions: list[dict[str, object]], latest: str) -> None:
     by_id = {str(value["id"]): value for value in versions}
     for entry in versions:
@@ -170,7 +197,7 @@ def load_cataloged_local_versions(data_dir: Path, game: str) -> list[dict[str, o
         if not version_id or version_id in seen:
             continue
         seen.add(version_id)
-        versions.append(_normalize_version_entry(raw, version_id))
+        versions.append(_normalize_catalog_entry(data_dir, raw, version_id))
     return versions
 
 
@@ -198,9 +225,9 @@ def load_local_catalog(
         if not include_missing and version_id not in available:
             continue
         seen.add(version_id)
-        versions.append(_normalize_version_entry(raw, version_id))
+        versions.append(_normalize_catalog_entry(data_dir, raw, version_id))
     for version_id in sorted(available - seen, reverse=True):
-        versions.insert(0, _normalize_version_entry({}, version_id))
+        versions.insert(0, _normalize_catalog_entry(data_dir, {}, version_id))
     latest = _canonical_version_id(str(payload.get("latestVersion") or ""))
     visible_ids = [
         str(value["id"])
