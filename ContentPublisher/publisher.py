@@ -396,6 +396,19 @@ def discover_version_files(source_dir: Path) -> tuple[list[SourceFile], list[str
     else:
         warnings.append("Character-name image directory is missing: CharacterNameImages")
 
+    character_select_backgrounds_dir = source_dir / "CharacterSelectBackgrounds"
+    if character_select_backgrounds_dir.is_dir():
+        _add_tree(
+            files,
+            character_select_backgrounds_dir,
+            "character-select-backgrounds",
+            errors,
+        )
+    else:
+        warnings.append(
+            "Character-select background directory is missing: CharacterSelectBackgrounds"
+        )
+
     return sorted(files.values(), key=lambda item: item.relative_path), errors, warnings
 
 
@@ -541,6 +554,97 @@ def _validate_character_name_images_manifest(
     if unexpected:
         report.errors.append(
             "CharacterNameImages contains non-WebP assets: " + ", ".join(unexpected[:10])
+        )
+
+
+def _validate_character_select_backgrounds_manifest(
+    source_dir: Path,
+    report: ValidationReport,
+) -> None:
+    root = source_dir / "CharacterSelectBackgrounds"
+    manifest_path = root / "manifest.json"
+    if not root.is_dir():
+        return
+    if not manifest_path.is_file():
+        report.errors.append("CharacterSelectBackgrounds is present but manifest.json is missing.")
+        return
+    try:
+        manifest = _read_json(manifest_path)
+    except Exception as exc:
+        report.errors.append(f"Invalid CharacterSelectBackgrounds/manifest.json: {exc}")
+        return
+    if not isinstance(manifest, dict) or manifest.get("schemaVersion") != 1:
+        report.errors.append("CharacterSelectBackgrounds/manifest.json must use schemaVersion 1.")
+        return
+    backgrounds = manifest.get("backgrounds")
+    if not isinstance(backgrounds, dict) or not backgrounds:
+        report.errors.append(
+            "CharacterSelectBackgrounds/manifest.json backgrounds must be a non-empty object."
+        )
+        return
+
+    referenced: set[str] = set()
+    for character, asset in backgrounds.items():
+        if not isinstance(character, str) or not character.strip() or not isinstance(asset, dict):
+            report.errors.append("Character-select background has an invalid character or asset.")
+            continue
+        relative = asset.get("path")
+        width = asset.get("width")
+        height = asset.get("height")
+        accent_color = asset.get("accentColor")
+        if (
+            not isinstance(relative, str)
+            or "\\" in relative
+            or "%" in relative
+            or "?" in relative
+            or "#" in relative
+            or re.match(r"^[a-z][a-z0-9+.-]*:", relative, re.IGNORECASE)
+            or PurePosixPath(relative).is_absolute()
+            or any(part in ("", ".", "..") for part in PurePosixPath(relative).parts)
+            or not relative.casefold().endswith(".webp")
+        ):
+            report.errors.append(
+                f"Character-select background {character!r} has an unsafe or non-WebP path."
+            )
+            continue
+        if (
+            not isinstance(width, int)
+            or isinstance(width, bool)
+            or width < 1
+            or not isinstance(height, int)
+            or isinstance(height, bool)
+            or height < 1
+        ):
+            report.errors.append(
+                f"Character-select background {character!r} has invalid dimensions."
+            )
+            continue
+        if not isinstance(accent_color, str) or not re.fullmatch(
+            r"#[0-9a-fA-F]{6}", accent_color
+        ):
+            report.errors.append(
+                f"Character-select background {character!r} has an invalid accent color."
+            )
+            continue
+        referenced.add(PurePosixPath(relative).as_posix())
+
+    missing = sorted(path for path in referenced if not (root / Path(*path.split("/"))).is_file())
+    if missing:
+        report.errors.append(
+            f"Character-select background manifest references {len(missing)} missing WebP file(s): "
+            + ", ".join(missing[:10])
+        )
+    unexpected = sorted(
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file()
+        and path != manifest_path
+        and path.suffix.casefold() != ".webp"
+    )
+    if unexpected:
+        report.errors.append(
+            "CharacterSelectBackgrounds contains non-WebP assets: "
+            + ", ".join(unexpected[:10])
         )
 
 
@@ -763,6 +867,7 @@ def validate_version_source(
 
     _validate_icon_manifest(source_dir, report)
     _validate_character_name_images_manifest(source_dir, report)
+    _validate_character_select_backgrounds_manifest(source_dir, report)
     return report
 
 
@@ -990,6 +1095,7 @@ def version_manifest_entry(
     existing: dict[str, Any] | None = None,
     has_categories: bool = False,
     has_character_name_images: bool = False,
+    has_character_select_backgrounds: bool = False,
     has_character_names: bool = False,
 ) -> dict[str, Any]:
     existing = existing or {}
@@ -1014,6 +1120,10 @@ def version_manifest_entry(
         entry["categoriesUrl"] = f"{base}/categories.json"
     if has_character_name_images:
         entry["characterNameImagesUrl"] = f"{base}/character-name-images/manifest.json"
+    if has_character_select_backgrounds:
+        entry["characterSelectBackgroundsUrl"] = (
+            f"{base}/character-select-backgrounds/manifest.json"
+        )
     if has_character_names:
         entry["characterNamesUrl"] = f"{base}/character-names.json"
     return entry
@@ -1732,6 +1842,7 @@ class R2Publisher:
         has_categories: bool | None = None,
         has_shared_audio: bool = False,
         has_character_name_images: bool | None = None,
+        has_character_select_backgrounds: bool | None = None,
         has_character_names: bool | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         manifest = self.load_game_manifest()
@@ -1752,6 +1863,10 @@ class R2Publisher:
             has_character_name_images = (
                 self.settings.source_dir / "CharacterNameImages" / "manifest.json"
             ).is_file()
+        if has_character_select_backgrounds is None:
+            has_character_select_backgrounds = (
+                self.settings.source_dir / "CharacterSelectBackgrounds" / "manifest.json"
+            ).is_file()
         if has_character_names is None:
             has_character_names = (
                 self.settings.source_dir / "character-names-overlay.json"
@@ -1762,6 +1877,7 @@ class R2Publisher:
             existing,
             has_categories=has_categories,
             has_character_name_images=has_character_name_images,
+            has_character_select_backgrounds=has_character_select_backgrounds,
             has_character_names=has_character_names,
         )
         new_versions = list(versions)

@@ -94,6 +94,7 @@ The version source has this structure:
   Localization/
   FanLocalization/
   IconPacks/default/
+  CharacterSelectBackgrounds/
 ```
 
 Historical Content reads official VDF subtitle text when the related archived
@@ -120,6 +121,13 @@ Historical Content also extracts the `*_mm` and `*_sm` hero images from the
 VPK. It reads `scripts/heroes.vdata` from the same build to connect each hero
 to the correct historical image. It writes the result as the version's
 `IconPacks/default` override. This step does not need loose localization files.
+
+It also extracts character-select background textures, crops the consistently
+unused left half, packages hashed WebPs, and expands their lookup manifest with
+the same `character-mappings.json` aliases as portraits. Each manifest asset
+also includes its precomputed UI accent color. The version publisher
+serves these as `character-select-backgrounds/` and advertises the manifest as
+`characterSelectBackgroundsUrl`.
 
 ### 5.3 Generate transcripts and website data
 

@@ -184,6 +184,28 @@ class PublisherCoreTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def add_character_select_backgrounds(self) -> None:
+        root = self.root / "CharacterSelectBackgrounds"
+        root.mkdir(parents=True)
+        (root / "familiar.hash.webp").write_bytes(b"background-webp")
+        (root / "manifest.json").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "extractionFormatVersion": 2,
+                "crop": "right-half",
+                "maxWidth": 1024,
+                "backgrounds": {
+                    "rem": {
+                        "path": "familiar.hash.webp",
+                        "width": 1024,
+                        "height": 1024,
+                        "accentColor": "#284b3a",
+                    }
+                },
+            }),
+            encoding="utf-8",
+        )
+
     def test_validation_and_legacy_path_mapping(self) -> None:
         report = validate_version_source(self.root)
         self.assertTrue(report.valid, report.errors)
@@ -221,6 +243,39 @@ class PublisherCoreTests(unittest.TestCase):
         report = validate_version_source(self.root)
         self.assertFalse(report.valid)
         self.assertTrue(any("missing WebP" in error for error in report.errors))
+
+    def test_character_select_backgrounds_validate_map_and_advertise_webp(self) -> None:
+        self.add_character_select_backgrounds()
+        report = validate_version_source(self.root)
+        self.assertTrue(report.valid, report.errors)
+        records = {item.relative_path: item for item in report.files}
+        self.assertIn("character-select-backgrounds/manifest.json", records)
+        self.assertEqual(
+            records["character-select-backgrounds/familiar.hash.webp"].content_type,
+            "image/webp",
+        )
+
+        entry = version_manifest_entry(
+            self.settings,
+            content_revision=3,
+            has_character_select_backgrounds=True,
+        )
+        self.assertTrue(
+            entry["characterSelectBackgroundsUrl"].endswith(
+                "/character-select-backgrounds/manifest.json"
+            )
+        )
+
+    def test_character_select_backgrounds_require_an_accent_color(self) -> None:
+        self.add_character_select_backgrounds()
+        manifest_path = self.root / "CharacterSelectBackgrounds" / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        del manifest["backgrounds"]["rem"]["accentColor"]
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+        report = validate_version_source(self.root)
+        self.assertFalse(report.valid)
+        self.assertTrue(any("invalid accent color" in error for error in report.errors))
 
     def test_unsafe_character_name_image_url_is_an_error(self) -> None:
         self.add_character_name_images()

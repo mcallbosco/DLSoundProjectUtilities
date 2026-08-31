@@ -95,6 +95,24 @@ Icon extraction does not require loose localization files beside the VPK. It
 is cached with the VPK workspace and is copied into both local preview content
 and the publisher source by baseline generation.
 
+The same version build also extracts `panorama/images/heroes/backgrounds` for
+character cards. Only the right half of each source texture is retained, it is
+resized proportionally to a maximum width of 1024 pixels, and it is encoded as
+a content-addressed WebP. The converter also stores a muted accent color sampled
+from the encoded image so the website does not need cross-origin canvas access.
+`character-mappings.json` expands the manifest with
+the same aliases used by portraits, so an asset such as `familiar` is also
+published under the character key `rem`. The generated files are written to:
+
+```text
+<workspace>/source/CharacterSelectBackgrounds/
+```
+
+Baseline generation publishes this directory under the selected version and
+adds `characterSelectBackgroundsUrl` to that version's content-manifest entry.
+Builds without these textures remain valid and the website uses its normal
+card fallback.
+
 When **Extract localized names** is enabled, the utility also looks for the
 localized hero-name images in the main VPK and every available official
 localization VPK. Team patron logos are included in the English asset set. A
@@ -348,9 +366,9 @@ publisher's `all_voicelines.json`. Reordering recalculates all available local
 versions. If already-published chronology changes, republish the affected JSON;
 shared audio does not need to be uploaded again.
 
-The model selector supports `gpt-4o-transcribe`,
+The model selector supports `gpt-transcribe`, `gpt-4o-transcribe`,
 `gpt-4o-mini-transcribe`, and `whisper-1`. The default remains
-`gpt-4o-transcribe`; selecting the mini model affects new generated
+`gpt-transcribe`; selecting a different model affects new generated
 transcripts only.
 
 ## Local preview details

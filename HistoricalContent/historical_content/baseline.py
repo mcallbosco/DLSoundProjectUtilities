@@ -1431,6 +1431,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         ("Localization", "localization"),
         ("FanLocalization", "fan-localization"),
         ("CharacterNameImages", "character-name-images"),
+        ("CharacterSelectBackgrounds", "character-select-backgrounds"),
     ):
         _copy_tree(source / source_name, version_root / target_name)
     _copy_tree(source / "IconPacks" / "default", version_root / "icons" / "default")
@@ -1471,7 +1472,12 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         _link_or_copy(coverage_source, publish_source / "coverage.json")
     else:
         _link_or_copy(version_root / "coverage.json", publish_source / "coverage.json")
-    for source_name in ("Localization", "FanLocalization", "CharacterNameImages"):
+    for source_name in (
+        "Localization",
+        "FanLocalization",
+        "CharacterNameImages",
+        "CharacterSelectBackgrounds",
+    ):
         _copy_tree(source / source_name, publish_source / source_name)
     _copy_tree(source / "IconPacks" / "default", publish_source / "IconPacks" / "default")
     if settings.include_audio:
@@ -1513,6 +1519,11 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
             version_root / "character-name-images" / "manifest.json",
             "characterNameImagesUrl",
             "character-name-images/manifest.json",
+        ),
+        (
+            version_root / "character-select-backgrounds" / "manifest.json",
+            "characterSelectBackgroundsUrl",
+            "character-select-backgrounds/manifest.json",
         ),
     )
     for path, field, suffix in optional_urls:

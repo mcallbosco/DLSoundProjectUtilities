@@ -7,8 +7,13 @@ from pathlib import Path
 from typing import Callable
 
 
-DEFAULT_MODEL = "gpt-4o-transcribe"
-SUPPORTED_MODELS = (DEFAULT_MODEL, "gpt-4o-mini-transcribe", "whisper-1")
+DEFAULT_MODEL = "gpt-transcribe"
+SUPPORTED_MODELS = (
+    DEFAULT_MODEL,
+    "gpt-4o-transcribe",
+    "gpt-4o-mini-transcribe",
+    "whisper-1",
+)
 
 
 def transcribe_audio(

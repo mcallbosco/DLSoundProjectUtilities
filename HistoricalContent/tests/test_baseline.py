@@ -103,6 +103,19 @@ class BaselineTests(unittest.TestCase):
                 }
             },
         })
+        backgrounds = self.source / "CharacterSelectBackgrounds"
+        backgrounds.mkdir(parents=True)
+        (backgrounds / "familiar.hash.webp").write_bytes(b"background-webp")
+        write_json(backgrounds / "manifest.json", {
+            "schemaVersion": 1,
+            "backgrounds": {
+                "rem": {
+                    "path": "familiar.hash.webp",
+                    "width": 1024,
+                    "height": 1024,
+                }
+            },
+        })
         result = create_baseline(self.settings(), progress=lambda message: None)
         voice = load_json(self.transcript_path("abrams_test.mp3"))
         self.assertEqual(voice["filename"], "abrams_test.mp3")
@@ -135,6 +148,14 @@ class BaselineTests(unittest.TestCase):
             manifest["versions"][0]["characterNameImagesUrl"],
             "http://127.0.0.1:8787/deadlock/versions/"
             "preview-deadlock-base/character-name-images/manifest.json",
+        )
+        self.assertTrue(
+            (result.publish_source / "CharacterSelectBackgrounds" / "familiar.hash.webp").is_file()
+        )
+        self.assertEqual(
+            manifest["versions"][0]["characterSelectBackgroundsUrl"],
+            "http://127.0.0.1:8787/deadlock/versions/"
+            "preview-deadlock-base/character-select-backgrounds/manifest.json",
         )
         characters = load_json(result.preview_root / "deadlock" / "characters.json")
         self.assertEqual(characters["characters"], ["abrams", "paradox"])
@@ -694,7 +715,7 @@ class BaselineTests(unittest.TestCase):
         revision = self.transcript_revision("abrams_test.mp3")
         self.assertEqual(revision["text"], "")
         self.assertEqual(revision["source"], "skippednonspeech")
-        self.assertEqual(revision["model"], "gpt-4o-transcribe")
+        self.assertEqual(revision["model"], "gpt-transcribe")
         self.assertTrue(any(
             "accepted 1 blank non-speech results" in message
             for message in progress_messages
@@ -764,7 +785,7 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(checkpoint["revisions"][0]["source"], "generated")
         self.assertEqual(
             checkpoint["revisions"][0]["model"],
-            "gpt-4o-transcribe",
+            "gpt-transcribe",
         )
         self.assertIn('"Characters":["Abrams","Paradox"]', prompts[0])
 
