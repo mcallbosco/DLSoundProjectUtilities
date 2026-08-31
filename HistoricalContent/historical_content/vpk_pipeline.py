@@ -49,6 +49,9 @@ HISTORICAL_PATRON_MINIMAP_ICONS = {
 }
 CHARACTER_NAME_IMAGE_FORMAT_VERSION = 1
 DEFAULT_NAME_IMAGE_MAX_HEIGHT = 512
+CHARACTER_SELECT_BACKGROUND_FORMAT_VERSION = 2
+DEFAULT_CHARACTER_SELECT_BACKGROUND_WIDTH = 1024
+CHARACTER_SELECT_BACKGROUND_FILTER = "panorama/images/heroes/backgrounds"
 NAME_IMAGE_FILTERS = (
     "panorama/images/heroes/hero_names",
     "panorama/images/hud/objectives/team1_patron_logo_psd",
@@ -58,6 +61,11 @@ NAME_IMAGE_CONVERTER = (
     Path(__file__).resolve().parents[1]
     / "scripts"
     / "convert-character-name-images.mjs"
+)
+CHARACTER_SELECT_BACKGROUND_CONVERTER = (
+    Path(__file__).resolve().parents[1]
+    / "scripts"
+    / "convert-character-select-backgrounds.mjs"
 )
 
 # These are deliberately exact folder fallbacks. Most voicelines must continue
@@ -101,6 +109,7 @@ class VpkPipelineSettings:
     extract_localization: bool = True
     extract_icons: bool = True
     extract_name_images: bool = True
+    extract_character_select_backgrounds: bool = True
     name_image_max_height: int = DEFAULT_NAME_IMAGE_MAX_HEIGHT
     extraction_threads: int = 8
     force_reextract: bool = False
@@ -597,25 +606,19 @@ def _character_name_image_inputs(vpks: dict[str, Path]) -> dict[str, object]:
     }
 
 
-def _run_name_image_converter(
-    extracted: Path,
-    destination: Path,
-    max_height: int,
+def _run_image_converter(
+    converter: Path,
+    arguments: list[str],
+    label: str,
 ) -> tuple[dict[str, dict[str, object]], list[str]]:
+    """Run an image converter and normalize its shared JSON response contract."""
     node = shutil.which("node")
     if not node:
-        raise VpkPipelineError("Node.js is required to convert character-name images to WebP.")
-    if not NAME_IMAGE_CONVERTER.is_file():
-        raise VpkPipelineError(f"Character-name image converter is missing: {NAME_IMAGE_CONVERTER}")
-    command = [
-        node,
-        str(NAME_IMAGE_CONVERTER),
-        "--source", str(extracted),
-        "--output", str(destination),
-        "--max-height", str(max_height),
-    ]
+        raise VpkPipelineError(f"Node.js is required to convert {label} to WebP.")
+    if not converter.is_file():
+        raise VpkPipelineError(f"{label.capitalize()} converter is missing: {converter}")
     completed = subprocess.run(
-        command,
+        [node, str(converter), *arguments],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -625,23 +628,23 @@ def _run_name_image_converter(
     if completed.returncode:
         detail = completed.stderr.strip() or completed.stdout.strip()
         raise VpkPipelineError(
-            "Character-name WebP conversion failed."
+            f"{label.capitalize()} WebP conversion failed."
             + (f"\n{detail}" if detail else "")
         )
     try:
         payload = json.loads(completed.stdout)
     except json.JSONDecodeError as exc:
-        raise VpkPipelineError("Character-name converter returned invalid JSON.") from exc
+        raise VpkPipelineError(f"{label.capitalize()} converter returned invalid JSON.") from exc
     images = payload.get("images") if isinstance(payload, dict) else None
     if not isinstance(images, dict):
-        raise VpkPipelineError("Character-name converter did not return an image map.")
+        raise VpkPipelineError(f"{label.capitalize()} converter did not return an image map.")
     converted = {
         str(key): value
         for key, value in images.items()
         if isinstance(key, str) and isinstance(value, dict)
     }
-    raw_warnings = payload.get("warnings", []) if isinstance(payload, dict) else []
     warnings: list[str] = []
+    raw_warnings = payload.get("warnings", []) if isinstance(payload, dict) else []
     if isinstance(raw_warnings, list):
         for warning in raw_warnings:
             if not isinstance(warning, dict):
@@ -651,6 +654,22 @@ def _run_name_image_converter(
             if isinstance(filename, str) and isinstance(detail, str):
                 warnings.append(f"{filename}: {detail}")
     return converted, warnings
+
+
+def _run_name_image_converter(
+    extracted: Path,
+    destination: Path,
+    max_height: int,
+) -> tuple[dict[str, dict[str, object]], list[str]]:
+    return _run_image_converter(
+        NAME_IMAGE_CONVERTER,
+        [
+            "--source", str(extracted),
+            "--output", str(destination),
+            "--max-height", str(max_height),
+        ],
+        "character-name image",
+    )
 
 
 def _export_character_name_images(
@@ -752,6 +771,111 @@ def _export_character_name_images(
         f"{len(languages):,} language(s) at {destination}."
     )
     return image_count, {"available": True}
+
+
+def _run_character_select_background_converter(
+    extracted: Path,
+    destination: Path,
+    width: int = DEFAULT_CHARACTER_SELECT_BACKGROUND_WIDTH,
+) -> tuple[dict[str, dict[str, object]], list[str]]:
+    return _run_image_converter(
+        CHARACTER_SELECT_BACKGROUND_CONVERTER,
+        [
+            "--source", str(extracted),
+            "--output", str(destination),
+            "--width", str(width),
+        ],
+        "character-select background",
+    )
+
+
+def _export_character_select_backgrounds(
+    settings: VpkPipelineSettings,
+    source_dir: Path,
+    character_mappings: Path,
+    progress: Progress,
+) -> tuple[int, dict[str, object]]:
+    """Extract the right half of each hero-select backdrop as an immutable WebP set."""
+    staging = source_dir.parent / "character-select-background-extraction"
+    destination = source_dir / "CharacterSelectBackgrounds"
+    _safe_replace(staging, source_dir.parent)
+    _safe_replace(destination, source_dir)
+    mappings = _validate_mapping(character_mappings)
+    aliases = _alias_index(mappings)
+    try:
+        _run_source2viewer(
+            settings.source2viewer_binary.resolve(),
+            settings.vpk_path.resolve(),
+            staging,
+            CHARACTER_SELECT_BACKGROUND_FILTER,
+            settings.extraction_threads,
+            progress,
+        )
+        converted, conversion_warnings = _run_character_select_background_converter(
+            staging,
+            destination,
+        )
+        for warning in conversion_warnings:
+            progress(f"Character-select backgrounds: skipped malformed asset: {warning}")
+    finally:
+        if staging.is_dir():
+            shutil.rmtree(staging)
+
+    if not converted:
+        shutil.rmtree(destination, ignore_errors=True)
+        progress(
+            "Character-select backgrounds were not present in the selected VPK; "
+            "continuing without them."
+        )
+        return 0, {"available": False}
+
+    assets: dict[str, dict[str, object]] = {}
+    for source_key, value in sorted(converted.items()):
+        filename = value.get("file")
+        width = value.get("width")
+        height = value.get("height")
+        accent_color = value.get("accentColor")
+        if (
+            not isinstance(filename, str)
+            or Path(filename).name != filename
+            or not filename.casefold().endswith(".webp")
+            or not isinstance(width, int)
+            or not isinstance(height, int)
+            or not isinstance(accent_color, str)
+            or not re.fullmatch(r"#[0-9a-fA-F]{6}", accent_color)
+        ):
+            raise VpkPipelineError(
+                f"Character-select background converter returned invalid metadata for {source_key}."
+            )
+        assets[source_key] = {
+            "path": filename,
+            "width": width,
+            "height": height,
+            "accentColor": accent_color.lower(),
+        }
+
+    entries: dict[str, dict[str, object]] = {}
+    for source_key, asset in assets.items():
+        direct_key = source_key.strip().casefold()
+        if direct_key:
+            entries[direct_key] = asset
+            entries[direct_key.replace(" ", "_")] = asset
+    for source_key, asset in assets.items():
+        for key in _icon_manifest_keys(source_key, mappings, aliases):
+            entries.setdefault(key, asset)
+
+    _write_json(destination / "manifest.json", {
+        "schemaVersion": 1,
+        "extractionFormatVersion": CHARACTER_SELECT_BACKGROUND_FORMAT_VERSION,
+        "crop": "right-half",
+        "maxWidth": DEFAULT_CHARACTER_SELECT_BACKGROUND_WIDTH,
+        "backgrounds": entries,
+    })
+    progress(
+        f"Character-select background set ready: {len(assets):,} WebPs and "
+        f"{len(entries):,} lookup keys at {destination}."
+    )
+    return len(assets), {"available": True}
 
 
 def _icon_manifest_keys(
@@ -1608,6 +1732,55 @@ def prepare_vpk_export(
             progress("Character-name image inputs are unchanged; reusing generated WebPs.")
     elif name_image_output.is_dir():
         shutil.rmtree(name_image_output)
+
+    background_output = source / "CharacterSelectBackgrounds"
+    background_manifest_path = background_output / "manifest.json"
+    saved_background_state = (
+        old_state.get("characterSelectBackgrounds", {}) if isinstance(old_state, dict) else {}
+    )
+    background_available = (
+        isinstance(saved_background_state, dict)
+        and saved_background_state.get("available") is True
+    )
+    background_absent = (
+        isinstance(saved_background_state, dict)
+        and saved_background_state.get("available") is False
+    )
+    background_mapping_sha256 = hashlib.sha256(mappings.read_bytes()).hexdigest()
+    can_reuse_backgrounds = (
+        same_source
+        and isinstance(saved_background_state, dict)
+        and saved_background_state.get("complete") is True
+        and saved_background_state.get("extractionFormatVersion")
+        == CHARACTER_SELECT_BACKGROUND_FORMAT_VERSION
+        and saved_background_state.get("mappingSha256") == background_mapping_sha256
+        and (
+            (background_available and background_manifest_path.is_file())
+            or (background_absent and not background_manifest_path.exists())
+        )
+    )
+    if settings.extract_character_select_backgrounds and not can_reuse_backgrounds:
+        background_count, availability = _export_character_select_backgrounds(
+            settings,
+            source,
+            mappings,
+            progress,
+        )
+        old_state = dict(old_state) if isinstance(old_state, dict) else {}
+        old_state["characterSelectBackgrounds"] = {
+            "complete": True,
+            "available": availability["available"],
+            "imageCount": background_count,
+            "extractionFormatVersion": CHARACTER_SELECT_BACKGROUND_FORMAT_VERSION,
+            "crop": "right-half",
+            "maxWidth": DEFAULT_CHARACTER_SELECT_BACKGROUND_WIDTH,
+            "mappingSha256": background_mapping_sha256,
+        }
+        _write_json(state_path, old_state)
+    elif settings.extract_character_select_backgrounds:
+        progress("VPK fingerprint is unchanged; reusing character-select backgrounds.")
+    elif background_output.is_dir():
+        shutil.rmtree(background_output)
 
     icon_output = source / "IconPacks" / "default"
     icon_manifest_path = icon_output / "manifest.json"

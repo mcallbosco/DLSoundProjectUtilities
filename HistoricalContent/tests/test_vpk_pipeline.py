@@ -11,6 +11,7 @@ from HistoricalContent.historical_content.vpk_pipeline import (
     VpkPipelineSettings,
     _build_historical_icon_pack,
     _export_character_name_images,
+    _export_character_select_backgrounds,
     _load_audio_filename_overrides,
     _normalize_shopkeeper_topics,
     _vpk_name_image_filters,
@@ -414,11 +415,15 @@ class VpkPipelineTests(unittest.TestCase):
         )
         destination = self.root / "IconPacks" / "default"
 
-        count = _build_historical_icon_pack(
-            self.root / "extracted-icons",
-            destination,
-            _validate_mapping(ASSETS / "character_mappings.json"),
-        )
+        with patch(
+            "HistoricalContent.historical_content.vpk_pipeline.read_image_dimensions",
+            return_value=(128, 128),
+        ):
+            count = _build_historical_icon_pack(
+                self.root / "extracted-icons",
+                destination,
+                _validate_mapping(ASSETS / "character_mappings.json"),
+            )
 
         self.assertEqual(count, 14)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
@@ -504,12 +509,16 @@ class VpkPipelineTests(unittest.TestCase):
         (extracted / "chrono_card_critical_psd.png").write_bytes(b"critical")
         destination = self.root / "limited-pack"
 
-        count = _build_historical_icon_pack(
-            extracted,
-            destination,
-            _validate_mapping(ASSETS / "character_mappings.json"),
-            include_highlight_variants=False,
-        )
+        with patch(
+            "HistoricalContent.historical_content.vpk_pipeline.read_image_dimensions",
+            return_value=(128, 128),
+        ):
+            count = _build_historical_icon_pack(
+                extracted,
+                destination,
+                _validate_mapping(ASSETS / "character_mappings.json"),
+                include_highlight_variants=False,
+            )
 
         self.assertEqual(count, 3)
         manifest = json.loads((destination / "manifest.json").read_text(encoding="utf-8"))
@@ -593,6 +602,69 @@ class VpkPipelineTests(unittest.TestCase):
             "russian/abrams_localized.russian.webp",
         )
 
+    def test_character_select_backgrounds_crop_and_map_portrait_aliases(self):
+        binary = self.root / "Source2Viewer-CLI.exe"
+        vpk = self.root / "pak01_dir.vpk"
+        binary.write_bytes(b"fixture")
+        vpk.write_bytes(b"fixture")
+        source = self.root / "workspace" / "source"
+        source.mkdir(parents=True)
+        settings = VpkPipelineSettings(
+            source2viewer_binary=binary,
+            vpk_path=vpk,
+            data_dir=self.root / "data",
+            transcript_repo=self.root / "transcripts",
+            version_id="test",
+        )
+
+        def fake_converter(_extracted, destination, _width=1024):
+            destination.mkdir(parents=True, exist_ok=True)
+            (destination / "familiar.hash.webp").write_bytes(b"webp")
+            (destination / "patience.hash.webp").write_bytes(b"webp")
+            return ({
+                "familiar": {
+                    "file": "familiar.hash.webp",
+                    "width": 1024,
+                    "height": 1024,
+                    "accentColor": "#284b3a",
+                },
+                "patience": {
+                    "file": "patience.hash.webp",
+                    "width": 1024,
+                    "height": 1024,
+                    "accentColor": "#315761",
+                }
+            }, [])
+
+        with patch("HistoricalContent.historical_content.vpk_pipeline._run_source2viewer"), patch(
+            "HistoricalContent.historical_content.vpk_pipeline._run_character_select_background_converter",
+            side_effect=fake_converter,
+        ):
+            count, availability = _export_character_select_backgrounds(
+                settings,
+                source,
+                ASSETS / "character_mappings.json",
+                progress=lambda _message: None,
+            )
+
+        self.assertEqual(count, 2)
+        self.assertTrue(availability["available"])
+        manifest = json.loads(
+            (source / "CharacterSelectBackgrounds" / "manifest.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(manifest["crop"], "right-half")
+        self.assertEqual(manifest["backgrounds"]["rem"]["accentColor"], "#284b3a")
+        self.assertEqual(
+            manifest["backgrounds"]["rem"],
+            manifest["backgrounds"]["familiar"],
+        )
+        self.assertEqual(
+            manifest["backgrounds"]["paige"],
+            manifest["backgrounds"]["patience"],
+        )
+
     def test_missing_character_name_images_do_not_fail_the_pipeline_stage(self):
         binary = self.root / "Source2Viewer-CLI.exe"
         vpk = self.root / "pak01_dir.vpk"
@@ -663,6 +735,7 @@ class VpkPipelineTests(unittest.TestCase):
             extract_localization=False,
             extract_icons=False,
             extract_name_images=False,
+            extract_character_select_backgrounds=False,
         )
 
         def fake_extract(_binary, _vpk, output, _filter, _threads, _progress):

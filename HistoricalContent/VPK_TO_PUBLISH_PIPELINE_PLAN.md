@@ -234,7 +234,7 @@ Use these defaults:
 - Game ID: `deadlock`.
 - Hidden state: enabled.
 - Workspace root: `D:/VLViewerHistoricalData`.
-- Transcript model: `gpt-4o-transcribe`.
+- Transcript model: `gpt-transcribe`.
 
 The user selects only the main VPK. The application must find the related game
 paths when possible. It must show each path before extraction starts.
