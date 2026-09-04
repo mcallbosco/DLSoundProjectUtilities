@@ -1,0 +1,8 @@
+"lang"
+{
+    "Tokens"
+    {
+        "abrams_parry_01_hero" "ナイスパリィ。"
+        "japanese_only_01_ult_3d" "準備完了。"
+    }
+}

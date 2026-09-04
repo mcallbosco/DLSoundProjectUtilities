@@ -1,0 +1,45 @@
+{
+  "generated_at": "<generated_at>",
+  "source_directory": "<source_directory>",
+  "languages": [
+    {
+      "language": "english",
+      "friendly_name": "English",
+      "native_name": "English",
+      "country_code": "US",
+      "flag_emoji": "🇺🇸",
+      "flag_emoji_unicode": "U+1F1FA U+1F1F8",
+      "output_file": "english.json",
+      "source_file": "citadel_generated_vo_english.txt",
+      "entry_count": 6,
+      "collision_count": 2,
+      "exact_override_count": 1
+    },
+    {
+      "language": "french",
+      "friendly_name": "French",
+      "native_name": "Français",
+      "country_code": "FR",
+      "flag_emoji": "🇫🇷",
+      "flag_emoji_unicode": "U+1F1EB U+1F1F7",
+      "output_file": "french.json",
+      "source_file": "citadel_generated_vo_french.txt",
+      "entry_count": 5,
+      "collision_count": 0,
+      "exact_override_count": 0
+    },
+    {
+      "language": "japanese",
+      "friendly_name": "Japanese",
+      "native_name": "日本語",
+      "country_code": "JP",
+      "flag_emoji": "🇯🇵",
+      "flag_emoji_unicode": "U+1F1EF U+1F1F5",
+      "output_file": "japanese.json",
+      "source_file": "citadel_generated_vo_japanese.txt",
+      "entry_count": 2,
+      "collision_count": 0,
+      "exact_override_count": 0
+    }
+  ]
+}

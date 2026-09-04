@@ -18,6 +18,7 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Callable, Iterable
 
+from .extraction.localization import export_hero_names, export_localizations
 from .image_dimensions import read_image_dimensions
 
 
@@ -615,20 +616,10 @@ def _export_localization(
 ) -> None:
     if not settings.extract_localization or not localization_source:
         return
-    try:
-        from AllInOne.batch_gui import BatchGUI
-    except Exception as exc:
-        raise VpkPipelineError(f"Could not load the localization exporter: {exc}") from exc
-    adapter = BatchGUI.__new__(BatchGUI)
-    adapter.log_write = lambda message: progress(str(message).strip()) if str(message).strip() else None
     destination = source_dir / "Localization"
-    adapter._export_localizations_from_game_files(str(localization_source), str(destination))
+    export_localizations(localization_source, destination, progress)
     if hero_name_source:
-        adapter._export_hero_name_localizations_from_game_files(
-            str(hero_name_source),
-            str(destination),
-            character_mappings_path=str(character_mappings),
-        )
+        export_hero_names(hero_name_source, destination, character_mappings, progress)
 
 
 def _vpk_name_image_filters(binary: Path, vpk: Path) -> tuple[str, ...]:

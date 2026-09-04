@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "language": "english",
+    "friendly_name": "English",
+    "native_name": "English",
+    "country_code": "US",
+    "flag_emoji": "🇺🇸",
+    "flag_emoji_unicode": "U+1F1FA U+1F1F8",
+    "source_file": "citadel_generated_vo_english.txt",
+    "generated_at": "<generated_at>",
+    "entry_count": 6,
+    "collision_count": 2,
+    "exact_override_count": 1
+  },
+  "lines": {
+    "abrams_parry_01": "Exact line.",
+    "dynamo_greet_01": "Hello, \"friend\".",
+    "warden_ready_01.mp3": "Ready.",
+    "duplicate": "Last value.",
+    "empty": "",
+    "_hero": "Suffix-only token stays intact."
+  }
+}

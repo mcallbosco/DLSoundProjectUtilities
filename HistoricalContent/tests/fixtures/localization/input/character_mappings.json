@@ -1,0 +1,7 @@
+{
+  "Abrams": ["atlas", "shared"],
+  "Warden": ["warden", "shared"],
+  "Dynamo": ["bebop"],
+  "Unused": [],
+  " ": ["ignored"]
+}

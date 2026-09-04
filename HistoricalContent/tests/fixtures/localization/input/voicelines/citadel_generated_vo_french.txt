@@ -1,0 +1,10 @@
+"lang"
+{
+    "Tokens" {
+        "abrams_parry_01" "Bien paré."
+        "dynamo_greet_01_hero_announcer" "Bonjour."
+        "french_only_01_ping_2d" "Ici !"
+        "warden_ready_01.mp3" "Prêt."
+        "warden_ready_01" "Prêt sans extension."
+    }
+}
