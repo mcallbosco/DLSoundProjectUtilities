@@ -10,7 +10,8 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
-from HistoricalContent.historical_content.baseline import (
+from historical_content.transcripts import repository as transcript_repository
+from historical_content.baseline import (
     AudioIndex,
     BaselineError,
     BaselineSettings,
@@ -353,7 +354,7 @@ class BaselineTests(unittest.TestCase):
         )
 
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio"
+            "historical_content.baseline.transcribe_audio"
         ) as transcribe:
             result = create_baseline(settings, progress=lambda _message: None)
 
@@ -403,7 +404,7 @@ class BaselineTests(unittest.TestCase):
         progress_messages = []
 
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio"
+            "historical_content.baseline.transcribe_audio"
         ) as transcribe:
             result = create_baseline(settings, progress=progress_messages.append)
 
@@ -588,7 +589,7 @@ class BaselineTests(unittest.TestCase):
 
         progress_messages = []
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio"
+            "historical_content.baseline.transcribe_audio"
         ) as transcribe:
             result = create_baseline(settings, progress=progress_messages.append)
         transcribe.assert_not_called()
@@ -617,7 +618,7 @@ class BaselineTests(unittest.TestCase):
         })
         write_json(self.transcript_path(effort_filename), document)
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio"
+            "historical_content.baseline.transcribe_audio"
         ) as transcribe:
             create_baseline(settings, progress=lambda _message: None)
         transcribe.assert_not_called()
@@ -676,7 +677,7 @@ class BaselineTests(unittest.TestCase):
 
         progress_messages = []
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio"
+            "historical_content.baseline.transcribe_audio"
         ) as transcribe:
             create_baseline(settings, progress=progress_messages.append)
         transcribe.assert_not_called()
@@ -707,7 +708,7 @@ class BaselineTests(unittest.TestCase):
 
         progress_messages = []
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio",
+            "historical_content.baseline.transcribe_audio",
             return_value="",
         ) as transcribe:
             create_baseline(settings, progress=progress_messages.append)
@@ -722,7 +723,7 @@ class BaselineTests(unittest.TestCase):
         ))
 
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio"
+            "historical_content.baseline.transcribe_audio"
         ) as transcribe:
             create_baseline(settings, progress=lambda _message: None)
         transcribe.assert_not_called()
@@ -774,7 +775,7 @@ class BaselineTests(unittest.TestCase):
             raise RuntimeError("simulated later failure")
 
         with patch(
-            "HistoricalContent.historical_content.baseline.transcribe_audio",
+            "historical_content.baseline.transcribe_audio",
             side_effect=fake_transcribe,
         ):
             with self.assertRaisesRegex(RuntimeError, "simulated later failure"):
@@ -987,6 +988,40 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(revisions[audio_hash]["text"], "Historical correction.")
         self.assertEqual(revisions[audio_hash]["source"], "manual")
         self.assertFalse(legacy.exists())
+
+    def test_interrupted_legacy_migration_keeps_originals_and_can_resume(self):
+        legacy = self.repo / "voicelines" / "abrams.json"
+        write_json(legacy, {
+            "lines": [{
+                "audioSha256": hashlib.sha256(b"fake-mp3-abrams").hexdigest(),
+                "filename": "abrams_test.mp3",
+                "text": "Historical correction.",
+                "source": "manual",
+            }],
+        })
+        original_legacy = legacy.read_bytes()
+        write_document = transcript_repository.write_json_if_changed
+        writes = 0
+
+        def interrupted_write(path, document):
+            nonlocal writes
+            writes += 1
+            if writes == 2:
+                raise OSError("Simulated full disk")
+            return write_document(path, document)
+
+        with patch.object(transcript_repository, "write_json_if_changed", interrupted_write):
+            with self.assertRaisesRegex(OSError, "full disk"):
+                create_baseline(self.settings(), progress=lambda _message: None)
+
+        self.assertEqual(legacy.read_bytes(), original_legacy)
+        self.assertTrue(self.transcript_path("abrams_test.mp3").is_file())
+        create_baseline(self.settings(), progress=lambda _message: None)
+        self.assertFalse(legacy.exists())
+        migrated = load_json(self.transcript_path("abrams_test.mp3"))
+        self.assertEqual(len(migrated["revisions"]), 1)
+        self.assertEqual(migrated["revisions"][0]["text"], "Historical correction.")
+        self.assertEqual(migrated["revisions"][0]["source"], "manual")
 
     def test_category_validation_reports_duplicates(self):
         errors, warnings = validate_categories({
