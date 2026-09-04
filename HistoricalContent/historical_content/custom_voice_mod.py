@@ -14,20 +14,20 @@ import os
 import re
 import shutil
 import subprocess
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Callable, Iterable
 from urllib.parse import urlsplit, urlunsplit
 
+from .errors import VpkPipelineError
+from .extraction.source2viewer import extract_vpk_voice_audio
 from .version_catalog import (
     load_cataloged_local_versions,
     rebuild_local_preview_manifest,
     recalculate_version_statuses,
     register_local_version,
 )
-from .vpk_pipeline import VpkPipelineError, extract_vpk_voice_audio
-
 
 Progress = Callable[[str], None]
 AUDIO_SUFFIXES = {".mp3"}

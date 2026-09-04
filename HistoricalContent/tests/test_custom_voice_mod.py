@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import shutil
 import subprocess
 import tempfile
@@ -17,7 +17,7 @@ from historical_content.custom_voice_mod import (
     discover_transcript_provenance,
     parse_vdf_tokens,
 )
-from historical_content.vpk_pipeline import VpkVoiceAudioResult
+from historical_content.extraction.source2viewer import VpkVoiceAudioResult
 
 
 def write_json(path: Path, value: object) -> None:

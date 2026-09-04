@@ -7,22 +7,23 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from historical_content.extraction.images import (
+    _build_historical_icon_pack,
+    _vpk_name_image_filters,
+    export_character_name_images,
+    export_character_select_backgrounds,
+)
+from historical_content.parsing.common import validate_mapping
+from historical_content.parsing.voicelines import _normalize_shopkeeper_topics
 from historical_content.vpk_pipeline import (
     VpkPipelineSettings,
-    _build_historical_icon_pack,
-    _export_character_name_images,
-    _export_character_select_backgrounds,
     _load_audio_filename_overrides,
-    _normalize_shopkeeper_topics,
-    _vpk_name_image_filters,
-    _validate_mapping,
     create_coverage,
     extract_vpk_voice_audio,
     parse_conversations,
     parse_voicelines,
     prepare_vpk_export,
 )
-
 
 UTILITIES = Path(__file__).resolve().parents[2]
 ASSETS = Path(__file__).resolve().parents[1] / "historical_content" / "defaults"
@@ -417,13 +418,13 @@ class VpkPipelineTests(unittest.TestCase):
         destination = self.root / "IconPacks" / "default"
 
         with patch(
-            "historical_content.vpk_pipeline.read_image_dimensions",
+            "historical_content.extraction.images.read_image_dimensions",
             return_value=(128, 128),
         ):
             count = _build_historical_icon_pack(
                 self.root / "extracted-icons",
                 destination,
-                _validate_mapping(ASSETS / "character_mappings.json"),
+                validate_mapping(ASSETS / "character_mappings.json"),
             )
 
         self.assertEqual(count, 14)
@@ -511,13 +512,13 @@ class VpkPipelineTests(unittest.TestCase):
         destination = self.root / "limited-pack"
 
         with patch(
-            "historical_content.vpk_pipeline.read_image_dimensions",
+            "historical_content.extraction.images.read_image_dimensions",
             return_value=(128, 128),
         ):
             count = _build_historical_icon_pack(
                 extracted,
                 destination,
-                _validate_mapping(ASSETS / "character_mappings.json"),
+                validate_mapping(ASSETS / "character_mappings.json"),
                 include_highlight_variants=False,
             )
 
@@ -566,20 +567,23 @@ class VpkPipelineTests(unittest.TestCase):
 
         with (
             patch(
-                "historical_content.vpk_pipeline._vpk_name_image_filters",
+                "historical_content.extraction.images._vpk_name_image_filters",
                 return_value=("panorama/images/heroes/hero_names",),
             ),
-            patch("historical_content.vpk_pipeline._run_source2viewer"),
+            patch("historical_content.extraction.images.run_source2viewer"),
             patch(
-                "historical_content.vpk_pipeline._run_name_image_converter",
+                "historical_content.extraction.images._run_name_image_converter",
                 side_effect=fake_convert,
             ),
         ):
-            count, availability = _export_character_name_images(
-                settings,
-                source,
-                self.root / "build",
-                ASSETS / "character_mappings.json",
+            count, availability = export_character_name_images(
+                source2viewer_binary=settings.source2viewer_binary,
+                vpk_path=settings.vpk_path,
+                source_dir=source,
+                game_root=self.root / "build",
+                character_mappings=ASSETS / "character_mappings.json",
+                extraction_threads=settings.extraction_threads,
+                max_height=settings.name_image_max_height,
                 progress=progress_messages.append,
             )
 
@@ -637,14 +641,16 @@ class VpkPipelineTests(unittest.TestCase):
                 }
             }, [])
 
-        with patch("historical_content.vpk_pipeline._run_source2viewer"), patch(
-            "historical_content.vpk_pipeline._run_character_select_background_converter",
+        with patch("historical_content.extraction.images.run_source2viewer"), patch(
+            "historical_content.extraction.images._run_character_select_background_converter",
             side_effect=fake_converter,
         ):
-            count, availability = _export_character_select_backgrounds(
-                settings,
-                source,
-                ASSETS / "character_mappings.json",
+            count, availability = export_character_select_backgrounds(
+                source2viewer_binary=settings.source2viewer_binary,
+                vpk_path=settings.vpk_path,
+                source_dir=source,
+                character_mappings=ASSETS / "character_mappings.json",
+                extraction_threads=settings.extraction_threads,
                 progress=lambda _message: None,
             )
 
@@ -682,14 +688,17 @@ class VpkPipelineTests(unittest.TestCase):
         )
 
         with patch(
-            "historical_content.vpk_pipeline._vpk_name_image_filters",
+            "historical_content.extraction.images._vpk_name_image_filters",
             return_value=(),
         ):
-            count, availability = _export_character_name_images(
-                settings,
-                source,
-                None,
-                ASSETS / "character_mappings.json",
+            count, availability = export_character_name_images(
+                source2viewer_binary=settings.source2viewer_binary,
+                vpk_path=settings.vpk_path,
+                source_dir=source,
+                game_root=None,
+                character_mappings=ASSETS / "character_mappings.json",
+                extraction_threads=settings.extraction_threads,
+                max_height=settings.name_image_max_height,
                 progress=lambda _message: None,
             )
 
@@ -745,7 +754,7 @@ class VpkPipelineTests(unittest.TestCase):
             (destination / "abrams_parry_01.mp3").write_bytes(b"parry")
 
         with patch(
-            "historical_content.vpk_pipeline._run_source2viewer",
+            "historical_content.vpk_pipeline.run_source2viewer",
             side_effect=fake_extract,
         ) as extract:
             first = prepare_vpk_export(settings, progress=lambda _message: None)
@@ -790,7 +799,7 @@ class VpkPipelineTests(unittest.TestCase):
             (destination / "line.mp3").write_bytes(b"russian voice")
 
         with patch(
-            "historical_content.vpk_pipeline._run_source2viewer",
+            "historical_content.extraction.source2viewer.run_source2viewer",
             side_effect=fake_extract,
         ) as extract:
             first = extract_vpk_voice_audio(
