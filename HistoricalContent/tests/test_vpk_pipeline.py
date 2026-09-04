@@ -780,7 +780,7 @@ class VpkPipelineTests(unittest.TestCase):
         )
         extracted_audio = list((settings.data_dir / "workspaces").rglob("*.mp3"))
         self.assertEqual(len(extracted_audio), 1)
-        self.assertTrue(first.source_dir / "Audio" in extracted_audio[0].parents)
+        self.assertTrue(first.source_dir / "Audio" in extracted_audio[0].resolve().parents)
         self.assertTrue(
             (settings.transcript_repo / "config" / "deadlock" / "voiceline-groups.json").is_file()
         )
