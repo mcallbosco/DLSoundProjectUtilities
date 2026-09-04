@@ -20,7 +20,7 @@ try:
         R2Publisher,
         ValidationReport,
         format_bytes,
-        validate_version_source,
+        validate_publisher_source,
     )
 except ImportError:
     from publisher import (
@@ -30,7 +30,7 @@ except ImportError:
         R2Publisher,
         ValidationReport,
         format_bytes,
-        validate_version_source,
+        validate_publisher_source,
     )
 
 try:
@@ -538,7 +538,7 @@ class PublisherGUI(tk.Tk):
 
         def action() -> None:
             self._append_log(f"Validating {settings.source_dir}...")
-            report = validate_version_source(settings.source_dir, settings.game)
+            report = validate_publisher_source(settings)
             self._show_validation(report)
 
         self._run_background("Validating local content...", action)
@@ -563,6 +563,7 @@ class PublisherGUI(tk.Tk):
         rows.extend(
             [
                 ("New files to upload", f"{len(plan.upload_new):,}"),
+                ("Changed custom audio", f"{len(plan.upload_changed_custom_audio):,}"),
                 ("Changed JSON to replace", f"{len(plan.upload_changed_json):,}"),
                 ("Unchanged files to skip", f"{len(plan.unchanged):,}"),
                 ("Upload size", format_bytes(upload_bytes)),
@@ -583,6 +584,7 @@ class PublisherGUI(tk.Tk):
             )
         self._append_log(
             f"Dry run complete: {len(plan.upload_new):,} new, "
+            f"{len(plan.upload_changed_custom_audio):,} changed custom audio, "
             f"{len(plan.upload_changed_json):,} changed JSON, "
             f"{len(plan.unchanged):,} unchanged."
         )
@@ -719,12 +721,13 @@ class VersionManagerDialog(tk.Toplevel):
             wraplength=850,
         ).grid(row=0, column=0, sticky="ew", pady=(0, 8))
 
-        columns = ("position", "id", "label", "hidden", "latest", "revision", "updated")
+        columns = ("position", "id", "label", "kind", "hidden", "latest", "revision", "updated")
         self.tree = ttk.Treeview(root, columns=columns, show="headings", selectmode="browse")
         headings = {
             "position": "Order",
             "id": "Version ID",
             "label": "Label",
+            "kind": "Kind",
             "hidden": "Hidden",
             "latest": "Latest",
             "revision": "Revision",
@@ -734,6 +737,7 @@ class VersionManagerDialog(tk.Toplevel):
             "position": 55,
             "id": 190,
             "label": 170,
+            "kind": 75,
             "hidden": 65,
             "latest": 60,
             "revision": 65,
@@ -844,6 +848,7 @@ class VersionManagerDialog(tk.Toplevel):
                     index + 1,
                     version_id,
                     version.get("label", ""),
+                    str(version.get("kind") or "official").title(),
                     "Yes" if version.get("hidden") is True else "No",
                     "Yes" if version_id == latest else "No",
                     version.get("contentRevision", ""),
@@ -906,6 +911,13 @@ class VersionManagerDialog(tk.Toplevel):
             return
         _index, version = selected
         version_id = str(version.get("id"))
+        if version.get("kind") == "custom":
+            messagebox.showwarning(
+                "Custom content",
+                "Custom content cannot become the latest official game version.",
+                parent=self,
+            )
+            return
         version["hidden"] = False
         self.manifest["latestVersion"] = version_id
         self.dirty = True

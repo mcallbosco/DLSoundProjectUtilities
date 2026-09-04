@@ -157,15 +157,17 @@ route was not in the previous export.
 ## Safety and caching rules
 
 - JSON is mutable and can be corrected under an existing version ID.
-- Binary content is immutable at a published object path.
+- Official binary content is immutable at a published object path. Version-local
+  custom audio is replaceable under the same custom version ID and uses
+  revalidation caching instead of immutable caching.
 - Shared audio is content-addressed and is never deleted automatically.
 - New binary files can be added to an existing version.
-- A binary whose bytes differ from an existing object is reported as a conflict
-  and blocks publication.
+- A non-custom binary whose bytes differ from an existing object is reported as
+  a conflict and blocks publication.
 - Remote binary files missing from the local source are retained.
 - Remote-only JSON is reported but is not deleted automatically.
 - The publisher uploads content first and updates the game manifest last.
-- Changed JSON URLs are purged individually when cache-purge credentials are
+- Changed JSON and custom-audio URLs are purged individually when cache-purge credentials are
   configured.
 - A version can be marked `hidden` so normal website version selectors omit it.
   Hidden versions are still addressable through an explicit `?version=` URL;
@@ -178,6 +180,15 @@ route was not in the previous export.
 - The Historical Content publication dialog can select and publish multiple
   generated versions. It validates the full selection before uploading and
   processes the batch oldest-to-newest so shared audio is reused efficiently.
+- A `kind: custom` source is never eligible for `latestVersion`. It must name
+  an official base version, use embedded transcripts, contain a publishable
+  `custom-import-report.json` that explicitly records `speechToTextUsed: false`,
+  and preserve a hash-verified pinned transcript source. Import warnings are
+  printed during validation but do not block publication.
+- Custom audio must live in version-local `Audio/`. `SharedAudio/`, `audioKey`,
+  absolute `audioUrl`, and missing local recordings are publication errors.
+  Empty embedded transcript strings are allowed for warned, untranslated lines.
+  This prevents official and mod audio from mixing.
 - **Clear game content...** is a guarded format-reset action. It deletes and
   verifies only the selected game's `<game>/` prefix, never the entire shared
   bucket.

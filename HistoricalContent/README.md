@@ -197,6 +197,85 @@ bucket and requires the operator to type the game ID. Clear immediately before
 a ready bulk publication because the live game endpoint is unavailable between
 the reset and the first successful publication.
 
+## Custom voice-mod import
+
+Use **Import custom voice mod...** for an audio replacement pack. This is a
+separate deterministic workflow from VPK baseline generation: it has no model
+selection, API-key use, or speech-to-text fallback. It accepts a Source 2 voice
+VPK plus a pinned VDF/TXT script. The utility uses the configured Source2Viewer
+CLI to decode only `sounds/vo`, then correlates the decoded full relative MP3
+paths against an official generated base version, embeds the matched script
+text, and writes audio only beneath the custom version's `Audio/` directory.
+
+Select the transcript directly from a clean Git checkout. The GUI automatically
+finds `metadata.json` beside it, reads the repository origin and current commit,
+calculates the repository-relative source path and SHA-256, and verifies that
+both files match the selected commit under Git's normal text-file handling.
+These values are recorded in the
+custom source; they are not separate operator inputs.
+
+The decoded VPK is cached separately at
+`workspaces/<game>/<custom-version>/custom-voice-mod-vpk/`. It does not reuse or
+modify an official version's VPK workspace. The selected VPK fingerprint and
+filename are recorded in `custom-import-report.json`; the VPK itself is not
+copied into the generated source or published content.
+
+Reimporting the same custom version ID atomically replaces that version's local
+`generated/` source and preview directory after confirming the existing source
+is custom content. This supports retries and local iteration without deleting
+folders manually. It never replaces an official generated version. Recovery
+backups of both prior directories are retained until catalog, status, manifest,
+and character-route updates all finish; an interrupted import reports the
+backup path instead of silently discarding it.
+
+Official binary paths remain immutable. Custom version-local audio may be
+republished under the same custom version ID when a later mod VPK changes the
+bytes for an existing filename. The publisher gives those objects revalidation
+caching and purges changed URLs when purge credentials are configured, so the
+manifest can keep its stable custom audio prefix.
+
+Correlation problems are reported in `custom-import-report.json` and printed by
+the GUI/CLI. A missing transcript retains the correlated record and audio with
+an empty `transcription` string. Duplicate transcript or audio candidates use
+the first deterministic match and emit a warning. Audio with no safe base
+record is excluded. These warnings are non-blocking, so the completed custom
+version remains publishable. A reviewed `correlation-overrides.json` can still
+resolve exceptional paths:
+
+```json
+{
+  "schemaVersion": 1,
+  "overrides": {
+    "mod/path/line.mp3": {
+      "baseFilename": "hero/path/line.mp3",
+      "transcriptKey": "optional_explicit_token"
+    }
+  }
+}
+```
+
+The equivalent automation command is:
+
+```powershell
+python HistoricalContent/custom_voice_mod_cli.py `
+  --data-dir D:/VLViewerHistoricalData `
+  --version ognb-russian-voice-mod `
+  --label "Russian Voice Mod" `
+  --based-on-version ognb `
+  --source2viewer D:/Tools/Source2Viewer-CLI.exe `
+  --mod-vpk D:/Mods/RussianVoice/pak01_dir.vpk `
+  --transcript D:/Projects2/deadlock-community-transcription/localizations/russian_fan_ognb/citadel_vo_russian.vdf
+```
+
+The metadata and provenance flags remain optional CLI overrides for controlled
+automation inputs that are already pinned outside a Git checkout.
+
+The command exits with code 0 after a completed import, including imports with
+non-blocking warnings, and 2 for a fatal input/configuration error. Non-MP3
+files decoded beneath `sounds/vo` are reported and excluded, except for the
+normal `.vsnd` companion emitted beside each decoded MP3. A `.vsnd` without its
+same-path MP3 is also reported and excluded.
+
 ## Transcript repository
 
 The generated repository contains:

@@ -8,12 +8,14 @@ import unittest
 from pathlib import Path
 
 from ContentPublisher.publisher import (
+    PublisherError,
     PublisherSettings,
     R2Publisher,
     build_publish_plan,
     collect_content_characters,
     game_characters_payload,
     inventory_payload,
+    validate_publisher_source,
     validate_version_source,
     version_manifest_entry,
 )
@@ -205,7 +207,77 @@ class PublisherCoreTests(unittest.TestCase):
             }),
             encoding="utf-8",
         )
+    def configure_custom_source(self, *, warning_count: int = 0) -> PublisherSettings:
+        for filename in ("all_conversations.json", "all_voicelines.json"):
+            path = self.root / filename
+            payload = json.loads(path.read_text(encoding="utf-8"))
 
+            def apply(value):
+                if isinstance(value, dict):
+                    result = {key: apply(child) for key, child in value.items()}
+                    if result.get("filename") == "line_01.mp3":
+                        result["transcription"] = "Закрепленный текст"
+                        result["officialtranscription"] = False
+                        result.pop("audioKey", None)
+                        result.pop("audioUrl", None)
+                        result["versionStatus"] = {}
+                    return result
+                if isinstance(value, list):
+                    return [apply(child) for child in value]
+                return value
+
+            path.write_text(json.dumps(apply(payload), ensure_ascii=False), encoding="utf-8")
+
+        transcript = self.root / "TranscriptSource" / "source.vdf"
+        transcript.parent.mkdir()
+        transcript.write_text('"line" "Закрепленный текст"', encoding="utf-8")
+        source = {
+            "repository": "example/transcripts",
+            "revision": "abc123",
+            "repositoryPath": "localizations/source.vdf",
+            "path": "source.vdf",
+            "sha256": hashlib.sha256(transcript.read_bytes()).hexdigest(),
+            "size": transcript.stat().st_size,
+            "entryCount": 1,
+            "parser": "vlviewer-vdf-kv-v1",
+            "pinVerified": True,
+            "attribution": {"credits": [{"name": "Community translator"}]},
+        }
+        (self.root / "transcript-source.json").write_text(
+            json.dumps(source), encoding="utf-8"
+        )
+        (self.root / "custom-import-report.json").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "speechToTextUsed": False,
+                "publishable": True,
+                "warningCount": warning_count,
+                "blockingWarningCount": 0,
+                "warnings": [] if warning_count == 0 else [{"reason": "missing"}],
+            }),
+            encoding="utf-8",
+        )
+        (self.root / "custom-version.json").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "kind": "custom",
+                "basedOnVersion": "ognb",
+                "defaultLocalizationLanguage": "russian",
+                "transcriptMode": "embedded",
+                "embeddedTranscriptLanguage": "russian",
+                "transcriptSource": source,
+            }),
+            encoding="utf-8",
+        )
+        return PublisherSettings(
+            source_dir=self.root,
+            game="deadlock",
+            version="ognb-russian-mod",
+            label="Russian Voice Mod",
+            state_dir=self.root / ".state",
+            promote_to_latest=False,
+            hidden=True,
+        )
     def test_validation_and_legacy_path_mapping(self) -> None:
         report = validate_version_source(self.root)
         self.assertTrue(report.valid, report.errors)
@@ -216,6 +288,104 @@ class PublisherCoreTests(unittest.TestCase):
         self.assertIn("localization/manifest.json", paths)
         self.assertIn("icons/default/manifest.json", paths)
         self.assertEqual(report.referenced_audio_count, 1)
+
+    def test_custom_source_requires_pinned_text_and_version_local_audio(self) -> None:
+        settings = self.configure_custom_source()
+        report = validate_publisher_source(settings)
+        self.assertTrue(report.valid, report.errors)
+        plan = build_publish_plan(settings)
+        self.assertTrue(plan.can_publish, plan.validation.errors)
+        self.assertFalse(any(record.scope == "game" for record in plan.local_records.values()))
+
+        entry = version_manifest_entry(settings, content_revision=1)
+        self.assertEqual(entry["kind"], "custom")
+        self.assertEqual(entry["basedOnVersion"], "ognb")
+        self.assertEqual(entry["defaultLocalizationLanguage"], "russian")
+        self.assertEqual(entry["transcriptMode"], "embedded")
+        self.assertNotIn("fanLocalizationManifestUrl", entry)
+
+    def test_custom_source_allows_non_blocking_correlation_warnings(self) -> None:
+        settings = self.configure_custom_source(warning_count=1)
+        report = validate_publisher_source(settings)
+        self.assertTrue(report.valid, report.errors)
+        self.assertTrue(any("non-blocking" in warning for warning in report.warnings))
+
+    def test_custom_source_allows_blank_embedded_transcripts(self) -> None:
+        settings = self.configure_custom_source(warning_count=1)
+        for filename in ("all_conversations.json", "all_voicelines.json"):
+            path = self.root / filename
+            payload = json.loads(path.read_text(encoding="utf-8"))
+
+            def blank(value):
+                if isinstance(value, dict):
+                    result = {key: blank(child) for key, child in value.items()}
+                    if result.get("filename") == "line_01.mp3":
+                        result["transcription"] = ""
+                    return result
+                if isinstance(value, list):
+                    return [blank(child) for child in value]
+                return value
+
+            path.write_text(json.dumps(blank(payload)), encoding="utf-8")
+
+        report = validate_publisher_source(settings)
+        self.assertTrue(report.valid, report.errors)
+
+    def test_custom_audio_can_be_replaced_under_the_same_version_id(self) -> None:
+        settings = self.configure_custom_source()
+        initial = build_publish_plan(settings)
+        remote = inventory_payload(settings, initial, content_revision=1)
+        (self.root / "Audio" / "line_01.mp3").write_bytes(b"updated mod audio")
+
+        changed = build_publish_plan(settings, remote)
+
+        self.assertEqual(
+            [item.relative_path for item in changed.upload_changed_custom_audio],
+            ["audio/line_01.mp3"],
+        )
+        self.assertFalse(changed.immutable_conflicts)
+        self.assertTrue(changed.can_publish)
+
+    def test_custom_base_is_validated_before_any_upload(self) -> None:
+        settings = self.configure_custom_source()
+        plan = build_publish_plan(settings)
+        client = FakeR2Client()
+        publisher = R2Publisher(settings)
+        publisher._client = client
+
+        with self.assertRaisesRegex(PublisherError, "base version is not published"):
+            publisher.publish(plan)
+
+        self.assertEqual(client.events, [])
+
+    def test_custom_source_never_accepts_shared_audio(self) -> None:
+        settings = self.configure_custom_source()
+        self.use_shared_audio()
+        report = validate_publisher_source(settings)
+        self.assertFalse(report.valid)
+        self.assertTrue(any("never SharedAudio" in error for error in report.errors))
+
+    def test_custom_source_cannot_be_latest(self) -> None:
+        settings = self.configure_custom_source()
+        settings.promote_to_latest = True
+        report = validate_publisher_source(settings)
+        self.assertFalse(report.valid)
+        self.assertIn("Custom content cannot be promoted to latest.", report.errors)
+
+    def test_custom_source_rejects_shared_audio_references_and_source_hash_drift(self) -> None:
+        settings = self.configure_custom_source()
+        path = self.root / "all_voicelines.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["hero"]["lines"][0]["audioKey"] = "sha256/aa/official.mp3"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        (self.root / "TranscriptSource" / "source.vdf").write_text(
+            '"line" "Changed later"', encoding="utf-8"
+        )
+
+        report = validate_publisher_source(settings)
+        self.assertFalse(report.valid)
+        self.assertTrue(any("audioKey" in error for error in report.errors))
+        self.assertTrue(any("SHA-256 does not match" in error for error in report.errors))
 
     def test_character_name_images_validate_map_and_advertise_webp(self) -> None:
         self.add_character_name_images()

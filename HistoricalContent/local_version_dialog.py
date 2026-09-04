@@ -56,21 +56,29 @@ class LocalVersionManagerDialog(tk.Toplevel):
         ttk.Label(
             root,
             text=(
-                "Order versions newest-to-oldest. This order controls the selector and "
-                "adjacent-version comparisons. Making a version latest does not move it."
+                "Order versions for the selector. Official entries alone control adjacent "
+                "version comparisons; custom entries can never become latest."
             ),
             wraplength=740,
         ).grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 8))
-        columns = ("position", "id", "label", "hidden", "latest")
+        columns = ("position", "id", "label", "kind", "hidden", "latest")
         self.tree = ttk.Treeview(root, columns=columns, show="headings", selectmode="browse")
         headings = {
             "position": "Order",
             "id": "Version ID",
             "label": "Label",
+            "kind": "Kind",
             "hidden": "Hidden",
             "latest": "Default",
         }
-        widths = {"position": 55, "id": 200, "label": 280, "hidden": 70, "latest": 70}
+        widths = {
+            "position": 55,
+            "id": 190,
+            "label": 240,
+            "kind": 80,
+            "hidden": 70,
+            "latest": 70,
+        }
         for column in columns:
             self.tree.heading(column, text=headings[column])
             self.tree.column(column, width=widths[column], stretch=column in {"id", "label"})
@@ -136,6 +144,7 @@ class LocalVersionManagerDialog(tk.Toplevel):
                     index + 1,
                     version_id,
                     version.get("label", ""),
+                    str(version.get("kind") or "official").title(),
                     "Yes" if version.get("hidden") is True else "No",
                     "Yes" if version_id == latest else "No",
                 ),
@@ -195,6 +204,13 @@ class LocalVersionManagerDialog(tk.Toplevel):
         if selected is None:
             return
         _index, version = selected
+        if version.get("kind") == "custom":
+            messagebox.showwarning(
+                "Custom content",
+                "Custom content cannot become the latest official game version.",
+                parent=self,
+            )
+            return
         version["hidden"] = False
         self.catalog["latestVersion"] = str(version["id"])
         self.dirty = True
