@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from historical_content.preview import start_preview
 
@@ -74,12 +74,27 @@ class PreviewTests(unittest.TestCase):
                 str(self.website / "node_modules" / "next" / "dist" / "bin" / "next"),
                 "dev",
                 "--turbopack",
+                "--hostname",
+                "127.0.0.1",
             ],
         )
         self.assertEqual(website_call.kwargs["cwd"], self.website)
         self.assertEqual(website_call.kwargs["env"]["NEXT_PUBLIC_VLVIEWER_GAME"], "deadlock")
         self.assertIn("Prepared deadlock config.", messages)
 
+
+    def test_stops_worker_if_website_cannot_start(self):
+        worker = Mock()
+        worker.poll.return_value = None
+        with (
+            patch("historical_content.preview._executable", return_value="node"),
+            patch("historical_content.preview.subprocess.run", return_value=subprocess.CompletedProcess([], 0, stdout="")),
+            patch("historical_content.preview.subprocess.Popen", side_effect=[worker, OSError("Cannot start website")]),
+        ):
+            with self.assertRaisesRegex(OSError, "Cannot start website"):
+                start_preview(self.worker, self.website, "deadlock", lambda _: None)
+        worker.terminate.assert_called_once()
+        worker.wait.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
