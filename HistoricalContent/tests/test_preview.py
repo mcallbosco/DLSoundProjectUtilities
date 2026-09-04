@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from HistoricalContent.historical_content.preview import start_preview
+from historical_content.preview import start_preview
 
 
 class _FakeProcess:
@@ -38,15 +38,15 @@ class PreviewTests(unittest.TestCase):
         processes = [_FakeProcess(), _FakeProcess()]
         with (
             patch(
-                "HistoricalContent.historical_content.preview._executable",
+                "historical_content.preview._executable",
                 side_effect=lambda name: f"resolved-{name}",
             ),
             patch(
-                "HistoricalContent.historical_content.preview.subprocess.run",
+                "historical_content.preview.subprocess.run",
                 return_value=prepared,
             ) as run,
             patch(
-                "HistoricalContent.historical_content.preview.subprocess.Popen",
+                "historical_content.preview.subprocess.Popen",
                 side_effect=processes,
             ) as popen,
         ):

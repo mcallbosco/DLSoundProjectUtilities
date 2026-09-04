@@ -6,9 +6,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-DEFAULT_GROUP_CONFIG_PATH = (
-    Path(__file__).resolve().parents[3] / "Assets" / "voiceline_groups.json"
-)
+from ..settings import DEFAULTS_DIR
+
+
+DEFAULT_GROUP_CONFIG_PATH = DEFAULTS_DIR / "voiceline_groups.json"
 
 
 class GroupConfigError(ValueError):

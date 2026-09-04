@@ -16,7 +16,7 @@ from historical_content.parsing.voicelines import parse_voicelines
 
 TESTS = Path(__file__).resolve().parent
 PACKAGE_ROOT = TESTS.parent
-ASSETS = PACKAGE_ROOT.parent / "Assets"
+ASSETS = PACKAGE_ROOT / "historical_content" / "defaults"
 
 
 class ParserParityTests(unittest.TestCase):

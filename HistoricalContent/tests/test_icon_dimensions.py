@@ -7,8 +7,8 @@ import unittest
 import zlib
 from pathlib import Path
 
-from HistoricalContent.historical_content.image_dimensions import read_image_dimensions
-from HistoricalContent.historical_content.vpk_pipeline import (
+from historical_content.image_dimensions import read_image_dimensions
+from historical_content.vpk_pipeline import (
     _build_historical_icon_pack,
     _validate_mapping,
 )

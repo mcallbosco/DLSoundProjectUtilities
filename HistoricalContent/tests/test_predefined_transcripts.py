@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from HistoricalContent.historical_content.predefined_transcripts import (
+from historical_content.predefined_transcripts import (
     PredefinedTranscriptError,
     load_predefined_transcripts,
 )

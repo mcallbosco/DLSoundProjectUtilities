@@ -19,7 +19,6 @@ from .generation.storage import (
     link_or_copy,
     normalize_audio_key,
     replace_directory,
-    sha256_file,
     shared_audio_key,
     write_version_index,
 )

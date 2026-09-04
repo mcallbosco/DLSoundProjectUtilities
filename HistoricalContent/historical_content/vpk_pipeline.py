@@ -1,7 +1,6 @@
 """Mine one Deadlock VPK and build the source consumed by baseline generation.
 
-This module is intentionally UI-free.  Historical Content is the only
-operator-facing application; the older GUIs remain migration references only.
+The desktop application and CLI share this coordinator.
 """
 
 from __future__ import annotations
@@ -19,6 +18,7 @@ from typing import Callable, Iterable
 
 from .extraction.localization import export_hero_names, export_localizations
 from .errors import VpkPipelineError
+from .settings import DEFAULTS_DIR
 from .image_dimensions import read_image_dimensions
 from .parsing.common import (
     alias_index as _alias_index,
@@ -32,7 +32,7 @@ from .parsing.voicelines import _normalize_shopkeeper_topics, parse_voicelines
 
 Progress = Callable[[str], None]
 UTILITIES_DIR = Path(__file__).resolve().parents[2]
-ASSETS_DIR = UTILITIES_DIR / "Assets"
+ASSETS_DIR = DEFAULTS_DIR
 VERSION_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 AUDIO_SUFFIXES = {".mp3", ".wav", ".ogg", ".m4a"}
 HISTORICAL_ICON_RE = re.compile(

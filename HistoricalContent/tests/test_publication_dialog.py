@@ -6,8 +6,8 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from ContentPublisher.publisher import PublisherError
-from HistoricalContent.publication_dialog import _bulk_publish_order, _local_publish_versions
+from historical_content.publishing.core import PublisherError
+from historical_content.publishing.selection import bulk_publish_order, local_publish_versions
 
 
 class BulkPublicationDiscoveryTests(unittest.TestCase):
@@ -30,7 +30,7 @@ class BulkPublicationDiscoveryTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            versions, latest = _local_publish_versions(generated / "new", "deadlock")
+            versions, latest = local_publish_versions(generated / "new", "deadlock")
 
             self.assertEqual([item["id"] for item in versions], ["new", "old", "draft"])
             self.assertEqual([item["hidden"] for item in versions], [False, True, True])
@@ -44,7 +44,7 @@ class BulkPublicationDiscoveryTests(unittest.TestCase):
             "custom": SimpleNamespace(kind="custom", based_on_version="base"),
         }
 
-        ordered = _bulk_publish_order([base, custom], settings, {"versions": []})
+        ordered = bulk_publish_order([base, custom], settings, {"versions": []})
 
         self.assertEqual([item["id"] for item in ordered], ["base", "custom"])
 
@@ -55,7 +55,7 @@ class BulkPublicationDiscoveryTests(unittest.TestCase):
         }
 
         with self.assertRaisesRegex(PublisherError, "neither selected nor published"):
-            _bulk_publish_order([custom], settings, {"versions": []})
+            bulk_publish_order([custom], settings, {"versions": []})
 
 
 if __name__ == "__main__":

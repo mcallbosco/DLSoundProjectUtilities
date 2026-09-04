@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from HistoricalContent.historical_content.vpk_pipeline import (
+from historical_content.vpk_pipeline import (
     VpkPipelineSettings,
     _build_historical_icon_pack,
     _export_character_name_images,
@@ -25,7 +25,7 @@ from HistoricalContent.historical_content.vpk_pipeline import (
 
 
 UTILITIES = Path(__file__).resolve().parents[2]
-ASSETS = UTILITIES / "Assets"
+ASSETS = Path(__file__).resolve().parents[1] / "historical_content" / "defaults"
 
 
 class VpkPipelineTests(unittest.TestCase):
@@ -417,7 +417,7 @@ class VpkPipelineTests(unittest.TestCase):
         destination = self.root / "IconPacks" / "default"
 
         with patch(
-            "HistoricalContent.historical_content.vpk_pipeline.read_image_dimensions",
+            "historical_content.vpk_pipeline.read_image_dimensions",
             return_value=(128, 128),
         ):
             count = _build_historical_icon_pack(
@@ -511,7 +511,7 @@ class VpkPipelineTests(unittest.TestCase):
         destination = self.root / "limited-pack"
 
         with patch(
-            "HistoricalContent.historical_content.vpk_pipeline.read_image_dimensions",
+            "historical_content.vpk_pipeline.read_image_dimensions",
             return_value=(128, 128),
         ):
             count = _build_historical_icon_pack(
@@ -566,12 +566,12 @@ class VpkPipelineTests(unittest.TestCase):
 
         with (
             patch(
-                "HistoricalContent.historical_content.vpk_pipeline._vpk_name_image_filters",
+                "historical_content.vpk_pipeline._vpk_name_image_filters",
                 return_value=("panorama/images/heroes/hero_names",),
             ),
-            patch("HistoricalContent.historical_content.vpk_pipeline._run_source2viewer"),
+            patch("historical_content.vpk_pipeline._run_source2viewer"),
             patch(
-                "HistoricalContent.historical_content.vpk_pipeline._run_name_image_converter",
+                "historical_content.vpk_pipeline._run_name_image_converter",
                 side_effect=fake_convert,
             ),
         ):
@@ -637,8 +637,8 @@ class VpkPipelineTests(unittest.TestCase):
                 }
             }, [])
 
-        with patch("HistoricalContent.historical_content.vpk_pipeline._run_source2viewer"), patch(
-            "HistoricalContent.historical_content.vpk_pipeline._run_character_select_background_converter",
+        with patch("historical_content.vpk_pipeline._run_source2viewer"), patch(
+            "historical_content.vpk_pipeline._run_character_select_background_converter",
             side_effect=fake_converter,
         ):
             count, availability = _export_character_select_backgrounds(
@@ -682,7 +682,7 @@ class VpkPipelineTests(unittest.TestCase):
         )
 
         with patch(
-            "HistoricalContent.historical_content.vpk_pipeline._vpk_name_image_filters",
+            "historical_content.vpk_pipeline._vpk_name_image_filters",
             return_value=(),
         ):
             count, availability = _export_character_name_images(
@@ -745,7 +745,7 @@ class VpkPipelineTests(unittest.TestCase):
             (destination / "abrams_parry_01.mp3").write_bytes(b"parry")
 
         with patch(
-            "HistoricalContent.historical_content.vpk_pipeline._run_source2viewer",
+            "historical_content.vpk_pipeline._run_source2viewer",
             side_effect=fake_extract,
         ) as extract:
             first = prepare_vpk_export(settings, progress=lambda _message: None)
@@ -790,7 +790,7 @@ class VpkPipelineTests(unittest.TestCase):
             (destination / "line.mp3").write_bytes(b"russian voice")
 
         with patch(
-            "HistoricalContent.historical_content.vpk_pipeline._run_source2viewer",
+            "historical_content.vpk_pipeline._run_source2viewer",
             side_effect=fake_extract,
         ) as extract:
             first = extract_vpk_voice_audio(

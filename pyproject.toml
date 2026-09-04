@@ -13,6 +13,12 @@ dependencies = [
   "mutagen>=1.47,<2",
 ]
 
+[project.scripts]
+historical-content = "historical_content.app.gui:main"
+historical-baseline = "historical_content.baseline_cli:main"
+historical-custom-mod = "historical_content.custom_voice_mod_cli:main"
+historical-publish = "historical_content.publishing.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["HistoricalContent"]
 include = ["historical_content*"]

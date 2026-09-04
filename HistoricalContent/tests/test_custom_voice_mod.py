@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from HistoricalContent.historical_content.custom_voice_mod import (
+from historical_content.custom_voice_mod import (
     CustomVoiceModError,
     CustomVoiceModSettings,
     _public_repository_url,
@@ -17,7 +17,7 @@ from HistoricalContent.historical_content.custom_voice_mod import (
     discover_transcript_provenance,
     parse_vdf_tokens,
 )
-from HistoricalContent.historical_content.vpk_pipeline import VpkVoiceAudioResult
+from historical_content.vpk_pipeline import VpkVoiceAudioResult
 
 
 def write_json(path: Path, value: object) -> None:
@@ -149,7 +149,7 @@ class CustomVoiceModTests(unittest.TestCase):
             reused=False,
         )
         with patch(
-            "HistoricalContent.historical_content.custom_voice_mod.extract_vpk_voice_audio",
+            "historical_content.custom_voice_mod.extract_vpk_voice_audio",
             return_value=extraction,
         ) as extract:
             result = build_custom_voice_mod(settings, progress=progress)
@@ -422,7 +422,7 @@ class CustomVoiceModTests(unittest.TestCase):
         self.transcript.write_text('"line" "Обновленный текст"\n', encoding="utf-8")
 
         with patch(
-            "HistoricalContent.historical_content.custom_voice_mod.register_local_version",
+            "historical_content.custom_voice_mod.register_local_version",
             side_effect=RuntimeError("catalog failed"),
         ):
             with self.assertRaisesRegex(RuntimeError, "catalog failed"):
@@ -477,7 +477,7 @@ class CustomVoiceModTests(unittest.TestCase):
         )
 
         with patch(
-            "HistoricalContent.historical_content.custom_voice_mod.extract_vpk_voice_audio"
+            "historical_content.custom_voice_mod.extract_vpk_voice_audio"
         ) as extract:
             with self.assertRaisesRegex(CustomVoiceModError, "not cataloged locally"):
                 build_custom_voice_mod(settings, progress=lambda _message: None)
@@ -502,7 +502,7 @@ class CustomVoiceModTests(unittest.TestCase):
         )
 
         with patch(
-            "HistoricalContent.historical_content.custom_voice_mod.extract_vpk_voice_audio"
+            "historical_content.custom_voice_mod.extract_vpk_voice_audio"
         ) as extract:
             with self.assertRaisesRegex(CustomVoiceModError, "based on official content"):
                 build_custom_voice_mod(settings, progress=lambda _message: None)

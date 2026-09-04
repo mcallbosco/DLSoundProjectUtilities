@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from HistoricalContent.historical_content.baseline import load_json, write_json
-from HistoricalContent.historical_content.version_catalog import (
+from historical_content.baseline import load_json, write_json
+from historical_content.version_catalog import (
     apply_local_catalog,
     load_local_catalog,
     recalculate_version_statuses,
