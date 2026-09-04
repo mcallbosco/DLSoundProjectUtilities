@@ -1,0 +1,678 @@
+{
+  "filenames": [
+    "abrams_match_start_abrams_paradox_convo01_01.mp3",
+    "abrams_match_start_abrams_paradox_weather_convo02_01.mp3",
+    "abrams_parry_01.mp3",
+    "abrams_parry_02.mp3",
+    "abrams_parry_broken.mp3",
+    "abrams_parry_imported.mp3",
+    "announcer/female_patron/guide_controls_aim.mp3",
+    "atlas/abrams_ally_grey_talon_killed_in_lane_01.mp3",
+    "book/oathkeeper/vn_geist_scene01_01.mp3",
+    "book/oathkeeper/vn_geist_scene01_02.mp3",
+    "butcher/rr_test_21_angry_01.mp3",
+    "chrono/paradox_select_01.mp3",
+    "familiar_sleepy_use_power_abrams_01.mp3",
+    "gigawatt/gigawatt_match_start_gigawatt_inferno_convo02_05.mp3",
+    "gigawatt/gigawatt_match_start_gigawatt_inferno_convo02_05gigawatt_match_start_gigawatt_inferno_convo02_05.mp3",
+    "haze/emote/haze_emote_pain_small_01.mp3",
+    "haze/ping/haze_ping_attack_grey_talon.mp3",
+    "haze/ping/haze_ping_back_01.mp3",
+    "haze/ping/haze_ping_defend_orange.mp3",
+    "haze/ping/haze_ping_gigawatt_old_missing_01.mp3",
+    "haze/ping/haze_ping_headed_to_orange.mp3",
+    "haze/ping/haze_ping_idols_call_01.mp3",
+    "haze/ping/haze_ping_nevermind_01.mp3",
+    "haze/ping/haze_ping_take_core.mp3",
+    "haze/ping/haze_ping_titan_under_attack.mp3",
+    "haze_ping_haze_missing_01.mp3",
+    "haze_ping_see_grey_talon_old_missing_01.mp3",
+    "kali/rr_test_19_angry_01.mp3",
+    "krill/krill_killed_by_astro_01.mp3",
+    "neutral_gremlin/neutral_gremlin_attack_01.mp3",
+    "newscaster/guide_controls_abilities.mp3",
+    "newscaster/guide_the_map_welcome_alt.mp3",
+    "newscaster/news_reel_test.mp3",
+    "newscaster_seasonal_abrams_unlock_01.mp3",
+    "paradox/paradox_select_01.mp3",
+    "paradox_match_start_abrams_paradox_convo01_02.mp3",
+    "paradox_match_start_abrams_paradox_convo01_03.mp3",
+    "paradox_match_start_abrams_paradox_convo01_04.mp3",
+    "paradox_match_start_abrams_paradox_weather_convo02_03_alt_01.mp3",
+    "paradox_select_01.mp3",
+    "patron_female_killed_by_the_boss_01.mp3",
+    "patron_male_praise_grey_talon_01.mp3",
+    "rr_test_19_angry_01.mp3",
+    "rr_test_21_angry_01.mp3",
+    "rr_test_21_buy_armor_upgrade_01.mp3",
+    "shopkeeper_hotdog_seasonal_t4_magician_henry_01.mp3",
+    "shopkeeper_hotdog_t4_magician_henry_buy_01.mp3",
+    "spirit_jar_holder_stalls_grey_talon_01.mp3",
+    "t1_guardians/guardian_test_01/rr_guardian_test_01_congrats_akimbo.mp3",
+    "unknown_enemy_abrams_kill_01.mp3",
+    "vampirebat/vampirebat_use_power1_01-imported.mp3"
+  ],
+  "vdfLines": [
+    "\"abrams_parry_01\" \"Nice parry.\"",
+    "\"abrams_parry_01_hero\" \"Nice parry.\"",
+    "\"abrams_parry_01_hero_3d\" \"Missing alternate.\"",
+    "\"abrams_parry_02_hero\" \"Second parry.\"",
+    "\"abrams_select_09_hero\" \"Missing selection.\"",
+    "\"abrams_match_start_abrams_paradox_convo01_01_hero\" \"First line.\"",
+    "\"paradox_match_start_abrams_paradox_convo01_02_hero\" \"Second line.\"",
+    "\"paradox_match_start_abrams_paradox_weather_convo02_02_hero\" \"Missing weather response.\"",
+    "\"paradox_match_start_abrams_paradox_weather_convo02_03_alt_01_hero\" \"Alternative weather.\""
+  ],
+  "audioFilenameOverrides": {
+    "abrams_parry_broken.mp3": "abrams_parry_02.mp3",
+    "abrams_parry_imported.mp3": null,
+    "paradox_match_start_abrams_paradox_convo01_04.mp3": "paradox_match_start_abrams_paradox_convo01_03.mp3"
+  },
+  "completeConversations": [
+    "abrams_paradox_convo02_weather"
+  ],
+  "voicelines": {
+    "abrams": {
+      "Self": {
+        "Hero Selection": {
+          "Select": [
+            {
+              "filename": "",
+              "is_phantom": true,
+              "transcription": "Missing selection.",
+              "officialtranscription": true,
+              "voiceline_id": "abrams_select_09_hero"
+            }
+          ]
+        },
+        "Combat": {
+          "Parry": [
+            {
+              "filename": "abrams_parry_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "abrams_parry_01",
+              "transcription": "Nice parry.",
+              "officialtranscription": true
+            },
+            {
+              "filename": "abrams_parry_02.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "abrams_parry_02",
+              "transcription": "Second parry.",
+              "officialtranscription": true
+            },
+            {
+              "filename": "abrams_parry_broken.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "abrams_parry_broken",
+              "transcription": "Second parry.",
+              "officialtranscription": true
+            },
+            {
+              "filename": "",
+              "is_phantom": true,
+              "transcription": "Missing alternate.",
+              "officialtranscription": true,
+              "voiceline_id": "abrams_parry_01_hero_3d"
+            }
+          ]
+        }
+      },
+      "grey talon": {
+        "Combat": {
+          "Killed in lane (ally)": [
+            {
+              "filename": "atlas/abrams_ally_grey_talon_killed_in_lane_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "abrams_ally_grey_talon_killed_in_lane_01",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "patron_female": {
+      "Self": {
+        "Guide controls aim": [
+          {
+            "filename": "announcer/female_patron/guide_controls_aim.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "guide_controls_aim",
+            "transcription": ""
+          }
+        ]
+      },
+      "boss": {
+        "Killed": [
+          {
+            "filename": "patron_female_killed_by_the_boss_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "patron_female_killed_by_the_boss_01",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "oathkeeper": {
+      "Self": {
+        "Scene01": [
+          {
+            "filename": "book/oathkeeper/vn_geist_scene01_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "vn_geist_scene01_01",
+            "transcription": ""
+          },
+          {
+            "filename": "book/oathkeeper/vn_geist_scene01_02.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "vn_geist_scene01_02",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "butcher": {
+      "Self": {
+        "Emotions": {
+          "Angry": [
+            {
+              "filename": "butcher/rr_test_21_angry_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "rr_test_21_angry_01",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "paradox": {
+      "Self": {
+        "Hero Selection": {
+          "Select": [
+            {
+              "filename": "chrono/paradox_select_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "paradox_select_01",
+              "transcription": ""
+            },
+            {
+              "filename": "paradox/paradox_select_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "paradox_select_01",
+              "transcription": ""
+            },
+            {
+              "filename": "paradox_select_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "paradox_select_01",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "rem": {
+      "abrams": {
+        "Sleepy use power (enemy)": [
+          {
+            "filename": "familiar_sleepy_use_power_abrams_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "familiar_sleepy_use_power_abrams_01",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "haze": {
+      "Self": {
+        "Emotions": {
+          "Pain": {
+            "Pain small": [
+              {
+                "filename": "haze/emote/haze_emote_pain_small_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_emote_pain_small_01",
+                "transcription": ""
+              }
+            ]
+          }
+        },
+        "Pings": {
+          "Movement and Positioning": {
+            "Right back": [
+              {
+                "filename": "haze/ping/haze_ping_back_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_back_01",
+                "transcription": ""
+              }
+            ],
+            "Headed orange": [
+              {
+                "filename": "haze/ping/haze_ping_headed_to_orange.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_headed_to_orange",
+                "transcription": ""
+              }
+            ]
+          },
+          "Objective Commands": {
+            "Defend orange": [
+              {
+                "filename": "haze/ping/haze_ping_defend_orange.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_defend_orange",
+                "transcription": ""
+              }
+            ],
+            "Take core": [
+              {
+                "filename": "haze/ping/haze_ping_take_core.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_take_core",
+                "transcription": ""
+              }
+            ]
+          },
+          "Miscellaneous Status": {
+            "Jar call": [
+              {
+                "filename": "haze/ping/haze_ping_idols_call_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_idols_call_01",
+                "transcription": ""
+              }
+            ]
+          },
+          "General Communication / Social": {
+            "Nevermind": [
+              {
+                "filename": "haze/ping/haze_ping_nevermind_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_nevermind_01",
+                "transcription": ""
+              }
+            ]
+          },
+          "Requests and Alerts": {
+            "Titan under attack": [
+              {
+                "filename": "haze/ping/haze_ping_titan_under_attack.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_titan_under_attack",
+                "transcription": ""
+              }
+            ]
+          },
+          "Enemy Information and Location": {
+            "Missing": [
+              {
+                "filename": "haze_ping_haze_missing_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_haze_missing_01",
+                "transcription": ""
+              }
+            ]
+          }
+        }
+      },
+      "grey talon": {
+        "Pings": {
+          "Tactical Communication": {
+            "Attack": [
+              {
+                "filename": "haze/ping/haze_ping_attack_grey_talon.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_attack_grey_talon",
+                "transcription": ""
+              }
+            ]
+          },
+          "See missing": [
+            {
+              "filename": "haze_ping_see_grey_talon_old_missing_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "haze_ping_see_grey_talon_old_missing_01",
+              "transcription": ""
+            }
+          ]
+        }
+      },
+      "seven": {
+        "Pings": {
+          "Enemy Information and Location": {
+            "Missing": [
+              {
+                "filename": "haze/ping/haze_ping_gigawatt_old_missing_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_gigawatt_old_missing_01",
+                "transcription": ""
+              }
+            ]
+          }
+        }
+      },
+      "haze": {
+        "Pings": {
+          "Enemy Information and Location": {
+            "Missing": [
+              {
+                "filename": "haze_ping_haze_missing_01.mp3",
+                "date": "2023-11-14",
+                "voiceline_id": "haze_ping_haze_missing_01",
+                "transcription": ""
+              }
+            ]
+          }
+        }
+      }
+    },
+    "vyper": {
+      "Self": {
+        "Emotions": {
+          "Angry": [
+            {
+              "filename": "kali/rr_test_19_angry_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "rr_test_19_angry_01",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "mo&krill": {
+      "holliday": {
+        "Killed by": [
+          {
+            "filename": "krill/krill_killed_by_astro_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "krill_killed_by_astro_01",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "neutral_gremlin": {
+      "Self": {
+        "Attack": [
+          {
+            "filename": "neutral_gremlin/neutral_gremlin_attack_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "neutral_gremlin_attack_01",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "newscaster": {
+      "Self": {
+        "Guide": [
+          {
+            "filename": "newscaster/guide_controls_abilities.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "guide_controls_abilities",
+            "transcription": ""
+          },
+          {
+            "filename": "newscaster/guide_the_map_welcome_alt.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "guide_the_map_welcome_alt",
+            "transcription": ""
+          }
+        ],
+        "News reel test": [
+          {
+            "filename": "newscaster/news_reel_test.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "news_reel_test",
+            "transcription": ""
+          }
+        ]
+      },
+      "abrams": {
+        "Seasonal unlock": [
+          {
+            "filename": "newscaster_seasonal_abrams_unlock_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "newscaster_seasonal_abrams_unlock_01",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "patron_male": {
+      "grey talon": {
+        "Emotions": {
+          "Praise": [
+            {
+              "filename": "patron_male_praise_grey_talon_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "patron_male_praise_grey_talon_01",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "shopkeeper_hotdog": {
+      "sinclair (henry)": {
+        "Seasonal": [
+          {
+            "filename": "shopkeeper_hotdog_seasonal_t4_magician_henry_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "shopkeeper_hotdog_seasonal_t4_magician_henry_01",
+            "transcription": ""
+          }
+        ],
+        "t4 Buy": [
+          {
+            "filename": "shopkeeper_hotdog_t4_magician_henry_buy_01.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "shopkeeper_hotdog_t4_magician_henry_buy_01",
+            "transcription": ""
+          }
+        ]
+      }
+    },
+    "spirit_jar": {
+      "grey talon": {
+        "Global Objectives": {
+          "Holder stalls": [
+            {
+              "filename": "spirit_jar_holder_stalls_grey_talon_01.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "spirit_jar_holder_stalls_grey_talon_01",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "guardian_test_01": {
+      "akimbo": {
+        "Emotions": {
+          "Congrats": [
+            {
+              "filename": "t1_guardians/guardian_test_01/rr_guardian_test_01_congrats_akimbo.mp3",
+              "date": "2023-11-14",
+              "voiceline_id": "rr_guardian_test_01_congrats_akimbo",
+              "transcription": ""
+            }
+          ]
+        }
+      }
+    },
+    "mina": {
+      "Self": {
+        "Use power1 01-imported": [
+          {
+            "filename": "vampirebat/vampirebat_use_power1_01-imported.mp3",
+            "date": "2023-11-14",
+            "voiceline_id": "vampirebat_use_power1_01-imported",
+            "transcription": ""
+          }
+        ]
+      }
+    }
+  },
+  "unresolved": [
+    "Rr",
+    "Unknown"
+  ],
+  "conversations": {
+    "total_conversations": 4,
+    "conversations": [
+      {
+        "conversation_id": "abrams_paradox_convo01",
+        "status": [],
+        "speakers": [
+          "abrams",
+          "paradox"
+        ],
+        "convo_id": "01",
+        "topic": null,
+        "is_complete": true,
+        "missing_parts": [],
+        "starter": "abrams",
+        "lines": [
+          {
+            "part": 1,
+            "variation": 1,
+            "speaker": "abrams",
+            "filename": "abrams_match_start_abrams_paradox_convo01_01.mp3",
+            "transcription": "First line.",
+            "has_transcription": true,
+            "officialtranscription": true
+          },
+          {
+            "part": 2,
+            "variation": 1,
+            "speaker": "paradox",
+            "filename": "paradox_match_start_abrams_paradox_convo01_02.mp3",
+            "transcription": "Second line.",
+            "has_transcription": true,
+            "officialtranscription": true
+          },
+          {
+            "part": 3,
+            "variation": 1,
+            "speaker": "paradox",
+            "filename": "paradox_match_start_abrams_paradox_convo01_03.mp3",
+            "transcription": "",
+            "has_transcription": false
+          },
+          {
+            "part": 3,
+            "variation": 1,
+            "speaker": "paradox",
+            "filename": "paradox_match_start_abrams_paradox_convo01_04.mp3",
+            "transcription": "",
+            "has_transcription": false
+          }
+        ],
+        "summary": "[Summary not generated]"
+      },
+      {
+        "conversation_id": "abrams_paradox_convo02_weather",
+        "status": [],
+        "speakers": [
+          "abrams",
+          "paradox"
+        ],
+        "convo_id": "02",
+        "topic": "weather",
+        "is_complete": true,
+        "missing_parts": [],
+        "starter": "abrams",
+        "lines": [
+          {
+            "part": 1,
+            "variation": 1,
+            "speaker": "abrams",
+            "filename": "abrams_match_start_abrams_paradox_weather_convo02_01.mp3",
+            "transcription": "",
+            "has_transcription": false
+          },
+          {
+            "part": 2,
+            "variation": 1,
+            "speaker": "paradox",
+            "filename": "",
+            "transcription": "Missing weather response.",
+            "has_transcription": true,
+            "officialtranscription": true
+          },
+          {
+            "part": 3,
+            "variation": 2,
+            "speaker": "paradox",
+            "filename": "paradox_match_start_abrams_paradox_weather_convo02_03_alt_01.mp3",
+            "transcription": "Alternative weather.",
+            "has_transcription": true,
+            "officialtranscription": true
+          }
+        ],
+        "summary": "[Summary not generated]"
+      },
+      {
+        "conversation_id": "gigawatt_inferno_convo02_05gigawatt_match_start_seven_convo02_inferno",
+        "status": [],
+        "speakers": [
+          "gigawatt_inferno_convo02_05gigawatt_match_start",
+          "seven"
+        ],
+        "convo_id": "02",
+        "topic": "inferno",
+        "is_complete": false,
+        "missing_parts": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "starter": "seven",
+        "lines": [
+          {
+            "part": 5,
+            "variation": 1,
+            "speaker": "seven",
+            "filename": "gigawatt/gigawatt_match_start_gigawatt_inferno_convo02_05gigawatt_match_start_gigawatt_inferno_convo02_05.mp3",
+            "transcription": "",
+            "has_transcription": false
+          }
+        ],
+        "summary": "[Summary not generated]"
+      },
+      {
+        "conversation_id": "infernus_seven_convo02",
+        "status": [],
+        "speakers": [
+          "infernus",
+          "seven"
+        ],
+        "convo_id": "02",
+        "topic": null,
+        "is_complete": false,
+        "missing_parts": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "starter": "seven",
+        "lines": [
+          {
+            "part": 5,
+            "variation": 1,
+            "speaker": "seven",
+            "filename": "gigawatt/gigawatt_match_start_gigawatt_inferno_convo02_05.mp3",
+            "transcription": "",
+            "has_transcription": false
+          }
+        ],
+        "summary": "[Summary not generated]"
+      }
+    ]
+  }
+}

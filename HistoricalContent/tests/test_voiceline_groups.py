@@ -1,23 +1,17 @@
 from __future__ import annotations
 
 import copy
-import sys
 import unittest
 from pathlib import Path
 
-
-VOICELINE_ROOT = Path(__file__).resolve().parents[1]
-if str(VOICELINE_ROOT) not in sys.path:
-    sys.path.insert(0, str(VOICELINE_ROOT))
-
-from modules.voice_line_organizer import VoiceLineOrganizer  # noqa: E402
-from modules.voiceline_groups import (  # noqa: E402
+from historical_content.parsing.groups import (
     classify_topic,
     configured_group_labels,
     load_group_config,
     sort_subject_topics,
     validate_group_config,
 )
+from historical_content.parsing.voicelines import VoicelineParser
 
 
 class VoicelineGroupTests(unittest.TestCase):
@@ -34,8 +28,6 @@ class VoicelineGroupTests(unittest.TestCase):
         self.assertIn("Street Brawl Mode", voice)
         self.assertIn("Objective Commands", pings)
         self.assertIn("Miscellaneous Status", pings)
-        self.assertFalse(hasattr(VoiceLineOrganizer, "special_categories"))
-        self.assertFalse(hasattr(VoiceLineOrganizer, "special_ping_categories"))
 
     def test_exact_prefix_subgroup_and_ping_routing(self):
         self.assertEqual(classify_topic(self.config, "voice", "parry"), ("Combat",))
@@ -59,8 +51,12 @@ class VoicelineGroupTests(unittest.TestCase):
             classify_topic(self.config, "ping", "attack_enemy"),
             ("Objective Commands",),
         )
-        self.assertEqual(classify_topic(self.config, "voice", "start"), ("Match Status",))
-        self.assertEqual(classify_topic(self.config, "voice", "start_match"), ("Match Status",))
+        self.assertEqual(
+            classify_topic(self.config, "voice", "start"), ("Match Status",)
+        )
+        self.assertEqual(
+            classify_topic(self.config, "voice", "start_match"), ("Match Status",)
+        )
         self.assertEqual(
             classify_topic(self.config, "voice", "unkillable_(ally)"),
             ("Ally Actions",),
@@ -92,26 +88,25 @@ class VoicelineGroupTests(unittest.TestCase):
             ["Post game", "Alpha", "Item Usage", "Hero Selection", "Combat", "Pings"],
         )
 
-    def test_organizer_uses_configured_paths(self):
-        organizer = VoiceLineOrganizer.__new__(VoiceLineOrganizer)
-        organizer.group_config = self.config
+    def test_parser_uses_configured_paths(self):
+        parser = VoicelineParser(Path("."), self.config, lambda _message: None)
         result = {}
-        organizer._place_in_result(
+        parser.place_in_result(
             result,
             ("holliday", "self", "Pain big", None, "pain.mp3", False),
             "pain.mp3",
         )
-        organizer._place_in_result(
+        parser.place_in_result(
             result,
             ("holliday", "self", "Attack enemy", None, "ping.mp3", True),
             "ping.mp3",
         )
-        organizer._place_in_result(
+        parser.place_in_result(
             result,
             ("holliday", "abrams", "Unkillable (ally)", "ally", "ally.mp3", False),
             "ally.mp3",
         )
-        organizer._place_in_result(
+        parser.place_in_result(
             result,
             ("holliday", "abrams", "Unkillable (enemy)", "enemy", "enemy.mp3", False),
             "enemy.mp3",
