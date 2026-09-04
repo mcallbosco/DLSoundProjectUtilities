@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from contextlib import contextmanager
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -116,6 +118,34 @@ class SettingsMigrationTests(unittest.TestCase):
         settings.migrate_publisher_state(self.app)
 
         self.assertEqual(json.loads((destination / "config.json").read_text()), {"bucket": "edited"})
+        self.assertEqual((destination / "credentials.dpapi").read_bytes(), b"encrypted")
+
+    def test_failed_temporary_writes_leave_no_partial_files(self):
+        original = self.legacy / "credentials.dpapi"
+        original.write_bytes(b"encrypted")
+        real_temporary = tempfile.NamedTemporaryFile
+        destination = self.app / "publisher-state"
+
+        for failure in ("write", "close"):
+            with self.subTest(failure=failure):
+                @contextmanager
+                def failing_temporary(**kwargs):
+                    with real_temporary(**kwargs) as handle:
+                        def write(data):
+                            handle.write(data[:1])
+                            if failure == "write":
+                                raise OSError("Disk full")
+                        yield SimpleNamespace(name=handle.name, write=write)
+                        if failure == "close":
+                            raise OSError("Disk full")
+
+                with patch.object(settings.tempfile, "NamedTemporaryFile", failing_temporary):
+                    with self.assertRaisesRegex(OSError, "Disk full"):
+                        settings.migrate_publisher_state(self.app)
+                self.assertEqual(list(destination.iterdir()), [])
+                self.assertEqual(original.read_bytes(), b"encrypted")
+
+        settings.migrate_publisher_state(self.app)
         self.assertEqual((destination / "credentials.dpapi").read_bytes(), b"encrypted")
 
     def test_cache_copy_failure_does_not_block_startup(self):

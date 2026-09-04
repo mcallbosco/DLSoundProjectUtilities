@@ -95,16 +95,18 @@ def _copy_missing(source: Path, destination: Path) -> None:
         return
     data = source.read_bytes()
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as handle:
-        temporary = Path(handle.name)
-        handle.write(data)
+    temporary = None
     try:
+        with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(data)
         if temporary.read_bytes() != data:
             raise OSError(f"Could not verify migrated settings: {destination}")
         if not destination.exists():
             temporary.replace(destination)
     finally:
-        temporary.unlink(missing_ok=True)
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def migrate_publisher_state(app_dir: Path = APP_DIR) -> None:
