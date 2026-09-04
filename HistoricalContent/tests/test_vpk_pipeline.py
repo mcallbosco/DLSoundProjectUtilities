@@ -771,7 +771,7 @@ class VpkPipelineTests(unittest.TestCase):
         self.assertTrue(first.audio_filename_overrides.is_file())
         self.assertEqual(
             first.audio_filename_overrides,
-            settings.transcript_repo
+            settings.transcript_repo.resolve()
             / "config"
             / "deadlock"
             / "versions"

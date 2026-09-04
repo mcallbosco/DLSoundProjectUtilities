@@ -558,7 +558,7 @@ class CustomVoiceModTests(unittest.TestCase):
 
         provenance = discover_transcript_provenance(transcript)
 
-        self.assertEqual(provenance.metadata_path, metadata)
+        self.assertEqual(provenance.metadata_path, metadata.resolve())
         self.assertEqual(provenance.repository, "https://github.com/example/fan-localization")
         self.assertEqual(
             provenance.source_path,
