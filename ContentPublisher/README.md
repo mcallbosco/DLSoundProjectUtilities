@@ -260,4 +260,5 @@ To publish a hidden version from the CLI, combine `--hidden` with
 Existing automation can still invoke `python ContentPublisher/publisher_cli.py`
 with the same arguments after installing the package. It forwards to the same
 implementation as `historical-publish`; there is no separate publisher application
-to configure or launch.
+to configure or launch. Remove this forwarding script once external automation
+has migrated to `historical-publish`.
