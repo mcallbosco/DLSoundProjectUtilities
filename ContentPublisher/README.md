@@ -216,7 +216,7 @@ the current user. The encrypted file is gitignored and cannot be reused by a
 different Windows user or computer. **Forget saved credentials** deletes it and
 clears the current credential fields.
 
-On first use, migration copies missing settings, credentials, and hash-cache
+When the publication dialog first opens, migration copies missing settings, credentials, and hash-cache
 state from `ContentPublisher/` to `HistoricalContent/publisher-state/`. Existing
 destination files and original files are preserved. A migration marker prevents
 future launches from restoring credentials that were subsequently forgotten.

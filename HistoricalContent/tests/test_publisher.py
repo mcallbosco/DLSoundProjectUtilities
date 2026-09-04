@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import sys
 import io
 import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+from contextlib import redirect_stdout
 
 from historical_content.publishing.core import (
     PublisherError,
@@ -137,6 +140,23 @@ class PublisherCoreTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
+
+    def test_cli_validation_does_not_write_installed_application_state(self):
+        from historical_content.publishing.cli import main
+
+        arguments = [
+            "historical-publish", str(self.root), "--game", "deadlock",
+            "--version", "deadlock-test", "--label", "Test",
+            "--state-dir", str(self.root / "operator-cache"), "validate",
+        ]
+        output = io.StringIO()
+        with (
+            patch.object(sys, "argv", arguments),
+            patch.object(Path, "mkdir", side_effect=PermissionError("Read-only installation")),
+            redirect_stdout(output),
+        ):
+            self.assertEqual(main(), 0)
+        self.assertTrue(json.loads(output.getvalue())["valid"])
 
     def use_shared_audio(self) -> tuple[str, str]:
         audio_bytes = (self.root / "Audio" / "line_01.mp3").read_bytes()

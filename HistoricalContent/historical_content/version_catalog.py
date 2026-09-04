@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Callable
 
+
+from .json_io import write_json
 
 Progress = Callable[[str], None]
 CATALOG_SCHEMA_VERSION = 1
@@ -21,16 +22,6 @@ TRANSCRIPT_MODES = {"localized", "embedded"}
 
 def _read_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8-sig"))
-
-
-def _write_json(path: Path, value: object) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temporary, path)
 
 
 def catalog_path(data_dir: Path, game: str) -> Path:
@@ -273,7 +264,7 @@ def save_local_catalog(data_dir: Path, game: str, catalog: dict[str, object]) ->
         raise ValueError("The local latest version must exist in the catalog.")
     if latest_entry is not None and latest_entry["hidden"]:
         raise ValueError("The local latest version cannot be hidden.")
-    _write_json(catalog_path(data_dir, game), normalized)
+    write_json(catalog_path(data_dir, game), normalized)
     return normalized
 
 
@@ -360,7 +351,7 @@ def rebuild_local_preview_manifest(
     latest = str(catalog.get("latestVersion") or "")
     manifest["latestVersion"] = _preview_version_id(latest) if latest else ""
     manifest["updatedAt"] = datetime.now(timezone.utc).isoformat()
-    _write_json(manifest_path, manifest)
+    write_json(manifest_path, manifest)
     return manifest
 
 
@@ -498,7 +489,7 @@ def recalculate_version_statuses(
         for destination in destinations[version_id]:
             if destination.is_file() and destination.read_text(encoding="utf-8-sig") == serialized:
                 continue
-            _write_json(destination, payload)
+            write_json(destination, payload)
             changed_files += 1
     progress(
         f"Recalculated adjacent-version status for {len(payloads)} version(s); "

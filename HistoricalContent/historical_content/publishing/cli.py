@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-from ..settings import PUBLISHER_STATE_DIR, migrate_publisher_state
+from ..settings import PUBLISHER_STATE_DIR
 
 from .core import (
     PublisherError,
@@ -44,7 +44,6 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
-    migrate_publisher_state()
     settings = PublisherSettings(
         source_dir=args.source,
         game=args.game,

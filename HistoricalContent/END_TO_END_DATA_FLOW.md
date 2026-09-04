@@ -50,7 +50,8 @@ a durable way to correct transcripts, categories, or aliases.
 Application settings stay in `HistoricalContent/config.json`, and saved OpenAI
 credentials stay in `HistoricalContent/credentials.dpapi`. Publisher settings,
 credentials, and hash-cache state live in `HistoricalContent/publisher-state/`.
-The first-use migration copies only missing legacy publisher state and writes a
+When the publication dialog first opens, migration copies only missing legacy
+publisher state and writes a
 marker so forgotten credentials are not restored on later launches.
 
 ## Process an official version

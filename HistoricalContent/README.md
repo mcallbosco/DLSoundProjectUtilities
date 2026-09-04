@@ -492,7 +492,7 @@ credentials for the current Windows user; the encrypted files cannot be moved to
 a different user or computer as portable credentials.
 
 Publication settings, saved credentials, and hash-cache state now live in
-`HistoricalContent/publisher-state/`. On first use, migration copies missing
+`HistoricalContent/publisher-state/`. When the publication dialog first opens, migration copies missing
 state from the former `ContentPublisher/` location without replacing existing
 Historical Content state or deleting the original files. A migration marker
 prevents later launches from restoring credentials after **Forget saved
