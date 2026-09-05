@@ -7,11 +7,11 @@ import unittest
 import zlib
 from pathlib import Path
 
-from HistoricalContent.historical_content.image_dimensions import read_image_dimensions
-from HistoricalContent.historical_content.vpk_pipeline import (
+from historical_content.extraction.images import (
     _build_historical_icon_pack,
-    _validate_mapping,
 )
+from historical_content.image_dimensions import read_image_dimensions
+from historical_content.parsing.common import validate_mapping
 
 
 def _png_chunk(kind: bytes, payload: bytes) -> bytes:
@@ -75,7 +75,7 @@ class ImageDimensionTests(unittest.TestCase):
         count = _build_historical_icon_pack(
             extracted,
             destination,
-            _validate_mapping(mappings_path),
+            validate_mapping(mappings_path),
         )
 
         self.assertEqual(count, 2)

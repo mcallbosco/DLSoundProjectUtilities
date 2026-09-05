@@ -3,23 +3,15 @@
 See [END_TO_END_DATA_FLOW.md](END_TO_END_DATA_FLOW.md) for the complete data
 flow, operator process, production path, and current implementation limits.
 
-See [VPK_TO_PUBLISH_PIPELINE_PLAN.md](VPK_TO_PUBLISH_PIPELINE_PLAN.md) for the
-remaining automated verification and historical delta-import work.
+Historical Content accepts a Deadlock VPK and produces:
 
-This is the one operator-facing utility for historical VLViewer content. It
-accepts a Deadlock VPK directly and creates:
+- Persistent audio and image extraction, cached per version.
+- A transcript Git repository with editable text and game/version configuration.
+- A SQLite recording index and local version catalog.
+- A local CDN preview tree and generated source for R2 publication.
 
-- a persistent per-version audio extraction;
-- headless conversation and voiceline data;
-- a separate Git repository containing readable transcript JSON;
-- a small SQLite version/recording index;
-- editable per-game and per-version category JSON; and
-- a complete local CDN tree that can be seeded into isolated Wrangler R2;
-- a generated production source; and
-- integrated validation, R2 publication, and version-catalog controls.
-
-Production changes occur only after you open **Publish / manage versions** and
-confirm the publication action.
+For production publication, open **Publish / manage versions** and confirm the
+publication action, or use `historical-publish` for automation.
 
 ## Input
 
@@ -31,9 +23,8 @@ Select the historical build's main VPK:
 
 Historical Content starts Source2Viewer itself. It extracts audio once into
 `<data-dir>/workspaces/<game>/<version>/source/Audio`, parses conversations and
-voicelines without starting the old GUIs, generates transcripts, and creates
-the website preview data. A rerun with the same VPK fingerprint reuses the
-existing extraction.
+voicelines, generates transcripts, and creates website preview data. A rerun with
+the same VPK fingerprint reuses the existing extraction.
 
 Audio `filename` values remain POSIX-style semantic paths for display,
 localization, transcripts, and diagnostics. Each generated line also contains
@@ -135,14 +126,31 @@ This extraction is cached using all relevant localization VPK fingerprints,
 the output format version, and the configured maximum height. Baseline
 generation carries the directory into both preview and publisher output.
 
-## Launch the GUI
+## Install and launch
+
+From the repository root, install the package into a Python 3.12+ environment
+and install the Node image dependencies:
+
+```bash
+python -m pip install -e .
+npm ci --prefix HistoricalContent
+historical-content
+```
+
+The GUI requires Tk. Source2Viewer CLI performs VPK decoding. Keep the repository
+checkout available: the image converters and preview resources are loaded from
+it. Configure the separate VLViewer website checkout in the GUI for local
+preview.
+
+The Windows launcher and original GUI script remain available:
 
 ```powershell
 HistoricalContent\run_historical_content_gui.bat
+# Or, after installing the package:
+python HistoricalContent/historical_content_gui.py
 ```
 
-The launcher installs the OpenAI and R2 SDKs and the local Sharp image
-dependency if they are missing. In the GUI:
+In the GUI:
 
 1. Select the main VPK and Source2Viewer CLI.
 2. Select the transcript repository and persistent workspace.
@@ -257,7 +265,7 @@ resolve exceptional paths:
 The equivalent automation command is:
 
 ```powershell
-python HistoricalContent/custom_voice_mod_cli.py `
+historical-custom-mod `
   --data-dir D:/VLViewerHistoricalData `
   --version ognb-russian-voice-mod `
   --label "Russian Voice Mod" `
@@ -335,9 +343,9 @@ model response. `manual` revisions are preserved even when their text is blank,
 unless matched VDF text promotes them to `official`; official revisions are
 preserved.
 
-The first run after this format change migrates the old per-speaker and
-per-conversation files. It removes those legacy JSON files only after it writes
-all per-audio files successfully.
+When it encounters an older transcript repository, generation migrates the
+per-speaker and per-conversation files. It removes those legacy JSON files only
+after it writes all per-audio files successfully.
 
 VDF-only phantom lines have official text but no audio file. They remain in
 generated voiceline or conversation JSON with `filename: ""` and
@@ -354,9 +362,9 @@ game-level structure.
 `config/deadlock/transcription-vocabulary.json` contains the structured names,
 places, game terms, and transcription guidelines attached to every OpenAI
 transcription request through the prompt field. Historical Content seeds it
-from `Assets/deadlock_vocabulary.json` once, then treats the transcript
-repository copy as the editable source. The pipeline does not use a separate
-glossary file.
+from `historical_content/defaults/deadlock_vocabulary.json` once, then treats
+the transcript repository copy as the editable source. The pipeline does not use
+a separate glossary file.
 
 The optional predefined transcript CSV imports official text that exists in a
 newer build but applies to path-stable historical recordings. The utility
@@ -387,11 +395,11 @@ version's `characterNamesUrl`. Versions without this file inherit the game map.
 
 ## Advanced baseline-only CLI
 
-The CLI remains available for tests or migration of an already prepared source
-folder. It is not part of the normal operator process.
+Use this CLI when the source folder is already prepared. VPK intake is handled
+by the main application.
 
 ```powershell
-python HistoricalContent\baseline_cli.py create `
+historical-baseline create `
   D:\path\to\HistoricalBaseExport `
   --transcript-repo D:\Projects\DLSoundProject\DeadlockTranscripts `
   --data-dir D:\VLViewerHistoricalData `
@@ -475,3 +483,56 @@ These are the same per-game contracts used in production. A local baseline
 route index maintains the union across every generated preview version. The
 Next.js static build reads both documents so historical-only characters have
 exported pages and names are not baked into website source.
+
+## Settings and credentials
+
+GUI settings remain in `HistoricalContent/config.json`. Saved OpenAI credentials
+remain in `HistoricalContent/credentials.dpapi`. On Windows, DPAPI protects saved
+credentials for the current Windows user; the encrypted files cannot be moved to
+a different user or computer as portable credentials.
+
+Publication settings, saved credentials, and hash-cache state now live in
+`HistoricalContent/publisher-state/`. When the publication dialog first opens, migration copies missing
+state from the former `ContentPublisher/` location without replacing existing
+Historical Content state or deleting the original files. A migration marker
+prevents later launches from restoring credentials after **Forget saved
+credentials** has removed them. See the [publishing reference](../ContentPublisher/README.md)
+for R2 environment variables and publication controls.
+
+## Package and verification
+
+The installed `historical_content` package contains these areas:
+
+| Area | Responsibility |
+| --- | --- |
+| `app` | Tk windows and dialogs |
+| `extraction` | VPK assets and localization export |
+| `parsing` | Conversation, voiceline, and VDF parsing |
+| `generation` | Baseline and custom-version output |
+| `transcripts` | Transcript storage, official imports, and transcription |
+| `publishing` | Validation, change planning, R2 publication, and catalogs |
+| `settings`, `protected_data` | State locations, migration, and credential storage |
+| `defaults` | Five bundled JSON files used to seed editable game configuration |
+
+The domain packages do not import Tk or load code from retired utilities.
+The two retained Git submodule entries under `Assets/` are not runtime inputs.
+
+Run the Python suite from the repository root:
+
+```bash
+python -m unittest discover -s HistoricalContent/tests -v
+# On a headless Linux machine with Xvfb installed:
+xvfb-run -a python -m unittest discover -s HistoricalContent/tests -v
+```
+
+The Content Worker retains its own test workflow:
+
+```bash
+npm ci --prefix ContentDeliveryWorker
+npm test --prefix ContentDeliveryWorker
+```
+
+Windows CI covers the platform-specific DPAPI behavior. Localization and parser
+output parity is checked against synthetic fixtures captured before extraction
+from the old utilities. A real archived VPK still needs an operator smoke test;
+no archived game fixture is included in this repository.

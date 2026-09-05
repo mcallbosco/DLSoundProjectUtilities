@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "language": "french",
+    "friendly_name": "French",
+    "native_name": "Français",
+    "country_code": "FR",
+    "flag_emoji": "🇫🇷",
+    "flag_emoji_unicode": "U+1F1EB U+1F1F7",
+    "source_file": "citadel_generated_vo_french.txt",
+    "generated_at": "<generated_at>",
+    "entry_count": 5,
+    "collision_count": 0,
+    "exact_override_count": 0
+  },
+  "lines": {
+    "abrams_parry_01": "Bien paré.",
+    "dynamo_greet_01": "Bonjour.",
+    "french_only_01": "Ici !",
+    "warden_ready_01.mp3": "Prêt.",
+    "warden_ready_01": "Prêt sans extension."
+  }
+}

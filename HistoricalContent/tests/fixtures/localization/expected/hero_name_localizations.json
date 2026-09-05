@@ -1,0 +1,32 @@
+{
+  "Abrams": [
+    [
+      "english",
+      "Abrams"
+    ],
+    [
+      "french",
+      "Abrams français"
+    ]
+  ],
+  "Warden": [
+    [
+      "english",
+      "Warden"
+    ],
+    [
+      "french",
+      "Gardien"
+    ]
+  ],
+  "Dynamo": [
+    [
+      "english",
+      "Dynamo"
+    ],
+    [
+      "french",
+      "Dynamo français"
+    ]
+  ]
+}

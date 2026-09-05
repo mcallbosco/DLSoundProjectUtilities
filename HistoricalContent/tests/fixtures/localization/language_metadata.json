@@ -1,0 +1,205 @@
+{
+  "brazilian": {
+    "friendly_name": "Portuguese (Brazil)",
+    "native_name": "Português (Brasil)",
+    "country_code": "BR",
+    "flag_emoji": "🇧🇷",
+    "flag_emoji_unicode": "U+1F1E7 U+1F1F7"
+  },
+  "bulgarian": {
+    "friendly_name": "Bulgarian",
+    "native_name": "Български",
+    "country_code": "BG",
+    "flag_emoji": "🇧🇬",
+    "flag_emoji_unicode": "U+1F1E7 U+1F1EC"
+  },
+  "czech": {
+    "friendly_name": "Czech",
+    "native_name": "Čeština",
+    "country_code": "CZ",
+    "flag_emoji": "🇨🇿",
+    "flag_emoji_unicode": "U+1F1E8 U+1F1FF"
+  },
+  "danish": {
+    "friendly_name": "Danish",
+    "native_name": "Dansk",
+    "country_code": "DK",
+    "flag_emoji": "🇩🇰",
+    "flag_emoji_unicode": "U+1F1E9 U+1F1F0"
+  },
+  "dutch": {
+    "friendly_name": "Dutch",
+    "native_name": "Nederlands",
+    "country_code": "NL",
+    "flag_emoji": "🇳🇱",
+    "flag_emoji_unicode": "U+1F1F3 U+1F1F1"
+  },
+  "english": {
+    "friendly_name": "English",
+    "native_name": "English",
+    "country_code": "US",
+    "flag_emoji": "🇺🇸",
+    "flag_emoji_unicode": "U+1F1FA U+1F1F8"
+  },
+  "finnish": {
+    "friendly_name": "Finnish",
+    "native_name": "Suomi",
+    "country_code": "FI",
+    "flag_emoji": "🇫🇮",
+    "flag_emoji_unicode": "U+1F1EB U+1F1EE"
+  },
+  "french": {
+    "friendly_name": "French",
+    "native_name": "Français",
+    "country_code": "FR",
+    "flag_emoji": "🇫🇷",
+    "flag_emoji_unicode": "U+1F1EB U+1F1F7"
+  },
+  "german": {
+    "friendly_name": "German",
+    "native_name": "Deutsch",
+    "country_code": "DE",
+    "flag_emoji": "🇩🇪",
+    "flag_emoji_unicode": "U+1F1E9 U+1F1EA"
+  },
+  "greek": {
+    "friendly_name": "Greek",
+    "native_name": "Ελληνικά",
+    "country_code": "GR",
+    "flag_emoji": "🇬🇷",
+    "flag_emoji_unicode": "U+1F1EC U+1F1F7"
+  },
+  "hungarian": {
+    "friendly_name": "Hungarian",
+    "native_name": "Magyar",
+    "country_code": "HU",
+    "flag_emoji": "🇭🇺",
+    "flag_emoji_unicode": "U+1F1ED U+1F1FA"
+  },
+  "indonesian": {
+    "friendly_name": "Indonesian",
+    "native_name": "Bahasa Indonesia",
+    "country_code": "ID",
+    "flag_emoji": "🇮🇩",
+    "flag_emoji_unicode": "U+1F1EE U+1F1E9"
+  },
+  "italian": {
+    "friendly_name": "Italian",
+    "native_name": "Italiano",
+    "country_code": "IT",
+    "flag_emoji": "🇮🇹",
+    "flag_emoji_unicode": "U+1F1EE U+1F1F9"
+  },
+  "japanese": {
+    "friendly_name": "Japanese",
+    "native_name": "日本語",
+    "country_code": "JP",
+    "flag_emoji": "🇯🇵",
+    "flag_emoji_unicode": "U+1F1EF U+1F1F5"
+  },
+  "koreana": {
+    "friendly_name": "Korean",
+    "native_name": "한국어",
+    "country_code": "KR",
+    "flag_emoji": "🇰🇷",
+    "flag_emoji_unicode": "U+1F1F0 U+1F1F7"
+  },
+  "latam": {
+    "friendly_name": "Spanish (Latin America)",
+    "native_name": "Español (Latinoamérica)",
+    "country_code": "MX",
+    "flag_emoji": "🇲🇽",
+    "flag_emoji_unicode": "U+1F1F2 U+1F1FD"
+  },
+  "norwegian": {
+    "friendly_name": "Norwegian",
+    "native_name": "Norsk",
+    "country_code": "NO",
+    "flag_emoji": "🇳🇴",
+    "flag_emoji_unicode": "U+1F1F3 U+1F1F4"
+  },
+  "polish": {
+    "friendly_name": "Polish",
+    "native_name": "Polski",
+    "country_code": "PL",
+    "flag_emoji": "🇵🇱",
+    "flag_emoji_unicode": "U+1F1F5 U+1F1F1"
+  },
+  "portuguese": {
+    "friendly_name": "Portuguese",
+    "native_name": "Português",
+    "country_code": "PT",
+    "flag_emoji": "🇵🇹",
+    "flag_emoji_unicode": "U+1F1F5 U+1F1F9"
+  },
+  "romanian": {
+    "friendly_name": "Romanian",
+    "native_name": "Română",
+    "country_code": "RO",
+    "flag_emoji": "🇷🇴",
+    "flag_emoji_unicode": "U+1F1F7 U+1F1F4"
+  },
+  "russian": {
+    "friendly_name": "Russian",
+    "native_name": "Русский",
+    "country_code": "RU",
+    "flag_emoji": "🇷🇺",
+    "flag_emoji_unicode": "U+1F1F7 U+1F1FA"
+  },
+  "schinese": {
+    "friendly_name": "Chinese (Simplified)",
+    "native_name": "简体中文",
+    "country_code": "CN",
+    "flag_emoji": "🇨🇳",
+    "flag_emoji_unicode": "U+1F1E8 U+1F1F3"
+  },
+  "spanish": {
+    "friendly_name": "Spanish",
+    "native_name": "Español",
+    "country_code": "ES",
+    "flag_emoji": "🇪🇸",
+    "flag_emoji_unicode": "U+1F1EA U+1F1F8"
+  },
+  "swedish": {
+    "friendly_name": "Swedish",
+    "native_name": "Svenska",
+    "country_code": "SE",
+    "flag_emoji": "🇸🇪",
+    "flag_emoji_unicode": "U+1F1F8 U+1F1EA"
+  },
+  "tchinese": {
+    "friendly_name": "Chinese (Traditional)",
+    "native_name": "繁體中文",
+    "country_code": "TW",
+    "flag_emoji": "🇹🇼",
+    "flag_emoji_unicode": "U+1F1F9 U+1F1FC"
+  },
+  "thai": {
+    "friendly_name": "Thai",
+    "native_name": "ไทย",
+    "country_code": "TH",
+    "flag_emoji": "🇹🇭",
+    "flag_emoji_unicode": "U+1F1F9 U+1F1ED"
+  },
+  "turkish": {
+    "friendly_name": "Turkish",
+    "native_name": "Türkçe",
+    "country_code": "TR",
+    "flag_emoji": "🇹🇷",
+    "flag_emoji_unicode": "U+1F1F9 U+1F1F7"
+  },
+  "ukrainian": {
+    "friendly_name": "Ukrainian",
+    "native_name": "Українська",
+    "country_code": "UA",
+    "flag_emoji": "🇺🇦",
+    "flag_emoji_unicode": "U+1F1FA U+1F1E6"
+  },
+  "vietnamese": {
+    "friendly_name": "Vietnamese",
+    "native_name": "Tiếng Việt",
+    "country_code": "VN",
+    "flag_emoji": "🇻🇳",
+    "flag_emoji_unicode": "U+1F1FB U+1F1F3"
+  }
+}

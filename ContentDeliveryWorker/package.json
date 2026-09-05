@@ -12,6 +12,7 @@
     "smoke:local": "node scripts/smoke-local.mjs"
   },
   "devDependencies": {
-    "wrangler": "^4.72.0"
+    "miniflare": "5.20260903.0-alpha",
+    "wrangler": "4.129.0"
   }
 }

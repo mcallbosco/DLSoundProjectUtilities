@@ -7,11 +7,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from HistoricalContent.historical_content_gui import (
-    DEFAULT_WEBSITE_DIR,
+from historical_content.settings import DEFAULT_WEBSITE_DIR, LEGACY_WEBSITE_DIR, load_config
+from historical_content.app.gui import (
     HistoricalContentGUI,
-    LEGACY_WEBSITE_DIR,
-    load_config,
 )
 
 
@@ -32,7 +30,7 @@ class HistoricalContentGuiTests(unittest.TestCase):
                 encoding="utf-8",
             )
             with patch(
-                "HistoricalContent.historical_content_gui.CONFIG_PATH",
+                "historical_content.settings.CONFIG_PATH",
                 config_path,
             ):
                 config = load_config()
@@ -47,6 +45,7 @@ class HistoricalContentGuiTests(unittest.TestCase):
         gui.categories_button = _FakeButton()
         gui.local_versions_button = _FakeButton()
         gui.publish_button = _FakeButton()
+        gui.custom_mod_button = _FakeButton()
 
         self.assertTrue(gui._begin_operation("content regeneration"))
         self.assertEqual(gui.active_operation, "content regeneration")
@@ -58,11 +57,12 @@ class HistoricalContentGuiTests(unittest.TestCase):
                 gui.categories_button,
                 gui.local_versions_button,
                 gui.publish_button,
+                gui.custom_mod_button,
             )
         ))
 
         with patch(
-            "HistoricalContent.historical_content_gui.messagebox.showwarning"
+            "historical_content.app.gui.messagebox.showwarning"
         ) as warning:
             self.assertFalse(gui._begin_operation("local preview seeding"))
         warning.assert_called_once()
@@ -78,6 +78,7 @@ class HistoricalContentGuiTests(unittest.TestCase):
                 gui.categories_button,
                 gui.local_versions_button,
                 gui.publish_button,
+                gui.custom_mod_button,
             )
         ))
 

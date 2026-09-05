@@ -1,12 +1,15 @@
-# VLViewer Content Publisher
+# Historical Content publishing reference
 
-This utility validates an existing game-version folder and publishes it to
-Cloudflare R2. It provides both a Tkinter GUI and a command-line interface.
+Publishing is part of Historical Content. Open **Publish / manage versions** in
+`historical-content`, or use `historical-publish` to validate a generated version,
+review its R2 change plan, and publish it. The standalone publisher GUI has been
+removed. `ContentPublisher/publisher_cli.py` remains only as a forwarding command
+for existing scripts.
 
 ## Current source layout
 
-The first implementation consumes the existing website layout and maps it to
-the CDN layout without making another multi-gigabyte copy:
+The publisher maps a generated source to the CDN layout without making another
+audio copy. Paths below are version-relative unless they start with `<game>/`:
 
 | Local path | Published path |
 | --- | --- |
@@ -17,13 +20,14 @@ the CDN layout without making another multi-gigabyte copy:
 | `character-names.json` (optional, per-game) | `<game>/character-names.json` |
 | `character-names-overlay.json` (optional, per-version) | `character-names.json` |
 | `SharedAudio/sha256/<prefix>/<hash>.mp3` | `<game>/audio/sha256/<prefix>/<hash>.mp3` |
-| `Audio/` (legacy input) | `<game>/versions/<version>/audio/` |
+| `Audio/` (custom or legacy input) | `<game>/versions/<version>/audio/` |
 | `Localization/` | `localization/` |
 | `FanLocalization/` | `fan-localization/` |
 | `IconPacks/default/` | `icons/default/` |
 | `CharacterNameImages/` (optional) | `character-name-images/` |
+| `CharacterSelectBackgrounds/` (optional) | `character-select-backgrounds/` |
 
-New Historical Content output uses `SharedAudio` and adds an `audioKey` to each
+Official Historical Content output uses `SharedAudio` and adds an `audioKey` to each
 line. The publisher uploads each SHA-256 object at game scope and reuses an
 object already uploaded by another version. The game manifest advertises
 `sharedAudioBaseUrl`; readable `filename` values remain unchanged. Legacy
@@ -37,8 +41,9 @@ reference, uploads WebP with `image/webp`, and adds
 exists. Missing localized assets are valid and are handled by the website's
 localized-text fallback.
 
-Other icon packs, event audio, website configuration, and redirects are not
-part of the initial runtime-versioned content scope.
+Character-select background manifests provide hashed WebP assets and precomputed
+accent colors through `characterSelectBackgroundsUrl`. Other icon packs, event
+audio, website configuration, and redirects are outside this publication flow.
 
 `categories.json` is an optional per-version overlay. The website always loads
 the game-level default advertised by that game's manifest first, then applies
@@ -193,37 +198,30 @@ route was not in the previous export.
   verifies only the selected game's `<game>/` prefix, never the entire shared
   bucket.
 
-## Setup
+## Setup and saved state
 
-On Windows, launch with `ContentPublisher/run_publisher_gui.bat`. The launcher
-checks for the publisher's R2 dependencies and installs missing packages from
-`ContentPublisher/requirements.txt` before opening the GUI:
+Install the package from the repository root and open Historical Content:
 
-```powershell
-ContentPublisher\run_publisher_gui.bat
+```bash
+python -m pip install -e .
+historical-content
 ```
 
-To install or repair them manually:
-
-```powershell
-python -m pip install -r ContentPublisher/requirements.txt
-```
-
-Launching `publisher_gui.py` directly still works. If its R2 dependencies are
-missing, use the GUI's **Install/repair requirements** button.
-
-```powershell
-python ContentPublisher/publisher_gui.py
-```
-
-The GUI stores paths and non-secret settings in `ContentPublisher/config.json`.
-Credentials are never written there. By default, credentials remain in the
-running process only. On Windows, selecting **Remember credentials securely for
-this Windows user** and then **Save settings** writes them to
-`ContentPublisher/credentials.dpapi`, encrypted with Windows DPAPI for the
-current Windows user. The encrypted file is gitignored and is not portable to a
+Select **Publish / manage versions**. Publication settings are stored in
+`HistoricalContent/publisher-state/config.json`. Credentials remain in memory
+unless saved explicitly. On Windows, **Remember credentials securely for this
+Windows user** and **Save settings** write
+`HistoricalContent/publisher-state/credentials.dpapi`, encrypted with DPAPI for
+the current user. The encrypted file is gitignored and cannot be reused by a
 different Windows user or computer. **Forget saved credentials** deletes it and
 clears the current credential fields.
+
+When the publication dialog first opens, migration copies missing settings, credentials, and hash-cache
+state from `ContentPublisher/` to `HistoricalContent/publisher-state/`. Existing
+destination files and original files are preserved. A migration marker prevents
+future launches from restoring credentials that were subsequently forgotten.
+Historical Content's own `config.json` and OpenAI `credentials.dpapi` remain in
+their existing `HistoricalContent/` locations.
 
 Required R2 credentials:
 
@@ -243,7 +241,7 @@ into the GUI's session-only credential fields.
 Local validation does not require Cloudflare credentials:
 
 ```powershell
-python ContentPublisher/publisher_cli.py `
+historical-publish `
   D:\path\to\DeadlockJan2026 `
   --game deadlock `
   --version deadlock-2026-07-14 `
@@ -252,9 +250,15 @@ python ContentPublisher/publisher_cli.py `
 ```
 
 Use `plan` to compare with R2 and `publish` to upload the safe differential
-plan. Hashes are cached under `ContentPublisher/.state/` using file size and
-nanosecond modification time, so unchanged local files do not need to be read
-again on every run.
+plan. Hashes are cached under `HistoricalContent/publisher-state/.state/` using
+file size and nanosecond modification time, so unchanged local files do not need
+to be read again on every run. `--state-dir` can override the cache location.
 
 To publish a hidden version from the CLI, combine `--hidden` with
 `--no-promote`. The GUI enforces this automatically.
+
+Existing automation can still invoke `python ContentPublisher/publisher_cli.py`
+with the same arguments after installing the package. It forwards to the same
+implementation as `historical-publish`; there is no separate publisher application
+to configure or launch. Remove this forwarding script once external automation
+has migrated to `historical-publish`.

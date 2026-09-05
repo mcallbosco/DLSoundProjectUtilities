@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vlviewer-historical-content"
+version = "0.1.0"
+description = "Import, preview, and publish historical VLViewer content"
+requires-python = ">=3.12"
+dependencies = [
+  "openai>=2.7,<3",
+  "boto3>=1.40,<2",
+  "mutagen>=1.47,<2",
+]
+
+[project.scripts]
+historical-content = "historical_content.app.gui:main"
+historical-baseline = "historical_content.baseline_cli:main"
+historical-custom-mod = "historical_content.custom_voice_mod_cli:main"
+historical-publish = "historical_content.publishing.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["HistoricalContent"]
+include = ["historical_content*"]
+
+[tool.setuptools.package-data]
+historical_content = ["defaults/*.json"]

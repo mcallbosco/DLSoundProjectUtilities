@@ -1,0 +1,1 @@
+"""Transcript authority and persistence."""

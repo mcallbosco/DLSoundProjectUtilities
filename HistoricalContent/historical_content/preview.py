@@ -18,12 +18,17 @@ class PreviewProcesses:
 
     def stop(self) -> None:
         for process in (self.website, self.worker):
-            if process.poll() is None:
-                process.terminate()
-                try:
-                    process.wait(timeout=10)
-                except subprocess.TimeoutExpired:
-                    process.kill()
+            _stop_process(process)
+
+
+def _stop_process(process: subprocess.Popen[str]) -> None:
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
 
 
 def _hidden_process_options() -> dict[str, object]:
@@ -124,18 +129,22 @@ def start_preview(
     progress("Starting local content Worker at http://127.0.0.1:8787...")
     worker = subprocess.Popen(
         [
-            _executable("node"), str(wrangler), "dev", "--local",
+            _executable("node"), str(wrangler), "dev", "--local", "--ip", "127.0.0.1",
             "--persist-to", str(worker_dir / ".wrangler" / "preview-state"),
         ], cwd=worker_dir,
         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, text=True,
         **_hidden_process_options(),
     )
     progress("Starting the website with the local content origin...")
-    website = subprocess.Popen(
-        [_executable("node"), str(next_cli), "dev", "--turbopack"], cwd=website_dir,
-        env=environment, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
-        text=True, **_hidden_process_options(),
-    )
+    try:
+        website = subprocess.Popen(
+            [_executable("node"), str(next_cli), "dev", "--turbopack", "--hostname", "127.0.0.1"],
+            cwd=website_dir, env=environment, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
+            text=True, **_hidden_process_options(),
+        )
+    except OSError:
+        _stop_process(worker)
+        raise
     return PreviewProcesses(worker=worker, website=website)
 
 
@@ -144,19 +153,14 @@ def restart_preview_worker(
     worker_dir: Path,
     progress: Callable[[str], None] = print,
 ) -> None:
-    if processes.worker.poll() is None:
-        processes.worker.terminate()
-        try:
-            processes.worker.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            processes.worker.kill()
+    _stop_process(processes.worker)
     progress("Restarting local content Worker...")
     wrangler = worker_dir / "node_modules" / "wrangler" / "bin" / "wrangler.js"
     if not wrangler.is_file():
         raise RuntimeError(f"Wrangler is not installed. Run npm install in {worker_dir}")
     processes.worker = subprocess.Popen(
         [
-            _executable("node"), str(wrangler), "dev", "--local",
+            _executable("node"), str(wrangler), "dev", "--local", "--ip", "127.0.0.1",
             "--persist-to", str(worker_dir / ".wrangler" / "preview-state"),
         ], cwd=worker_dir,
         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, text=True,

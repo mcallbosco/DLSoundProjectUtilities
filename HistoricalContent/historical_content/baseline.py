@@ -2,24 +2,44 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
-import math
-import os
 import re
-import shutil
-import sqlite3
-import subprocess
-import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import closing
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Callable, Iterable
 
-from mutagen import File as MutagenFile, MutagenError
-
+from .errors import BaselineError
+from .generation.storage import (
+    AudioIndex,
+    copy_tree,
+    ensure_shared_audio,
+    find_audio_root,
+    link_or_copy,
+    normalize_audio_key,
+    replace_directory,
+    shared_audio_key,
+    write_version_index,
+)
+from .json_io import load_json, write_json
+from .transcripts.repository import (
+    SKIPPED_EFFORT_SOURCE,
+    SKIPPED_NON_SPEECH_SOURCE,
+    TERMINAL_BLANK_SOURCES,
+    checkpoint_document,
+    entry_text,
+    get_document,
+    initialize_repo,
+    is_effort_recording,
+    is_non_speech_recording,
+    load_documents,
+    new_revision,
+    remove_migrated_legacy_files,
+    revision_for_hash,
+    write_documents,
+    write_repo_support,
+)
 from .predefined_transcripts import (
     PredefinedTranscriptCatalog,
     PredefinedTranscriptError,
@@ -35,43 +55,6 @@ from .version_catalog import (
 
 Progress = Callable[[str], None]
 VERSION_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-TRANSCRIPT_SCHEMA_VERSION = 3
-SKIPPED_EFFORT_SOURCE = "skippedeffort"
-SKIPPED_NON_SPEECH_SOURCE = "skippednonspeech"
-TERMINAL_BLANK_SOURCES = {SKIPPED_EFFORT_SOURCE, SKIPPED_NON_SPEECH_SOURCE}
-TRANSCRIPT_SOURCES = {
-    "generated",
-    "official",
-    "manual",
-    *TERMINAL_BLANK_SOURCES,
-}
-TRANSCRIPT_SOURCE_PRIORITY = {
-    SKIPPED_EFFORT_SOURCE: 0,
-    SKIPPED_NON_SPEECH_SOURCE: 0,
-    "generated": 1,
-    "manual": 2,
-    "official": 3,
-}
-
-
-class BaselineError(RuntimeError):
-    pass
-
-
-def _normalize_audio_key(filename: str) -> str:
-    """Return a safe key relative to a version's audioBaseUrl."""
-    value = filename.strip().replace("\\", "/")
-    if not value:
-        return ""
-    path = PurePosixPath(value)
-    if (
-        path.is_absolute()
-        or re.match(r"^[A-Za-z]:", value)
-        or any(part in {"", ".", ".."} for part in path.parts)
-    ):
-        raise BaselineError(f"Audio filename must be a safe relative path: {filename!r}")
-    return path.as_posix()
 
 
 def _collect_route_characters(voicelines: object, conversations: object) -> set[str]:
@@ -115,59 +98,6 @@ def _collect_route_characters(voicelines: object, conversations: object) -> set[
                     if isinstance(line, dict):
                         add(line.get("speaker"))
     return set(names.values())
-
-
-def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
-    result: dict[str, object] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(f"Duplicate JSON object key: {key}")
-        result[key] = value
-    return result
-
-
-def load_json(path: Path) -> object:
-    try:
-        return json.loads(
-            path.read_text(encoding="utf-8-sig"),
-            object_pairs_hook=_reject_duplicate_keys,
-        )
-    except Exception as exc:
-        raise BaselineError(f"Invalid JSON in {path}: {exc}") from exc
-
-
-def write_json(path: Path, value: object) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(_serialize_json(value), encoding="utf-8")
-    os.replace(temporary, path)
-
-
-def _serialize_json(value: object) -> str:
-    return json.dumps(value, ensure_ascii=False, indent=2) + "\n"
-
-
-def _write_json_if_changed(path: Path, value: object) -> bool:
-    serialized = _serialize_json(value)
-    if path.is_file():
-        try:
-            if path.read_text(encoding="utf-8-sig") == serialized:
-                return False
-        except OSError:
-            pass
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(serialized, encoding="utf-8")
-    os.replace(temporary, path)
-    return True
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 @dataclass(frozen=True)
@@ -251,58 +181,6 @@ def refresh_preview_categories(
     return override_path
 
 
-class AudioIndex:
-    def __init__(self, root: Path):
-        self.root = root
-        self.by_name: dict[str, list[Path]] = {}
-        self.hashes: dict[Path, str] = {}
-        self.durations: dict[Path, float | None] = {}
-        if root.is_dir():
-            for path in root.rglob("*"):
-                if path.is_file() and path.suffix.lower() in {".mp3", ".wav", ".ogg", ".m4a"}:
-                    self.by_name.setdefault(path.name.lower(), []).append(path)
-
-    def resolve(self, filename: str) -> Path | None:
-        normalized = _normalize_audio_key(filename)
-        if not normalized:
-            return None
-        direct = self.root.joinpath(*normalized.split("/"))
-        if direct.is_file():
-            return direct
-        candidates = self.by_name.get(Path(normalized).name.lower(), [])
-        if not candidates:
-            return None
-        if len(candidates) == 1:
-            return candidates[0]
-        hashes = {self.hash(path) for path in candidates}
-        if len(hashes) == 1:
-            return candidates[0]
-        raise BaselineError(f"Multiple different audio files share the basename {filename!r}.")
-
-    def hash(self, path: Path | None) -> str | None:
-        if path is None:
-            return None
-        if path not in self.hashes:
-            self.hashes[path] = sha256_file(path)
-        return self.hashes[path]
-
-    def duration(self, path: Path | None) -> float | None:
-        """Return audio duration in seconds, rounded to milliseconds."""
-        if path is None:
-            return None
-        if path not in self.durations:
-            duration: float | None = None
-            try:
-                audio = MutagenFile(path)
-                value = float(audio.info.length) if audio is not None and audio.info else 0.0
-                if math.isfinite(value) and value > 0:
-                    duration = round(value, 3)
-            except (OSError, ValueError, AttributeError, MutagenError):
-                duration = None
-            self.durations[path] = duration
-        return self.durations[path]
-
-
 def _find_source_file(root: Path, names: Iterable[str]) -> Path:
     for name in names:
         candidate = root / name
@@ -311,51 +189,12 @@ def _find_source_file(root: Path, names: Iterable[str]) -> Path:
     raise BaselineError(f"None of these required files exist in {root}: {', '.join(names)}")
 
 
-def _find_audio_root(root: Path) -> Path:
-    for name in ("Audio", "audio", "DeadlockAudio"):
-        candidate = root / name
-        if candidate.is_dir():
-            # Direct VPK extraction retains Source 2's sounds/vo wrapper.  JSON
-            # keys and CDN audio keys are relative to the voice root itself.
-            voice_root = candidate / "sounds" / "vo"
-            if voice_root.is_dir():
-                return voice_root
-            return candidate
-    raise BaselineError(f"No Audio, audio, or DeadlockAudio folder exists in {root}.")
-
-
 def _line_id(entry: dict[str, object]) -> str:
     value = entry.get("voiceline_id") or entry.get("lineId")
     if isinstance(value, str) and value.strip():
         return value.strip()
     filename = str(entry.get("filename") or "")
     return Path(filename).stem
-
-
-def _text(entry: dict[str, object]) -> str:
-    value = entry.get("transcription")
-    if not isinstance(value, str):
-        value = entry.get("text")
-    return value.strip() if isinstance(value, str) else ""
-
-
-def _is_effort_recording(filename: str) -> bool:
-    """Return whether an audio key identifies a non-verbal effort recording."""
-    stem = PurePosixPath(filename.replace("\\", "/")).stem.casefold()
-    return bool(re.search(r"(?:^|[_-])efforts?(?:[_-]|$)", stem))
-
-
-def _is_non_speech_recording(filename: str) -> bool:
-    """Return whether an audio key is deterministically non-verbal."""
-    path = PurePosixPath(filename.replace("\\", "/").casefold())
-    stem = path.stem
-    parts = set(path.parts[:-1])
-    return (
-        "emote" in parts
-        or "sfx" in parts
-        or bool(re.search(r"(?:^|[_-])pain(?:[_-]|$)", stem))
-        or bool(re.search(r"(?:^|[_-])sfx(?:[_-]|$)", stem))
-    )
 
 
 def _walk_voicelines(node: object, path: tuple[str, ...] = ()):
@@ -368,369 +207,6 @@ def _walk_voicelines(node: object, path: tuple[str, ...] = ()):
     elif isinstance(node, list):
         for value in node:
             yield from _walk_voicelines(value, path)
-
-
-def _transcript_path(repo: Path, filename: str) -> Path:
-    """Return the readable transcript path for one normalized audio path."""
-    normalized = _normalize_audio_key(filename)
-    if not normalized:
-        raise BaselineError("A transcript cannot be stored without an audio filename.")
-    # Keep the audio suffix so foo.mp3 and foo.wav cannot share one JSON path.
-    relative = PurePosixPath(f"{normalized}.json")
-    return repo / "transcripts" / Path(*relative.parts)
-
-
-def _normalize_transcript_hashes(value: object, origin: Path) -> list[str]:
-    if not isinstance(value, list):
-        raise BaselineError(f"Transcript revision SHA-256 value must be an array in {origin}.")
-    hashes: list[str] = []
-    seen: set[str] = set()
-    for candidate in value:
-        if not isinstance(candidate, str) or not SHA256_RE.fullmatch(candidate.casefold()):
-            raise BaselineError(f"Transcript revision has an invalid SHA-256 value in {origin}.")
-        digest = candidate.casefold()
-        if digest in seen:
-            raise BaselineError(f"Transcript revision has a duplicate SHA-256 value in {origin}.")
-        seen.add(digest)
-        hashes.append(digest)
-    return sorted(hashes)
-
-
-def _transcript_match_key(text: str) -> str:
-    """Return the deliberately broad key used to share equivalent subtitles."""
-    return "".join(
-        character
-        for character in text.casefold()
-        if not character.isspace()
-        and not unicodedata.category(character).startswith("P")
-    )
-
-
-def _transcript_group_key(revision: dict[str, object]) -> tuple[str, str]:
-    text = str(revision.get("text") or "")
-    source = str(revision.get("source") or "")
-    if not text.strip() and source in TERMINAL_BLANK_SOURCES:
-        return "terminal-blank", source
-    return "text", _transcript_match_key(text)
-
-
-def _normalize_transcript_revision(value: object, origin: Path) -> dict[str, object]:
-    if not isinstance(value, dict):
-        raise BaselineError(f"Transcript revision must be an object in {origin}.")
-    text = value.get("text")
-    source = value.get("source")
-    if not isinstance(text, str):
-        raise BaselineError(f"Transcript revision text must be a string in {origin}.")
-    if source not in TRANSCRIPT_SOURCES:
-        raise BaselineError(
-            "Transcript revision source must be generated, official, manual, "
-            f"{SKIPPED_EFFORT_SOURCE}, or {SKIPPED_NON_SPEECH_SOURCE} in {origin}."
-        )
-    revision: dict[str, object] = {
-        "sha256": _normalize_transcript_hashes(value.get("sha256"), origin),
-        "text": text,
-        "source": source,
-    }
-    if source in {"generated", SKIPPED_NON_SPEECH_SOURCE}:
-        model = value.get("model")
-        if model is not None and not isinstance(model, str):
-            raise BaselineError(f"Transcript revision model must be a string in {origin}.")
-        if model:
-            revision["model"] = model
-    return revision
-
-
-def _revision_for_hash(
-    document: dict[str, object], audio_hash: str | None
-) -> dict[str, object] | None:
-    for revision in document["revisions"]:
-        if not isinstance(revision, dict):
-            continue
-        hashes = revision.get("sha256")
-        if audio_hash is None and hashes == []:
-            return revision
-        if isinstance(audio_hash, str) and isinstance(hashes, list) and audio_hash in hashes:
-            return revision
-    return None
-
-
-def _merge_loaded_revision(
-    document: dict[str, object],
-    candidate: dict[str, object],
-    *,
-    origin: Path,
-) -> None:
-    """Merge legacy or already-migrated data without losing human corrections."""
-    candidate_hashes = candidate.get("sha256")
-    if not isinstance(candidate_hashes, list):
-        raise BaselineError(f"Transcript revision has invalid hashes in {origin}.")
-    matches = {
-        id(existing): existing
-        for digest in candidate_hashes or [None]
-        if (existing := _revision_for_hash(document, digest)) is not None
-    }
-    if len(matches) > 1:
-        raise BaselineError(
-            f"Transcript hashes resolve to multiple revisions for {document['filename']!r} in {origin}."
-        )
-    existing = next(iter(matches.values()), None)
-    if existing is None:
-        document["revisions"].append(candidate)
-        return
-    existing_hashes = existing.get("sha256")
-    if not isinstance(existing_hashes, list):
-        raise BaselineError(f"Transcript revision has invalid hashes in {origin}.")
-    merged_hashes = sorted(set(existing_hashes) | set(candidate_hashes))
-    existing["sha256"] = merged_hashes
-    existing_text = str(existing.get("text") or "").strip()
-    candidate_text = str(candidate.get("text") or "").strip()
-    if not existing_text and candidate_text:
-        existing.clear()
-        existing.update(candidate)
-        existing["sha256"] = merged_hashes
-        return
-    if (
-        not candidate_text
-        or existing_text == candidate_text
-        or _transcript_match_key(existing_text) == _transcript_match_key(candidate_text)
-    ):
-        if TRANSCRIPT_SOURCE_PRIORITY.get(
-            str(candidate.get("source")), -1
-        ) > TRANSCRIPT_SOURCE_PRIORITY.get(
-            str(existing.get("source")), -1
-        ):
-            existing.clear()
-            existing.update(candidate)
-            existing["sha256"] = merged_hashes
-        return
-    existing_priority = TRANSCRIPT_SOURCE_PRIORITY.get(
-        str(existing.get("source")), -1
-    )
-    candidate_priority = TRANSCRIPT_SOURCE_PRIORITY.get(
-        str(candidate.get("source")), -1
-    )
-    if candidate_priority > existing_priority:
-        existing.clear()
-        existing.update(candidate)
-        existing["sha256"] = merged_hashes
-    elif (
-        candidate_priority
-        == existing_priority
-        == TRANSCRIPT_SOURCE_PRIORITY["manual"]
-    ):
-        raise BaselineError(
-            f"Conflicting manual transcripts exist for {document['filename']!r} "
-            f"and SHA-256 {candidate_hashes!r}; conflict found in {origin}."
-        )
-
-
-def _compact_transcript_document(document: dict[str, object]) -> dict[str, object]:
-    revisions = document.get("revisions")
-    if not isinstance(revisions, list):
-        raise BaselineError(f"Transcript has no revisions array: {document.get('filename')!r}.")
-    grouped: dict[tuple[str, str], list[dict[str, object]]] = {}
-    order: list[tuple[str, str]] = []
-    for revision in revisions:
-        if not isinstance(revision, dict):
-            raise BaselineError(f"Transcript revision must be an object: {document.get('filename')!r}.")
-        key = _transcript_group_key(revision)
-        if key not in grouped:
-            grouped[key] = []
-            order.append(key)
-        grouped[key].append(revision)
-
-    compacted: list[dict[str, object]] = []
-    for key in order:
-        members = grouped[key]
-        chosen_source = max(
-            (str(member.get("source") or "") for member in members),
-            key=lambda source: TRANSCRIPT_SOURCE_PRIORITY.get(source, -1),
-        )
-        candidates = [member for member in members if member.get("source") == chosen_source]
-        text_counts: dict[str, int] = {}
-        for member in candidates:
-            text = str(member.get("text") or "")
-            text_counts[text] = text_counts.get(text, 0) + 1
-        chosen_text = max(text_counts, key=lambda text: text_counts[text])
-        hashes = sorted(
-            {
-                digest
-                for member in members
-                for digest in member.get("sha256", [])
-                if isinstance(digest, str)
-            }
-        )
-        result: dict[str, object] = {
-            "sha256": hashes,
-            "text": chosen_text,
-            "source": chosen_source,
-        }
-        if chosen_source in {"generated", SKIPPED_NON_SPEECH_SOURCE}:
-            models = {
-                str(member["model"])
-                for member in candidates
-                if isinstance(member.get("model"), str) and member["model"]
-            }
-            if len(models) == 1:
-                result["model"] = next(iter(models))
-        compacted.append(result)
-    document["revisions"] = compacted
-    document["schemaVersion"] = TRANSCRIPT_SCHEMA_VERSION
-    return document
-
-
-def _get_transcript_document(
-    documents: dict[str, dict[str, object]], filename: str
-) -> dict[str, object]:
-    normalized = _normalize_audio_key(filename)
-    if not normalized:
-        raise BaselineError("A transcript cannot be stored without an audio filename.")
-    key = normalized.casefold()
-    document = documents.get(key)
-    if document is None:
-        document = {
-            "schemaVersion": TRANSCRIPT_SCHEMA_VERSION,
-            "filename": normalized,
-            "revisions": [],
-        }
-        documents[key] = document
-    return document
-
-
-def _load_transcript_documents(
-    repo: Path,
-) -> tuple[dict[str, dict[str, object]], list[Path], dict[str, str]]:
-    documents: dict[str, dict[str, object]] = {}
-    existing_serialized: dict[str, str] = {}
-    transcript_root = repo / "transcripts"
-    if transcript_root.is_dir():
-        for path in sorted(transcript_root.rglob("*.json")):
-            payload = load_json(path)
-            if (
-                not isinstance(payload, dict)
-                or payload.get("schemaVersion") != TRANSCRIPT_SCHEMA_VERSION
-                or not isinstance(payload.get("filename"), str)
-                or not isinstance(payload.get("revisions"), list)
-            ):
-                raise BaselineError(f"Transcript file has an unsupported structure: {path}")
-            filename = _normalize_audio_key(payload["filename"])
-            expected_relative = f"{filename}.json"
-            actual_relative = path.relative_to(transcript_root).as_posix()
-            if actual_relative.casefold() != expected_relative.casefold():
-                raise BaselineError(
-                    f"Transcript file {path} must mirror its audio path at "
-                    f"{_transcript_path(repo, filename)}."
-                )
-            existing_serialized[filename.casefold()] = _serialize_json(payload)
-            document = _get_transcript_document(documents, filename)
-            for value in payload["revisions"]:
-                _merge_loaded_revision(
-                    document,
-                    _normalize_transcript_revision(value, path),
-                    origin=path,
-                )
-
-    legacy_paths: list[Path] = []
-    for legacy_root in (repo / "voicelines", repo / "conversations"):
-        if not legacy_root.is_dir():
-            continue
-        for path in sorted(legacy_root.rglob("*.json")):
-            payload = load_json(path)
-            if not isinstance(payload, dict) or not isinstance(payload.get("lines"), list):
-                raise BaselineError(f"Legacy transcript file has an unsupported structure: {path}")
-            legacy_paths.append(path)
-            for line in payload["lines"]:
-                if not isinstance(line, dict):
-                    continue
-                filename = _normalize_audio_key(str(line.get("filename") or ""))
-                if not filename:
-                    raise BaselineError(f"Legacy transcript line has no filename in {path}.")
-                source = line.get("source", "generated")
-                revision_value: dict[str, object] = {
-                    "sha256": [line["audioSha256"]] if line.get("audioSha256") else [],
-                    "text": line.get("text", ""),
-                    "source": source,
-                }
-                if source == "generated" and line.get("model"):
-                    revision_value["model"] = line["model"]
-                document = _get_transcript_document(documents, filename)
-                _merge_loaded_revision(
-                    document,
-                    _normalize_transcript_revision(revision_value, path),
-                    origin=path,
-                )
-    return documents, legacy_paths, existing_serialized
-
-
-def _new_transcript_revision(
-    entry: dict[str, object], audio_hash: str | None
-) -> dict[str, object]:
-    result: dict[str, object] = {
-        "sha256": [audio_hash] if audio_hash is not None else [],
-        "text": _text(entry),
-    }
-    if entry.get("officialtranscription"):
-        result["source"] = "official"
-    elif _is_effort_recording(str(entry.get("filename") or "")):
-        result["text"] = ""
-        result["source"] = SKIPPED_EFFORT_SOURCE
-    elif _is_non_speech_recording(str(entry.get("filename") or "")):
-        result["text"] = ""
-        result["source"] = SKIPPED_NON_SPEECH_SOURCE
-    else:
-        result["source"] = "generated"
-        result["model"] = DEFAULT_MODEL
-    return result
-
-
-def _write_transcript_documents(
-    repo: Path,
-    documents: dict[str, dict[str, object]],
-    existing_serialized: dict[str, str] | None = None,
-) -> int:
-    changed = 0
-    existing_serialized = existing_serialized or {}
-    for document in sorted(
-        documents.values(), key=lambda value: str(value["filename"]).casefold()
-    ):
-        _compact_transcript_document(document)
-        filename = str(document["filename"])
-        if existing_serialized.get(filename.casefold()) == _serialize_json(document):
-            continue
-        changed += _write_json_if_changed(_transcript_path(repo, filename), document)
-    return changed
-
-
-def _write_transcript_document(
-    repo: Path,
-    document: dict[str, object],
-) -> bool:
-    """Atomically checkpoint one per-audio transcript document."""
-    return _write_json_if_changed(
-        _transcript_path(repo, str(document["filename"])),
-        document,
-    )
-
-
-def _remove_migrated_legacy_files(repo: Path, legacy_paths: list[Path]) -> None:
-    for path in legacy_paths:
-        path.unlink()
-    for legacy_root in (repo / "voicelines", repo / "conversations"):
-        if not legacy_root.is_dir():
-            continue
-        for directory in sorted(
-            (path for path in legacy_root.rglob("*") if path.is_dir()),
-            key=lambda path: len(path.parts),
-            reverse=True,
-        ):
-            try:
-                directory.rmdir()
-            except OSError:
-                pass
-        try:
-            legacy_root.rmdir()
-        except OSError:
-            pass
 
 
 def validate_categories(payload: object, characters: set[str]) -> tuple[list[str], list[str]]:
@@ -816,110 +292,6 @@ def _default_character_display_name(value: str) -> str:
     return " ".join(part.capitalize() for part in value.replace("_", " ").split())
 
 
-def _safe_replace_directory(path: Path, allowed_parent: Path) -> None:
-    resolved = path.resolve()
-    parent = allowed_parent.resolve()
-    if parent not in resolved.parents or resolved == parent:
-        raise BaselineError(f"Refusing to replace preview directory outside {parent}: {resolved}")
-    if resolved.exists():
-        shutil.rmtree(resolved)
-    resolved.mkdir(parents=True)
-
-
-def _link_or_copy(source: Path, destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        destination.unlink()
-    try:
-        os.link(source, destination)
-    except OSError:
-        shutil.copy2(source, destination)
-
-
-def _shared_audio_key(audio_hash: str) -> str:
-    return f"sha256/{audio_hash[:2]}/{audio_hash}.mp3"
-
-
-def _ensure_shared_audio(source: Path, destination: Path, audio_hash: str) -> None:
-    """Create one immutable local object for an audio hash and verify reuse."""
-    if destination.is_file():
-        if destination.stat().st_size == source.stat().st_size and sha256_file(destination) == audio_hash:
-            return
-        raise BaselineError(f"Shared audio object is corrupt or has a hash collision: {destination}")
-    _link_or_copy(source, destination)
-
-
-def _copy_tree(source: Path, destination: Path) -> None:
-    if not source.is_dir():
-        return
-    for path in source.rglob("*"):
-        if path.is_file():
-            _link_or_copy(path, destination / path.relative_to(source))
-
-
-def _initialize_repo(repo: Path) -> None:
-    repo.mkdir(parents=True, exist_ok=True)
-    if not (repo / ".git").exists():
-        try:
-            subprocess.run(["git", "init", str(repo)], check=True, capture_output=True, text=True)
-        except (OSError, subprocess.CalledProcessError) as exc:
-            raise BaselineError(f"Could not initialize transcript Git repository: {exc}") from exc
-
-
-def _write_repo_support(repo: Path) -> None:
-    readme = repo / "README.md"
-    if not readme.exists():
-        readme.write_text(
-            "# Deadlock Transcripts\n\n"
-            "Human-readable transcript and content configuration used to generate VLViewer data.\n\n"
-            "Audio transcripts are stored below `transcripts/` at paths that mirror the audio files.\n"
-            "Each JSON file groups equivalent subtitle text and lists every matching audio SHA-256 value.\n\n"
-            "Edit a group's `text`, set `source` to `manual`, remove `model`, preview locally, then commit.\n",
-            encoding="utf-8",
-        )
-    schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "VLViewer transcript file",
-        "type": "object",
-        "required": ["schemaVersion", "filename", "revisions"],
-        "additionalProperties": False,
-        "properties": {
-            "schemaVersion": {"const": TRANSCRIPT_SCHEMA_VERSION},
-            "filename": {"type": "string", "minLength": 1},
-            "revisions": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "required": ["sha256", "text", "source"],
-                    "additionalProperties": False,
-                    "properties": {
-                        "sha256": {
-                            "type": "array",
-                            "uniqueItems": True,
-                            "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-                        },
-                        "text": {"type": "string"},
-                        "source": {
-                            "enum": [
-                                "generated",
-                                "official",
-                                "manual",
-                                SKIPPED_EFFORT_SOURCE,
-                                SKIPPED_NON_SPEECH_SOURCE,
-                            ]
-                        },
-                        "model": {"type": "string", "minLength": 1},
-                    },
-                },
-            },
-        },
-    }
-    write_json(repo / "schema.json", schema)
-    legacy_glossary = repo / "glossary.txt"
-    if legacy_glossary.is_file():
-        legacy_glossary.unlink()
-
-
 def build_transcription_prompt(vocabulary_path: Path) -> str:
     """Load structured per-game vocabulary and attach it as prompt context."""
     path = vocabulary_path.expanduser().resolve()
@@ -952,28 +324,6 @@ def build_transcription_prompt(vocabulary_path: Path) -> str:
     )
 
 
-def _open_database(path: Path) -> sqlite3.Connection:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(path)
-    connection.executescript(
-        """
-        PRAGMA journal_mode=WAL;
-        CREATE TABLE IF NOT EXISTS versions (
-          id TEXT PRIMARY KEY, game TEXT NOT NULL, label TEXT NOT NULL,
-          is_baseline INTEGER NOT NULL, imported_at TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS version_assets (
-          version_id TEXT NOT NULL, kind TEXT NOT NULL, line_id TEXT NOT NULL,
-          audio_sha256 TEXT, filename TEXT NOT NULL, speaker TEXT,
-          PRIMARY KEY (version_id, kind, line_id, audio_sha256)
-        );
-        CREATE INDEX IF NOT EXISTS version_assets_recording
-          ON version_assets(line_id, audio_sha256);
-        """
-    )
-    return connection
-
-
 def create_baseline(settings: BaselineSettings, progress: Progress = print) -> BaselineResult:
     source = settings.source_dir.resolve()
     if not source.is_dir():
@@ -985,7 +335,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
 
     conversation_path = _find_source_file(source, ("all_conversations.json", "conversations.json"))
     voiceline_path = _find_source_file(source, ("all_voicelines.json", "voicelines.json"))
-    audio_root = _find_audio_root(source)
+    audio_root = find_audio_root(source)
     conversations = load_json(conversation_path)
     voicelines = load_json(voiceline_path)
     if not isinstance(conversations, dict) or not isinstance(conversations.get("conversations"), list):
@@ -1010,10 +360,10 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     repo = settings.transcript_repo.resolve()
     data_dir = settings.data_dir.resolve()
     if settings.initialize_git:
-        _initialize_repo(repo)
+        initialize_repo(repo)
     else:
         repo.mkdir(parents=True, exist_ok=True)
-    _write_repo_support(repo)
+    write_repo_support(repo)
     audio_index = AudioIndex(audio_root)
     progress(f"Indexed {sum(len(value) for value in audio_index.by_name.values())} audio files.")
 
@@ -1021,7 +371,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         transcript_documents,
         legacy_transcript_paths,
         existing_transcript_json,
-    ) = _load_transcript_documents(repo)
+    ) = load_documents(repo)
     transcript_by_audio: dict[tuple[str, str | None], dict[str, object]] = {}
     document_by_revision_id: dict[int, dict[str, object]] = {}
     current_transcript_keys: set[tuple[str, str | None]] = set()
@@ -1038,7 +388,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     def remember_audio(filename: str, path: Path | None) -> None:
         if path is None:
             return
-        key = _normalize_audio_key(filename)
+        key = normalize_audio_key(filename)
         if not key:
             return
         lookup = key.casefold()
@@ -1056,11 +406,11 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     def resolve_transcript(
         entry: dict[str, object], audio_path: Path | None, audio_hash: str | None
     ) -> tuple[dict[str, object], dict[str, object]]:
-        filename = _normalize_audio_key(str(entry.get("filename") or ""))
-        document = _get_transcript_document(transcript_documents, filename)
-        revision = _revision_for_hash(document, audio_hash)
+        filename = normalize_audio_key(str(entry.get("filename") or ""))
+        document = get_document(transcript_documents, filename)
+        revision = revision_for_hash(document, audio_hash)
         if revision is None:
-            revision = _new_transcript_revision(entry, audio_hash)
+            revision = new_revision(entry, audio_hash)
             document["revisions"].append(revision)
         key = (filename.casefold(), audio_hash)
         predefined_text = (
@@ -1070,7 +420,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         )
         if predefined_text is not None:
             predefined_matched_paths.add(filename.casefold())
-        official_text = _text(entry).strip() if entry.get("officialtranscription") else ""
+        official_text = entry_text(entry).strip() if entry.get("officialtranscription") else ""
         if official_text:
             # VDF text is authoritative for a real matched recording. Promote
             # any existing revision in place so the transcript repository and
@@ -1081,7 +431,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
             revision.pop("model", None)
             skipped_effort_keys.discard(key)
             skipped_non_speech_keys.discard(key)
-        if _is_effort_recording(filename):
+        if is_effort_recording(filename):
             source = revision.get("source")
             has_curated_revision = source == "manual" or (
                 source == "official"
@@ -1092,7 +442,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                 revision["source"] = SKIPPED_EFFORT_SOURCE
                 revision.pop("model", None)
                 skipped_effort_keys.add(key)
-        elif _is_non_speech_recording(filename):
+        elif is_non_speech_recording(filename):
             source = revision.get("source")
             has_curated_revision = source == "manual" or (
                 source == "official"
@@ -1135,7 +485,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         if not path:
             continue
         speaker = path[0]
-        filename = _normalize_audio_key(str(entry.get("filename") or ""))
+        filename = normalize_audio_key(str(entry.get("filename") or ""))
         if not filename:
             if entry.get("is_phantom") is True:
                 continue
@@ -1167,7 +517,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                     f"variation-{normalized_line.get('variation', 1)}-"
                     f"{normalized_line.get('speaker', 'unknown')}"
                 )
-            filename = _normalize_audio_key(
+            filename = normalize_audio_key(
                 str(normalized_line.get("filename") or "")
             )
             if not filename:
@@ -1283,7 +633,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                     document = document_by_revision_id[id(entry)]
                     affected_documents[id(document)] = document
                 for document in affected_documents.values():
-                    checkpointed_files += int(_write_transcript_document(repo, document))
+                    checkpointed_files += int(checkpoint_document(repo, document))
                 completed += 1
                 if completed % 25 == 0 or completed == len(futures):
                     progress(
@@ -1293,13 +643,13 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                     )
     # Persist exact-audio reuse and API results. Legacy files are removed only
     # after every migrated per-audio document has been written successfully.
-    changed_transcript_files = _write_transcript_documents(
+    changed_transcript_files = write_documents(
         repo, transcript_documents, existing_transcript_json
     )
     if changed_transcript_files:
         progress(f"Wrote {changed_transcript_files} changed transcript files.")
     if legacy_transcript_paths:
-        _remove_migrated_legacy_files(repo, legacy_transcript_paths)
+        remove_migrated_legacy_files(repo, legacy_transcript_paths)
         progress(
             f"Migrated {len(legacy_transcript_paths)} legacy transcript files "
             "into unified per-audio JSON files."
@@ -1308,7 +658,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     def apply_text(node: object) -> object:
         if isinstance(node, dict):
             if isinstance(node.get("filename"), str):
-                filename = _normalize_audio_key(node["filename"])
+                filename = normalize_audio_key(node["filename"])
                 if not filename:
                     result = dict(node)
                     result.pop("audioKey", None)
@@ -1320,7 +670,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
                 transcript = transcript_by_audio.get(key)
                 result = dict(node)
                 if audio_hash:
-                    result["audioKey"] = _shared_audio_key(audio_hash)
+                    result["audioKey"] = shared_audio_key(audio_hash)
                 duration = audio_index.duration(audio_path)
                 if duration is not None:
                     result["duration"] = duration
@@ -1400,7 +750,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     game_root = preview_root / settings.game
     version_root = game_root / "versions" / preview_version_id
     game_root.mkdir(parents=True, exist_ok=True)
-    _safe_replace_directory(version_root, preview_root)
+    replace_directory(version_root, preview_root)
     base_url = "http://127.0.0.1:8787"
     now = datetime.now(timezone.utc).isoformat()
     write_json(game_root / "categories.json", load_json(default_categories))
@@ -1417,7 +767,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
 
     coverage_source = source / "coverage.json"
     if coverage_source.is_file():
-        _link_or_copy(coverage_source, version_root / "coverage.json")
+        link_or_copy(coverage_source, version_root / "coverage.json")
     else:
         write_json(version_root / "coverage.json", {
             "summary": {
@@ -1433,8 +783,8 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
         ("CharacterNameImages", "character-name-images"),
         ("CharacterSelectBackgrounds", "character-select-backgrounds"),
     ):
-        _copy_tree(source / source_name, version_root / target_name)
-    _copy_tree(source / "IconPacks" / "default", version_root / "icons" / "default")
+        copy_tree(source / source_name, version_root / target_name)
+    copy_tree(source / "IconPacks" / "default", version_root / "icons" / "default")
 
     referenced_audio = sorted(
         referenced_audio_by_key.values(), key=lambda item: item[0].casefold()
@@ -1445,10 +795,10 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
             audio_hash = audio_index.hash(path)
             if not audio_hash:
                 continue
-            relative_shared_path = Path(*_shared_audio_key(audio_hash).split("/"))
+            relative_shared_path = Path(*shared_audio_key(audio_hash).split("/"))
             canonical_path = shared_audio_root / relative_shared_path
-            _ensure_shared_audio(path, canonical_path, audio_hash)
-            _ensure_shared_audio(
+            ensure_shared_audio(path, canonical_path, audio_hash)
+            ensure_shared_audio(
                 canonical_path,
                 game_root / "audio" / relative_shared_path,
                 audio_hash,
@@ -1458,7 +808,7 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     # publisher. Files are hard-linked when possible, so this does not create a
     # second multi-gigabyte audio copy.
     publish_source = data_dir / "generated" / settings.version_id
-    _safe_replace_directory(publish_source, data_dir)
+    replace_directory(publish_source, data_dir)
     write_json(publish_source / "all_conversations.json", generated_conversations)
     write_json(publish_source / "all_voicelines.json", generated_voicelines)
     write_json(publish_source / "categories.json", category_payload)
@@ -1469,25 +819,25 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
             version_character_names_payload,
         )
     if coverage_source.is_file():
-        _link_or_copy(coverage_source, publish_source / "coverage.json")
+        link_or_copy(coverage_source, publish_source / "coverage.json")
     else:
-        _link_or_copy(version_root / "coverage.json", publish_source / "coverage.json")
+        link_or_copy(version_root / "coverage.json", publish_source / "coverage.json")
     for source_name in (
         "Localization",
         "FanLocalization",
         "CharacterNameImages",
         "CharacterSelectBackgrounds",
     ):
-        _copy_tree(source / source_name, publish_source / source_name)
-    _copy_tree(source / "IconPacks" / "default", publish_source / "IconPacks" / "default")
+        copy_tree(source / source_name, publish_source / source_name)
+    copy_tree(source / "IconPacks" / "default", publish_source / "IconPacks" / "default")
     if settings.include_audio:
         for _audio_key, path in referenced_audio:
             audio_hash = audio_index.hash(path)
             if not audio_hash:
                 continue
-            relative_shared_path = Path(*_shared_audio_key(audio_hash).split("/"))
+            relative_shared_path = Path(*shared_audio_key(audio_hash).split("/"))
             canonical_path = shared_audio_root / relative_shared_path
-            _ensure_shared_audio(
+            ensure_shared_audio(
                 canonical_path,
                 publish_source / "SharedAudio" / relative_shared_path,
                 audio_hash,
@@ -1585,22 +935,14 @@ def create_baseline(settings: BaselineSettings, progress: Progress = print) -> B
     })
 
     database_path = data_dir / "historical-content.sqlite3"
-    with closing(_open_database(database_path)) as database:
-        database.execute(
-            "INSERT OR REPLACE INTO versions(id, game, label, is_baseline, imported_at) VALUES(?, ?, ?, 1, ?)",
-            (settings.version_id, settings.game, settings.label, now),
-        )
-        database.execute("DELETE FROM version_assets WHERE version_id = ?", (settings.version_id,))
-        for kind, records in (("voiceline", voice_records), ("conversation", conversation_records)):
-            for speaker, line, audio_path in records:
-                database.execute(
-                    "INSERT OR REPLACE INTO version_assets(version_id, kind, line_id, audio_sha256, filename, speaker) VALUES(?, ?, ?, ?, ?, ?)",
-                    (
-                        settings.version_id, kind, line.get("lineId"),
-                        line.get("audioSha256"), line.get("filename", ""), speaker,
-                    ),
-                )
-        database.commit()
+    write_version_index(
+        database_path,
+        version_id=settings.version_id,
+        game=settings.game,
+        label=settings.label,
+        imported_at=now,
+        records_by_kind=(("voiceline", voice_records), ("conversation", conversation_records)),
+    )
 
     local_catalog = register_local_version(
         data_dir,

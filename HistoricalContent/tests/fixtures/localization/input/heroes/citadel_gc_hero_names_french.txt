@@ -1,0 +1,8 @@
+"lang"
+{
+    "Tokens" {
+        "hero_warden:n" "Gardien"
+        "hero_atlas:n" "Abrams français"
+        "hero_bebop:n" "Dynamo français"
+    }
+}

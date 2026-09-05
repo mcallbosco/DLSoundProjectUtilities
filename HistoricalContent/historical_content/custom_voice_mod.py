@@ -14,20 +14,22 @@ import os
 import re
 import shutil
 import subprocess
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Callable, Iterable
 from urllib.parse import urlsplit, urlunsplit
 
+from .json_io import write_json
+
+from .errors import VpkPipelineError
+from .extraction.source2viewer import extract_vpk_voice_audio
 from .version_catalog import (
     load_cataloged_local_versions,
     rebuild_local_preview_manifest,
     recalculate_version_statuses,
     register_local_version,
 )
-from .vpk_pipeline import VpkPipelineError, extract_vpk_voice_audio
-
 
 Progress = Callable[[str], None]
 AUDIO_SUFFIXES = {".mp3"}
@@ -127,16 +129,6 @@ def _read_json(path: Path) -> object:
         return json.loads(path.read_text(encoding="utf-8-sig"))
     except Exception as exc:
         raise CustomVoiceModError(f"Invalid JSON in {path}: {exc}") from exc
-
-
-def _write_json(path: Path, value: object) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temporary, path)
 
 
 def _sha256(path: Path) -> str:
@@ -952,8 +944,8 @@ def build_custom_voice_mod(
         shutil.rmtree(staging)
     staging.mkdir(parents=True)
     try:
-        _write_json(staging / "all_voicelines.json", filtered_voicelines)
-        _write_json(staging / "all_conversations.json", filtered_conversations)
+        write_json(staging / "all_voicelines.json", filtered_voicelines)
+        write_json(staging / "all_conversations.json", filtered_conversations)
         _copy_supporting_resources(base_source, staging)
         for normalized, source in matched_audio.items():
             source_name = next(
@@ -978,7 +970,7 @@ def build_custom_voice_mod(
             unmatched_by_folder.setdefault(folder, []).append(audio_path)
         matched_count = len(matched_audio)
         total_count = len(mod_files) + len(unsupported)
-        _write_json(staging / "coverage.json", {
+        write_json(staging / "coverage.json", {
             "summary": {
                 "total_files": total_count,
                 "matched_files": matched_count,
@@ -1042,8 +1034,8 @@ def build_custom_voice_mod(
             "unusedCorrelationOverrideCount": len(set(overrides) - present_mod_paths),
             "audioCollisionCount": len(blocked_audio),
         }
-        _write_json(staging / "transcript-source.json", transcript_source)
-        _write_json(staging / "custom-import-report.json", report)
+        write_json(staging / "transcript-source.json", transcript_source)
+        write_json(staging / "custom-import-report.json", report)
         custom_metadata = {
             "schemaVersion": 1,
             "kind": "custom",
@@ -1064,7 +1056,7 @@ def build_custom_voice_mod(
                 "blockingWarningCount": 0,
             },
         }
-        _write_json(staging / "custom-version.json", custom_metadata)
+        write_json(staging / "custom-version.json", custom_metadata)
 
         output_backup = _replace_local_directory(
             staging,
@@ -1162,7 +1154,7 @@ def build_custom_voice_mod(
             if isinstance(value, dict) and value.get("id") != preview_id
         ],
     ]
-    _write_json(manifest_path, manifest)
+    write_json(manifest_path, manifest)
 
     catalog = register_local_version(
         data_dir,
@@ -1189,7 +1181,7 @@ def build_custom_voice_mod(
         for character in values
         if isinstance(character, str)
     }, key=lambda value: (value.casefold(), value))
-    _write_json(characters_path, {
+    write_json(characters_path, {
         "schemaVersion": 1,
         "game": settings.game,
         "updatedAt": datetime.now(timezone.utc).isoformat(),

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Miniflare } from "miniflare";
+import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 
 const BATCH_MAX_OBJECTS = 64;
 const BATCH_MAX_BYTES = 8 * 1024 * 1024;
@@ -203,13 +203,13 @@ const files = options.suffix
 if (files.length === 0) {
   throw new Error(`No seed files matched${options.suffix ? ` suffix ${options.suffix}` : ""}.`);
 }
-const miniflare = new Miniflare({
+const miniflare = new Miniflare(convertV4MiniflareOptions({
   modules: true,
   script: seedWorker,
   r2Buckets: { CONTENT_BUCKET: "vlviewer-content" },
-  // Wrangler's --persist-to root stores R2 data under v3/r2.
-  r2Persist: join(options.persistTo, "v3", "r2"),
-});
+  // Match Wrangler's local resource storage under --persist-to/v3.
+  resourcePersistencePath: join(options.persistTo, "v3"),
+}));
 
 try {
   // With --reset, mirror the source tree at object level instead of deleting

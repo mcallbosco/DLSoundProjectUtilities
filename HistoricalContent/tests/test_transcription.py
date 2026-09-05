@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from HistoricalContent.historical_content.transcription import (
+from historical_content.transcription import (
     DEFAULT_MODEL,
     SUPPORTED_MODELS,
 )

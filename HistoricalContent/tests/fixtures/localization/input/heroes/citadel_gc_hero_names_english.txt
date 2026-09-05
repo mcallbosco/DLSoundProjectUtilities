@@ -1,0 +1,17 @@
+"lang"
+{
+    "Tokens"
+    {
+        "hero_bebop:n" "Dynamo"
+        "hero_atlas:n" "#|f|#  Abrams   #|/f|#"
+        "hero_abrams:n" "Duplicate canonical"
+        "hero_shared:n" "Duplicate alias"
+        "hero_warden:n" "Warden"
+        "hero_unknown:n" "Unknown hero"
+        "hero_abrams_search:n" "Ignored search name"
+        "hero_warden_sort:n" "Ignored sort name"
+        "hero_unused:n" "#|empty|#"
+        "hero_:n" "No identifier"
+        "hero_abrams:desc" "Ignored description"
+    }
+}

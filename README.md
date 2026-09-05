@@ -1,102 +1,63 @@
-# DLSoundProject Utilities
+# VLViewer Historical Content
 
-## Overview
-There are two types of outputs: **Voicelines** and **Conversations**. While conversations are made up of voicelines, they are not in the Voicelines files.
+Turn an archived Deadlock VPK into versioned VLViewer content. Historical Content
+extracts audio and images, parses voicelines and conversations, maintains editable
+transcripts, previews the result locally, and publishes reviewed versions to R2.
+It also imports custom voice mods against an official base version.
 
-The tools expect all of the VO files as .mp3s within a single folder. This is super easy to do with S2Viewer.
+## Install and run
 
-## Historical content and local website preview
-
-Launch the single Historical Content utility:
-
-```powershell
-HistoricalContent\run_historical_content_gui.bat
-```
-
-Select one VPK in this application. It controls Source2Viewer, persistent audio
-extraction, voiceline and conversation parsing, transcript generation, editable
-configuration, the SQLite index, generated website content, and the isolated
-local-R2 preview. See
-[HistoricalContent/README.md](HistoricalContent/README.md).
-
-The remaining integrated production-publication work is in
-[HistoricalContent/VPK_TO_PUBLISH_PIPELINE_PLAN.md](HistoricalContent/VPK_TO_PUBLISH_PIPELINE_PLAN.md).
-
----
-
-## Legacy utilities
-
-### Running the old Batch GUI
-
-The old Batch GUI remains available for rollback and parity testing. It is not
-part of the Historical Content operator process.
+Use Python 3.12 or newer with Tk available, Node.js/npm for image conversion and
+local preview, and Source2Viewer CLI for VPK extraction. From this checkout,
+install into your Python environment:
 
 ```bash
-source .venv/bin/activate
-python AllInOne/batch_gui.py
+python -m pip install -e .
+npm ci --prefix HistoricalContent
+historical-content
 ```
 
----
+On Windows, `HistoricalContent\run_historical_content_gui.bat` remains the GUI
+launcher. The application needs this repository checkout for its Node image
+converters and preview resources.
 
-## Troubleshooting
+Select the archived build's `game/citadel/pak01_dir.vpk`, Source2Viewer, a
+transcript repository, and a persistent data directory. **Process VPK / regenerate
+content** builds the version; **Seed and start website preview** opens a local
+preview; **Publish / manage versions** opens the publication dialog.
 
-### Segmentation Fault with batch_gui.py (Python 3.14 + Tcl/Tk 9.0 Issue)
+## Commands and documentation
 
-**Problem:** When running `batch_gui.py`, you may encounter a segmentation fault:
+| Command | Use |
+| --- | --- |
+| `historical-content` | Historical Content GUI |
+| `historical-baseline` | Generate or refresh content from a prepared source |
+| `historical-custom-mod` | Import a custom voice VPK and pinned transcript |
+| `historical-publish` | Validate, plan, and publish a generated source |
+
+The original scripts in `HistoricalContent/` and
+`ContentPublisher/publisher_cli.py` forward to the installed package for existing
+launch commands. The old standalone utilities and publisher GUI have been removed.
+
+- [Historical Content guide](HistoricalContent/README.md): processing, transcripts,
+  custom mods, preview, and local version management.
+- [Data flow](HistoricalContent/END_TO_END_DATA_FLOW.md): source ownership,
+  generated output, publication, and recovery.
+- [Publishing reference](ContentPublisher/README.md): source layout, R2 settings,
+  version controls, and command-line publication.
+
+## Development
+
+Application code lives in `HistoricalContent/historical_content/`, grouped into
+`app`, `extraction`, `parsing`, `generation`, `transcripts`, and `publishing`.
+Shared settings and protected credential storage live beside those packages.
+Parsing and generation run independently of Tk. Bundled JSON defaults seed
+editable configuration in the transcript repository.
+
+```bash
+python -m unittest discover -s HistoricalContent/tests -v
 ```
-Segmentation fault (core dumped) /path/to/python /path/to/batch_gui.py
-```
 
-**Root Cause:** Python 3.14.0 has a known compatibility issue with Tcl/Tk 9.0, particularly when using threading with tkinter (see [Python Issue #141237](https://github.com/python/cpython/issues/141237)). The application crashes immediately on startup.
-
-**Solution:** Use Python 3.12 with Tcl/Tk 8.6 instead.
-
-#### Steps to Fix:
-
-1. **Install Python 3.12** (if not already installed):
-   ```bash
-   # On Fedora
-   sudo dnf install python3.12 python3.12-tkinter
-   
-   # On Ubuntu/Debian
-   sudo apt install python3.12 python3.12-tk
-   ```
-
-2. **Verify Python 3.12 uses Tcl/Tk 8.6**:
-   ```bash
-   python3.12 -c "import tkinter; print('Tcl/Tk version:', tkinter.TclVersion, tkinter.TkVersion)"
-   # Should output: Tcl/Tk version: 8.6 8.6
-   ```
-
-3. **Backup your existing virtual environment**:
-   ```bash
-   cd /path/to/DLSoundProjectUtilities
-   mv .venv .venv_backup_py314
-   ```
-
-4. **Create a new virtual environment with Python 3.12**:
-   ```bash
-   python3.12 -m venv .venv
-   ```
-
-5. **Activate the new environment and reinstall dependencies**:
-   ```bash
-   source .venv/bin/activate  # On Linux/Mac
-   # or
-   .venv\Scripts\activate  # On Windows
-   
-   pip install -r requirements.txt
-   # Or if you saved your old packages:
-   pip install annotated-types anyio certifi distro h11 httpcore httpx idna jiter openai pydantic pydantic_core pygame sniffio tqdm typing-inspection typing_extensions
-   ```
-
-6. **Test the application**:
-   ```bash
-   python AllInOne/batch_gui.py
-   ```
-
-The application should now launch without segmentation faults.
-
-**Note:** Once Python 3.14 + Tcl/Tk 9.0 compatibility issues are resolved upstream, you can upgrade back to Python 3.14. Check the [Python issue tracker](https://github.com/python/cpython/issues/141237) for updates.
-
----
+Linux GUI tests can run under `xvfb-run -a`. Windows CI exercises DPAPI credential
+storage. Output regression fixtures use synthetic inputs captured from the old
+utilities; they do not substitute for testing a real archived VPK.

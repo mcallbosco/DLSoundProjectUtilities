@@ -1,0 +1,30 @@
+{
+  "abrams_parry_01": [
+    "english",
+    "french",
+    "japanese"
+  ],
+  "dynamo_greet_01": [
+    "english",
+    "french"
+  ],
+  "warden_ready_01": [
+    "english",
+    "french"
+  ],
+  "duplicate": [
+    "english"
+  ],
+  "empty": [
+    "english"
+  ],
+  "_hero": [
+    "english"
+  ],
+  "french_only_01": [
+    "french"
+  ],
+  "japanese_only_01": [
+    "japanese"
+  ]
+}

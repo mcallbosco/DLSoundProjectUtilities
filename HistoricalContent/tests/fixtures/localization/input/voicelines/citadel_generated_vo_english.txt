@@ -1,0 +1,24 @@
+﻿"lang"
+{
+    "Language" "English"
+    "outside" "Not a subtitle"
+    "Tokens"
+    {
+        // Suffix variants collide; an exact token overrides the first suffix.
+        "ABRAMS_PARRY_01_hero_3d" "  First suffix.  "
+        "abrams_parry_01_hero" "Second suffix."
+        "abrams_parry_01" "Exact line."
+        "abrams_parry_01_ability_3d" "Third suffix."
+        "dynamo_greet_01_hero_announcer" "Hello, \"friend\"."
+        "nested"
+        {
+            "warden_ready_01.mp3" "Ready."
+            "DUPLICATE" "Original value."
+            "duplicate" "Last value."
+        }
+        "empty" ""
+        "_hero" "Suffix-only token stays intact."
+        "bad line" "A trailing comment remains ignored." // ignored
+    }
+    "after" "Not a subtitle either"
+}
