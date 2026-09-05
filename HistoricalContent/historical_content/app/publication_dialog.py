@@ -39,7 +39,6 @@ DEFAULTS = {
 
 
 def _load_config() -> dict[str, object]:
-    migrate_publisher_state()
     result = dict(DEFAULTS)
     if CONFIG_PATH.is_file():
         try:
@@ -171,6 +170,15 @@ class PublicationDialog(tk.Toplevel):
         self.version = version
         self.label = label
         self.external_progress = progress or (lambda _message: None)
+        migration_error = ""
+        try:
+            migrate_publisher_state()
+        except OSError as exc:
+            migration_error = (
+                f"Could not migrate saved publication settings or credentials: {exc}. "
+                "You can enter credentials below or use environment credentials. "
+                "Migration will be retried the next time this dialog opens."
+            )
         self.config_data = _load_config()
         self.saved_credentials: dict[str, str] = {}
         self._busy = False
@@ -181,6 +189,8 @@ class PublicationDialog(tk.Toplevel):
         else:
             self.credential_error = ""
         self._build()
+        if migration_error:
+            self._append_log("WARNING: " + migration_error)
         if self.credential_error:
             self._append_log("WARNING: " + self.credential_error)
 

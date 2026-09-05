@@ -101,7 +101,11 @@ class DesktopSmokeTests(unittest.TestCase):
                 self.assertEqual(custom.vars["base"].get(), "base")
                 custom.destroy()
 
-                with patch.object(publication_dialog, "_load_config", return_value=publication_dialog.DEFAULTS), patch.object(publication_dialog, "load_credentials", return_value={}):
+                with (
+                    patch.object(publication_dialog, "migrate_publisher_state"),
+                    patch.object(publication_dialog, "_load_config", return_value=publication_dialog.DEFAULTS),
+                    patch.object(publication_dialog, "load_credentials", return_value={}),
+                ):
                     publish = publication_dialog.PublicationDialog(
                         application, source_dir=data, game="deadlock", version="base", label="Base",
                     )
